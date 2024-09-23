@@ -20,8 +20,6 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.PutMapping;
 
 
-
-
 @RestController
 @RequestMapping("/api/customers")
 @Api(value = "Customer operations API", tags = "Customers")
@@ -66,7 +64,7 @@ public class CustomerController {
     
     //API to delete a customer
     @PatchMapping("/{id}")
-    @ApiOperation(value = "Delete a customer by ID") // Operation description
+    @ApiOperation(value = "Delete a customer by ID")
     public ResponseEntity<String> deleteCustomer(
         @ApiParam(value = "ID of the customer to delete", required = true) @PathVariable Long id) {
         customerService.deleteCustomer(id);
