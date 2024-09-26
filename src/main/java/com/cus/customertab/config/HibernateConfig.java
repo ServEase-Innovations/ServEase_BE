@@ -28,9 +28,9 @@ public class HibernateConfig {
     public DataSource dataSource() {
         HikariDataSource dataSource = new HikariDataSource();
         dataSource.setDriverClassName("org.postgresql.Driver");
-        dataSource.setJdbcUrl("jdbc:postgresql://localhost:5432/customer");  
+        dataSource.setJdbcUrl("jdbc:postgresql://servease.c1ccc8a0u3nt.ap-south-1.rds.amazonaws.com:5432/postgres");  
         dataSource.setUsername("postgres");
-        dataSource.setPassword("1012");  
+        dataSource.setPassword("servease");  
         dataSource.setMaximumPoolSize(15); 
         return dataSource;
     }
