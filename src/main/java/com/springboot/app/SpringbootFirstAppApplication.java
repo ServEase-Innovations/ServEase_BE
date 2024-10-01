@@ -1,13 +1,19 @@
-package com.cus.customertab;
+package com.springboot.app;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 
+
+
+
 @SpringBootApplication
-public class CustomertabApplication {
+public class SpringbootFirstAppApplication {
 
 	public static void main(String[] args) {
-		SpringApplication.run(CustomertabApplication.class, args);
+		SpringApplication.run(SpringbootFirstAppApplication.class, args);
+		
 	}
+	
+	
 
 }
