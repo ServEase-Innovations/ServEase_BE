@@ -82,7 +82,7 @@ public class CustomerServiceImpl implements CustomerService {
             session.merge(customer);
             return CustomerConstants.CUSTOMER_DELETED;
         } else {
-            return CustomerConstants.NOT_FOUND;
+            return CustomerConstants.CUSTOMER_NOT_FOUND;
         }
     }
 }

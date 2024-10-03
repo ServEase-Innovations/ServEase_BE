@@ -1,7 +1,10 @@
 package com.cus.customertab.entity;
 
-import com.cus.customertab.enums.*;
 import java.sql.Timestamp;
+
+import com.cus.customertab.enums.DocumentType;
+import com.cus.customertab.enums.Gender;
+
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
