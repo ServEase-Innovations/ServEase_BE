@@ -22,5 +22,8 @@ public class CustomerConstants {
 
     public static final String CUSTOMER_REQUEST_ADDED = "Customer request added successfully!";
     public static final String CUSTOMER_REQUEST_UPDATED = "Customer request updated successfully!";
-    public static final String CUSTOMER_REQUEST_NOT_FOUND = "Customer request not found";
+
+    public static final String CUSTOMER_CONCERN_ADDED = "Customer concern added successfully!";
+    public static final String CUSTOMER_CONCERN_UPDATED = "Customer concern updated successfully!";
+    public static final String CUSTOMER_CONCERN_DELETED = "Customer concern deleted successfully!";
 }

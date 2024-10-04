@@ -7,9 +7,11 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import com.cus.customertab.constants.CustomerConstants;
+import com.cus.customertab.dto.CustomerConcernDTO;
 import com.cus.customertab.dto.CustomerDTO;
 import com.cus.customertab.dto.CustomerRequestDTO;
 import com.cus.customertab.entity.CustomerRequest;
+import com.cus.customertab.service.CustomerConcernService;
 import com.cus.customertab.service.CustomerRequestService;
 import com.cus.customertab.service.CustomerService;
 
@@ -28,6 +30,9 @@ public class CustomerController {
     @Autowired
     private CustomerRequestService customerRequestService;
 
+    @Autowired
+    private CustomerConcernService customerConcernService;
+
     // API to get all customers
     @GetMapping("/get-all-customers")
     @ApiOperation(value = CustomerConstants.RETRIEVE_ALL_DESC, response = List.class)
@@ -40,6 +45,14 @@ public class CustomerController {
     @ApiOperation(value = "Retrieve all Data", response = List.class)
     public ResponseEntity<List<CustomerRequestDTO>> getAllCustomerRequests() {
         ResponseEntity<List<CustomerRequestDTO>> response = customerRequestService.getAll();
+        return response;
+    }
+
+    // API to get all customer concerns
+    @GetMapping("/get-all-customer-concerns")
+    @ApiOperation(value = "Retrieve all customer concerns", response = List.class)
+    public ResponseEntity<List<CustomerConcernDTO>> getAllConcerns() {
+        ResponseEntity<List<CustomerConcernDTO>> response = customerConcernService.getAllConcerns();
         return response;
     }
 
@@ -57,6 +70,14 @@ public class CustomerController {
     @ApiOperation(value = "Get data by ID", response = CustomerRequest.class)
     public ResponseEntity<CustomerRequestDTO> getCustomerRequestById(@PathVariable Long requestId) {
         ResponseEntity<CustomerRequestDTO> response = customerRequestService.getByRequestId(requestId);
+        return response;
+    }
+
+    // API to get a concern by ID
+    @GetMapping("/get-customer-concern-by-id/{id}")
+    @ApiOperation(value = "Retrieve a customer concern by ID", response = CustomerConcernDTO.class)
+    public ResponseEntity<CustomerConcernDTO> getConcernById(@PathVariable Long id) {
+        ResponseEntity<CustomerConcernDTO> response = customerConcernService.getConcernById(id);
         return response;
     }
 
@@ -89,10 +110,18 @@ public class CustomerController {
     @PostMapping("/add-customer-request")
     @ApiOperation(value = "Add a new customer request")
     public ResponseEntity<String> insertCustomerRequest(@RequestBody CustomerRequestDTO customerRequestDTO) {
-    System.out.println("Received DTO: " + customerRequestDTO);
-    ResponseEntity<String> response = customerRequestService.insert(customerRequestDTO);
-    return new ResponseEntity<>(response.getBody(), HttpStatus.CREATED);
-}
+        System.out.println("Received DTO: " + customerRequestDTO);
+        ResponseEntity<String> response = customerRequestService.insert(customerRequestDTO);
+        return new ResponseEntity<>(response.getBody(), HttpStatus.CREATED);
+    }
+    
+    // API to add a new customer concern
+    @PostMapping("/add-customer-concern")
+    @ApiOperation(value = "Add a new customer concern", response = String.class)
+    public ResponseEntity<String> addNewConcern(@RequestBody CustomerConcernDTO customerConcernDTO) {
+        ResponseEntity<String> response = customerConcernService.addNewConcern(customerConcernDTO);
+        return response;
+    }
 
     // API to update a customer
     @PutMapping("/update-customer/{id}")
@@ -108,10 +137,21 @@ public class CustomerController {
     //API to update customer request
     @PutMapping("/update-customer-request/{requestId}")
     @ApiOperation(value = "Update an existing customer request")
-    public ResponseEntity<String> updateCustomerRequest(@PathVariable Long requestId, @RequestBody CustomerRequestDTO customerRequestDTO) {
+    public ResponseEntity<String> updateCustomerRequest(@PathVariable Long requestId,
+            @RequestBody CustomerRequestDTO customerRequestDTO) {
         customerRequestDTO.setRequestId(requestId);
         ResponseEntity<String> response = customerRequestService.update(customerRequestDTO);
-        return new ResponseEntity<>(response.getBody(), HttpStatus.OK); 
+        return new ResponseEntity<>(response.getBody(), HttpStatus.OK);
+    }
+    
+    // API to update an existing customer concern
+    @PutMapping("/modify-customer-concern/{id}")
+    @ApiOperation(value = "Update an existing customer concern")
+    public ResponseEntity<String> modifyConcern(@PathVariable Long id,
+            @RequestBody CustomerConcernDTO customerConcernDTO) {
+        customerConcernDTO.setId(id);
+        ResponseEntity<String> response = customerConcernService.modifyConcern(customerConcernDTO);
+        return new ResponseEntity<>(response.getBody(), HttpStatus.OK);
     }
 
     // API to delete a customer (soft delete)
@@ -121,5 +161,13 @@ public class CustomerController {
             @ApiParam(value = "ID of the customer to delete", required = true) @PathVariable Long id) {
         customerService.deleteCustomer(id);
         return ResponseEntity.ok(CustomerConstants.CUSTOMER_DELETED);
+    }
+
+    // API to delete a customer concern by ID
+    @DeleteMapping("/delete-customer-concern/{id}")
+    @ApiOperation(value = "Delete a customer concern by ID", response = String.class)
+    public ResponseEntity<String> deleteConcern(@PathVariable Long id) {
+        ResponseEntity<String> response = customerConcernService.deleteConcern(id);
+        return response;
     }
 }

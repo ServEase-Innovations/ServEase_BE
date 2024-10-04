@@ -2,6 +2,7 @@ package com.cus.customertab.dto;
 
 import com.cus.customertab.enums.Gender;
 import com.cus.customertab.enums.Habit;
+import com.cus.customertab.enums.LanguageKnown;
 import com.cus.customertab.enums.ServiceType;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -18,6 +19,7 @@ public class CustomerRequestDTO {
     private ServiceType serviceType;
     private String timeSlotlist;
     private Gender gender;
+    private LanguageKnown languageKnown;
     private String ageRange;
     private Habit cookingHabit;
     private Habit dietryHabit;

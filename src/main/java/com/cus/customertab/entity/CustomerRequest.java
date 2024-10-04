@@ -5,6 +5,7 @@ import java.time.LocalDateTime;
 
 import com.cus.customertab.enums.Gender;
 import com.cus.customertab.enums.Habit;
+import com.cus.customertab.enums.LanguageKnown;
 import com.cus.customertab.enums.ServiceType;
 
 import jakarta.persistence.Column;
@@ -65,6 +66,9 @@ public class CustomerRequest {
 
     @Column
     private Timestamp modifiedDate;
+
+    @Enumerated(EnumType.STRING)
+    private LanguageKnown languageKnown;
 
     @Column(nullable = false)
     private String isResolved = "NO";

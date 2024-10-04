@@ -4,6 +4,8 @@ import java.sql.Timestamp;
 
 import com.cus.customertab.enums.DocumentType;
 import com.cus.customertab.enums.Gender;
+import com.cus.customertab.enums.LanguageKnown;
+
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -21,6 +23,7 @@ public class CustomerDTO {
     private Long alternateNo;
     private String emailId;
     private Gender gender;
+    private LanguageKnown languageKnown;
     private String buildingName;
     private String locality;
     private String street;

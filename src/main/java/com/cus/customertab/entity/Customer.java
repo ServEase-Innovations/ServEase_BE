@@ -4,6 +4,7 @@ import java.sql.Timestamp;
 
 import com.cus.customertab.enums.DocumentType;
 import com.cus.customertab.enums.Gender;
+import com.cus.customertab.enums.LanguageKnown;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -67,6 +68,9 @@ public class Customer {
     private String currentLocation;
 
     private Timestamp enrolledDate;
+
+    @Enumerated(EnumType.STRING)
+    private LanguageKnown languageKnown;
 
     @Lob
     private byte[] profilePic;

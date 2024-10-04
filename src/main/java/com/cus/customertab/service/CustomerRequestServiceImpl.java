@@ -85,22 +85,21 @@ public class CustomerRequestServiceImpl implements CustomerRequestService {
 
     // To update
     @Override
-@Transactional
-public ResponseEntity<String> update(CustomerRequestDTO customerRequestDTO) {
-    Session session = sessionFactory.getCurrentSession();
-    CustomerRequest existingRequest = session.get(CustomerRequest.class, customerRequestDTO.getRequestId());
+    @Transactional
+    public ResponseEntity<String> update(CustomerRequestDTO customerRequestDTO) {
+        Session session = sessionFactory.getCurrentSession();
+        CustomerRequest existingRequest = session.get(CustomerRequest.class, customerRequestDTO.getRequestId());
 
-    if (existingRequest == null) {
-        return new ResponseEntity<>(CustomerConstants.CUSTOMER_REQUEST_UPDATED , HttpStatus.OK);
+        if (existingRequest == null) {
+            return new ResponseEntity<>(CustomerConstants.CUSTOMER_REQUEST_UPDATED , HttpStatus.OK);
+        }
+        // Use the mapper to map updated fields
+        CustomerRequest updatedRequest = customerRequestMapper.dtoToCustomerRequest(customerRequestDTO);
+        // Set the ID of the existing request to the new request to ensure it updates the correct entity
+        updatedRequest.setRequestId(existingRequest.getRequestId());
+        session.merge(updatedRequest);
+
+        return new ResponseEntity<>(CustomerConstants.CUSTOMER_REQUEST_UPDATED, HttpStatus.OK);
     }
-
-    // Use the mapper to map updated fields
-    CustomerRequest updatedRequest = customerRequestMapper.dtoToCustomerRequest(customerRequestDTO);
-    // Set the ID of the existing request to the new request to ensure it updates the correct entity
-    updatedRequest.setRequestId(existingRequest.getRequestId());
-    session.merge(updatedRequest);
-
-    return new ResponseEntity<>(CustomerConstants.CUSTOMER_REQUEST_UPDATED, HttpStatus.OK);
-}
 
 }
