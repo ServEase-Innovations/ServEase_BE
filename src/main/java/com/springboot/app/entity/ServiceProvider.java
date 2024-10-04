@@ -1,4 +1,5 @@
 package com.springboot.app.entity;
+
 import java.sql.Timestamp;
 
 import com.springboot.app.enums.DocumentType;
@@ -20,83 +21,82 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
+@Entity
+@Table(name = "serviceprovider")
+@Getter
+@Setter
+@NoArgsConstructor
+@AllArgsConstructor
+public class ServiceProvider {
 
+	@Id
+	@GeneratedValue(strategy = GenerationType.AUTO)
+	private Long serviceproviderId;
 
-	@Entity
-	@Table(name = "serviceprovider")
-	@Getter
-	@Setter
-	@NoArgsConstructor
-	@AllArgsConstructor
-	public class ServiceProvider {
+	@Column(nullable = false)
+	private String firstName;
 
-	    @Id
-	    @GeneratedValue(strategy = GenerationType.AUTO)
-	    private Long serviceproviderId;
+	private String middleName;
 
-	    @Column(nullable = false)
-	    private String firstName;
+	@Column(nullable = false)
+	private String lastName;
 
-	    private String middleName;
+	@Column(nullable = false, length = 10)
+	private Long mobileNo;
 
-	    @Column(nullable = false)
-	    private String lastName;
+	@Column(length = 10)
+	private Long alternateNo;
 
-	    @Column(nullable = false, length = 10)
-	    private Long mobileNo;
+	@Column(nullable = false)
+	private String emailId;
 
-	    @Column(length = 10)
-	    private Long alternateNo;
+	@Enumerated(EnumType.STRING)
+	private Gender gender;
 
-	    @Column(nullable = false)
-	    private String emailId;
+	@Column(nullable = false)
+	private String buildingName;
 
-	    @Enumerated(EnumType.STRING)
-	    private Gender gender;
+	@Column(nullable = false)
+	private String locality;
 
-	    @Column(nullable = false)
-	    private String buildingName;
+	@Column(nullable = false)
+	private String street;
 
-	    @Column(nullable = false)
-	    private String locality;
+	@Column(nullable = false, length = 6)
+	private Integer pincode;
 
-	    @Column(nullable = false)
-	    private String street;
+	@Column(nullable = false)
 
-	    @Column(nullable = false, length = 6)
-	    private Integer pincode;
+	private String currentLocation;
+	private String nearbyLocation;
 
-	    @Column(nullable = false)
+	private Timestamp enrolledDate;
 
-	    private String currentLocation;
-	    private String nearbyLocation;
-	   
-	    private Timestamp enrolledDate;
+	@Lob
+	private byte[] profilePic;
 
-	    @Lob
-	    private byte[] profilePic;
+	@Enumerated(EnumType.STRING)
+	@Column(nullable = false)
+	private DocumentType KYC;
 
-	    @Enumerated(EnumType.STRING)
-	    private DocumentType KYC;
+	private String idNo;
 
-	    private String idNo;
+	@Column(nullable = false)
+	private boolean isActive;
 
-	    @Column(nullable = false)
-	    private boolean isActive;
-	    
-	    private HousekeepingRole housekeepingRole;
+	@Enumerated(EnumType.STRING)
+	private HousekeepingRole housekeepingRole;
 
-		//to automatically set data and isActive field
-		@PrePersist
-		public void prePersist(){
-			this.enrolledDate = new Timestamp(System.currentTimeMillis());
-			this.isActive = true;
-		}
+	// to automatically set data and isActive field
+	@PrePersist
+	public void prePersist() {
+		this.enrolledDate = new Timestamp(System.currentTimeMillis());
+		this.isActive = true;
+	}
 
-		//to deactivate
-		public void deactivate(){
-			this.isActive = false;
-		}
-		
+	// to deactivate
+	public void deactivate() {
+		this.isActive = false;
+	}
+
 }
-

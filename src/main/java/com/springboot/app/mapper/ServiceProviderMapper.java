@@ -1,4 +1,5 @@
 package com.springboot.app.mapper;
+
 import org.mapstruct.Mapper;
 import org.mapstruct.factory.Mappers;
 
@@ -10,10 +11,6 @@ public interface ServiceProviderMapper {
     ServiceProviderMapper INSTANCE = Mappers.getMapper(ServiceProviderMapper.class);
 
     ServiceProviderDTO serviceProviderToDTO(ServiceProvider serviceProvider);
+
     ServiceProvider dtoToServiceProvider(ServiceProviderDTO serviceProviderDTO);
 }
-
-
-
-
-

@@ -1,4 +1,5 @@
 package com.springboot.app.dto;
+
 import java.sql.Timestamp;
 
 import com.springboot.app.enums.DocumentType;
@@ -9,13 +10,14 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+
 @Getter
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
 
 public class ServiceProviderDTO {
-     
+
     private Long serviceproviderId;
 
     private String firstName;
@@ -35,7 +37,6 @@ public class ServiceProviderDTO {
     private String buildingName;
 
     private String locality;
-   
 
     private String street;
 
@@ -44,17 +45,17 @@ public class ServiceProviderDTO {
     private String currentLocation;
 
     private String nearbyLocation;
+
     private Timestamp enrolledDate;
+
     private byte[] profilePic;
+
     private boolean isActive;
 
     private HousekeepingRole housekeepingRole;
-    
+
     private DocumentType KYC;
 
     private String idNo;
 
-		
 }
-
-
