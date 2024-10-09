@@ -1,71 +1,36 @@
-name: CI/CD for Service Provider
+deploy:
+  needs: build
+  runs-on: ubuntu-latest
 
-on:
-  push:
-    branches:
-      - main
+  steps:
+  - name: Download artifacts
+    uses: actions/download-artifact@v3
+    with:
+      name: packaged-application
+      path: target/
 
-jobs:
-  build:
-    runs-on: ubuntu-latest
+  - name: Setup key
+    id: setup-key
+    env:
+      DEPLOY_KEY: ${{ secrets.DEPLOY_KEY }}
+    run: |
+      echo "$DEPLOY_KEY" > $HOME/key.pem
+      chmod 400 $HOME/key.pem
 
-    steps:
-    - name: Checkout code
-      uses: actions/checkout@v2
-
-    - name: Set up JDK
-      uses: actions/setup-java@v2
-      with:
-        distribution: 'adopt'
-        java-version: '17'
-
-    - name: Build with Maven
-      run: mvn clean package
-
-    - name: Archive production artifacts
-      uses: actions/upload-artifact@v3  # Use v3 of upload-artifact
-      with:
-        name: packaged-application
-        path: target/*.jar
-
-  deploy:
-    needs: build
-    runs-on: ubuntu-latest
-
-    steps:
-    - name: Download artifacts
-      uses: actions/download-artifact@v3  # Use v3 of download-artifact
-      with:
-        name: packaged-application
-        path: target/
-
-    - name: Setup key
-      id: setup-key
-      env:
-        DEPLOY_KEY: ${{ secrets.DEPLOY_KEY }}
-      run: |
-        echo "$DEPLOY_KEY" > $HOME/key.pem
-        chmod 400 $HOME/key.pem
-        ls -l $HOME/key.pem  # Check permissions
-        cat $HOME/key.pem    # Verify the content
-
-    - name: Copy JAR to EC2
-      uses: appleboy/scp-action@master
-      with:
-        host: ${{ secrets.DEPLOY_HOST }}
-        username: ubuntu
-        key: ${{ secrets.DEPLOY_KEY }}
-        source: "target/*.jar"
-        target: "/home/ubuntu/deployment/"
-
-    - name: Connect SSH and Restart Services
+  - name: Copy JAR to EC2
     uses: appleboy/scp-action@master
-      with:
-        host: ${{ secrets.DEPLOY_HOST }}
-        username: ubuntu
-        key: ${{ secrets.DEPLOY_KEY }}
-        source: "target/*.jar"
-        target: "/home/ubuntu/deployment/"
-      run: |
-        cd /home/ubantu/deployment/target/
-        java -jar springboot-first-app-0.0.1-SNAPSHOT.jar
+    with:
+      host: ${{ secrets.DEPLOY_HOST }}
+      username: ubuntu
+      key: ${{ secrets.DEPLOY_KEY }}
+      source: "target/*.jar"
+      target: "/home/ubuntu/deployment/"
+
+  - name: List files in target directory
+    run: |
+      ls -l /home/ubuntu/deployment/target/
+
+  - name: Connect SSH and Restart Services
+    run: |
+      cd /home/ubuntu/deployment/target/
+      java -jar springboot-first-app-0.0.1-SNAPSHOT.jar
