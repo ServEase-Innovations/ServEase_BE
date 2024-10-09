@@ -44,8 +44,10 @@ jobs:
       env:
         DEPLOY_KEY: ${{ secrets.DEPLOY_KEY }}
       run: |
-        echo "$DEPLOY_KEY" >> $HOME/key.pem
+        echo "$DEPLOY_KEY" > $HOME/key.pem
         chmod 400 $HOME/key.pem
+        ls -l $HOME/key.pem  # Check permissions
+        cat $HOME/key.pem    # Verify the content
 
     - name: Copy JAR to EC2
       uses: appleboy/scp-action@master
