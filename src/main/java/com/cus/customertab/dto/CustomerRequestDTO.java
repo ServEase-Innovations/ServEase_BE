@@ -32,6 +32,5 @@ public class CustomerRequestDTO {
     private Long supervisorId;
     private String isPotential = "NO";
     private Long modifiedBy;
-    //private List<CustomerRequestCommentDTO> comments;
     private List<CustomerRequestComment> comments;
 }
