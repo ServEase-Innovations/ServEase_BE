@@ -1,5 +1,7 @@
 package com.springboot.app.controller;
 
+import java.util.Set;
+
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -18,9 +20,11 @@ import com.springboot.app.constant.ServiceProviderConstants;
 
 import com.springboot.app.dto.ServiceProviderDTO;
 import com.springboot.app.dto.ServiceProviderFeedbackDTO;
+import com.springboot.app.dto.ServiceProviderRequestCommentDTO;
 import com.springboot.app.dto.ServiceProviderRequestDTO;
 import com.springboot.app.service.ServiceProviderRequestService;
 import com.springboot.app.service.ServiceProviderFeedbackService;
+import com.springboot.app.service.ServiceProviderRequestCommentService;
 import com.springboot.app.service.ServiceProviderService;
 
 import io.swagger.annotations.Api;
@@ -41,6 +45,10 @@ public class ServiceProviderController {
     @Autowired
     private ServiceProviderFeedbackService serviceProviderFeedbackService;
 
+    @Autowired
+    private ServiceProviderRequestCommentService serviceProviderRequestCommentService;
+
+    // --------API's FOR SERVICE PROVIDER REQUEST ENTITY--------------------
     // API to get all serviceproviders
     @GetMapping("/serviceproviders/all")
     @ApiOperation(value = ServiceProviderConstants.RETRIEVE_ALL_DESC, response = List.class)
@@ -88,6 +96,7 @@ public class ServiceProviderController {
         return ResponseEntity.ok(ServiceProviderConstants.SERVICE_PROVIDER_DELETED);
     }
 
+    // ----------API's FOR SERVICE PROVIDER REQUEST ENTITY-----------------
     // API to get all service provider requests
     @GetMapping("/requests/all")
     @ApiOperation(value = ServiceProviderConstants.DESC_RETRIEVE_ALL_SERVICE_PROVIDER_REQUESTS, response = List.class)
@@ -123,8 +132,7 @@ public class ServiceProviderController {
             @ApiParam(value = "Updated service provider request DTO", required = true) @RequestBody ServiceProviderRequestDTO serviceProviderRequestDTO) {
 
         serviceProviderRequestDTO.setRequestId(id); // Set the ID in the DTO
-        serviceProviderRequestService.updateServiceProviderRequestDTO(serviceProviderRequestDTO); // Update using the
-                                                                                                  // DTO
+        serviceProviderRequestService.updateServiceProviderRequestDTO(serviceProviderRequestDTO);
         return ResponseEntity.ok(ServiceProviderConstants.SERVICE_PROVIDER_REQUEST_UPDATED);
     }
 
@@ -138,6 +146,7 @@ public class ServiceProviderController {
         return ResponseEntity.ok(ServiceProviderConstants.SERVICE_PROVIDER_REQUEST_DELETED);
     }
 
+    // ------API's FOR SERVICE PROVIDER FEEDBACK ENTITY--------------------
     // API to get all service provider feedbacks
     @GetMapping("/feedbacks/all")
     @ApiOperation(value = ServiceProviderConstants.DESC_RETRIEVE_ALL_FEEDBACKS, response = List.class)
@@ -181,6 +190,55 @@ public class ServiceProviderController {
             @ApiParam(value = "ID of the feedback to deactivate", required = true) @PathVariable Long id) {
         serviceProviderFeedbackService.deleteServiceProviderFeedbackDTO(id);
         return ResponseEntity.ok(ServiceProviderConstants.FEEDBACK_DELETED);
+    }
+
+    // -------API's FOR SERVICE PROVIDER REQUEST COMMENT ENTITY-------------
+    // API to get all service provider request comments
+    @GetMapping("/comments/all")
+    @ApiOperation(value = ServiceProviderConstants.RETRIEVE_ALL_COMMENTS_DESC, response = Set.class)
+    public List<ServiceProviderRequestCommentDTO> getAllComments() {
+        return serviceProviderRequestCommentService.getAllServiceProviderRequestComments();
+    }
+
+    // API to get service provider request comment by ID
+    @GetMapping("/get/comment/{id}")
+    @ApiOperation(value = ServiceProviderConstants.GET_COMMENT_BY_ID_DESC, response = ServiceProviderRequestCommentDTO.class)
+    public ResponseEntity<ServiceProviderRequestCommentDTO> getCommentById(
+            @ApiParam(value = "ID of the comment", required = true) @PathVariable Long id) {
+        ServiceProviderRequestCommentDTO commentDTO = serviceProviderRequestCommentService
+                .getServiceProviderRequestCommentById(id);
+        return ResponseEntity.ok(commentDTO);
+    }
+
+    // API to add a service provider request comment
+    @PostMapping("/comment/add")
+    @ApiOperation(value = ServiceProviderConstants.ADD_NEW_COMMENT_DESC)
+    public ResponseEntity<String> addComment(
+            @ApiParam(value = "Service provider request comment DTO", required = true) @RequestBody ServiceProviderRequestCommentDTO commentDTO) {
+        serviceProviderRequestCommentService.saveServiceProviderRequestComment(commentDTO);
+        return ResponseEntity.ok(ServiceProviderConstants.COMMENT_ADDED_SUCCESS);
+    }
+
+    // API to update a service provider request comment
+    @PutMapping("/update/comment/{id}")
+    @ApiOperation(value = ServiceProviderConstants.UPDATE_COMMENT_DESC)
+    public ResponseEntity<String> updateComment(
+            @ApiParam(value = "ID of the comment to update", required = true) @PathVariable Long id,
+            @ApiParam(value = "Updated service provider request comment DTO", required = true) @RequestBody ServiceProviderRequestCommentDTO commentDTO) {
+
+        commentDTO.setId(id); // Set the ID in the DTO
+        serviceProviderRequestCommentService.updateServiceProviderRequestComment(id, commentDTO);
+        return ResponseEntity.ok(ServiceProviderConstants.COMMENT_UPDATED_SUCCESS);
+    }
+
+    // API to delete a service provider request comment
+    @DeleteMapping("/delete/comment/{id}")
+    @ApiOperation(value = ServiceProviderConstants.DELETE_COMMENT_DESC)
+    public ResponseEntity<String> deleteComment(
+            @ApiParam(value = "ID of the comment to delete", required = true) @PathVariable Long id) {
+
+        serviceProviderRequestCommentService.deleteServiceProviderRequestComment(id);
+        return ResponseEntity.ok(ServiceProviderConstants.COMMENT_DELETED_SUCCESS);
     }
 
 }
