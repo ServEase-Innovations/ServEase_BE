@@ -69,7 +69,7 @@ jobs:
 
     - name: Copy Nginx config to server
       run: |
-        if [ -f "./nginx/nginx-config" ]; then
+        if [ -f "./nginx-config" ]; then
           echo "Copying nginx-config to the server..."
           scp -i $HOME/key.pem ./nginx/nginx-config ubuntu@${{ secrets.DEPLOY_HOST }}:/home/ubuntu/deployment/nginx-config
         else
