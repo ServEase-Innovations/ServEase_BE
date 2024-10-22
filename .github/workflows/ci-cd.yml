@@ -39,7 +39,7 @@ jobs:
         name: packaged-application
         path: target/
 
-    - name: Setup key
+    - name: Setup SSH Key
       id: setup-key
       env:
         DEPLOY_KEY: ${{ secrets.DEPLOY_KEY }}
@@ -57,9 +57,19 @@ jobs:
         source: "target/*.jar"
         target: "/home/ubuntu/deployment/target/"
 
-    - name: Connect SSH and Restart Services
+    - name: Copy Nginx Config to EC2
       run: |
-        ssh -vvv -o StrictHostKeyChecking=no -i $HOME/key.pem ubuntu@${{ secrets.DEPLOY_HOST }} << 'EOF'
+        # Ensure the nginx config file exists before copying it
+        if [ -f "./nginx-config" ]; then
+          scp -i $HOME/key.pem ./nginx-config ubuntu@${{ secrets.DEPLOY_HOST }}:/home/ubuntu/deployment/nginx-config
+        else
+          echo "nginx-config file not found!"
+          exit 1
+        fi
+
+    - name: Install Nginx and Java on EC2
+      run: |
+        ssh -i $HOME/key.pem ubuntu@${{ secrets.DEPLOY_HOST }} << 'EOF'
           # Ensure Java is installed
           if ! command -v java &> /dev/null
           then
@@ -67,23 +77,30 @@ jobs:
             sudo apt update
             sudo apt install -y openjdk-17-jre-headless
           fi
+          
+          # Install Nginx if not installed
+          if ! command -v nginx &> /dev/null
+          then
+            echo "Nginx not found, installing..."
+            sudo apt install -y nginx
+          fi
 
-          # Change to the directory where the JAR file is located
+          # Ensure Nginx is running
+          sudo systemctl start nginx
+          sudo systemctl enable nginx
+
+          # Copy Nginx config file and restart Nginx
+          sudo cp /home/ubuntu/deployment/nginx-config /etc/nginx/sites-available/your-app.conf
+          sudo ln -s /etc/nginx/sites-available/your-app.conf /etc/nginx/sites-enabled/
+          sudo nginx -t  # Test Nginx configuration
+          sudo systemctl reload nginx  # Reload Nginx
+
+          # Change to the directory where the JAR file is located and run the application
           cd /home/ubuntu/deployment/target/
 
-          # Run the application using nohup
+          # Run the Spring Boot application with nohup (to run in the background)
           nohup java -jar springboot-first-app-0.0.1-SNAPSHOT.jar > /home/ubuntu/deployment/application.log 2>&1 &
 
-          # Update the Nginx configuration
-          # Ensure the correct server block is updated (if needed)
-          sudo cp /home/ubuntu/deployment/nginx-config /etc/nginx/sites-available/default  # Adjust the path to your Nginx config
-          
-          # Test Nginx configuration for syntax errors
-          sudo nginx -t
-
-          # Reload Nginx to apply changes
-          sudo systemctl reload nginx
-
-          # Restart the necessary services
-          sudo systemctl restart helloworld
+          # Optional: Restart any other necessary services (e.g., your Java service, etc.)
+          sudo systemctl restart helloworld  # If needed for other services
         EOF
