@@ -1,6 +1,10 @@
 package com.springboot.app.dto;
+
+import java.util.Set;
+
 import java.sql.Timestamp;
 
+import com.springboot.app.entity.ServiceProviderRequestComment;
 import com.springboot.app.enums.Gender;
 import com.springboot.app.enums.HousekeepingRole;
 
@@ -17,9 +21,6 @@ public class ServiceProviderRequestDTO {
     private Timestamp createdOn;
     private Timestamp modifiedOn;
     private Long supervisorId;
-    private String comment;
-    private Timestamp commentedOn;
-    private Long commentBy;
     private String isResolved;
     private Long resolvedBy;
     private Timestamp resolvedOn;
@@ -28,9 +29,5 @@ public class ServiceProviderRequestDTO {
     private Gender gender;
     private HousekeepingRole housekeepingRole;
     private String isPotential;
+    private Set<ServiceProviderRequestComment> comments;
 }
-
-
-
-
-
