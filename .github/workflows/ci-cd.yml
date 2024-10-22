@@ -53,14 +53,8 @@ jobs:
         mkdir -p ~/.ssh
         ssh-keyscan -H ${{ secrets.DEPLOY_HOST }} >> ~/.ssh/known_hosts
 
-    - name: Copy JAR to EC2
-      uses: appleboy/scp-action@master
-      with:
-        host: ${{ secrets.DEPLOY_HOST }}
-        username: ubuntu
-        key: ${{ secrets.DEPLOY_KEY }}
-        source: "target/*.jar"
-        target: "/home/ubuntu/deployment/target/"
+    - name: List files in nginx directory
+      run: ls -R ./nginx
 
     - name: Copy Nginx config file to EC2
       run: |
@@ -70,6 +64,15 @@ jobs:
           echo "nginx-config file not found!"
           exit 1
         fi
+
+    - name: Copy JAR to EC2
+      uses: appleboy/scp-action@master
+      with:
+        host: ${{ secrets.DEPLOY_HOST }}
+        username: ubuntu
+        key: ${{ secrets.DEPLOY_KEY }}
+        source: "target/*.jar"
+        target: "/home/ubuntu/deployment/target/"
 
     - name: Connect SSH and Restart Services
       run: |
