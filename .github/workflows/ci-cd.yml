@@ -1,68 +1,98 @@
-deploy:
-  needs: build
-  runs-on: ubuntu-latest
+name: CI/CD for Service Provider
 
-  steps:
-  - name: Download artifacts
-    uses: actions/download-artifact@v3
-    with:
-      name: packaged-application
-      path: target/
+on:
+  push:
+    branches:
+      - main
 
-  - name: List files in the repository (debugging step)
-    run: |
-      echo "Listing directory contents to check if nginx-config is present:"
-      ls -R
-    shell: /usr/bin/bash -e {0}
+jobs:
+  build:
+    runs-on: ubuntu-latest
 
-  - name: Setup key
-    id: setup-key
-    env:
-      DEPLOY_KEY: ${{ secrets.DEPLOY_KEY }}
-    run: |
-      echo "$DEPLOY_KEY" > $HOME/key.pem
-      chmod 400 $HOME/key.pem
-      ls -l $HOME/key.pem  # Debug step to verify key permissions
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v2
 
-  - name: Check and copy Nginx config to server
-    run: |
-      # Check if nginx-config exists in the repository
-      if [ -f "./nginx/nginx-config" ]; then
-        echo "Copying nginx-config to the server..."
-        scp -i $HOME/key.pem ./nginx/nginx-config ubuntu@${{ secrets.DEPLOY_HOST }}:/home/ubuntu/deployment/nginx-config
-      else
-        echo "nginx-config file not found!"
-        exit 1
-      fi
-    shell: /usr/bin/bash -e {0}
+    - name: Set up JDK
+      uses: actions/setup-java@v2
+      with:
+        distribution: 'adopt'
+        java-version: '17'
 
-  - name: Connect SSH and Restart Services
-    run: |
-      ssh -vvv -o StrictHostKeyChecking=no -i $HOME/key.pem ubuntu@${{ secrets.DEPLOY_HOST }} << 'EOF'
-        # Ensure Java is installed
-        if ! command -v java &> /dev/null
-        then
-          echo "Java not found, installing..."
-          sudo apt update
-          sudo apt install -y openjdk-17-jre-headless
+    - name: Build with Maven
+      run: mvn clean package
+
+    - name: Archive production artifacts
+      uses: actions/upload-artifact@v3
+      with:
+        name: packaged-application
+        path: target/*.jar
+
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Download artifacts
+      uses: actions/download-artifact@v3
+      with:
+        name: packaged-application
+        path: target/
+
+    - name: List files in the repository (debugging step)
+      run: |
+        echo "Listing directory contents to check if nginx-config is present:"
+        ls -R
+      shell: /usr/bin/bash -e {0}
+
+    - name: Setup key
+      id: setup-key
+      env:
+        DEPLOY_KEY: ${{ secrets.DEPLOY_KEY }}
+      run: |
+        echo "$DEPLOY_KEY" > $HOME/key.pem
+        chmod 400 $HOME/key.pem
+        ls -l $HOME/key.pem  # Debug step to verify key permissions
+
+    - name: Check and copy Nginx config to server
+      run: |
+        # Check if nginx-config exists in the repository
+        if [ -f "./nginx/nginx-config" ]; then
+          echo "Copying nginx-config to the server..."
+          scp -i $HOME/key.pem ./nginx/nginx-config ubuntu@${{ secrets.DEPLOY_HOST }}:/home/ubuntu/deployment/nginx-config
+        else
+          echo "nginx-config file not found!"
+          exit 1
         fi
+      shell: /usr/bin/bash -e {0}
 
-        # Change to the directory where the JAR file is located
-        cd /home/ubuntu/deployment/target/
+    - name: Connect SSH and Restart Services
+      run: |
+        ssh -vvv -o StrictHostKeyChecking=no -i $HOME/key.pem ubuntu@${{ secrets.DEPLOY_HOST }} << 'EOF'
+          # Ensure Java is installed
+          if ! command -v java &> /dev/null
+          then
+            echo "Java not found, installing..."
+            sudo apt update
+            sudo apt install -y openjdk-17-jre-headless
+          fi
 
-        # Run the application using nohup
-        nohup java -jar springboot-first-app-0.0.1-SNAPSHOT.jar > /home/ubuntu/deployment/application.log 2>&1 &
+          # Change to the directory where the JAR file is located
+          cd /home/ubuntu/deployment/target/
 
-        # Update the Nginx configuration
-        # Ensure the correct server block is updated (if needed)
-        sudo cp /home/ubuntu/deployment/nginx-config /etc/nginx/sites-available/default
+          # Run the application using nohup
+          nohup java -jar springboot-first-app-0.0.1-SNAPSHOT.jar > /home/ubuntu/deployment/application.log 2>&1 &
 
-        # Test Nginx configuration for syntax errors
-        sudo nginx -t
+          # Update the Nginx configuration
+          # Ensure the correct server block is updated (if needed)
+          sudo cp /home/ubuntu/deployment/nginx-config /etc/nginx/sites-available/default
 
-        # Reload Nginx to apply changes
-        sudo systemctl reload nginx
+          # Test Nginx configuration for syntax errors
+          sudo nginx -t
 
-        # Restart the necessary services
-        sudo systemctl restart helloworld
-      EOF
+          # Reload Nginx to apply changes
+          sudo systemctl reload nginx
+
+          # Restart the necessary services
+          sudo systemctl restart helloworld
+        EOF
