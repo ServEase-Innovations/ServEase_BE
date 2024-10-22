@@ -1,4 +1,3 @@
-# GitHub Action Workflow File (ci-cd.yml)
 name: CI/CD for Service Provider
 
 on:
@@ -58,9 +57,18 @@ jobs:
         source: "target/*.jar"
         target: "/home/ubuntu/deployment/target/"
 
+    - name: List files in the current directory
+      run: |
+        ls -alh
+      shell: /usr/bin/bash -e {0}
+
+    - name: List contents of the repository
+      run: |
+        ls -R
+      shell: /usr/bin/bash -e {0}
+
     - name: Copy Nginx config to server
       run: |
-        # Check if nginx-config exists in the nginx folder
         if [ -f "./nginx/nginx-config" ]; then
           echo "Copying nginx-config to the server..."
           scp -i $HOME/key.pem ./nginx/nginx-config ubuntu@${{ secrets.DEPLOY_HOST }}:/home/ubuntu/deployment/nginx-config
@@ -73,23 +81,8 @@ jobs:
     - name: Restart Nginx and Spring Boot app
       run: |
         ssh -o StrictHostKeyChecking=no -i $HOME/key.pem ubuntu@${{ secrets.DEPLOY_HOST }} << 'EOF'
-          # Ensure Java is installed
-          if ! command -v java &> /dev/null
-          then
-            echo "Java not found, installing..."
-            sudo apt update
-            sudo apt install -y openjdk-17-jre-headless
-          fi
-
-          # Copy the nginx-config to /etc/nginx/sites-available/default
           sudo cp /home/ubuntu/deployment/nginx-config /etc/nginx/sites-available/default
-
-          # Test the Nginx configuration
           sudo nginx -t
-
-          # Reload Nginx to apply changes
           sudo systemctl reload nginx
-
-          # Restart the Spring Boot application
           sudo systemctl restart helloworld
         EOF
