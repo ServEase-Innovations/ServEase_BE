@@ -39,13 +39,7 @@ jobs:
         name: packaged-application
         path: target/
 
-    - name: Debug - List all files (check if nginx-config exists)
-      run: |
-        echo "Listing files to debug if nginx-config exists:"
-        ls -R
-      shell: /usr/bin/bash -e {0}
-
-    - name: Setup key
+    - name: Setup SSH key
       id: setup-key
       env:
         DEPLOY_KEY: ${{ secrets.DEPLOY_KEY }}
@@ -54,18 +48,7 @@ jobs:
         chmod 400 $HOME/key.pem
         ls -l $HOME/key.pem  # Debug step to verify key permissions
 
-    - name: Check and copy Nginx config to server
-      run: |
-        if [ -f "./nginx/nginx-config" ]; then
-          echo "Copying nginx-config to the server..."
-          scp -i $HOME/key.pem ./nginx/nginx-config ubuntu@${{ secrets.DEPLOY_HOST }}:/home/ubuntu/deployment/nginx-config
-        else
-          echo "nginx-config file not found!"
-          exit 1
-        fi
-      shell: /usr/bin/bash -e {0}
-
-    - name: Connect SSH and Restart Services
+    - name: Deploy the application and update Nginx
       run: |
         ssh -vvv -o StrictHostKeyChecking=no -i $HOME/key.pem ubuntu@${{ secrets.DEPLOY_HOST }} << 'EOF'
           # Ensure Java is installed
@@ -82,8 +65,13 @@ jobs:
           # Run the application using nohup
           nohup java -jar springboot-first-app-0.0.1-SNAPSHOT.jar > /home/ubuntu/deployment/application.log 2>&1 &
 
-          # Update the Nginx configuration
-          # Ensure the correct server block is updated (if needed)
+          # Ensure that nginx-config is available on the server
+          if [ ! -f "/home/ubuntu/deployment/nginx-config" ]; then
+            echo "nginx-config file not found on the server!"
+            exit 1
+          fi
+
+          # Copy the nginx-config to the Nginx sites-available directory
           sudo cp /home/ubuntu/deployment/nginx-config /etc/nginx/sites-available/default
 
           # Test Nginx configuration for syntax errors
