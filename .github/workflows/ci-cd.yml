@@ -57,15 +57,21 @@ jobs:
         source: "target/*.jar"
         target: "/home/ubuntu/deployment/target/"
 
-    - name: Copy Nginx Config to EC2
+    - name: Generate Nginx Config on EC2
       run: |
-        # Ensure the nginx config file exists before copying it
-        if [ -f "./nginx-config" ]; then
-          scp -i $HOME/key.pem ./nginx-config ubuntu@${{ secrets.DEPLOY_HOST }}:/home/ubuntu/deployment/nginx-config
-        else
-          echo "nginx-config file not found!"
-          exit 1
-        fi
+        echo 'server {
+          listen 80;
+          server_name _;  # Replace with your actual domain or IP
+
+          location / {
+            proxy_pass http://localhost:8080;  # Assuming your Spring Boot app is running on port 8080
+            proxy_set_header Host $host;
+            proxy_set_header X-Real-IP $remote_addr;
+            proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+            proxy_set_header X-Forwarded-Proto $scheme;
+          }
+        }' > ./nginx-config
+        scp -i $HOME/key.pem ./nginx-config ubuntu@${{ secrets.DEPLOY_HOST }}:/home/ubuntu/deployment/nginx-config
 
     - name: Install Nginx and Java on EC2
       run: |
