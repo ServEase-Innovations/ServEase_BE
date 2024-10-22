@@ -39,9 +39,9 @@ jobs:
         name: packaged-application
         path: target/
 
-    - name: List files in the repository (debugging step)
+    - name: Debug - List all files (check if nginx-config exists)
       run: |
-        echo "Listing directory contents to check if nginx-config is present:"
+        echo "Listing files to debug if nginx-config exists:"
         ls -R
       shell: /usr/bin/bash -e {0}
 
@@ -56,7 +56,6 @@ jobs:
 
     - name: Check and copy Nginx config to server
       run: |
-        # Check if nginx-config exists in the repository
         if [ -f "./nginx/nginx-config" ]; then
           echo "Copying nginx-config to the server..."
           scp -i $HOME/key.pem ./nginx/nginx-config ubuntu@${{ secrets.DEPLOY_HOST }}:/home/ubuntu/deployment/nginx-config
