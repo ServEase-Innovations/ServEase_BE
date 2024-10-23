@@ -12,7 +12,6 @@ import com.cus.customertab.constants.CustomerConstants;
 import com.cus.customertab.dto.CustomerDTO;
 import com.cus.customertab.entity.Customer;
 import com.cus.customertab.mapper.CustomerMapper;
-
 import jakarta.transaction.Transactional;
 
 @Service
@@ -29,8 +28,6 @@ public class CustomerServiceImpl implements CustomerService {
     public List<CustomerDTO> getAllCustomers() {
         Session session = sessionFactory.getCurrentSession();
         List<Customer> customers = session.createQuery(CustomerConstants.GET_ALL_CUSTOMER, Customer.class).list();
-        
-        // Mapping the list of Customer entities to a list of CustomerDTOs
         return customers.stream()
                         .map(customerMapper::customerToDTO)
                         .collect(Collectors.toList());
@@ -50,12 +47,11 @@ public class CustomerServiceImpl implements CustomerService {
 
     @Override
     @Transactional
-    public String saveCustomer(CustomerDTO customerDTO) {
+    public String saveCustomer(CustomerDTO customerDTO){
         Session session = sessionFactory.getCurrentSession();
         
         Customer customer = customerMapper.dtoToCustomer(customerDTO);
-        customer.setActive(true); 
-        
+        customer.setActive(true);
         session.persist(customer);
         return CustomerConstants.ADDED;
     }
@@ -78,7 +74,7 @@ public class CustomerServiceImpl implements CustomerService {
         Customer customer = session.get(Customer.class, id);
         
         if (customer != null) {
-            customer.setActive(false);  // Soft delete by deactivating the customer
+            customer.setActive(false);
             session.merge(customer);
             return CustomerConstants.DELETED;
         } else {

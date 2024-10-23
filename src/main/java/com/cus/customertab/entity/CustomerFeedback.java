@@ -20,8 +20,9 @@ public class CustomerFeedback {
 
     private Long customerId;
 
-    @Column(nullable = false)
-    private Long serviceProviderId;
+    @ManyToOne 
+    @JoinColumn(name = "serviceProviderId", nullable = false)
+    private ServiceProvider serviceProvider;
 
     @Column(nullable = false)
     private Integer rating;

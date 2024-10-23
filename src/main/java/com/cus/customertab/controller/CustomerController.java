@@ -5,7 +5,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-
+import org.springframework.web.multipart.MultipartFile;
 import com.cus.customertab.constants.CustomerConstants;
 import com.cus.customertab.dto.CustomerConcernDTO;
 import com.cus.customertab.dto.CustomerDTO;
@@ -17,10 +17,10 @@ import com.cus.customertab.service.CustomerFeedbackService;
 import com.cus.customertab.service.CustomerRequestCommentService;
 import com.cus.customertab.service.CustomerRequestService;
 import com.cus.customertab.service.CustomerService;
-
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
+import java.io.*;
 
 @RestController
 @RequestMapping("/api/customer")
@@ -57,17 +57,33 @@ public class CustomerController {
     public ResponseEntity<CustomerDTO> getCustomerById(
             @ApiParam(value = "ID of the customer to retrieve", required = true) @PathVariable Long id) {
         CustomerDTO customerDTO = customerService.getCustomerById(id);
-        return ResponseEntity.ok(customerDTO); 
+        return ResponseEntity.ok(customerDTO);
     }
-
+    
     // API to add a customer
     @PostMapping("/add-customer")
     @ApiOperation(value = CustomerConstants.ADD_NEW_DESC)
     public ResponseEntity<String> addCustomer(
-            @ApiParam(value = "Customer data to add", required = true) @RequestBody CustomerDTO customerDTO) {
+            @ApiParam(value = "Customer data to add", required = true) @ModelAttribute CustomerDTO customerDTO,
+            @ApiParam(value = "Profile picture of the customer") @RequestParam("profilePic") MultipartFile profilePic)
+            throws IOException {
+
+        // Set the profile picture in the DTO
+        customerDTO.setProfilePic(profilePic);
         customerService.saveCustomer(customerDTO);
         return ResponseEntity.status(HttpStatus.CREATED).body(CustomerConstants.ADDED);
     }
+
+    // // API to add a customer
+    // @PostMapping("/add-customer")
+    // @ApiOperation(value = CustomerConstants.ADD_NEW_DESC)
+    // public ResponseEntity<String> addCustomer(
+    //         @ApiParam(value = "Customer data to add", required = true) @RequestBody CustomerDTO customerDTO) {
+    //     customerService.saveCustomer(customerDTO);
+    //     return ResponseEntity.status(HttpStatus.CREATED).body(CustomerConstants.ADDED);
+    // }
+
+    
 
     // API to update a customer
     @PutMapping("/update-customer/{id}")

@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Customer List</title>
+</head>
+<body>
+    <h1>Customer List</h1>
+    <div id="customerList"></div>
+
+    <script>
+        async function fetchCustomers() {
+            const response = await fetch('/customers');
+            const customers = await response.json();
+
+            const customerListDiv = document.getElementById('customerList');
+            customers.forEach(customer => {
+                const customerDiv = document.createElement('div');
+                customerDiv.innerHTML = `
+                    <h3>${customer.firstName} ${customer.lastName}</h3>
+                    <img src="data:image/jpeg;base64,${btoa(String.fromCharCode(...new Uint8Array(customer.profilePic))) }" alt="Profile Picture" width="100" height="100"/>
+                `;
+                customerListDiv.appendChild(customerDiv);
+            });
+        }
+
+        fetchCustomers();
+    </script>
+</body>
+</html>
+
+
+
+
+
+
+
+
+
+
+
+
+
+{% comment %} <!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Customer List</title>
+    <style>
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        th, td {
+            border: 1px solid #dddddd;
+            text-align: left;
+            padding: 8px;
+        }
+        th {
+            background-color: #f2f2f2;
+        }
+        img {
+            width: 100px; /* Adjust the size as needed */
+            height: auto; /* Maintain aspect ratio */
+        }
+    </style>
+</head>
+<body>
+    <h1>Customer List</h1>
+    <table>
+        <thead>
+            <tr>
+                <th>First Name</th>
+                <th>Middle Name</th>
+                <th>Last Name</th>
+                <th>Mobile No</th>
+                <th>Email ID</th>
+                <th>Profile Picture</th>
+                <th>Gender</th>
+                <th>Building Name</th>
+                <th>Locality</th>
+                <th>Street</th>
+                <th>Pincode</th>
+                <th>Current Location</th>
+                <th>Language Known</th>
+                <th>Is Active</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr th:each="customer : ${customers}">
+                <td th:text="${customer.firstName}"></td>
+                <td th:text="${customer.middleName}"></td>
+                <td th:text="${customer.lastName}"></td>
+                <td th:text="${customer.mobileNo}"></td>
+                <td th:text="${customer.emailId}"></td>
+                <td>
+                    <img th:src="@{'data:image/jpeg;base64,' + ${customer.profilePic}}" alt="Profile Picture"/>
+                </td>
+                <td th:text="${customer.gender}"></td>
+                <td th:text="${customer.buildingName}"></td>
+                <td th:text="${customer.locality}"></td>
+                <td th:text="${customer.street}"></td>
+                <td th:text="${customer.pincode}"></td>
+                <td th:text="${customer.currentLocation}"></td>
+                <td th:text="${customer.languageKnown}"></td>
+                <td th:text="${customer.isActive}"></td>
+            </tr>
+        </tbody>
+    </table>
+</body>
+</html> {% endcomment %}
