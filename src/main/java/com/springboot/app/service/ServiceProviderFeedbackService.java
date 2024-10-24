@@ -21,4 +21,7 @@ public interface ServiceProviderFeedbackService {
     // Delete a ServiceProviderFeedbackDTO by its ID
     void deleteServiceProviderFeedbackDTO(Long id);
 
+    // Update the average rating for CustomerFeedback based on
+    // void updateAverageCustomerFeedback(Long housekeepingId);
+
 }
