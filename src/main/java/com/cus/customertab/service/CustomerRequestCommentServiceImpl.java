@@ -28,7 +28,7 @@ public class CustomerRequestCommentServiceImpl implements CustomerRequestComment
     public List<CustomerRequestCommentDTO> getAllComments() {
         Session session = sessionFactory.getCurrentSession();
         List<CustomerRequestComment> comments = session
-                .createQuery("FROM CustomerRequestComment", CustomerRequestComment.class)
+                .createQuery(CustomerConstants.FROM_CR_COMMENT, CustomerRequestComment.class)
                 .getResultList();
         return comments.stream()
                 .map(customerRequestCommentMapper::customerRequestCommentToDTO)

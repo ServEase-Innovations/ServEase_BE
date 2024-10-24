@@ -16,6 +16,9 @@ public class CustomerConstants {
     public static final String GET_ALL_CUSTOMER_REQUESTS = "FROM CustomerRequest";
     public static final String GET_OPEN_CUSTOMER_REQUESTS = "FROM CustomerRequest WHERE isResolved = 'NO'";
     public static final String GET_POTENTIAL_CUSTOMERS = "FROM CustomerRequest WHERE isPotential = 'YES'";
+    public static final String GET_ALL_KYC = "FROM KYC";
+    public static final String FROM_CR_COMMENT = "FROM CustomerRequestComment";
+    public static final String FROM_KYC_COMMENTS = "FROM KYCComments";
 
     // Response Messages
     public static final String ADDED = "ADDED SUCCESSFULLY !";

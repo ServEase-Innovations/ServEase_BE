@@ -10,6 +10,8 @@ import com.cus.customertab.constants.CustomerConstants;
 import com.cus.customertab.dto.CustomerConcernDTO;
 import com.cus.customertab.dto.CustomerDTO;
 import com.cus.customertab.dto.CustomerRequestDTO;
+import com.cus.customertab.dto.KYCCommentsDTO;
+import com.cus.customertab.dto.KYCDTO;
 import com.cus.customertab.dto.CustomerFeedbackDTO;
 import com.cus.customertab.dto.CustomerRequestCommentDTO;
 import com.cus.customertab.service.CustomerConcernService;
@@ -17,6 +19,9 @@ import com.cus.customertab.service.CustomerFeedbackService;
 import com.cus.customertab.service.CustomerRequestCommentService;
 import com.cus.customertab.service.CustomerRequestService;
 import com.cus.customertab.service.CustomerService;
+ import com.cus.customertab.service.KYCCommentsService;
+import com.cus.customertab.service.KYCService;
+
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
@@ -41,6 +46,12 @@ public class CustomerController {
 
     @Autowired
     private CustomerRequestCommentService customerRequestCommentService;
+
+    @Autowired
+    private KYCService kycService;
+
+    @Autowired
+    private KYCCommentsService kycCommentsService;
 
     //--------------------------API's FOR CUSTOMER ENTITY----------------------------------------
     //API to get all customers
@@ -261,4 +272,88 @@ public class CustomerController {
         return ResponseEntity.ok(CustomerConstants.DELETED);
     }
 
+    //--------------------------------API's FOR KYC ENTITY-----------------------------------------------
+
+    // API to get all KYC records
+    @GetMapping("/get-all-kyc")
+    @ApiOperation(value = "Retrieve all KYC records", response = List.class)
+    public ResponseEntity<List<KYCDTO>> getAllKYC() {
+        List<KYCDTO> kycs = kycService.getAllKYC();
+        return ResponseEntity.ok(kycs);
+    }
+
+    // API to get KYC by ID
+    @GetMapping("/get-kyc-by-id/{id}")
+    @ApiOperation(value = "Get KYC record by ID", response = KYCDTO.class)
+    public ResponseEntity<KYCDTO> getKYCbyId(
+            @ApiParam(value = "ID of the KYC record to retrieve", required = true) @PathVariable Long id) {
+        KYCDTO kycDTO = kycService.getKYCById(id);
+        if (kycDTO != null) {
+            return ResponseEntity.ok(kycDTO);
+        } else {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(null); // Return 404 if not found
+        }
+    }
+
+    // API to add a new KYC record
+    @PostMapping("/add-kyc")
+    @ApiOperation(value = "Add a new KYC record")
+    public ResponseEntity<String> addKYC(
+            @ApiParam(value = "KYC data to add", required = true) @RequestBody KYCDTO kycDTO) {
+        String response = kycService.addKYC(kycDTO);
+        return ResponseEntity.status(HttpStatus.CREATED).body(response);
+    }
+
+    // API to update KYC
+    @PutMapping("/update-kyc/{id}")
+    @ApiOperation(value = "Update an existing KYC")
+    public ResponseEntity<String> updateKYC(
+            @ApiParam(value = "ID of the KYC to update", required = true) @PathVariable Long id,
+            @ApiParam(value = "Updated KYC data", required = true) @RequestBody KYCDTO kycDTO) {
+        kycDTO.setKyc_id(id);
+        String result = kycService.updateKYC(kycDTO);
+        return ResponseEntity.ok(result);
+    }
+
+    //----------------------------API's FOR KYC COMMENTS ENTITY--------------------------------------
+
+    //API to get all KYC comments
+    @GetMapping("/get-all-kyc-comments")
+    @ApiOperation(value = "Retrieve all KYC comments", response = List.class)
+    public ResponseEntity<List<KYCCommentsDTO>> getAllKycComments() {
+        List<KYCCommentsDTO> commentsList = kycCommentsService.getAllKycComments();
+        return ResponseEntity.ok(commentsList);
+    }
+
+    // API to get a KYC comment by ID
+    @GetMapping("/get-kyc-comment-by-id/{id}")
+    @ApiOperation(value = "Retrieve KYC comment by ID", response = KYCCommentsDTO.class)
+    public ResponseEntity<KYCCommentsDTO> getKycCommentById(@PathVariable Long id) {
+        KYCCommentsDTO commentDTO = kycCommentsService.getKycCommentById(id);
+        return ResponseEntity.ok(commentDTO);
+    }
+
+    // API to add a new KYC comment
+    @PostMapping("/add-kyc-comment")
+    @ApiOperation(value = "Add a new KYC comment", response = String.class)
+    public ResponseEntity<String> addKycComment(@RequestBody KYCCommentsDTO commentDTO) {
+        kycCommentsService.addKycComment(commentDTO);
+        return ResponseEntity.status(HttpStatus.CREATED).body(CustomerConstants.ADDED);
+    }
+
+    // API to update a KYC comment by ID
+    @PutMapping("/update-kyc-comment/{id}")
+    @ApiOperation(value = "Update a KYC comment by ID", response = String.class)
+    public ResponseEntity<String> updateKycComment(@PathVariable Long id, @RequestBody KYCCommentsDTO commentDTO) {
+        String response = kycCommentsService.updateKycComment(id, commentDTO);
+        return ResponseEntity.ok(response);
+    }
+
+    // API to delete a KYC comment by ID
+    @DeleteMapping("/delete-kyc-comment/{id}")
+    @ApiOperation(value = "Delete a KYC comment by ID", response = String.class)
+    public ResponseEntity<String> deleteKycComment(@PathVariable Long id) {
+        kycCommentsService.deleteKycComment(id);
+        return ResponseEntity.ok(CustomerConstants.DELETED);
+    }
 }
