@@ -2,65 +2,40 @@ package com.springboot.app.dto;
 
 import java.sql.Timestamp;
 
-//import org.springframework.web.multipart.MultipartFile;
+import com.springboot.app.enums.Gender;
 
 import com.springboot.app.enums.DocumentType;
-import com.springboot.app.enums.Gender;
-import com.springboot.app.enums.HousekeepingRole;
+
+import com.springboot.app.enums.LanguageKnown;
 
 import lombok.AllArgsConstructor;
-import lombok.Getter;
+import lombok.Data;
 import lombok.NoArgsConstructor;
-import lombok.Setter;
 
-@Getter
-@Setter
+@Data
 @NoArgsConstructor
 @AllArgsConstructor
+public class CustomerDTO {
 
-public class ServiceProviderDTO {
-
-    private Long serviceproviderId;
-
+    private Long customerId;
     private String firstName;
-
     private String middleName;
-
     private String lastName;
-
     private Long mobileNo;
-
     private Long alternateNo;
-
     private String emailId;
-
     private Gender gender;
-
+    private LanguageKnown languageKnown;
     private String buildingName;
-
     private String locality;
-
     private String street;
-
     private Integer pincode;
-
+    private byte[] profilePic;
     private String currentLocation;
-
-    private String nearbyLocation;
+    private DocumentType KYC;
+    private String idNo;
+    private boolean isActive;
+    private Double rating; // Field to store the average rating
 
     private Timestamp enrolledDate;
-
-    private byte[] profilePic;
-    // private MultipartFile profilePic;
-
-    private boolean isActive;
-
-    private HousekeepingRole housekeepingRole;
-
-    private DocumentType KYC;
-
-    private String idNo;
-    // changes
-    // private String profilePicUrl;
-
 }

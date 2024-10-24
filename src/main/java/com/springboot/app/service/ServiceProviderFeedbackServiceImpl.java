@@ -10,6 +10,7 @@ import org.springframework.stereotype.Service;
 
 import com.springboot.app.constant.ServiceProviderConstants;
 import com.springboot.app.dto.ServiceProviderFeedbackDTO;
+import com.springboot.app.entity.Customer;
 import com.springboot.app.entity.ServiceProviderFeedback;
 import com.springboot.app.mapper.ServiceProviderFeedbackMapper;
 
@@ -54,8 +55,10 @@ public class ServiceProviderFeedbackServiceImpl implements ServiceProviderFeedba
         Session session = sessionFactory.getCurrentSession();
         ServiceProviderFeedback feedback = serviceProviderFeedbackMapper.toEntity(feedbackDTO);
         session.persist(feedback);
+        updateCustomerAverageRating(feedback.getCustomerId());
     }
 
+    // to update
     @Override
     @Transactional
     public void updateServiceProviderFeedbackDTO(ServiceProviderFeedbackDTO feedbackDTO) {
@@ -65,9 +68,12 @@ public class ServiceProviderFeedbackServiceImpl implements ServiceProviderFeedba
         if (existingFeedback == null) {
             throw new RuntimeException(ServiceProviderConstants.FEEDBACK_NOT_FOUND + feedbackDTO.getId());
         }
-
         existingFeedback = serviceProviderFeedbackMapper.toEntity(feedbackDTO);
         session.merge(existingFeedback);
+        updateCustomerAverageRating(feedbackDTO.getCustomerId());
+
+        // existingFeedback = serviceProviderFeedbackMapper.toEntity(feedbackDTO);
+        // session.merge(existingFeedback);
     }
 
     @Override
@@ -77,10 +83,45 @@ public class ServiceProviderFeedbackServiceImpl implements ServiceProviderFeedba
         ServiceProviderFeedback feedback = session.get(ServiceProviderFeedback.class, id);
 
         if (feedback != null) {
+            Long customerId = feedback.getCustomerId();
             session.remove(feedback);
+            updateCustomerAverageRating(customerId);
         } else {
             throw new RuntimeException(ServiceProviderConstants.FEEDBACK_NOT_FOUND + id);
         }
     }
 
+    private void updateCustomerAverageRating(Long customerId) {
+        Session session = sessionFactory.getCurrentSession();
+
+        // Fetch all feedback for this customer
+        List<ServiceProviderFeedback> providerFeedbacks = session.createQuery(
+                "FROM ServiceProviderFeedback WHERE customerId = :customerId",
+                ServiceProviderFeedback.class)
+                .setParameter("customerId", customerId)
+                .list();
+
+        if (!providerFeedbacks.isEmpty()) {
+            double totalRating = 0.0;
+            for (ServiceProviderFeedback feedback : providerFeedbacks) {
+                totalRating += feedback.getRating();
+            }
+
+            double averageRating = totalRating / providerFeedbacks.size();
+
+            // Update the corresponding Customer with the new average
+            Customer customer = session.get(Customer.class, customerId);
+            if (customer != null) {
+                customer.setRating(averageRating);
+                session.merge(customer);
+            }
+        } else {
+            // If no feedback exists, you may want to reset the average rating
+            Customer customer = session.get(Customer.class, customerId);
+            if (customer != null) {
+                customer.setRating(0.0); // Reset to 0 if no feedback
+                session.merge(customer);
+            }
+        }
+    }
 }
