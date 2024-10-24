@@ -43,7 +43,7 @@ public class CustomerController {
     private CustomerRequestCommentService customerRequestCommentService;
 
     //--------------------------API's FOR CUSTOMER ENTITY----------------------------------------
-    // API to get all customers
+    //API to get all customers
     @GetMapping("/get-all-customers")
     @ApiOperation(value = CustomerConstants.RETRIEVE_ALL_DESC, response = List.class)
     public ResponseEntity<List<CustomerDTO>> getAllCustomers() {
@@ -51,7 +51,7 @@ public class CustomerController {
         return ResponseEntity.ok(customers);
     }
 
-    // API to get customer by ID
+    //API to get customer by id
     @GetMapping("/get-customer-by-id/{id}")
     @ApiOperation(value = CustomerConstants.GET_BY_ID_DESC, response = CustomerDTO.class)
     public ResponseEntity<CustomerDTO> getCustomerById(
@@ -59,7 +59,7 @@ public class CustomerController {
         CustomerDTO customerDTO = customerService.getCustomerById(id);
         return ResponseEntity.ok(customerDTO);
     }
-    
+
     // API to add a customer
     @PostMapping("/add-customer")
     @ApiOperation(value = CustomerConstants.ADD_NEW_DESC)
@@ -67,23 +67,10 @@ public class CustomerController {
             @ApiParam(value = "Customer data to add", required = true) @ModelAttribute CustomerDTO customerDTO,
             @ApiParam(value = "Profile picture of the customer") @RequestParam("profilePic") MultipartFile profilePic)
             throws IOException {
-
-        // Set the profile picture in the DTO
         customerDTO.setProfilePic(profilePic);
         customerService.saveCustomer(customerDTO);
         return ResponseEntity.status(HttpStatus.CREATED).body(CustomerConstants.ADDED);
     }
-
-    // // API to add a customer
-    // @PostMapping("/add-customer")
-    // @ApiOperation(value = CustomerConstants.ADD_NEW_DESC)
-    // public ResponseEntity<String> addCustomer(
-    //         @ApiParam(value = "Customer data to add", required = true) @RequestBody CustomerDTO customerDTO) {
-    //     customerService.saveCustomer(customerDTO);
-    //     return ResponseEntity.status(HttpStatus.CREATED).body(CustomerConstants.ADDED);
-    // }
-
-    
 
     // API to update a customer
     @PutMapping("/update-customer/{id}")
@@ -170,8 +157,8 @@ public class CustomerController {
     @ApiOperation(value = "Retrieve a customer concern by ID", response = CustomerConcernDTO.class)
     public ResponseEntity<CustomerConcernDTO> getConcernById(@PathVariable Long id) {
         CustomerConcernDTO concernDTO = customerConcernService.getConcernById(id);
-        return ResponseEntity.ok(concernDTO); 
-    } 
+        return ResponseEntity.ok(concernDTO);
+    }
 
     // API to add a new customer concern
     @PostMapping("/add-customer-concern")

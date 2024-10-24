@@ -23,56 +23,68 @@ public class CustomerServiceImpl implements CustomerService {
     @Autowired
     private CustomerMapper customerMapper;
 
+ 
+    //to get all customers
     @Override
     @Transactional
     public List<CustomerDTO> getAllCustomers() {
         Session session = sessionFactory.getCurrentSession();
         List<Customer> customers = session.createQuery(CustomerConstants.GET_ALL_CUSTOMER, Customer.class).list();
-        return customers.stream()
-                        .map(customerMapper::customerToDTO)
-                        .collect(Collectors.toList());
-    }
 
+        return customers.stream()
+                .map(customer -> {
+                    CustomerDTO dto = customerMapper.customerToDTO(customer);
+                    // Convert the profile picture from byte[] to Base64
+                    dto.setProfilePicUrl(customerMapper.mapToBase64(customer.getProfilePic()));
+                    return dto;
+                })
+                .collect(Collectors.toList());
+    }
+    
+    //to get customer by id
     @Override
     @Transactional
     public CustomerDTO getCustomerById(Long id) {
         Session session = sessionFactory.getCurrentSession();
         Customer customer = session.get(Customer.class, id);
-        
+
         if (customer != null) {
             return customerMapper.customerToDTO(customer);
         }
         return null;
     }
 
+    //to add a new customer
     @Override
     @Transactional
-    public String saveCustomer(CustomerDTO customerDTO){
+    public String saveCustomer(CustomerDTO customerDTO) {
         Session session = sessionFactory.getCurrentSession();
-        
+
         Customer customer = customerMapper.dtoToCustomer(customerDTO);
         customer.setActive(true);
         session.persist(customer);
         return CustomerConstants.ADDED;
     }
 
+    //to update customer
     @Override
     @Transactional
     public String updateCustomer(CustomerDTO customerDTO) {
         Session session = sessionFactory.getCurrentSession();
-        
+
         Customer customer = customerMapper.dtoToCustomer(customerDTO);
         session.merge(customer);
-        
+
         return CustomerConstants.UPDATED;
     }
 
+    //to delete customer
     @Override
     @Transactional
     public String deleteCustomer(Long id) {
         Session session = sessionFactory.getCurrentSession();
         Customer customer = session.get(Customer.class, id);
-        
+
         if (customer != null) {
             customer.setActive(false);
             session.merge(customer);

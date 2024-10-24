@@ -33,7 +33,7 @@ import java.util.ArrayList;
 public class CustomerRequest {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY) // Ensures unique ID generation for CustomerRequest
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long requestId;
 
     private Long customerId;

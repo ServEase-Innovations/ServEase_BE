@@ -90,15 +90,6 @@ public class CustomerFeedbackServiceImpl implements CustomerFeedbackService {
         return CustomerConstants.ADDED;
     }
 
-    // @Override
-    // @Transactional
-    // public String addFeedback(CustomerFeedbackDTO customerFeedbackDTO) {
-    //     Session session = sessionFactory.getCurrentSession();
-    //     CustomerFeedback feedback = customerFeedbackMapper.dtoToCustomerFeedback(customerFeedbackDTO);
-    //     session.persist(feedback);
-    //     return CustomerConstants.ADDED;
-    // }
-
     // To delete customer feedback
     @Override
     @Transactional

@@ -36,4 +36,5 @@ public class CustomerDTO {
     private String idNo;
     private boolean isActive;
     private Timestamp enrolledDate;
+    private String profilePicUrl;
 }
