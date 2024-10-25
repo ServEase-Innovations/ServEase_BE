@@ -9,11 +9,16 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import com.springboot.app.constant.ServiceProviderConstants; // Import the constants class
+
 import com.springboot.app.dto.ServiceProviderDTO;
 
 import com.springboot.app.entity.ServiceProvider;
-
+import com.springboot.app.enums.Gender;
+import com.springboot.app.enums.HousekeepingRole;
+import com.springboot.app.enums.LanguageKnown;
+import com.springboot.app.enums.Speciality;
 import com.springboot.app.mapper.ServiceProviderMapper; // Import the mapper
+import org.hibernate.query.Query;
 
 import jakarta.transaction.Transactional;
 
@@ -87,6 +92,62 @@ public class ServiceProviderServiceImpl implements ServiceProviderService {
         } else {
             throw new RuntimeException(ServiceProviderConstants.SERVICE_PROVIDER_NOT_FOUND + id);
         }
+    }
+
+    @Override
+    @Transactional
+    public List<ServiceProviderDTO> getfilters(LanguageKnown language, Double rating, Gender gender,
+            Speciality speciality, HousekeepingRole housekeepingRole) {
+
+        Session session = sessionFactory.getCurrentSession();
+
+        // Start building the base HQL query
+        StringBuilder hql = new StringBuilder("FROM ServiceProvider WHERE 1=1");
+
+        // Dynamically append conditions based on non-null parameters
+        if (language != null) {
+            hql.append(" AND languageKnown = :language");
+        }
+        if (rating != null) {
+            hql.append(" AND rating = :rating");
+        }
+        if (gender != null) {
+            hql.append(" AND gender = :gender");
+        }
+        if (speciality != null) {
+            hql.append(" AND speciality = :speciality");
+        }
+        if (housekeepingRole != null) {
+            hql.append(" AND housekeepingRole = :housekeepingRole");
+        }
+
+        // Create the query from the dynamically built HQL
+        Query<ServiceProvider> query = session.createQuery(hql.toString(), ServiceProvider.class);
+
+        // Set parameters if they are not null
+        if (language != null) {
+            query.setParameter("language", language);
+        }
+        if (rating != null) {
+            query.setParameter("rating", rating);
+        }
+        if (gender != null) {
+            query.setParameter("gender", gender);
+        }
+        if (speciality != null) {
+            query.setParameter("speciality", speciality);
+        }
+        if (housekeepingRole != null) {
+            query.setParameter("housekeepingRole", housekeepingRole);
+        }
+
+        // Execute the query and get the results
+        List<ServiceProvider> serviceProviders = query.getResultList();
+
+        // Convert the list of ServiceProvider entities to a list of ServiceProviderDTOs
+        return serviceProviders.stream()
+                .map(serviceProviderMapper::serviceProviderToDTO)
+                .collect(Collectors.toList());
     }
 
 }

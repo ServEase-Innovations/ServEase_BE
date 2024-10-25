@@ -5,6 +5,7 @@ import java.util.Set;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
+
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -14,6 +15,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.springboot.app.constant.ServiceProviderConstants;
@@ -22,6 +24,12 @@ import com.springboot.app.dto.ServiceProviderDTO;
 import com.springboot.app.dto.ServiceProviderFeedbackDTO;
 import com.springboot.app.dto.ServiceProviderRequestCommentDTO;
 import com.springboot.app.dto.ServiceProviderRequestDTO;
+
+import com.springboot.app.enums.Gender;
+import com.springboot.app.enums.HousekeepingRole;
+import com.springboot.app.enums.LanguageKnown;
+import com.springboot.app.enums.Speciality;
+
 import com.springboot.app.service.ServiceProviderRequestService;
 import com.springboot.app.service.ServiceProviderFeedbackService;
 import com.springboot.app.service.ServiceProviderRequestCommentService;
@@ -94,6 +102,22 @@ public class ServiceProviderController {
 
         serviceProviderService.deleteServiceProviderDTO(id);
         return ResponseEntity.ok(ServiceProviderConstants.SERVICE_PROVIDER_DELETED);
+    }
+
+    // API to get service providers with flexible filtering
+    @GetMapping("/get-by-filters")
+    @ApiOperation(value = "Get service providers by filters", response = ServiceProviderDTO.class, responseContainer = "List")
+    public ResponseEntity<List<ServiceProviderDTO>> getFilters(
+            @ApiParam(value = "Language known by the service provider") @RequestParam(required = false) LanguageKnown language,
+            @ApiParam(value = "Rating of the service provider") @RequestParam(required = false) Double rating,
+            @ApiParam(value = "Gender of the service provider") @RequestParam(required = false) Gender gender,
+            @ApiParam(value = "Speciality of the service provider") @RequestParam(required = false) Speciality speciality,
+            @ApiParam(value = "Housekeeping role of the service provider") @RequestParam(required = false) HousekeepingRole housekeepingRole) {
+
+        // Call the service method with the provided filters
+        List<ServiceProviderDTO> serviceProviders = serviceProviderService.getfilters(language, rating, gender,
+                speciality, housekeepingRole);
+        return ResponseEntity.ok(serviceProviders);
     }
 
     // ----------API's FOR SERVICE PROVIDER REQUEST ENTITY-----------------

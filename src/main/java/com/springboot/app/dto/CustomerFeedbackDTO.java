@@ -13,7 +13,7 @@ public class CustomerFeedbackDTO {
     private Long id;
     private Long customerId;
     private Long serviceProviderId;
-    private Double rating;
+    private double rating;
     private String comment;
     private Timestamp commentedOn;
 }
