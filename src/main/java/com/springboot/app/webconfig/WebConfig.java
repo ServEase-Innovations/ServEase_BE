@@ -18,7 +18,7 @@ public class WebConfig implements WebMvcConfigurer {
     @Override
     public void addCorsMappings(CorsRegistry registry) {
         registry.addMapping("/**")  // Allow all endpoints
-            .allowedOrigins("http://localhost:3000", "http://your-domain.com")  // Add your frontend domain here
+            .allowedOrigins("http://localhost:3000", "https://servease-innovation.netlify.app")  // Add your frontend domain here
             .allowedMethods("GET", "POST", "PUT", "DELETE", "OPTIONS")
             .allowedHeaders("Origin", "Content-Type", "Accept", "Authorization", "X-Requested-With")
             .allowCredentials(true)  // Allow credentials
