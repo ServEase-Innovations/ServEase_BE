@@ -35,7 +35,7 @@ public class HibernateConfig {
     public LocalSessionFactoryBean sessionFactory() {
         LocalSessionFactoryBean sessionFactory = new LocalSessionFactoryBean();
         sessionFactory.setDataSource(dataSource);
-        sessionFactory.setPackagesToScan("com.springboot.app.entity"); // Set your entity package here
+        sessionFactory.setPackagesToScan("com.springboot.app.entity"); // entity
         sessionFactory.setHibernateProperties(hibernateProperties());
         return sessionFactory;
     }
@@ -51,7 +51,7 @@ public class HibernateConfig {
         Properties properties = new Properties();
         properties.put("hibernate.dialect", "org.hibernate.dialect.PostgreSQLDialect");
         properties.put("hibernate.show_sql", "true");
-        properties.put("hibernate.hbm2ddl.auto", "update"); // Controls schema generation
+        properties.put("hibernate.hbm2ddl.auto", "update");
         return properties;
     }
 }

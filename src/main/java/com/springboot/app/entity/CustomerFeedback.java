@@ -24,7 +24,7 @@ public class CustomerFeedback {
     private Long serviceProviderId;
 
     @Column(nullable = true)
-    private Double rating;
+    private double rating;
 
     @Column(length = 500)
     private String comment;

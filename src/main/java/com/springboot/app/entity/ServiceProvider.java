@@ -2,9 +2,11 @@ package com.springboot.app.entity;
 
 import java.sql.Timestamp;
 
-import com.springboot.app.enums.DocumentType;
+//import com.springboot.app.enums.DocumentType;
 import com.springboot.app.enums.Gender;
 import com.springboot.app.enums.HousekeepingRole;
+import com.springboot.app.enums.LanguageKnown;
+import com.springboot.app.enums.Speciality;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -75,9 +77,8 @@ public class ServiceProvider {
 	@Lob
 	private byte[] profilePic;
 
-	@Enumerated(EnumType.STRING)
-	@Column(nullable = false)
-	private DocumentType KYC;
+	// @Enumerated(EnumType.STRING)
+	// private DocumentType KYC;
 
 	private String idNo;
 
@@ -86,6 +87,17 @@ public class ServiceProvider {
 
 	@Enumerated(EnumType.STRING)
 	private HousekeepingRole housekeepingRole;
+
+	private double rating;
+
+	@Enumerated(EnumType.STRING)
+	private LanguageKnown languageKnown;
+
+	@Enumerated(EnumType.STRING)
+	private Speciality speciality;
+
+	@Column
+	private Integer age;
 
 	// to automatically set data and isActive field
 	@PrePersist

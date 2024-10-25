@@ -3,6 +3,10 @@ package com.springboot.app.service;
 import java.util.List;
 
 import com.springboot.app.dto.ServiceProviderDTO;
+import com.springboot.app.enums.Gender;
+import com.springboot.app.enums.HousekeepingRole;
+import com.springboot.app.enums.LanguageKnown;
+import com.springboot.app.enums.Speciality;
 
 public interface ServiceProviderService {
   // Retrieve all ServiceProviderDTOs
@@ -19,5 +23,8 @@ public interface ServiceProviderService {
 
   // Delete a ServiceProviderDTO by its ID
   void deleteServiceProviderDTO(Long id);
+
+  List<ServiceProviderDTO> getfilters(LanguageKnown language, Double rating, Gender gender, Speciality speciality,
+      HousekeepingRole housekeepingRole);
 
 }

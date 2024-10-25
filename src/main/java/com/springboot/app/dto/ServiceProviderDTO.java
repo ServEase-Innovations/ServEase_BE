@@ -2,11 +2,11 @@ package com.springboot.app.dto;
 
 import java.sql.Timestamp;
 
-//import org.springframework.web.multipart.MultipartFile;
-
-import com.springboot.app.enums.DocumentType;
+//import com.springboot.app.enums.DocumentType;
 import com.springboot.app.enums.Gender;
 import com.springboot.app.enums.HousekeepingRole;
+import com.springboot.app.enums.LanguageKnown;
+import com.springboot.app.enums.Speciality;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -51,16 +51,18 @@ public class ServiceProviderDTO {
     private Timestamp enrolledDate;
 
     private byte[] profilePic;
-    // private MultipartFile profilePic;
 
     private boolean isActive;
 
     private HousekeepingRole housekeepingRole;
 
-    private DocumentType KYC;
+    // private DocumentType KYC;
 
     private String idNo;
-    // changes
-    // private String profilePicUrl;
+
+    private double rating;
+    private LanguageKnown languageKnown;
+    private Speciality speciality;
+    private Integer age;
 
 }
