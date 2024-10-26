@@ -2,6 +2,8 @@ package com.cus.customertab.entity;
 
 import java.sql.Timestamp;
 import com.cus.customertab.enums.DocumentType;
+import com.cus.customertab.enums.Stage;
+import com.cus.customertab.enums.Status;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
 import java.time.LocalDateTime;
 import jakarta.persistence.CascadeType;
@@ -19,7 +21,6 @@ import jakarta.persistence.Table;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-
 import java.util.ArrayList;
 import java.util.List;
 
@@ -51,7 +52,7 @@ public class KYC {
     @Column(name = "kyc_type", nullable = false)
     private DocumentType kycType;
 
-    @Column(name = "kyc_type_id", length = 255, nullable = false)
+    @Column(name = "kyc_type_id", nullable = false)
     private String kycTypeId;
 
     @Lob
@@ -62,14 +63,18 @@ public class KYC {
     @JsonManagedReference
     private List<KYCComments> comments = new ArrayList<>();
 
-    @Column(name = "stage", length = 255)
-    private String stage;
+    @Enumerated(EnumType.STRING)
+    @Column(name = "stage")
+    private Stage stage;
 
-    @Column(name = "status", length = 255)
-    private String status;
+    @Enumerated(EnumType.STRING)
+    @Column(name = "status")
+    private Status status;
 
     @PrePersist
     public void prePersist() {
         isKYCValidatedOn = Timestamp.valueOf(LocalDateTime.now());
+        stage = Stage.DOC_SUBMITTED;
+        status = Status.NOT_STARTED;
     }
 }

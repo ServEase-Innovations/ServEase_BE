@@ -7,6 +7,7 @@ import org.springframework.web.multipart.MultipartFile;
 import com.cus.customertab.enums.DocumentType;
 import com.cus.customertab.enums.Gender;
 import com.cus.customertab.enums.LanguageKnown;
+import com.cus.customertab.enums.Speciality;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -36,5 +37,6 @@ public class CustomerDTO {
     private String idNo;
     private boolean isActive;
     private Timestamp enrolledDate;
+    private Speciality speciality;
     private String profilePicUrl;
 }

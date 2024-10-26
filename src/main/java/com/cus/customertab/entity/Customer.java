@@ -5,6 +5,7 @@ import java.sql.Timestamp;
 import com.cus.customertab.enums.DocumentType;
 import com.cus.customertab.enums.Gender;
 import com.cus.customertab.enums.LanguageKnown;
+import com.cus.customertab.enums.Speciality;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -84,10 +85,13 @@ public class Customer {
     @Column(nullable = false)
     private boolean isActive;
 
+    @Enumerated(EnumType.STRING)
+    private Speciality speciality;
+
 	@PrePersist
 	public void prePersist(){
 		this.enrolledDate = new Timestamp(System.currentTimeMillis());
-		this.isActive = true;
+        this.isActive = true;
 	}
 
 }

@@ -22,6 +22,10 @@ public class CustomerRequestDTO {
     private Gender gender;
     private LanguageKnown languageKnown;
     private String ageRange;
+    private String locality;
+    private String area;
+    private String apartment_name;
+    private Integer pincode;
     private Habit cookingHabit;
     private Habit dietryHabit;
     private Long serviceProviderId;

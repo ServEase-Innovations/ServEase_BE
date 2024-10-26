@@ -19,6 +19,9 @@ public class CustomerConstants {
     public static final String GET_ALL_KYC = "FROM KYC";
     public static final String FROM_CR_COMMENT = "FROM CustomerRequestComment";
     public static final String FROM_KYC_COMMENTS = "FROM KYCComments";
+    public static final String LANGUAGE_FILTER = "FROM Customer WHERE languageKnown = :language";
+    public static final String RATING_FILTER = "FROM Customer WHERE rating = :rating";
+    public static final String GENDER_FILTER = "FROM Customer WHERE gender = :gender";
 
     // Response Messages
     public static final String ADDED = "ADDED SUCCESSFULLY !";

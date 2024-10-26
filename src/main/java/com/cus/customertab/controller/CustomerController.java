@@ -11,7 +11,9 @@ import com.cus.customertab.dto.CustomerConcernDTO;
 import com.cus.customertab.dto.CustomerDTO;
 import com.cus.customertab.dto.CustomerRequestDTO;
 import com.cus.customertab.dto.KYCCommentsDTO;
-import com.cus.customertab.dto.KYCDTO;
+import com.cus.customertab.dto.KYCDTO; 
+import com.cus.customertab.enums.Gender;
+import com.cus.customertab.enums.ServiceType;
 import com.cus.customertab.dto.CustomerFeedbackDTO;
 import com.cus.customertab.dto.CustomerRequestCommentDTO;
 import com.cus.customertab.service.CustomerConcernService;
@@ -76,7 +78,7 @@ public class CustomerController {
     @ApiOperation(value = CustomerConstants.ADD_NEW_DESC)
     public ResponseEntity<String> addCustomer(
             @ApiParam(value = "Customer data to add", required = true) @ModelAttribute CustomerDTO customerDTO,
-            @ApiParam(value = "Profile picture of the customer") @RequestParam("profilePic") MultipartFile profilePic)
+            @ApiParam(value = "Profile picture of the customer") @RequestParam(value = "profilePic", required = false) MultipartFile profilePic)
             throws IOException {
         customerDTO.setProfilePic(profilePic);
         customerService.saveCustomer(customerDTO);
@@ -153,6 +155,29 @@ public class CustomerController {
         customerRequestService.update(customerRequestDTO);
         return ResponseEntity.ok(CustomerConstants.UPDATED);
     }
+
+    // FILTER API
+    @GetMapping("/filter-customer-request")
+    public List<CustomerRequestDTO> getRequestFilters(
+            @RequestParam(required = false) ServiceType serviceType,
+            @RequestParam(required = false) Gender gender,
+            @RequestParam(required = false) String area,
+            @RequestParam(required = false) Integer pincode,
+            @RequestParam(required = false) String locality,
+            @RequestParam(required = false) String apartment_name) {
+
+        return customerRequestService.getRequestFilters(serviceType, gender, area, pincode, locality,
+                apartment_name);
+    }
+    
+    //EXAMPLE URL
+    /*
+     * http://localhost:9090/api/customer/filter-customer-request?serviceType=YOUR_SERVICE_TYPE&gender=
+     * YOUR_GENDER&ageRangeStart=MIN_AGE&ageRangeEnd=MAX_AGE&area=YOUR_AREA&pincode=
+     * YOUR_PINCODE&locality=YOUR_LOCALITY&apartmentName=YOUR_APARTMENT_NAME
+     * 
+     */
+
 
     //--------------------------API's FOR CUSTOMER CONCERN ENTITY-------------------------------
     // API to get all customer concerns
