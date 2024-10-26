@@ -2,12 +2,12 @@ package com.cus.customertab.service;
 
 import java.util.List;
 import java.util.stream.Collectors;
-
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import com.cus.customertab.config.PaginationHelper;
 import com.cus.customertab.constants.CustomerConstants;
 import com.cus.customertab.dto.CustomerDTO;
 import com.cus.customertab.entity.Customer;
@@ -23,24 +23,66 @@ public class CustomerServiceImpl implements CustomerService {
     @Autowired
     private CustomerMapper customerMapper;
 
- 
+
     //to get all customers
     @Override
     @Transactional
-    public List<CustomerDTO> getAllCustomers() {
+    public List<CustomerDTO> getAllCustomers(int page, int size) {
         Session session = sessionFactory.getCurrentSession();
-        List<Customer> customers = session.createQuery(CustomerConstants.GET_ALL_CUSTOMER, Customer.class).list();
-
+        List<Customer> customers = PaginationHelper.getPaginatedResults(
+                session,
+                CustomerConstants.GET_ALL_CUSTOMER,
+                page,
+                size,
+                Customer.class
+        );
         return customers.stream()
                 .map(customer -> {
                     CustomerDTO dto = customerMapper.customerToDTO(customer);
-                    // Convert the profile picture from byte[] to Base64
                     dto.setProfilePicUrl(customerMapper.mapToBase64(customer.getProfilePic()));
                     return dto;
                 })
                 .collect(Collectors.toList());
     }
-    
+
+    // @Override
+    // @Transactional
+    // public List<CustomerDTO> getAllCustomers(int page, int size) {
+    //     Session session = sessionFactory.getCurrentSession();
+
+    //     // Calculate the starting point for pagination
+    //     int start = page * size;
+
+    //     List<Customer> customers = session.createQuery(CustomerConstants.GET_ALL_CUSTOMER, Customer.class)
+    //             .setFirstResult(start) // Set the starting index
+    //             .setMaxResults(size) // Set the maximum number of results
+    //             .list();
+
+    //     return customers.stream()
+    //             .map(customer -> {
+    //                 CustomerDTO dto = customerMapper.customerToDTO(customer);
+    //                 dto.setProfilePicUrl(customerMapper.mapToBase64(customer.getProfilePic()));
+    //                 return dto;
+    //             })
+    //             .collect(Collectors.toList());
+    // }
+
+    // @Override
+    // @Transactional
+    // public List<CustomerDTO> getAllCustomers() {
+    //     Session session = sessionFactory.getCurrentSession();
+    //     List<Customer> customers = session.createQuery(CustomerConstants.GET_ALL_CUSTOMER, Customer.class).list();
+
+    //     return customers.stream()
+    //             .map(customer -> {
+    //                 CustomerDTO dto = customerMapper.customerToDTO(customer);
+    //                 // Convert the profile picture from byte[] to Base64
+    //                 dto.setProfilePicUrl(customerMapper.mapToBase64(customer.getProfilePic()));
+    //                 return dto;
+    //             })
+    //             .collect(Collectors.toList());
+    // }
+
     //to get customer by id
     @Override
     @Transactional
@@ -93,5 +135,5 @@ public class CustomerServiceImpl implements CustomerService {
             return CustomerConstants.NOT_FOUND;
         }
     }
-    
+
 }

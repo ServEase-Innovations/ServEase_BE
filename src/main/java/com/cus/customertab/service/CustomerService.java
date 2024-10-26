@@ -5,7 +5,8 @@ import com.cus.customertab.dto.CustomerDTO;
 
 public interface CustomerService {
 
-    List<CustomerDTO> getAllCustomers();
+    // List<CustomerDTO> getAllCustomers();
+    List<CustomerDTO> getAllCustomers(int page, int size);
     CustomerDTO getCustomerById(Long id);
     String saveCustomer(CustomerDTO customerDTO);
     String updateCustomer(CustomerDTO customerDTO);

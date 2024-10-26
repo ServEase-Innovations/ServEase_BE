@@ -2,6 +2,7 @@ package com.cus.customertab.controller;
 
 import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -55,14 +56,32 @@ public class CustomerController {
     @Autowired
     private KYCCommentsService kycCommentsService;
 
+    @Value("${app.pagination.default-page-size:10}")
+    private int defaultPageSize;
+
     //--------------------------API's FOR CUSTOMER ENTITY----------------------------------------
     //API to get all customers
+    // API to get all customers with pagination
     @GetMapping("/get-all-customers")
     @ApiOperation(value = CustomerConstants.RETRIEVE_ALL_DESC, response = List.class)
-    public ResponseEntity<List<CustomerDTO>> getAllCustomers() {
-        List<CustomerDTO> customers = customerService.getAllCustomers();
+    public ResponseEntity<List<CustomerDTO>> getAllCustomers(
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(required = false) Integer size) {
+        if (size == null) {
+            size = defaultPageSize;
+        }
+        List<CustomerDTO> customers = customerService.getAllCustomers(page, size);
+        if (customers.isEmpty() && page > 0) {
+            return getAllCustomers(0, size);
+        }
         return ResponseEntity.ok(customers);
     }
+    // @GetMapping("/get-all-customers")
+    // @ApiOperation(value = CustomerConstants.RETRIEVE_ALL_DESC, response = List.class)
+    // public ResponseEntity<List<CustomerDTO>> getAllCustomers() {
+    //     List<CustomerDTO> customers = customerService.getAllCustomers();
+    //     return ResponseEntity.ok(customers);
+    // }
 
     //API to get customer by id
     @GetMapping("/get-customer-by-id/{id}")
