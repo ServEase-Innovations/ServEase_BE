@@ -6,7 +6,7 @@ import java.util.List;
 public interface KYCCommentsService {
 
     // Method to get all KYC comments
-    List<KYCCommentsDTO> getAllKycComments();
+    List<KYCCommentsDTO> getAllKycComments(int page, int size);
 
     // Method to get a single KYC comment by ID
     KYCCommentsDTO getKycCommentById(Long id);

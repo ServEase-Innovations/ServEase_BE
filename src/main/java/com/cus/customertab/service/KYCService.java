@@ -6,7 +6,7 @@ import java.util.List;
 
 public interface KYCService {
 
-    List<KYCDTO> getAllKYC();
+    List<KYCDTO> getAllKYC(int page, int size);
     KYCDTO getKYCById(Long id);
     String addKYC(KYCDTO kycDTO);
     String updateKYC(KYCDTO kycDTO);
