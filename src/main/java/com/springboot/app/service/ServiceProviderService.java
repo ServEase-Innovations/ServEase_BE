@@ -10,7 +10,7 @@ import com.springboot.app.enums.Speciality;
 
 public interface ServiceProviderService {
   // Retrieve all ServiceProviderDTOs
-  List<ServiceProviderDTO> getAllServiceProviderDTOs();
+  List<ServiceProviderDTO> getAllServiceProviderDTOs(int page, int size);
 
   // Retrieve a single ServiceProviderDTO by its ID
   ServiceProviderDTO getServiceProviderDTOById(Long id);
@@ -25,6 +25,6 @@ public interface ServiceProviderService {
   void deleteServiceProviderDTO(Long id);
 
   List<ServiceProviderDTO> getfilters(LanguageKnown language, Double rating, Gender gender, Speciality speciality,
-      HousekeepingRole housekeepingRole);
+      HousekeepingRole housekeepingRole, Integer minAge, Integer maxAge);
 
 }

@@ -64,5 +64,6 @@ public class ServiceProviderDTO {
     private LanguageKnown languageKnown;
     private Speciality speciality;
     private Integer age;
+    private String info;
 
 }

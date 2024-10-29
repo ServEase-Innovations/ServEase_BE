@@ -6,7 +6,7 @@ import com.springboot.app.dto.ServiceProviderRequestDTO;
 
 public interface ServiceProviderRequestService {
     // Retrieve all ServiceProviderRequestDTOs
-    List<ServiceProviderRequestDTO> getAllServiceProviderRequestDTOs();
+    List<ServiceProviderRequestDTO> getAllServiceProviderRequestDTOs(int page, int size);
 
     // Retrieve a single ServiceProviderRequestDTO by its ID
     ServiceProviderRequestDTO getServiceProviderRequestDTOById(Long id);

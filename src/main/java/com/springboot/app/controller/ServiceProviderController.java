@@ -1,11 +1,9 @@
 package com.springboot.app.controller;
 
-import java.util.Set;
-
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
-
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -19,8 +17,10 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.springboot.app.constant.ServiceProviderConstants;
+import org.springframework.beans.factory.annotation.Value;
 
 import com.springboot.app.dto.ServiceProviderDTO;
+import com.springboot.app.dto.ServiceProviderEngagementDTO;
 import com.springboot.app.dto.ServiceProviderFeedbackDTO;
 import com.springboot.app.dto.ServiceProviderRequestCommentDTO;
 import com.springboot.app.dto.ServiceProviderRequestDTO;
@@ -31,6 +31,7 @@ import com.springboot.app.enums.LanguageKnown;
 import com.springboot.app.enums.Speciality;
 
 import com.springboot.app.service.ServiceProviderRequestService;
+import com.springboot.app.service.ServiceProviderEngagementService;
 import com.springboot.app.service.ServiceProviderFeedbackService;
 import com.springboot.app.service.ServiceProviderRequestCommentService;
 import com.springboot.app.service.ServiceProviderService;
@@ -56,12 +57,21 @@ public class ServiceProviderController {
     @Autowired
     private ServiceProviderRequestCommentService serviceProviderRequestCommentService;
 
+    @Autowired
+    private ServiceProviderEngagementService serviceProviderEngagementService;
+
+    @Value("${app.pagination.default-page-size:10}")
+    private int defaultPageSize;
+
     // --------API's FOR SERVICE PROVIDER REQUEST ENTITY--------------------
-    // API to get all serviceproviders
     @GetMapping("/serviceproviders/all")
     @ApiOperation(value = ServiceProviderConstants.RETRIEVE_ALL_DESC, response = List.class)
-    public List<ServiceProviderDTO> getAllServiceProviders() {
-        return serviceProviderService.getAllServiceProviderDTOs();
+    public ResponseEntity<List<ServiceProviderDTO>> getAllServiceProviders(
+            @RequestParam(defaultValue = "0") Integer page,
+            @RequestParam(defaultValue = "10") Integer size) {
+
+        List<ServiceProviderDTO> serviceProviders = serviceProviderService.getAllServiceProviderDTOs(page, size);
+        return ResponseEntity.ok(serviceProviders);
     }
 
     // API to get serviceproviders by id
@@ -112,20 +122,26 @@ public class ServiceProviderController {
             @ApiParam(value = "Rating of the service provider") @RequestParam(required = false) Double rating,
             @ApiParam(value = "Gender of the service provider") @RequestParam(required = false) Gender gender,
             @ApiParam(value = "Speciality of the service provider") @RequestParam(required = false) Speciality speciality,
-            @ApiParam(value = "Housekeeping role of the service provider") @RequestParam(required = false) HousekeepingRole housekeepingRole) {
+            @ApiParam(value = "Housekeeping role of the service provider") @RequestParam(required = false) HousekeepingRole housekeepingRole,
+            @ApiParam(value = "Minimum age of the service provider") @RequestParam(required = false) Integer minAge,
+            @ApiParam(value = "Maximum age of the service provider") @RequestParam(required = false) Integer maxAge) {
 
         // Call the service method with the provided filters
         List<ServiceProviderDTO> serviceProviders = serviceProviderService.getfilters(language, rating, gender,
-                speciality, housekeepingRole);
+                speciality, housekeepingRole, minAge, maxAge);
         return ResponseEntity.ok(serviceProviders);
     }
 
     // ----------API's FOR SERVICE PROVIDER REQUEST ENTITY-----------------
-    // API to get all service provider requests
     @GetMapping("/requests/all")
     @ApiOperation(value = ServiceProviderConstants.DESC_RETRIEVE_ALL_SERVICE_PROVIDER_REQUESTS, response = List.class)
-    public List<ServiceProviderRequestDTO> getAllServiceProviderRequests() {
-        return serviceProviderRequestService.getAllServiceProviderRequestDTOs();
+    public ResponseEntity<List<ServiceProviderRequestDTO>> getAllServiceProviderRequests(
+            @RequestParam(defaultValue = "0") Integer page,
+            @RequestParam(defaultValue = "10") Integer size) {
+
+        List<ServiceProviderRequestDTO> requests = serviceProviderRequestService.getAllServiceProviderRequestDTOs(page,
+                size);
+        return ResponseEntity.ok(requests);
     }
 
     // API to get service provider request by ID
@@ -171,11 +187,16 @@ public class ServiceProviderController {
     }
 
     // ------API's FOR SERVICE PROVIDER FEEDBACK ENTITY--------------------
-    // API to get all service provider feedbacks
+    // API to get all service provider feedbacks with pagination
     @GetMapping("/feedbacks/all")
     @ApiOperation(value = ServiceProviderConstants.DESC_RETRIEVE_ALL_FEEDBACKS, response = List.class)
-    public List<ServiceProviderFeedbackDTO> getAllServiceProviderFeedbacks() {
-        return serviceProviderFeedbackService.getAllServiceProviderFeedbackDTOs();
+    public ResponseEntity<List<ServiceProviderFeedbackDTO>> getAllServiceProviderFeedbacks(
+            @RequestParam(defaultValue = "0") Integer page,
+            @RequestParam(defaultValue = "10") Integer size) {
+
+        List<ServiceProviderFeedbackDTO> feedbacks = serviceProviderFeedbackService
+                .getAllServiceProviderFeedbackDTOs(page, size);
+        return ResponseEntity.ok(feedbacks);
     }
 
     // API to get feedback by ID
@@ -217,11 +238,15 @@ public class ServiceProviderController {
     }
 
     // -------API's FOR SERVICE PROVIDER REQUEST COMMENT ENTITY-------------
-    // API to get all service provider request comments
     @GetMapping("/comments/all")
-    @ApiOperation(value = ServiceProviderConstants.RETRIEVE_ALL_COMMENTS_DESC, response = Set.class)
-    public List<ServiceProviderRequestCommentDTO> getAllComments() {
-        return serviceProviderRequestCommentService.getAllServiceProviderRequestComments();
+    @ApiOperation(value = ServiceProviderConstants.RETRIEVE_ALL_COMMENTS_DESC, response = List.class)
+    public ResponseEntity<List<ServiceProviderRequestCommentDTO>> getAllComments(
+            @RequestParam(defaultValue = "0") Integer page,
+            @RequestParam(defaultValue = "10") Integer size) {
+
+        List<ServiceProviderRequestCommentDTO> comments = serviceProviderRequestCommentService
+                .getAllServiceProviderRequestComments(page, size);
+        return ResponseEntity.ok(comments);
     }
 
     // API to get service provider request comment by ID
@@ -263,6 +288,67 @@ public class ServiceProviderController {
 
         serviceProviderRequestCommentService.deleteServiceProviderRequestComment(id);
         return ResponseEntity.ok(ServiceProviderConstants.COMMENT_DELETED_SUCCESS);
+    }
+
+    // -------API's FOR SERVICE PROVIDER ENGAGENENTS ENTITY-------------
+    // API to get all service provider engagements with pagination
+    @GetMapping("/engagements/all")
+    @ApiOperation(value = "Retrieve all service provider engagements with pagination", response = List.class)
+    public ResponseEntity<List<ServiceProviderEngagementDTO>> getAllServiceProviderEngagements(
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(required = false) Integer size) {
+        if (size == null) {
+            size = defaultPageSize; // Replace with the actual default page size
+        }
+        List<ServiceProviderEngagementDTO> engagements = serviceProviderEngagementService
+                .getAllServiceProviderEngagements(page, size);
+
+        // Fallback to the first page if the requested page is empty
+        if (engagements.isEmpty() && page > 0) {
+            return getAllServiceProviderEngagements(0, size);
+        }
+
+        return ResponseEntity.ok(engagements);
+    }
+
+    // API to get service provider engagement by ID
+    @GetMapping("/get/engagement/{id}")
+    @ApiOperation(value = "Retrieve service provider engagement by ID", response = ServiceProviderEngagementDTO.class)
+    public ResponseEntity<ServiceProviderEngagementDTO> getServiceProviderEngagementById(
+            @ApiParam(value = "ID of the service provider engagement to retrieve", required = true) @PathVariable Long id) {
+        ServiceProviderEngagementDTO engagementDTO = serviceProviderEngagementService
+                .getServiceProviderEngagementById(id);
+        return engagementDTO != null ? ResponseEntity.ok(engagementDTO) : ResponseEntity.notFound().build();
+    }
+
+    // API to add a new service provider engagement
+    @PostMapping("/engagement/add")
+    @ApiOperation(value = "Add a new service provider engagement")
+    public ResponseEntity<String> addServiceProviderEngagement(
+            @ApiParam(value = "Service provider engagement data to add", required = true) @RequestBody ServiceProviderEngagementDTO serviceProviderEngagementDTO) {
+        String result = serviceProviderEngagementService.addServiceProviderEngagement(serviceProviderEngagementDTO);
+        return ResponseEntity.status(HttpStatus.CREATED).body(result);
+    }
+
+    // API to update an existing service provider engagement
+    @PutMapping("/update/engagement/{id}")
+    @ApiOperation(value = "Update an existing service provider engagement")
+    public ResponseEntity<String> updateServiceProviderEngagement(
+            @ApiParam(value = "ID of the service provider engagement to update", required = true) @PathVariable Long id,
+            @ApiParam(value = "Updated service provider engagement object", required = true) @RequestBody ServiceProviderEngagementDTO serviceProviderEngagementDTO) {
+        serviceProviderEngagementDTO.setId(id); // Set the ID in the DTO
+        String result = serviceProviderEngagementService.updateServiceProviderEngagement(serviceProviderEngagementDTO);
+        return ResponseEntity.ok(result);
+    }
+
+    // API to deactivate a service provider engagement
+    @PatchMapping("/deactivate/engagement/{id}")
+    @ApiOperation(value = "Deactivate a service provider engagement") // Operation description
+    public ResponseEntity<String> deactivateServiceProviderEngagement(
+            @ApiParam(value = "ID of the service provider engagement to deactivate", required = true) @PathVariable Long id) {
+
+        String result = serviceProviderEngagementService.deleteServiceProviderEngagement(id);
+        return ResponseEntity.ok(result);
     }
 
 }

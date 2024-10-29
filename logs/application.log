@@ -1,0 +1,469 @@
+2024-10-29T10:14:31.065+05:30  INFO 6164 --- [restartedMain] c.s.app.SpringbootFirstAppApplication    : Starting SpringbootFirstAppApplication using Java 17.0.12 with PID 6164 (C:\service\ServEase_BE\target\classes started by shaiq in C:\service\ServEase_BE)
+2024-10-29T10:14:31.073+05:30  INFO 6164 --- [restartedMain] c.s.app.SpringbootFirstAppApplication    : No active profile set, falling back to 1 default profile: "default"
+2024-10-29T10:14:31.144+05:30  INFO 6164 --- [restartedMain] .e.DevToolsPropertyDefaultsPostProcessor : Devtools property defaults active! Set 'spring.devtools.add-properties' to 'false' to disable
+2024-10-29T10:14:31.144+05:30  INFO 6164 --- [restartedMain] .e.DevToolsPropertyDefaultsPostProcessor : For additional web related logging consider setting the 'logging.level.web' property to 'DEBUG'
+2024-10-29T10:14:33.603+05:30  INFO 6164 --- [restartedMain] o.s.b.w.embedded.tomcat.TomcatWebServer  : Tomcat initialized with port 8080 (http)
+2024-10-29T10:14:33.638+05:30  INFO 6164 --- [restartedMain] o.apache.catalina.core.StandardService   : Starting service [Tomcat]
+2024-10-29T10:14:33.639+05:30  INFO 6164 --- [restartedMain] o.apache.catalina.core.StandardEngine    : Starting Servlet engine: [Apache Tomcat/10.1.30]
+2024-10-29T10:14:33.768+05:30  INFO 6164 --- [restartedMain] o.a.c.c.C.[Tomcat].[localhost].[/]       : Initializing Spring embedded WebApplicationContext
+2024-10-29T10:14:33.768+05:30  INFO 6164 --- [restartedMain] w.s.c.ServletWebServerApplicationContext : Root WebApplicationContext: initialization completed in 2620 ms
+2024-10-29T10:14:34.624+05:30  INFO 6164 --- [restartedMain] org.hibernate.Version                    : HHH000412: Hibernate ORM core version 6.5.2.Final
+2024-10-29T10:14:34.754+05:30  INFO 6164 --- [restartedMain] o.h.c.internal.RegionFactoryInitiator    : HHH000026: Second-level cache disabled
+2024-10-29T10:14:34.946+05:30  INFO 6164 --- [restartedMain] com.zaxxer.hikari.HikariDataSource       : HikariPool-1 - Starting...
+2024-10-29T10:14:35.381+05:30  INFO 6164 --- [restartedMain] com.zaxxer.hikari.pool.HikariPool        : HikariPool-1 - Added connection org.postgresql.jdbc.PgConnection@79c20bee
+2024-10-29T10:14:35.383+05:30  INFO 6164 --- [restartedMain] com.zaxxer.hikari.HikariDataSource       : HikariPool-1 - Start completed.
+2024-10-29T10:14:35.448+05:30  WARN 6164 --- [restartedMain] org.hibernate.orm.deprecation            : HHH90000025: PostgreSQLDialect does not need to be specified explicitly using 'hibernate.dialect' (remove the property setting and it will be selected by default)
+2024-10-29T10:14:37.263+05:30  INFO 6164 --- [restartedMain] o.h.e.t.j.p.i.JtaPlatformInitiator       : HHH000489: No JTA platform available (set 'hibernate.transaction.jta.platform' to enable JTA platform integration)
+2024-10-29T10:14:38.656+05:30  INFO 6164 --- [restartedMain] o.s.b.d.a.OptionalLiveReloadServer       : LiveReload server is running on port 35729
+2024-10-29T10:14:38.673+05:30  INFO 6164 --- [restartedMain] o.s.b.a.e.web.EndpointLinksResolver      : Exposing 3 endpoints beneath base path '/actuator'
+2024-10-29T10:14:38.916+05:30  INFO 6164 --- [restartedMain] o.s.b.w.embedded.tomcat.TomcatWebServer  : Tomcat started on port 8080 (http) with context path '/'
+2024-10-29T10:14:38.944+05:30  INFO 6164 --- [restartedMain] c.s.app.SpringbootFirstAppApplication    : Started SpringbootFirstAppApplication in 8.51 seconds (process running for 9.201)
+2024-10-29T11:09:55.477+05:30  INFO 27220 --- [restartedMain] c.s.app.SpringbootFirstAppApplication    : Starting SpringbootFirstAppApplication using Java 17.0.12 with PID 27220 (C:\service\ServEase_BE\target\classes started by shaiq in C:\service\ServEase_BE)
+2024-10-29T11:09:55.482+05:30  INFO 27220 --- [restartedMain] c.s.app.SpringbootFirstAppApplication    : No active profile set, falling back to 1 default profile: "default"
+2024-10-29T11:09:55.583+05:30  INFO 27220 --- [restartedMain] .e.DevToolsPropertyDefaultsPostProcessor : Devtools property defaults active! Set 'spring.devtools.add-properties' to 'false' to disable
+2024-10-29T11:09:55.583+05:30  INFO 27220 --- [restartedMain] .e.DevToolsPropertyDefaultsPostProcessor : For additional web related logging consider setting the 'logging.level.web' property to 'DEBUG'
+2024-10-29T11:09:58.251+05:30  INFO 27220 --- [restartedMain] o.s.b.w.embedded.tomcat.TomcatWebServer  : Tomcat initialized with port 8080 (http)
+2024-10-29T11:09:58.280+05:30  INFO 27220 --- [restartedMain] o.apache.catalina.core.StandardService   : Starting service [Tomcat]
+2024-10-29T11:09:58.283+05:30  INFO 27220 --- [restartedMain] o.apache.catalina.core.StandardEngine    : Starting Servlet engine: [Apache Tomcat/10.1.30]
+2024-10-29T11:09:58.392+05:30  INFO 27220 --- [restartedMain] o.a.c.c.C.[Tomcat].[localhost].[/]       : Initializing Spring embedded WebApplicationContext
+2024-10-29T11:09:58.392+05:30  INFO 27220 --- [restartedMain] w.s.c.ServletWebServerApplicationContext : Root WebApplicationContext: initialization completed in 2808 ms
+2024-10-29T11:09:59.070+05:30  INFO 27220 --- [restartedMain] org.hibernate.Version                    : HHH000412: Hibernate ORM core version 6.5.2.Final
+2024-10-29T11:09:59.221+05:30  INFO 27220 --- [restartedMain] o.h.c.internal.RegionFactoryInitiator    : HHH000026: Second-level cache disabled
+2024-10-29T11:09:59.471+05:30  INFO 27220 --- [restartedMain] com.zaxxer.hikari.HikariDataSource       : HikariPool-1 - Starting...
+2024-10-29T11:10:00.044+05:30  INFO 27220 --- [restartedMain] com.zaxxer.hikari.pool.HikariPool        : HikariPool-1 - Added connection org.postgresql.jdbc.PgConnection@759d87b6
+2024-10-29T11:10:00.048+05:30  INFO 27220 --- [restartedMain] com.zaxxer.hikari.HikariDataSource       : HikariPool-1 - Start completed.
+2024-10-29T11:10:00.111+05:30  WARN 27220 --- [restartedMain] org.hibernate.orm.deprecation            : HHH90000025: PostgreSQLDialect does not need to be specified explicitly using 'hibernate.dialect' (remove the property setting and it will be selected by default)
+2024-10-29T11:10:02.370+05:30  INFO 27220 --- [restartedMain] o.h.e.t.j.p.i.JtaPlatformInitiator       : HHH000489: No JTA platform available (set 'hibernate.transaction.jta.platform' to enable JTA platform integration)
+2024-10-29T11:10:04.664+05:30  INFO 27220 --- [restartedMain] o.s.b.d.a.OptionalLiveReloadServer       : LiveReload server is running on port 35729
+2024-10-29T11:10:04.692+05:30  INFO 27220 --- [restartedMain] o.s.b.a.e.web.EndpointLinksResolver      : Exposing 3 endpoints beneath base path '/actuator'
+2024-10-29T11:10:04.984+05:30  INFO 27220 --- [restartedMain] o.s.b.w.embedded.tomcat.TomcatWebServer  : Tomcat started on port 8080 (http) with context path '/'
+2024-10-29T11:10:05.014+05:30  INFO 27220 --- [restartedMain] c.s.app.SpringbootFirstAppApplication    : Started SpringbootFirstAppApplication in 10.198 seconds (process running for 10.772)
+2024-10-29T11:11:36.399+05:30  INFO 27220 --- [http-nio-8080-exec-1] o.a.c.c.C.[Tomcat].[localhost].[/]       : Initializing Spring DispatcherServlet 'dispatcherServlet'
+2024-10-29T11:11:36.400+05:30  INFO 27220 --- [http-nio-8080-exec-1] o.s.web.servlet.DispatcherServlet        : Initializing Servlet 'dispatcherServlet'
+2024-10-29T11:11:36.402+05:30  INFO 27220 --- [http-nio-8080-exec-1] o.s.web.servlet.DispatcherServlet        : Completed initialization in 1 ms
+2024-10-29T11:11:36.454+05:30  WARN 27220 --- [http-nio-8080-exec-1] .m.m.a.ExceptionHandlerExceptionResolver : Resolved [org.springframework.web.servlet.resource.NoResourceFoundException: No static resource api/serviceproviders/feedbacks/all%0A.]
+2024-10-29T11:12:06.549+05:30  WARN 27220 --- [http-nio-8080-exec-4] .m.m.a.ExceptionHandlerExceptionResolver : Resolved [org.springframework.web.servlet.resource.NoResourceFoundException: No static resource api/serviceproviders/feedbacks/all%0A.]
+2024-10-29T11:14:42.054+05:30  INFO 27220 --- [http-nio-8080-exec-2] s.a.s.ServiceProviderFeedbackServiceImpl : Fetching service provider feedbacks with pagination - page: 0, size: 10
+2024-10-29T11:14:42.561+05:30 DEBUG 27220 --- [http-nio-8080-exec-2] s.a.s.ServiceProviderFeedbackServiceImpl : Fetched 10 feedback(s)
+2024-10-29T11:22:39.121+05:30  INFO 27220 --- [http-nio-8080-exec-10] s.a.s.ServiceProviderFeedbackServiceImpl : Fetching service provider feedbacks with pagination - page: 1, size: 10
+2024-10-29T11:22:39.129+05:30 DEBUG 27220 --- [http-nio-8080-exec-10] s.a.s.ServiceProviderFeedbackServiceImpl : Fetched 6 feedback(s)
+2024-10-29T11:24:26.884+05:30  INFO 27220 --- [File Watcher] rtingClassPathChangeChangedEventListener : Restarting due to 3 class path changes (0 additions, 0 deletions, 3 modifications)
+2024-10-29T11:24:26.982+05:30  INFO 27220 --- [Thread-5] com.zaxxer.hikari.HikariDataSource       : HikariPool-1 - Shutdown initiated...
+2024-10-29T11:24:26.987+05:30  INFO 27220 --- [Thread-5] com.zaxxer.hikari.HikariDataSource       : HikariPool-1 - Shutdown completed.
+2024-10-29T11:24:27.112+05:30  INFO 27220 --- [restartedMain] c.s.app.SpringbootFirstAppApplication    : Starting SpringbootFirstAppApplication using Java 17.0.12 with PID 27220 (C:\service\ServEase_BE\target\classes started by shaiq in C:\service\ServEase_BE)
+2024-10-29T11:24:27.112+05:30  INFO 27220 --- [restartedMain] c.s.app.SpringbootFirstAppApplication    : No active profile set, falling back to 1 default profile: "default"
+2024-10-29T11:24:27.633+05:30  INFO 27220 --- [restartedMain] o.s.b.w.embedded.tomcat.TomcatWebServer  : Tomcat initialized with port 8080 (http)
+2024-10-29T11:24:27.645+05:30  INFO 27220 --- [restartedMain] o.apache.catalina.core.StandardService   : Starting service [Tomcat]
+2024-10-29T11:24:27.645+05:30  INFO 27220 --- [restartedMain] o.apache.catalina.core.StandardEngine    : Starting Servlet engine: [Apache Tomcat/10.1.30]
+2024-10-29T11:24:27.668+05:30  INFO 27220 --- [restartedMain] o.a.c.c.C.[Tomcat].[localhost].[/]       : Initializing Spring embedded WebApplicationContext
+2024-10-29T11:24:27.668+05:30  INFO 27220 --- [restartedMain] w.s.c.ServletWebServerApplicationContext : Root WebApplicationContext: initialization completed in 553 ms
+2024-10-29T11:24:27.810+05:30  INFO 27220 --- [restartedMain] o.h.c.internal.RegionFactoryInitiator    : HHH000026: Second-level cache disabled
+2024-10-29T11:24:27.810+05:30  INFO 27220 --- [restartedMain] com.zaxxer.hikari.HikariDataSource       : HikariPool-2 - Starting...
+2024-10-29T11:24:27.992+05:30  INFO 27220 --- [restartedMain] com.zaxxer.hikari.pool.HikariPool        : HikariPool-2 - Added connection org.postgresql.jdbc.PgConnection@725f0a33
+2024-10-29T11:24:27.992+05:30  INFO 27220 --- [restartedMain] com.zaxxer.hikari.HikariDataSource       : HikariPool-2 - Start completed.
+2024-10-29T11:24:27.999+05:30  WARN 27220 --- [restartedMain] org.hibernate.orm.deprecation            : HHH90000025: PostgreSQLDialect does not need to be specified explicitly using 'hibernate.dialect' (remove the property setting and it will be selected by default)
+2024-10-29T11:24:28.406+05:30  INFO 27220 --- [restartedMain] o.h.e.t.j.p.i.JtaPlatformInitiator       : HHH000489: No JTA platform available (set 'hibernate.transaction.jta.platform' to enable JTA platform integration)
+2024-10-29T11:24:28.843+05:30  INFO 27220 --- [restartedMain] o.s.b.d.a.OptionalLiveReloadServer       : LiveReload server is running on port 35729
+2024-10-29T11:24:28.843+05:30  INFO 27220 --- [restartedMain] o.s.b.a.e.web.EndpointLinksResolver      : Exposing 3 endpoints beneath base path '/actuator'
+2024-10-29T11:24:28.868+05:30  INFO 27220 --- [restartedMain] o.s.b.w.embedded.tomcat.TomcatWebServer  : Tomcat started on port 8080 (http) with context path '/'
+2024-10-29T11:24:28.888+05:30  INFO 27220 --- [restartedMain] c.s.app.SpringbootFirstAppApplication    : Started SpringbootFirstAppApplication in 1.821 seconds (process running for 874.652)
+2024-10-29T11:24:28.903+05:30  INFO 27220 --- [restartedMain] .ConditionEvaluationDeltaLoggingListener : Condition evaluation unchanged
+2024-10-29T11:25:34.610+05:30  INFO 27220 --- [File Watcher] rtingClassPathChangeChangedEventListener : Restarting due to 1 class path change (0 additions, 0 deletions, 1 modification)
+2024-10-29T11:25:34.696+05:30  INFO 27220 --- [Thread-7] com.zaxxer.hikari.HikariDataSource       : HikariPool-2 - Shutdown initiated...
+2024-10-29T11:25:34.707+05:30  INFO 27220 --- [Thread-7] com.zaxxer.hikari.HikariDataSource       : HikariPool-2 - Shutdown completed.
+2024-10-29T11:25:34.783+05:30  INFO 27220 --- [restartedMain] c.s.app.SpringbootFirstAppApplication    : Starting SpringbootFirstAppApplication using Java 17.0.12 with PID 27220 (C:\service\ServEase_BE\target\classes started by shaiq in C:\service\ServEase_BE)
+2024-10-29T11:25:34.783+05:30  INFO 27220 --- [restartedMain] c.s.app.SpringbootFirstAppApplication    : No active profile set, falling back to 1 default profile: "default"
+2024-10-29T11:25:35.237+05:30  INFO 27220 --- [restartedMain] o.s.b.w.embedded.tomcat.TomcatWebServer  : Tomcat initialized with port 8080 (http)
+2024-10-29T11:25:35.237+05:30  INFO 27220 --- [restartedMain] o.apache.catalina.core.StandardService   : Starting service [Tomcat]
+2024-10-29T11:25:35.237+05:30  INFO 27220 --- [restartedMain] o.apache.catalina.core.StandardEngine    : Starting Servlet engine: [Apache Tomcat/10.1.30]
+2024-10-29T11:25:35.265+05:30  INFO 27220 --- [restartedMain] o.a.c.c.C.[Tomcat].[localhost].[/]       : Initializing Spring embedded WebApplicationContext
+2024-10-29T11:25:35.265+05:30  INFO 27220 --- [restartedMain] w.s.c.ServletWebServerApplicationContext : Root WebApplicationContext: initialization completed in 482 ms
+2024-10-29T11:25:35.366+05:30  INFO 27220 --- [restartedMain] o.h.c.internal.RegionFactoryInitiator    : HHH000026: Second-level cache disabled
+2024-10-29T11:25:35.370+05:30  INFO 27220 --- [restartedMain] com.zaxxer.hikari.HikariDataSource       : HikariPool-3 - Starting...
+2024-10-29T11:25:35.653+05:30  INFO 27220 --- [restartedMain] com.zaxxer.hikari.pool.HikariPool        : HikariPool-3 - Added connection org.postgresql.jdbc.PgConnection@26529600
+2024-10-29T11:25:35.653+05:30  INFO 27220 --- [restartedMain] com.zaxxer.hikari.HikariDataSource       : HikariPool-3 - Start completed.
+2024-10-29T11:25:35.670+05:30  WARN 27220 --- [restartedMain] org.hibernate.orm.deprecation            : HHH90000025: PostgreSQLDialect does not need to be specified explicitly using 'hibernate.dialect' (remove the property setting and it will be selected by default)
+2024-10-29T11:25:35.902+05:30  INFO 27220 --- [restartedMain] o.h.e.t.j.p.i.JtaPlatformInitiator       : HHH000489: No JTA platform available (set 'hibernate.transaction.jta.platform' to enable JTA platform integration)
+2024-10-29T11:25:36.254+05:30  INFO 27220 --- [restartedMain] o.s.b.d.a.OptionalLiveReloadServer       : LiveReload server is running on port 35729
+2024-10-29T11:25:36.254+05:30  INFO 27220 --- [restartedMain] o.s.b.a.e.web.EndpointLinksResolver      : Exposing 3 endpoints beneath base path '/actuator'
+2024-10-29T11:25:36.281+05:30  INFO 27220 --- [restartedMain] o.s.b.w.embedded.tomcat.TomcatWebServer  : Tomcat started on port 8080 (http) with context path '/'
+2024-10-29T11:25:36.294+05:30  INFO 27220 --- [restartedMain] c.s.app.SpringbootFirstAppApplication    : Started SpringbootFirstAppApplication in 1.542 seconds (process running for 942.054)
+2024-10-29T11:25:36.300+05:30  INFO 27220 --- [restartedMain] .ConditionEvaluationDeltaLoggingListener : Condition evaluation unchanged
+2024-10-29T11:39:04.627+05:30  WARN 27220 --- [HikariPool-3 housekeeper] com.zaxxer.hikari.pool.HikariPool        : HikariPool-3 - Thread starvation or clock leap detected (housekeeper delta=8m28s776ms289µs800ns).
+2024-10-29T11:44:01.859+05:30  INFO 27220 --- [File Watcher] rtingClassPathChangeChangedEventListener : Restarting due to 1 class path change (0 additions, 0 deletions, 1 modification)
+2024-10-29T11:44:01.934+05:30  INFO 27220 --- [Thread-11] com.zaxxer.hikari.HikariDataSource       : HikariPool-3 - Shutdown initiated...
+2024-10-29T11:44:01.936+05:30  INFO 27220 --- [Thread-11] com.zaxxer.hikari.HikariDataSource       : HikariPool-3 - Shutdown completed.
+2024-10-29T11:44:02.025+05:30  INFO 27220 --- [restartedMain] c.s.app.SpringbootFirstAppApplication    : Starting SpringbootFirstAppApplication using Java 17.0.12 with PID 27220 (C:\service\ServEase_BE\target\classes started by shaiq in C:\service\ServEase_BE)
+2024-10-29T11:44:02.025+05:30  INFO 27220 --- [restartedMain] c.s.app.SpringbootFirstAppApplication    : No active profile set, falling back to 1 default profile: "default"
+2024-10-29T11:44:02.377+05:30  INFO 27220 --- [restartedMain] o.s.b.w.embedded.tomcat.TomcatWebServer  : Tomcat initialized with port 8080 (http)
+2024-10-29T11:44:02.377+05:30  INFO 27220 --- [restartedMain] o.apache.catalina.core.StandardService   : Starting service [Tomcat]
+2024-10-29T11:44:02.377+05:30  INFO 27220 --- [restartedMain] o.apache.catalina.core.StandardEngine    : Starting Servlet engine: [Apache Tomcat/10.1.30]
+2024-10-29T11:44:02.401+05:30  INFO 27220 --- [restartedMain] o.a.c.c.C.[Tomcat].[localhost].[/]       : Initializing Spring embedded WebApplicationContext
+2024-10-29T11:44:02.401+05:30  INFO 27220 --- [restartedMain] w.s.c.ServletWebServerApplicationContext : Root WebApplicationContext: initialization completed in 367 ms
+2024-10-29T11:44:02.453+05:30  INFO 27220 --- [restartedMain] o.h.c.internal.RegionFactoryInitiator    : HHH000026: Second-level cache disabled
+2024-10-29T11:44:02.453+05:30  INFO 27220 --- [restartedMain] com.zaxxer.hikari.HikariDataSource       : HikariPool-4 - Starting...
+2024-10-29T11:44:02.730+05:30  INFO 27220 --- [restartedMain] com.zaxxer.hikari.pool.HikariPool        : HikariPool-4 - Added connection org.postgresql.jdbc.PgConnection@5002eb64
+2024-10-29T11:44:02.730+05:30  INFO 27220 --- [restartedMain] com.zaxxer.hikari.HikariDataSource       : HikariPool-4 - Start completed.
+2024-10-29T11:44:02.746+05:30  WARN 27220 --- [restartedMain] org.hibernate.orm.deprecation            : HHH90000025: PostgreSQLDialect does not need to be specified explicitly using 'hibernate.dialect' (remove the property setting and it will be selected by default)
+2024-10-29T11:44:02.941+05:30  INFO 27220 --- [restartedMain] o.h.e.t.j.p.i.JtaPlatformInitiator       : HHH000489: No JTA platform available (set 'hibernate.transaction.jta.platform' to enable JTA platform integration)
+2024-10-29T11:44:03.259+05:30  INFO 27220 --- [restartedMain] o.s.b.d.a.OptionalLiveReloadServer       : LiveReload server is running on port 35729
+2024-10-29T11:44:03.259+05:30  INFO 27220 --- [restartedMain] o.s.b.a.e.web.EndpointLinksResolver      : Exposing 3 endpoints beneath base path '/actuator'
+2024-10-29T11:44:03.269+05:30  INFO 27220 --- [restartedMain] o.s.b.w.embedded.tomcat.TomcatWebServer  : Tomcat started on port 8080 (http) with context path '/'
+2024-10-29T11:44:03.269+05:30  INFO 27220 --- [restartedMain] c.s.app.SpringbootFirstAppApplication    : Started SpringbootFirstAppApplication in 1.266 seconds (process running for 2049.038)
+2024-10-29T11:44:03.269+05:30  INFO 27220 --- [restartedMain] .ConditionEvaluationDeltaLoggingListener : Condition evaluation unchanged
+2024-10-29T11:44:15.029+05:30  INFO 27220 --- [File Watcher] rtingClassPathChangeChangedEventListener : Restarting due to 1 class path change (0 additions, 0 deletions, 1 modification)
+2024-10-29T11:44:15.119+05:30  INFO 27220 --- [Thread-15] com.zaxxer.hikari.HikariDataSource       : HikariPool-4 - Shutdown initiated...
+2024-10-29T11:44:15.125+05:30  INFO 27220 --- [Thread-15] com.zaxxer.hikari.HikariDataSource       : HikariPool-4 - Shutdown completed.
+2024-10-29T11:44:15.234+05:30  INFO 27220 --- [restartedMain] c.s.app.SpringbootFirstAppApplication    : Starting SpringbootFirstAppApplication using Java 17.0.12 with PID 27220 (C:\service\ServEase_BE\target\classes started by shaiq in C:\service\ServEase_BE)
+2024-10-29T11:44:15.234+05:30  INFO 27220 --- [restartedMain] c.s.app.SpringbootFirstAppApplication    : No active profile set, falling back to 1 default profile: "default"
+2024-10-29T11:44:15.641+05:30  INFO 27220 --- [restartedMain] o.s.b.w.embedded.tomcat.TomcatWebServer  : Tomcat initialized with port 8080 (http)
+2024-10-29T11:44:15.641+05:30  INFO 27220 --- [restartedMain] o.apache.catalina.core.StandardService   : Starting service [Tomcat]
+2024-10-29T11:44:15.641+05:30  INFO 27220 --- [restartedMain] o.apache.catalina.core.StandardEngine    : Starting Servlet engine: [Apache Tomcat/10.1.30]
+2024-10-29T11:44:15.668+05:30  INFO 27220 --- [restartedMain] o.a.c.c.C.[Tomcat].[localhost].[/]       : Initializing Spring embedded WebApplicationContext
+2024-10-29T11:44:15.668+05:30  INFO 27220 --- [restartedMain] w.s.c.ServletWebServerApplicationContext : Root WebApplicationContext: initialization completed in 434 ms
+2024-10-29T11:44:15.737+05:30  INFO 27220 --- [restartedMain] o.h.c.internal.RegionFactoryInitiator    : HHH000026: Second-level cache disabled
+2024-10-29T11:44:15.740+05:30  INFO 27220 --- [restartedMain] com.zaxxer.hikari.HikariDataSource       : HikariPool-5 - Starting...
+2024-10-29T11:44:15.995+05:30  INFO 27220 --- [restartedMain] com.zaxxer.hikari.pool.HikariPool        : HikariPool-5 - Added connection org.postgresql.jdbc.PgConnection@4fa80b12
+2024-10-29T11:44:15.995+05:30  INFO 27220 --- [restartedMain] com.zaxxer.hikari.HikariDataSource       : HikariPool-5 - Start completed.
+2024-10-29T11:44:15.995+05:30  WARN 27220 --- [restartedMain] org.hibernate.orm.deprecation            : HHH90000025: PostgreSQLDialect does not need to be specified explicitly using 'hibernate.dialect' (remove the property setting and it will be selected by default)
+2024-10-29T11:44:16.167+05:30  INFO 27220 --- [restartedMain] o.h.e.t.j.p.i.JtaPlatformInitiator       : HHH000489: No JTA platform available (set 'hibernate.transaction.jta.platform' to enable JTA platform integration)
+2024-10-29T11:44:16.391+05:30  INFO 27220 --- [restartedMain] o.s.b.d.a.OptionalLiveReloadServer       : LiveReload server is running on port 35729
+2024-10-29T11:44:16.391+05:30  INFO 27220 --- [restartedMain] o.s.b.a.e.web.EndpointLinksResolver      : Exposing 3 endpoints beneath base path '/actuator'
+2024-10-29T11:44:16.419+05:30  INFO 27220 --- [restartedMain] o.s.b.w.embedded.tomcat.TomcatWebServer  : Tomcat started on port 8080 (http) with context path '/'
+2024-10-29T11:44:16.436+05:30  INFO 27220 --- [restartedMain] c.s.app.SpringbootFirstAppApplication    : Started SpringbootFirstAppApplication in 1.234 seconds (process running for 2062.196)
+2024-10-29T11:44:16.436+05:30  INFO 27220 --- [restartedMain] .ConditionEvaluationDeltaLoggingListener : Condition evaluation unchanged
+2024-10-29T11:44:47.792+05:30  INFO 27220 --- [File Watcher] rtingClassPathChangeChangedEventListener : Restarting due to 1 class path change (0 additions, 0 deletions, 1 modification)
+2024-10-29T11:44:47.867+05:30  INFO 27220 --- [Thread-19] com.zaxxer.hikari.HikariDataSource       : HikariPool-5 - Shutdown initiated...
+2024-10-29T11:44:47.867+05:30  INFO 27220 --- [Thread-19] com.zaxxer.hikari.HikariDataSource       : HikariPool-5 - Shutdown completed.
+2024-10-29T11:44:47.968+05:30  INFO 27220 --- [restartedMain] c.s.app.SpringbootFirstAppApplication    : Starting SpringbootFirstAppApplication using Java 17.0.12 with PID 27220 (C:\service\ServEase_BE\target\classes started by shaiq in C:\service\ServEase_BE)
+2024-10-29T11:44:47.968+05:30  INFO 27220 --- [restartedMain] c.s.app.SpringbootFirstAppApplication    : No active profile set, falling back to 1 default profile: "default"
+2024-10-29T11:44:48.271+05:30  INFO 27220 --- [restartedMain] o.s.b.w.embedded.tomcat.TomcatWebServer  : Tomcat initialized with port 8080 (http)
+2024-10-29T11:44:48.271+05:30  INFO 27220 --- [restartedMain] o.apache.catalina.core.StandardService   : Starting service [Tomcat]
+2024-10-29T11:44:48.271+05:30  INFO 27220 --- [restartedMain] o.apache.catalina.core.StandardEngine    : Starting Servlet engine: [Apache Tomcat/10.1.30]
+2024-10-29T11:44:48.303+05:30  INFO 27220 --- [restartedMain] o.a.c.c.C.[Tomcat].[localhost].[/]       : Initializing Spring embedded WebApplicationContext
+2024-10-29T11:44:48.303+05:30  INFO 27220 --- [restartedMain] w.s.c.ServletWebServerApplicationContext : Root WebApplicationContext: initialization completed in 329 ms
+2024-10-29T11:44:48.353+05:30  INFO 27220 --- [restartedMain] o.h.c.internal.RegionFactoryInitiator    : HHH000026: Second-level cache disabled
+2024-10-29T11:44:48.364+05:30  INFO 27220 --- [restartedMain] com.zaxxer.hikari.HikariDataSource       : HikariPool-6 - Starting...
+2024-10-29T11:44:48.524+05:30  INFO 27220 --- [restartedMain] com.zaxxer.hikari.pool.HikariPool        : HikariPool-6 - Added connection org.postgresql.jdbc.PgConnection@564c64a7
+2024-10-29T11:44:48.524+05:30  INFO 27220 --- [restartedMain] com.zaxxer.hikari.HikariDataSource       : HikariPool-6 - Start completed.
+2024-10-29T11:44:48.536+05:30  WARN 27220 --- [restartedMain] org.hibernate.orm.deprecation            : HHH90000025: PostgreSQLDialect does not need to be specified explicitly using 'hibernate.dialect' (remove the property setting and it will be selected by default)
+2024-10-29T11:44:48.684+05:30  INFO 27220 --- [restartedMain] o.h.e.t.j.p.i.JtaPlatformInitiator       : HHH000489: No JTA platform available (set 'hibernate.transaction.jta.platform' to enable JTA platform integration)
+2024-10-29T11:44:48.934+05:30  INFO 27220 --- [restartedMain] o.s.b.d.a.OptionalLiveReloadServer       : LiveReload server is running on port 35729
+2024-10-29T11:44:48.934+05:30  INFO 27220 --- [restartedMain] o.s.b.a.e.web.EndpointLinksResolver      : Exposing 3 endpoints beneath base path '/actuator'
+2024-10-29T11:44:48.959+05:30  INFO 27220 --- [restartedMain] o.s.b.w.embedded.tomcat.TomcatWebServer  : Tomcat started on port 8080 (http) with context path '/'
+2024-10-29T11:44:48.974+05:30  INFO 27220 --- [restartedMain] c.s.app.SpringbootFirstAppApplication    : Started SpringbootFirstAppApplication in 1.026 seconds (process running for 2094.732)
+2024-10-29T11:44:48.974+05:30  INFO 27220 --- [restartedMain] .ConditionEvaluationDeltaLoggingListener : Condition evaluation unchanged
+2024-10-29T11:45:16.175+05:30  INFO 27220 --- [File Watcher] rtingClassPathChangeChangedEventListener : Restarting due to 1 class path change (0 additions, 0 deletions, 1 modification)
+2024-10-29T11:45:16.268+05:30  INFO 27220 --- [Thread-23] com.zaxxer.hikari.HikariDataSource       : HikariPool-6 - Shutdown initiated...
+2024-10-29T11:45:16.278+05:30  INFO 27220 --- [Thread-23] com.zaxxer.hikari.HikariDataSource       : HikariPool-6 - Shutdown completed.
+2024-10-29T11:45:16.374+05:30  INFO 27220 --- [restartedMain] c.s.app.SpringbootFirstAppApplication    : Starting SpringbootFirstAppApplication using Java 17.0.12 with PID 27220 (C:\service\ServEase_BE\target\classes started by shaiq in C:\service\ServEase_BE)
+2024-10-29T11:45:16.374+05:30  INFO 27220 --- [restartedMain] c.s.app.SpringbootFirstAppApplication    : No active profile set, falling back to 1 default profile: "default"
+2024-10-29T11:45:16.737+05:30  INFO 27220 --- [restartedMain] o.s.b.w.embedded.tomcat.TomcatWebServer  : Tomcat initialized with port 8080 (http)
+2024-10-29T11:45:16.739+05:30  INFO 27220 --- [restartedMain] o.apache.catalina.core.StandardService   : Starting service [Tomcat]
+2024-10-29T11:45:16.739+05:30  INFO 27220 --- [restartedMain] o.apache.catalina.core.StandardEngine    : Starting Servlet engine: [Apache Tomcat/10.1.30]
+2024-10-29T11:45:16.769+05:30  INFO 27220 --- [restartedMain] o.a.c.c.C.[Tomcat].[localhost].[/]       : Initializing Spring embedded WebApplicationContext
+2024-10-29T11:45:16.769+05:30  INFO 27220 --- [restartedMain] w.s.c.ServletWebServerApplicationContext : Root WebApplicationContext: initialization completed in 395 ms
+2024-10-29T11:45:16.835+05:30  INFO 27220 --- [restartedMain] o.h.c.internal.RegionFactoryInitiator    : HHH000026: Second-level cache disabled
+2024-10-29T11:45:16.835+05:30  INFO 27220 --- [restartedMain] com.zaxxer.hikari.HikariDataSource       : HikariPool-7 - Starting...
+2024-10-29T11:45:17.018+05:30  INFO 27220 --- [restartedMain] com.zaxxer.hikari.pool.HikariPool        : HikariPool-7 - Added connection org.postgresql.jdbc.PgConnection@658d19b5
+2024-10-29T11:45:17.018+05:30  INFO 27220 --- [restartedMain] com.zaxxer.hikari.HikariDataSource       : HikariPool-7 - Start completed.
+2024-10-29T11:45:17.035+05:30  WARN 27220 --- [restartedMain] org.hibernate.orm.deprecation            : HHH90000025: PostgreSQLDialect does not need to be specified explicitly using 'hibernate.dialect' (remove the property setting and it will be selected by default)
+2024-10-29T11:45:17.220+05:30  INFO 27220 --- [restartedMain] o.h.e.t.j.p.i.JtaPlatformInitiator       : HHH000489: No JTA platform available (set 'hibernate.transaction.jta.platform' to enable JTA platform integration)
+2024-10-29T11:45:17.534+05:30  INFO 27220 --- [restartedMain] o.s.b.d.a.OptionalLiveReloadServer       : LiveReload server is running on port 35729
+2024-10-29T11:45:17.534+05:30  INFO 27220 --- [restartedMain] o.s.b.a.e.web.EndpointLinksResolver      : Exposing 3 endpoints beneath base path '/actuator'
+2024-10-29T11:45:17.566+05:30  INFO 27220 --- [restartedMain] o.s.b.w.embedded.tomcat.TomcatWebServer  : Tomcat started on port 8080 (http) with context path '/'
+2024-10-29T11:45:17.569+05:30  INFO 27220 --- [restartedMain] c.s.app.SpringbootFirstAppApplication    : Started SpringbootFirstAppApplication in 1.211 seconds (process running for 2123.334)
+2024-10-29T11:45:17.569+05:30  INFO 27220 --- [restartedMain] .ConditionEvaluationDeltaLoggingListener : Condition evaluation unchanged
+2024-10-29T11:45:49.911+05:30  INFO 27220 --- [http-nio-8080-exec-2] o.a.c.c.C.[Tomcat].[localhost].[/]       : Initializing Spring DispatcherServlet 'dispatcherServlet'
+2024-10-29T11:45:49.911+05:30  INFO 27220 --- [http-nio-8080-exec-2] o.s.web.servlet.DispatcherServlet        : Initializing Servlet 'dispatcherServlet'
+2024-10-29T11:45:49.911+05:30  INFO 27220 --- [http-nio-8080-exec-2] o.s.web.servlet.DispatcherServlet        : Completed initialization in 0 ms
+2024-10-29T11:45:49.919+05:30  INFO 27220 --- [http-nio-8080-exec-2] ServiceProviderRequestCommentServiceImpl : Fetching service provider request comments with pagination - page: 0, size: 10
+2024-10-29T11:45:49.976+05:30 DEBUG 27220 --- [http-nio-8080-exec-2] ServiceProviderRequestCommentServiceImpl : Fetched 2 comments from the database.
+2024-10-29T11:47:33.916+05:30  INFO 27220 --- [File Watcher] rtingClassPathChangeChangedEventListener : Restarting due to 3 class path changes (0 additions, 0 deletions, 3 modifications)
+2024-10-29T11:47:34.004+05:30  INFO 27220 --- [Thread-27] com.zaxxer.hikari.HikariDataSource       : HikariPool-7 - Shutdown initiated...
+2024-10-29T11:47:34.012+05:30  INFO 27220 --- [Thread-27] com.zaxxer.hikari.HikariDataSource       : HikariPool-7 - Shutdown completed.
+2024-10-29T11:47:34.115+05:30  INFO 27220 --- [restartedMain] c.s.app.SpringbootFirstAppApplication    : Starting SpringbootFirstAppApplication using Java 17.0.12 with PID 27220 (C:\service\ServEase_BE\target\classes started by shaiq in C:\service\ServEase_BE)
+2024-10-29T11:47:34.115+05:30  INFO 27220 --- [restartedMain] c.s.app.SpringbootFirstAppApplication    : No active profile set, falling back to 1 default profile: "default"
+2024-10-29T11:47:34.511+05:30  INFO 27220 --- [restartedMain] o.s.b.w.embedded.tomcat.TomcatWebServer  : Tomcat initialized with port 8080 (http)
+2024-10-29T11:47:34.511+05:30  INFO 27220 --- [restartedMain] o.apache.catalina.core.StandardService   : Starting service [Tomcat]
+2024-10-29T11:47:34.511+05:30  INFO 27220 --- [restartedMain] o.apache.catalina.core.StandardEngine    : Starting Servlet engine: [Apache Tomcat/10.1.30]
+2024-10-29T11:47:34.533+05:30  INFO 27220 --- [restartedMain] o.a.c.c.C.[Tomcat].[localhost].[/]       : Initializing Spring embedded WebApplicationContext
+2024-10-29T11:47:34.533+05:30  INFO 27220 --- [restartedMain] w.s.c.ServletWebServerApplicationContext : Root WebApplicationContext: initialization completed in 418 ms
+2024-10-29T11:47:34.584+05:30  INFO 27220 --- [restartedMain] o.h.c.internal.RegionFactoryInitiator    : HHH000026: Second-level cache disabled
+2024-10-29T11:47:34.584+05:30  INFO 27220 --- [restartedMain] com.zaxxer.hikari.HikariDataSource       : HikariPool-8 - Starting...
+2024-10-29T11:47:34.750+05:30  INFO 27220 --- [restartedMain] com.zaxxer.hikari.pool.HikariPool        : HikariPool-8 - Added connection org.postgresql.jdbc.PgConnection@5083925e
+2024-10-29T11:47:34.750+05:30  INFO 27220 --- [restartedMain] com.zaxxer.hikari.HikariDataSource       : HikariPool-8 - Start completed.
+2024-10-29T11:47:34.767+05:30  WARN 27220 --- [restartedMain] org.hibernate.orm.deprecation            : HHH90000025: PostgreSQLDialect does not need to be specified explicitly using 'hibernate.dialect' (remove the property setting and it will be selected by default)
+2024-10-29T11:47:34.916+05:30  INFO 27220 --- [restartedMain] o.h.e.t.j.p.i.JtaPlatformInitiator       : HHH000489: No JTA platform available (set 'hibernate.transaction.jta.platform' to enable JTA platform integration)
+2024-10-29T11:47:35.165+05:30  INFO 27220 --- [restartedMain] o.s.b.d.a.OptionalLiveReloadServer       : LiveReload server is running on port 35729
+2024-10-29T11:47:35.166+05:30  INFO 27220 --- [restartedMain] o.s.b.a.e.web.EndpointLinksResolver      : Exposing 3 endpoints beneath base path '/actuator'
+2024-10-29T11:47:35.177+05:30  INFO 27220 --- [restartedMain] o.s.b.w.embedded.tomcat.TomcatWebServer  : Tomcat started on port 8080 (http) with context path '/'
+2024-10-29T11:47:35.186+05:30  INFO 27220 --- [restartedMain] c.s.app.SpringbootFirstAppApplication    : Started SpringbootFirstAppApplication in 1.1 seconds (process running for 2260.949)
+2024-10-29T11:47:35.186+05:30  INFO 27220 --- [restartedMain] .ConditionEvaluationDeltaLoggingListener : Condition evaluation unchanged
+2024-10-29T11:50:08.003+05:30  INFO 27220 --- [File Watcher] rtingClassPathChangeChangedEventListener : Restarting due to 1 class path change (0 additions, 0 deletions, 1 modification)
+2024-10-29T11:50:08.113+05:30  INFO 27220 --- [Thread-31] com.zaxxer.hikari.HikariDataSource       : HikariPool-8 - Shutdown initiated...
+2024-10-29T11:50:08.116+05:30  INFO 27220 --- [Thread-31] com.zaxxer.hikari.HikariDataSource       : HikariPool-8 - Shutdown completed.
+2024-10-29T11:50:08.236+05:30  INFO 27220 --- [restartedMain] c.s.app.SpringbootFirstAppApplication    : Starting SpringbootFirstAppApplication using Java 17.0.12 with PID 27220 (C:\service\ServEase_BE\target\classes started by shaiq in C:\service\ServEase_BE)
+2024-10-29T11:50:08.236+05:30  INFO 27220 --- [restartedMain] c.s.app.SpringbootFirstAppApplication    : No active profile set, falling back to 1 default profile: "default"
+2024-10-29T11:50:08.613+05:30  INFO 27220 --- [restartedMain] o.s.b.w.embedded.tomcat.TomcatWebServer  : Tomcat initialized with port 8080 (http)
+2024-10-29T11:50:08.613+05:30  INFO 27220 --- [restartedMain] o.apache.catalina.core.StandardService   : Starting service [Tomcat]
+2024-10-29T11:50:08.613+05:30  INFO 27220 --- [restartedMain] o.apache.catalina.core.StandardEngine    : Starting Servlet engine: [Apache Tomcat/10.1.30]
+2024-10-29T11:50:08.637+05:30  INFO 27220 --- [restartedMain] o.a.c.c.C.[Tomcat].[localhost].[/]       : Initializing Spring embedded WebApplicationContext
+2024-10-29T11:50:08.637+05:30  INFO 27220 --- [restartedMain] w.s.c.ServletWebServerApplicationContext : Root WebApplicationContext: initialization completed in 401 ms
+2024-10-29T11:50:08.693+05:30  INFO 27220 --- [restartedMain] o.h.c.internal.RegionFactoryInitiator    : HHH000026: Second-level cache disabled
+2024-10-29T11:50:08.696+05:30  INFO 27220 --- [restartedMain] com.zaxxer.hikari.HikariDataSource       : HikariPool-9 - Starting...
+2024-10-29T11:50:08.884+05:30  INFO 27220 --- [restartedMain] com.zaxxer.hikari.pool.HikariPool        : HikariPool-9 - Added connection org.postgresql.jdbc.PgConnection@6d01f65f
+2024-10-29T11:50:08.884+05:30  INFO 27220 --- [restartedMain] com.zaxxer.hikari.HikariDataSource       : HikariPool-9 - Start completed.
+2024-10-29T11:50:08.884+05:30  WARN 27220 --- [restartedMain] org.hibernate.orm.deprecation            : HHH90000025: PostgreSQLDialect does not need to be specified explicitly using 'hibernate.dialect' (remove the property setting and it will be selected by default)
+2024-10-29T11:50:09.017+05:30  INFO 27220 --- [restartedMain] o.h.e.t.j.p.i.JtaPlatformInitiator       : HHH000489: No JTA platform available (set 'hibernate.transaction.jta.platform' to enable JTA platform integration)
+2024-10-29T11:50:09.230+05:30  INFO 27220 --- [restartedMain] o.s.b.d.a.OptionalLiveReloadServer       : LiveReload server is running on port 35729
+2024-10-29T11:50:09.230+05:30  INFO 27220 --- [restartedMain] o.s.b.a.e.web.EndpointLinksResolver      : Exposing 3 endpoints beneath base path '/actuator'
+2024-10-29T11:50:09.249+05:30  INFO 27220 --- [restartedMain] o.s.b.w.embedded.tomcat.TomcatWebServer  : Tomcat started on port 8080 (http) with context path '/'
+2024-10-29T11:50:09.265+05:30  INFO 27220 --- [restartedMain] c.s.app.SpringbootFirstAppApplication    : Started SpringbootFirstAppApplication in 1.051 seconds (process running for 2415.025)
+2024-10-29T11:50:09.265+05:30  INFO 27220 --- [restartedMain] .ConditionEvaluationDeltaLoggingListener : Condition evaluation unchanged
+2024-10-29T11:54:41.915+05:30  INFO 27220 --- [File Watcher] rtingClassPathChangeChangedEventListener : Restarting due to 1 class path change (0 additions, 0 deletions, 1 modification)
+2024-10-29T11:54:41.993+05:30  INFO 27220 --- [Thread-35] com.zaxxer.hikari.HikariDataSource       : HikariPool-9 - Shutdown initiated...
+2024-10-29T11:54:41.996+05:30  INFO 27220 --- [Thread-35] com.zaxxer.hikari.HikariDataSource       : HikariPool-9 - Shutdown completed.
+2024-10-29T11:54:42.094+05:30  INFO 27220 --- [restartedMain] c.s.app.SpringbootFirstAppApplication    : Starting SpringbootFirstAppApplication using Java 17.0.12 with PID 27220 (C:\service\ServEase_BE\target\classes started by shaiq in C:\service\ServEase_BE)
+2024-10-29T11:54:42.095+05:30  INFO 27220 --- [restartedMain] c.s.app.SpringbootFirstAppApplication    : No active profile set, falling back to 1 default profile: "default"
+2024-10-29T11:54:42.392+05:30  INFO 27220 --- [restartedMain] o.s.b.w.embedded.tomcat.TomcatWebServer  : Tomcat initialized with port 8080 (http)
+2024-10-29T11:54:42.394+05:30  INFO 27220 --- [restartedMain] o.apache.catalina.core.StandardService   : Starting service [Tomcat]
+2024-10-29T11:54:42.395+05:30  INFO 27220 --- [restartedMain] o.apache.catalina.core.StandardEngine    : Starting Servlet engine: [Apache Tomcat/10.1.30]
+2024-10-29T11:54:42.414+05:30  INFO 27220 --- [restartedMain] o.a.c.c.C.[Tomcat].[localhost].[/]       : Initializing Spring embedded WebApplicationContext
+2024-10-29T11:54:42.415+05:30  INFO 27220 --- [restartedMain] w.s.c.ServletWebServerApplicationContext : Root WebApplicationContext: initialization completed in 319 ms
+2024-10-29T11:54:42.466+05:30  INFO 27220 --- [restartedMain] o.h.c.internal.RegionFactoryInitiator    : HHH000026: Second-level cache disabled
+2024-10-29T11:54:42.470+05:30  INFO 27220 --- [restartedMain] com.zaxxer.hikari.HikariDataSource       : HikariPool-10 - Starting...
+2024-10-29T11:54:42.625+05:30  INFO 27220 --- [restartedMain] com.zaxxer.hikari.pool.HikariPool        : HikariPool-10 - Added connection org.postgresql.jdbc.PgConnection@2f05ea2
+2024-10-29T11:54:42.626+05:30  INFO 27220 --- [restartedMain] com.zaxxer.hikari.HikariDataSource       : HikariPool-10 - Start completed.
+2024-10-29T11:54:42.634+05:30  WARN 27220 --- [restartedMain] org.hibernate.orm.deprecation            : HHH90000025: PostgreSQLDialect does not need to be specified explicitly using 'hibernate.dialect' (remove the property setting and it will be selected by default)
+2024-10-29T11:54:42.786+05:30  INFO 27220 --- [restartedMain] o.h.e.t.j.p.i.JtaPlatformInitiator       : HHH000489: No JTA platform available (set 'hibernate.transaction.jta.platform' to enable JTA platform integration)
+2024-10-29T11:54:43.024+05:30  INFO 27220 --- [restartedMain] o.s.b.d.a.OptionalLiveReloadServer       : LiveReload server is running on port 35729
+2024-10-29T11:54:43.026+05:30  INFO 27220 --- [restartedMain] o.s.b.a.e.web.EndpointLinksResolver      : Exposing 3 endpoints beneath base path '/actuator'
+2024-10-29T11:54:43.042+05:30  INFO 27220 --- [restartedMain] o.s.b.w.embedded.tomcat.TomcatWebServer  : Tomcat started on port 8080 (http) with context path '/'
+2024-10-29T11:54:43.055+05:30  INFO 27220 --- [restartedMain] c.s.app.SpringbootFirstAppApplication    : Started SpringbootFirstAppApplication in 0.984 seconds (process running for 2688.813)
+2024-10-29T11:54:43.057+05:30  INFO 27220 --- [restartedMain] .ConditionEvaluationDeltaLoggingListener : Condition evaluation unchanged
+2024-10-29T11:57:41.679+05:30  INFO 27220 --- [File Watcher] rtingClassPathChangeChangedEventListener : Restarting due to 1 class path change (0 additions, 0 deletions, 1 modification)
+2024-10-29T11:57:41.735+05:30  INFO 27220 --- [Thread-39] com.zaxxer.hikari.HikariDataSource       : HikariPool-10 - Shutdown initiated...
+2024-10-29T11:57:41.735+05:30  INFO 27220 --- [Thread-39] com.zaxxer.hikari.HikariDataSource       : HikariPool-10 - Shutdown completed.
+2024-10-29T11:57:41.832+05:30  INFO 27220 --- [restartedMain] c.s.app.SpringbootFirstAppApplication    : Starting SpringbootFirstAppApplication using Java 17.0.12 with PID 27220 (C:\service\ServEase_BE\target\classes started by shaiq in C:\service\ServEase_BE)
+2024-10-29T11:57:41.832+05:30  INFO 27220 --- [restartedMain] c.s.app.SpringbootFirstAppApplication    : No active profile set, falling back to 1 default profile: "default"
+2024-10-29T11:57:42.045+05:30  INFO 27220 --- [restartedMain] o.s.b.w.embedded.tomcat.TomcatWebServer  : Tomcat initialized with port 8080 (http)
+2024-10-29T11:57:42.057+05:30  INFO 27220 --- [restartedMain] o.apache.catalina.core.StandardService   : Starting service [Tomcat]
+2024-10-29T11:57:42.057+05:30  INFO 27220 --- [restartedMain] o.apache.catalina.core.StandardEngine    : Starting Servlet engine: [Apache Tomcat/10.1.30]
+2024-10-29T11:57:42.081+05:30  INFO 27220 --- [restartedMain] o.a.c.c.C.[Tomcat].[localhost].[/]       : Initializing Spring embedded WebApplicationContext
+2024-10-29T11:57:42.081+05:30  INFO 27220 --- [restartedMain] w.s.c.ServletWebServerApplicationContext : Root WebApplicationContext: initialization completed in 249 ms
+2024-10-29T11:57:42.132+05:30  INFO 27220 --- [restartedMain] o.h.c.internal.RegionFactoryInitiator    : HHH000026: Second-level cache disabled
+2024-10-29T11:57:42.132+05:30  INFO 27220 --- [restartedMain] com.zaxxer.hikari.HikariDataSource       : HikariPool-11 - Starting...
+2024-10-29T11:57:42.379+05:30  INFO 27220 --- [restartedMain] com.zaxxer.hikari.pool.HikariPool        : HikariPool-11 - Added connection org.postgresql.jdbc.PgConnection@5af2bd9e
+2024-10-29T11:57:42.379+05:30  INFO 27220 --- [restartedMain] com.zaxxer.hikari.HikariDataSource       : HikariPool-11 - Start completed.
+2024-10-29T11:57:42.395+05:30  WARN 27220 --- [restartedMain] org.hibernate.orm.deprecation            : HHH90000025: PostgreSQLDialect does not need to be specified explicitly using 'hibernate.dialect' (remove the property setting and it will be selected by default)
+2024-10-29T11:57:42.503+05:30  INFO 27220 --- [restartedMain] o.h.e.t.j.p.i.JtaPlatformInitiator       : HHH000489: No JTA platform available (set 'hibernate.transaction.jta.platform' to enable JTA platform integration)
+2024-10-29T11:57:42.693+05:30  INFO 27220 --- [restartedMain] o.s.b.d.a.OptionalLiveReloadServer       : LiveReload server is running on port 35729
+2024-10-29T11:57:42.693+05:30  INFO 27220 --- [restartedMain] o.s.b.a.e.web.EndpointLinksResolver      : Exposing 3 endpoints beneath base path '/actuator'
+2024-10-29T11:57:42.709+05:30  INFO 27220 --- [restartedMain] o.s.b.w.embedded.tomcat.TomcatWebServer  : Tomcat started on port 8080 (http) with context path '/'
+2024-10-29T11:57:42.723+05:30  INFO 27220 --- [restartedMain] c.s.app.SpringbootFirstAppApplication    : Started SpringbootFirstAppApplication in 0.907 seconds (process running for 2868.487)
+2024-10-29T11:57:42.723+05:30  INFO 27220 --- [restartedMain] .ConditionEvaluationDeltaLoggingListener : Condition evaluation unchanged
+2024-10-29T11:57:59.655+05:30  INFO 27220 --- [File Watcher] rtingClassPathChangeChangedEventListener : Restarting due to 1 class path change (0 additions, 0 deletions, 1 modification)
+2024-10-29T11:57:59.719+05:30  INFO 27220 --- [Thread-43] com.zaxxer.hikari.HikariDataSource       : HikariPool-11 - Shutdown initiated...
+2024-10-29T11:57:59.740+05:30  INFO 27220 --- [Thread-43] com.zaxxer.hikari.HikariDataSource       : HikariPool-11 - Shutdown completed.
+2024-10-29T11:57:59.846+05:30  INFO 27220 --- [restartedMain] c.s.app.SpringbootFirstAppApplication    : Starting SpringbootFirstAppApplication using Java 17.0.12 with PID 27220 (C:\service\ServEase_BE\target\classes started by shaiq in C:\service\ServEase_BE)
+2024-10-29T11:57:59.846+05:30  INFO 27220 --- [restartedMain] c.s.app.SpringbootFirstAppApplication    : No active profile set, falling back to 1 default profile: "default"
+2024-10-29T11:58:00.208+05:30  INFO 27220 --- [restartedMain] o.s.b.w.embedded.tomcat.TomcatWebServer  : Tomcat initialized with port 8080 (http)
+2024-10-29T11:58:00.223+05:30  INFO 27220 --- [restartedMain] o.apache.catalina.core.StandardService   : Starting service [Tomcat]
+2024-10-29T11:58:00.224+05:30  INFO 27220 --- [restartedMain] o.apache.catalina.core.StandardEngine    : Starting Servlet engine: [Apache Tomcat/10.1.30]
+2024-10-29T11:58:00.242+05:30  INFO 27220 --- [restartedMain] o.a.c.c.C.[Tomcat].[localhost].[/]       : Initializing Spring embedded WebApplicationContext
+2024-10-29T11:58:00.258+05:30  INFO 27220 --- [restartedMain] w.s.c.ServletWebServerApplicationContext : Root WebApplicationContext: initialization completed in 412 ms
+2024-10-29T11:58:00.317+05:30  INFO 27220 --- [restartedMain] o.h.c.internal.RegionFactoryInitiator    : HHH000026: Second-level cache disabled
+2024-10-29T11:58:00.325+05:30  INFO 27220 --- [restartedMain] com.zaxxer.hikari.HikariDataSource       : HikariPool-12 - Starting...
+2024-10-29T11:58:00.540+05:30  INFO 27220 --- [restartedMain] com.zaxxer.hikari.pool.HikariPool        : HikariPool-12 - Added connection org.postgresql.jdbc.PgConnection@25b1db78
+2024-10-29T11:58:00.540+05:30  INFO 27220 --- [restartedMain] com.zaxxer.hikari.HikariDataSource       : HikariPool-12 - Start completed.
+2024-10-29T11:58:00.540+05:30  WARN 27220 --- [restartedMain] org.hibernate.orm.deprecation            : HHH90000025: PostgreSQLDialect does not need to be specified explicitly using 'hibernate.dialect' (remove the property setting and it will be selected by default)
+2024-10-29T11:58:00.670+05:30  INFO 27220 --- [restartedMain] o.h.e.t.j.p.i.JtaPlatformInitiator       : HHH000489: No JTA platform available (set 'hibernate.transaction.jta.platform' to enable JTA platform integration)
+2024-10-29T11:58:00.941+05:30  INFO 27220 --- [restartedMain] o.s.b.d.a.OptionalLiveReloadServer       : LiveReload server is running on port 35729
+2024-10-29T11:58:00.941+05:30  INFO 27220 --- [restartedMain] o.s.b.a.e.web.EndpointLinksResolver      : Exposing 3 endpoints beneath base path '/actuator'
+2024-10-29T11:58:00.967+05:30  INFO 27220 --- [restartedMain] o.s.b.w.embedded.tomcat.TomcatWebServer  : Tomcat started on port 8080 (http) with context path '/'
+2024-10-29T11:58:00.975+05:30  INFO 27220 --- [restartedMain] c.s.app.SpringbootFirstAppApplication    : Started SpringbootFirstAppApplication in 1.161 seconds (process running for 2886.735)
+2024-10-29T11:58:00.975+05:30  INFO 27220 --- [restartedMain] .ConditionEvaluationDeltaLoggingListener : Condition evaluation unchanged
+2024-10-29T11:59:27.249+05:30  INFO 27220 --- [File Watcher] rtingClassPathChangeChangedEventListener : Restarting due to 1 class path change (0 additions, 0 deletions, 1 modification)
+2024-10-29T11:59:27.313+05:30  INFO 27220 --- [Thread-47] com.zaxxer.hikari.HikariDataSource       : HikariPool-12 - Shutdown initiated...
+2024-10-29T11:59:27.313+05:30  INFO 27220 --- [Thread-47] com.zaxxer.hikari.HikariDataSource       : HikariPool-12 - Shutdown completed.
+2024-10-29T11:59:27.413+05:30  INFO 27220 --- [restartedMain] c.s.app.SpringbootFirstAppApplication    : Starting SpringbootFirstAppApplication using Java 17.0.12 with PID 27220 (C:\service\ServEase_BE\target\classes started by shaiq in C:\service\ServEase_BE)
+2024-10-29T11:59:27.413+05:30  INFO 27220 --- [restartedMain] c.s.app.SpringbootFirstAppApplication    : No active profile set, falling back to 1 default profile: "default"
+2024-10-29T11:59:27.644+05:30  INFO 27220 --- [restartedMain] o.s.b.w.embedded.tomcat.TomcatWebServer  : Tomcat initialized with port 8080 (http)
+2024-10-29T11:59:27.644+05:30  INFO 27220 --- [restartedMain] o.apache.catalina.core.StandardService   : Starting service [Tomcat]
+2024-10-29T11:59:27.652+05:30  INFO 27220 --- [restartedMain] o.apache.catalina.core.StandardEngine    : Starting Servlet engine: [Apache Tomcat/10.1.30]
+2024-10-29T11:59:27.689+05:30  INFO 27220 --- [restartedMain] o.a.c.c.C.[Tomcat].[localhost].[/]       : Initializing Spring embedded WebApplicationContext
+2024-10-29T11:59:27.689+05:30  INFO 27220 --- [restartedMain] w.s.c.ServletWebServerApplicationContext : Root WebApplicationContext: initialization completed in 276 ms
+2024-10-29T11:59:27.739+05:30  INFO 27220 --- [restartedMain] o.h.c.internal.RegionFactoryInitiator    : HHH000026: Second-level cache disabled
+2024-10-29T11:59:27.739+05:30  INFO 27220 --- [restartedMain] com.zaxxer.hikari.HikariDataSource       : HikariPool-13 - Starting...
+2024-10-29T11:59:28.009+05:30  INFO 27220 --- [restartedMain] com.zaxxer.hikari.pool.HikariPool        : HikariPool-13 - Added connection org.postgresql.jdbc.PgConnection@7ed4a206
+2024-10-29T11:59:28.009+05:30  INFO 27220 --- [restartedMain] com.zaxxer.hikari.HikariDataSource       : HikariPool-13 - Start completed.
+2024-10-29T11:59:28.025+05:30  WARN 27220 --- [restartedMain] org.hibernate.orm.deprecation            : HHH90000025: PostgreSQLDialect does not need to be specified explicitly using 'hibernate.dialect' (remove the property setting and it will be selected by default)
+2024-10-29T11:59:28.175+05:30  INFO 27220 --- [restartedMain] o.h.e.t.j.p.i.JtaPlatformInitiator       : HHH000489: No JTA platform available (set 'hibernate.transaction.jta.platform' to enable JTA platform integration)
+2024-10-29T11:59:28.389+05:30  INFO 27220 --- [restartedMain] o.s.b.d.a.OptionalLiveReloadServer       : LiveReload server is running on port 35729
+2024-10-29T11:59:28.389+05:30  INFO 27220 --- [restartedMain] o.s.b.a.e.web.EndpointLinksResolver      : Exposing 3 endpoints beneath base path '/actuator'
+2024-10-29T11:59:28.410+05:30  INFO 27220 --- [restartedMain] o.s.b.w.embedded.tomcat.TomcatWebServer  : Tomcat started on port 8080 (http) with context path '/'
+2024-10-29T11:59:28.418+05:30  INFO 27220 --- [restartedMain] c.s.app.SpringbootFirstAppApplication    : Started SpringbootFirstAppApplication in 1.029 seconds (process running for 2974.18)
+2024-10-29T11:59:28.418+05:30  INFO 27220 --- [restartedMain] .ConditionEvaluationDeltaLoggingListener : Condition evaluation unchanged
+2024-10-29T12:01:02.799+05:30  INFO 27220 --- [File Watcher] rtingClassPathChangeChangedEventListener : Restarting due to 3 class path changes (0 additions, 0 deletions, 3 modifications)
+2024-10-29T12:01:02.879+05:30  INFO 27220 --- [Thread-51] com.zaxxer.hikari.HikariDataSource       : HikariPool-13 - Shutdown initiated...
+2024-10-29T12:01:02.887+05:30  INFO 27220 --- [Thread-51] com.zaxxer.hikari.HikariDataSource       : HikariPool-13 - Shutdown completed.
+2024-10-29T12:01:02.984+05:30  INFO 27220 --- [restartedMain] c.s.app.SpringbootFirstAppApplication    : Starting SpringbootFirstAppApplication using Java 17.0.12 with PID 27220 (C:\service\ServEase_BE\target\classes started by shaiq in C:\service\ServEase_BE)
+2024-10-29T12:01:02.984+05:30  INFO 27220 --- [restartedMain] c.s.app.SpringbootFirstAppApplication    : No active profile set, falling back to 1 default profile: "default"
+2024-10-29T12:01:03.228+05:30  INFO 27220 --- [restartedMain] o.s.b.w.embedded.tomcat.TomcatWebServer  : Tomcat initialized with port 8080 (http)
+2024-10-29T12:01:03.228+05:30  INFO 27220 --- [restartedMain] o.apache.catalina.core.StandardService   : Starting service [Tomcat]
+2024-10-29T12:01:03.228+05:30  INFO 27220 --- [restartedMain] o.apache.catalina.core.StandardEngine    : Starting Servlet engine: [Apache Tomcat/10.1.30]
+2024-10-29T12:01:03.270+05:30  INFO 27220 --- [restartedMain] o.a.c.c.C.[Tomcat].[localhost].[/]       : Initializing Spring embedded WebApplicationContext
+2024-10-29T12:01:03.272+05:30  INFO 27220 --- [restartedMain] w.s.c.ServletWebServerApplicationContext : Root WebApplicationContext: initialization completed in 288 ms
+2024-10-29T12:01:03.306+05:30  INFO 27220 --- [restartedMain] o.h.c.internal.RegionFactoryInitiator    : HHH000026: Second-level cache disabled
+2024-10-29T12:01:03.317+05:30  INFO 27220 --- [restartedMain] com.zaxxer.hikari.HikariDataSource       : HikariPool-14 - Starting...
+2024-10-29T12:01:03.580+05:30  INFO 27220 --- [restartedMain] com.zaxxer.hikari.pool.HikariPool        : HikariPool-14 - Added connection org.postgresql.jdbc.PgConnection@1af14292
+2024-10-29T12:01:03.580+05:30  INFO 27220 --- [restartedMain] com.zaxxer.hikari.HikariDataSource       : HikariPool-14 - Start completed.
+2024-10-29T12:01:03.589+05:30  WARN 27220 --- [restartedMain] org.hibernate.orm.deprecation            : HHH90000025: PostgreSQLDialect does not need to be specified explicitly using 'hibernate.dialect' (remove the property setting and it will be selected by default)
+2024-10-29T12:01:03.692+05:30  INFO 27220 --- [restartedMain] o.h.e.t.j.p.i.JtaPlatformInitiator       : HHH000489: No JTA platform available (set 'hibernate.transaction.jta.platform' to enable JTA platform integration)
+2024-10-29T12:01:03.921+05:30  INFO 27220 --- [restartedMain] o.s.b.d.a.OptionalLiveReloadServer       : LiveReload server is running on port 35729
+2024-10-29T12:01:03.921+05:30  INFO 27220 --- [restartedMain] o.s.b.a.e.web.EndpointLinksResolver      : Exposing 3 endpoints beneath base path '/actuator'
+2024-10-29T12:01:03.949+05:30  INFO 27220 --- [restartedMain] o.s.b.w.embedded.tomcat.TomcatWebServer  : Tomcat started on port 8080 (http) with context path '/'
+2024-10-29T12:01:03.949+05:30  INFO 27220 --- [restartedMain] c.s.app.SpringbootFirstAppApplication    : Started SpringbootFirstAppApplication in 0.997 seconds (process running for 3069.715)
+2024-10-29T12:01:03.949+05:30  INFO 27220 --- [restartedMain] .ConditionEvaluationDeltaLoggingListener : Condition evaluation unchanged
+2024-10-29T12:02:30.443+05:30  INFO 27220 --- [File Watcher] rtingClassPathChangeChangedEventListener : Restarting due to 1 class path change (0 additions, 0 deletions, 1 modification)
+2024-10-29T12:02:30.535+05:30  INFO 27220 --- [Thread-55] com.zaxxer.hikari.HikariDataSource       : HikariPool-14 - Shutdown initiated...
+2024-10-29T12:02:30.541+05:30  INFO 27220 --- [Thread-55] com.zaxxer.hikari.HikariDataSource       : HikariPool-14 - Shutdown completed.
+2024-10-29T12:02:30.682+05:30  INFO 27220 --- [restartedMain] c.s.app.SpringbootFirstAppApplication    : Starting SpringbootFirstAppApplication using Java 17.0.12 with PID 27220 (C:\service\ServEase_BE\target\classes started by shaiq in C:\service\ServEase_BE)
+2024-10-29T12:02:30.683+05:30  INFO 27220 --- [restartedMain] c.s.app.SpringbootFirstAppApplication    : No active profile set, falling back to 1 default profile: "default"
+2024-10-29T12:02:31.056+05:30  INFO 27220 --- [restartedMain] o.s.b.w.embedded.tomcat.TomcatWebServer  : Tomcat initialized with port 8080 (http)
+2024-10-29T12:02:31.058+05:30  INFO 27220 --- [restartedMain] o.apache.catalina.core.StandardService   : Starting service [Tomcat]
+2024-10-29T12:02:31.059+05:30  INFO 27220 --- [restartedMain] o.apache.catalina.core.StandardEngine    : Starting Servlet engine: [Apache Tomcat/10.1.30]
+2024-10-29T12:02:31.095+05:30  INFO 27220 --- [restartedMain] o.a.c.c.C.[Tomcat].[localhost].[/]       : Initializing Spring embedded WebApplicationContext
+2024-10-29T12:02:31.095+05:30  INFO 27220 --- [restartedMain] w.s.c.ServletWebServerApplicationContext : Root WebApplicationContext: initialization completed in 410 ms
+2024-10-29T12:02:31.148+05:30  INFO 27220 --- [restartedMain] o.h.c.internal.RegionFactoryInitiator    : HHH000026: Second-level cache disabled
+2024-10-29T12:02:31.151+05:30  INFO 27220 --- [restartedMain] com.zaxxer.hikari.HikariDataSource       : HikariPool-15 - Starting...
+2024-10-29T12:02:31.350+05:30  INFO 27220 --- [restartedMain] com.zaxxer.hikari.pool.HikariPool        : HikariPool-15 - Added connection org.postgresql.jdbc.PgConnection@72545171
+2024-10-29T12:02:31.351+05:30  INFO 27220 --- [restartedMain] com.zaxxer.hikari.HikariDataSource       : HikariPool-15 - Start completed.
+2024-10-29T12:02:31.359+05:30  WARN 27220 --- [restartedMain] org.hibernate.orm.deprecation            : HHH90000025: PostgreSQLDialect does not need to be specified explicitly using 'hibernate.dialect' (remove the property setting and it will be selected by default)
+2024-10-29T12:02:31.531+05:30  INFO 27220 --- [restartedMain] o.h.e.t.j.p.i.JtaPlatformInitiator       : HHH000489: No JTA platform available (set 'hibernate.transaction.jta.platform' to enable JTA platform integration)
+2024-10-29T12:02:31.807+05:30  INFO 27220 --- [restartedMain] o.s.b.d.a.OptionalLiveReloadServer       : LiveReload server is running on port 35729
+2024-10-29T12:02:31.810+05:30  INFO 27220 --- [restartedMain] o.s.b.a.e.web.EndpointLinksResolver      : Exposing 3 endpoints beneath base path '/actuator'
+2024-10-29T12:02:31.836+05:30  INFO 27220 --- [restartedMain] o.s.b.w.embedded.tomcat.TomcatWebServer  : Tomcat started on port 8080 (http) with context path '/'
+2024-10-29T12:02:31.847+05:30  INFO 27220 --- [restartedMain] c.s.app.SpringbootFirstAppApplication    : Started SpringbootFirstAppApplication in 1.188 seconds (process running for 3157.605)
+2024-10-29T12:02:31.849+05:30  INFO 27220 --- [restartedMain] .ConditionEvaluationDeltaLoggingListener : Condition evaluation unchanged
+2024-10-29T12:03:26.088+05:30  INFO 27220 --- [File Watcher] rtingClassPathChangeChangedEventListener : Restarting due to 1 class path change (0 additions, 0 deletions, 1 modification)
+2024-10-29T12:03:26.171+05:30  INFO 27220 --- [Thread-59] com.zaxxer.hikari.HikariDataSource       : HikariPool-15 - Shutdown initiated...
+2024-10-29T12:03:26.171+05:30  INFO 27220 --- [Thread-59] com.zaxxer.hikari.HikariDataSource       : HikariPool-15 - Shutdown completed.
+2024-10-29T12:03:26.293+05:30  INFO 27220 --- [restartedMain] c.s.app.SpringbootFirstAppApplication    : Starting SpringbootFirstAppApplication using Java 17.0.12 with PID 27220 (C:\service\ServEase_BE\target\classes started by shaiq in C:\service\ServEase_BE)
+2024-10-29T12:03:26.293+05:30  INFO 27220 --- [restartedMain] c.s.app.SpringbootFirstAppApplication    : No active profile set, falling back to 1 default profile: "default"
+2024-10-29T12:03:26.585+05:30  INFO 27220 --- [restartedMain] o.s.b.w.embedded.tomcat.TomcatWebServer  : Tomcat initialized with port 8080 (http)
+2024-10-29T12:03:26.585+05:30  INFO 27220 --- [restartedMain] o.apache.catalina.core.StandardService   : Starting service [Tomcat]
+2024-10-29T12:03:26.585+05:30  INFO 27220 --- [restartedMain] o.apache.catalina.core.StandardEngine    : Starting Servlet engine: [Apache Tomcat/10.1.30]
+2024-10-29T12:03:26.617+05:30  INFO 27220 --- [restartedMain] o.a.c.c.C.[Tomcat].[localhost].[/]       : Initializing Spring embedded WebApplicationContext
+2024-10-29T12:03:26.619+05:30  INFO 27220 --- [restartedMain] w.s.c.ServletWebServerApplicationContext : Root WebApplicationContext: initialization completed in 322 ms
+2024-10-29T12:03:26.659+05:30  INFO 27220 --- [restartedMain] o.h.c.internal.RegionFactoryInitiator    : HHH000026: Second-level cache disabled
+2024-10-29T12:03:26.659+05:30  INFO 27220 --- [restartedMain] com.zaxxer.hikari.HikariDataSource       : HikariPool-16 - Starting...
+2024-10-29T12:03:26.921+05:30  INFO 27220 --- [restartedMain] com.zaxxer.hikari.pool.HikariPool        : HikariPool-16 - Added connection org.postgresql.jdbc.PgConnection@11e90706
+2024-10-29T12:03:26.921+05:30  INFO 27220 --- [restartedMain] com.zaxxer.hikari.HikariDataSource       : HikariPool-16 - Start completed.
+2024-10-29T12:03:26.921+05:30  WARN 27220 --- [restartedMain] org.hibernate.orm.deprecation            : HHH90000025: PostgreSQLDialect does not need to be specified explicitly using 'hibernate.dialect' (remove the property setting and it will be selected by default)
+2024-10-29T12:03:27.035+05:30  INFO 27220 --- [restartedMain] o.h.e.t.j.p.i.JtaPlatformInitiator       : HHH000489: No JTA platform available (set 'hibernate.transaction.jta.platform' to enable JTA platform integration)
+2024-10-29T12:03:27.288+05:30  INFO 27220 --- [restartedMain] o.s.b.d.a.OptionalLiveReloadServer       : LiveReload server is running on port 35729
+2024-10-29T12:03:27.288+05:30  INFO 27220 --- [restartedMain] o.s.b.a.e.web.EndpointLinksResolver      : Exposing 3 endpoints beneath base path '/actuator'
+2024-10-29T12:03:27.313+05:30  INFO 27220 --- [restartedMain] o.s.b.w.embedded.tomcat.TomcatWebServer  : Tomcat started on port 8080 (http) with context path '/'
+2024-10-29T12:03:27.320+05:30  INFO 27220 --- [restartedMain] c.s.app.SpringbootFirstAppApplication    : Started SpringbootFirstAppApplication in 1.067 seconds (process running for 3213.082)
+2024-10-29T12:03:27.320+05:30  INFO 27220 --- [restartedMain] .ConditionEvaluationDeltaLoggingListener : Condition evaluation unchanged
+2024-10-29T12:03:52.721+05:30  INFO 27220 --- [http-nio-8080-exec-2] o.a.c.c.C.[Tomcat].[localhost].[/]       : Initializing Spring DispatcherServlet 'dispatcherServlet'
+2024-10-29T12:03:52.721+05:30  INFO 27220 --- [http-nio-8080-exec-2] o.s.web.servlet.DispatcherServlet        : Initializing Servlet 'dispatcherServlet'
+2024-10-29T12:03:52.721+05:30  INFO 27220 --- [http-nio-8080-exec-2] o.s.web.servlet.DispatcherServlet        : Completed initialization in 0 ms
+2024-10-29T12:03:52.729+05:30  INFO 27220 --- [http-nio-8080-exec-2] .s.a.s.ServiceProviderRequestServiceImpl : Fetching service provider requests with pagination - page: 0, size: 10
+2024-10-29T12:03:52.737+05:30 DEBUG 27220 --- [http-nio-8080-exec-2] .s.a.s.ServiceProviderRequestServiceImpl : Fetched 3 request(s) from the database.
+2024-10-29T12:04:06.328+05:30  INFO 27220 --- [http-nio-8080-exec-3] .s.a.s.ServiceProviderRequestServiceImpl : Fetching service provider requests with pagination - page: 1, size: 10
+2024-10-29T12:04:06.328+05:30 DEBUG 27220 --- [http-nio-8080-exec-3] .s.a.s.ServiceProviderRequestServiceImpl : Fetched 0 request(s) from the database.
+2024-10-29T12:04:14.337+05:30  INFO 27220 --- [http-nio-8080-exec-4] .s.a.s.ServiceProviderRequestServiceImpl : Fetching service provider requests with pagination - page: 0, size: 10
+2024-10-29T12:04:14.342+05:30 DEBUG 27220 --- [http-nio-8080-exec-4] .s.a.s.ServiceProviderRequestServiceImpl : Fetched 3 request(s) from the database.
+2024-10-29T12:04:35.327+05:30  INFO 27220 --- [http-nio-8080-exec-5] ServiceProviderRequestCommentServiceImpl : Fetching service provider request comments with pagination - page: 0, size: 10
+2024-10-29T12:04:35.337+05:30 DEBUG 27220 --- [http-nio-8080-exec-5] ServiceProviderRequestCommentServiceImpl : Fetched 2 comments from the database.
+2024-10-29T12:04:54.036+05:30  WARN 27220 --- [http-nio-8080-exec-8] .m.m.a.ExceptionHandlerExceptionResolver : Resolved [jakarta.servlet.ServletException: Handler dispatch failed: java.lang.Error: Unresolved compilation problem: <EOL>?The attribute readOnly is undefined for the annotation type Transactional<EOL>]
+2024-10-29T12:05:58.076+05:30  WARN 27220 --- [http-nio-8080-exec-6] .m.m.a.ExceptionHandlerExceptionResolver : Resolved [jakarta.servlet.ServletException: Handler dispatch failed: java.lang.Error: Unresolved compilation problem: <EOL>?The attribute readOnly is undefined for the annotation type Transactional<EOL>]
+2024-10-29T12:10:21.531+05:30  INFO 27220 --- [File Watcher] rtingClassPathChangeChangedEventListener : Restarting due to 1 class path change (0 additions, 0 deletions, 1 modification)
+2024-10-29T12:10:21.596+05:30  INFO 27220 --- [Thread-63] com.zaxxer.hikari.HikariDataSource       : HikariPool-16 - Shutdown initiated...
+2024-10-29T12:10:21.596+05:30  INFO 27220 --- [Thread-63] com.zaxxer.hikari.HikariDataSource       : HikariPool-16 - Shutdown completed.
+2024-10-29T12:10:21.707+05:30  INFO 27220 --- [restartedMain] c.s.app.SpringbootFirstAppApplication    : Starting SpringbootFirstAppApplication using Java 17.0.12 with PID 27220 (C:\service\ServEase_BE\target\classes started by shaiq in C:\service\ServEase_BE)
+2024-10-29T12:10:21.707+05:30  INFO 27220 --- [restartedMain] c.s.app.SpringbootFirstAppApplication    : No active profile set, falling back to 1 default profile: "default"
+2024-10-29T12:10:21.965+05:30  INFO 27220 --- [restartedMain] o.s.b.w.embedded.tomcat.TomcatWebServer  : Tomcat initialized with port 8080 (http)
+2024-10-29T12:10:21.965+05:30  INFO 27220 --- [restartedMain] o.apache.catalina.core.StandardService   : Starting service [Tomcat]
+2024-10-29T12:10:21.965+05:30  INFO 27220 --- [restartedMain] o.apache.catalina.core.StandardEngine    : Starting Servlet engine: [Apache Tomcat/10.1.30]
+2024-10-29T12:10:21.997+05:30  INFO 27220 --- [restartedMain] o.a.c.c.C.[Tomcat].[localhost].[/]       : Initializing Spring embedded WebApplicationContext
+2024-10-29T12:10:21.997+05:30  INFO 27220 --- [restartedMain] w.s.c.ServletWebServerApplicationContext : Root WebApplicationContext: initialization completed in 290 ms
+2024-10-29T12:10:22.047+05:30  INFO 27220 --- [restartedMain] o.h.c.internal.RegionFactoryInitiator    : HHH000026: Second-level cache disabled
+2024-10-29T12:10:22.047+05:30  INFO 27220 --- [restartedMain] com.zaxxer.hikari.HikariDataSource       : HikariPool-17 - Starting...
+2024-10-29T12:10:22.215+05:30  INFO 27220 --- [restartedMain] com.zaxxer.hikari.pool.HikariPool        : HikariPool-17 - Added connection org.postgresql.jdbc.PgConnection@cc79ab1
+2024-10-29T12:10:22.215+05:30  INFO 27220 --- [restartedMain] com.zaxxer.hikari.HikariDataSource       : HikariPool-17 - Start completed.
+2024-10-29T12:10:22.215+05:30  WARN 27220 --- [restartedMain] org.hibernate.orm.deprecation            : HHH90000025: PostgreSQLDialect does not need to be specified explicitly using 'hibernate.dialect' (remove the property setting and it will be selected by default)
+2024-10-29T12:10:22.341+05:30  INFO 27220 --- [restartedMain] o.h.e.t.j.p.i.JtaPlatformInitiator       : HHH000489: No JTA platform available (set 'hibernate.transaction.jta.platform' to enable JTA platform integration)
+2024-10-29T12:10:22.547+05:30  INFO 27220 --- [restartedMain] o.s.b.d.a.OptionalLiveReloadServer       : LiveReload server is running on port 35729
+2024-10-29T12:10:22.561+05:30  INFO 27220 --- [restartedMain] o.s.b.a.e.web.EndpointLinksResolver      : Exposing 3 endpoints beneath base path '/actuator'
+2024-10-29T12:10:22.563+05:30  INFO 27220 --- [restartedMain] o.s.b.w.embedded.tomcat.TomcatWebServer  : Tomcat started on port 8080 (http) with context path '/'
+2024-10-29T12:10:22.581+05:30  INFO 27220 --- [restartedMain] c.s.app.SpringbootFirstAppApplication    : Started SpringbootFirstAppApplication in 0.89 seconds (process running for 3628.341)
+2024-10-29T12:10:22.581+05:30  INFO 27220 --- [restartedMain] .ConditionEvaluationDeltaLoggingListener : Condition evaluation unchanged
+2024-10-29T12:10:30.403+05:30  INFO 27220 --- [http-nio-8080-exec-2] o.a.c.c.C.[Tomcat].[localhost].[/]       : Initializing Spring DispatcherServlet 'dispatcherServlet'
+2024-10-29T12:10:30.403+05:30  INFO 27220 --- [http-nio-8080-exec-2] o.s.web.servlet.DispatcherServlet        : Initializing Servlet 'dispatcherServlet'
+2024-10-29T12:10:30.403+05:30  INFO 27220 --- [http-nio-8080-exec-2] o.s.web.servlet.DispatcherServlet        : Completed initialization in 0 ms
+2024-10-29T12:10:30.419+05:30  WARN 27220 --- [http-nio-8080-exec-2] .m.m.a.ExceptionHandlerExceptionResolver : Resolved [jakarta.servlet.ServletException: Handler dispatch failed: java.lang.Error: Unresolved compilation problem: <EOL>?The attribute readOnly is undefined for the annotation type Transactional<EOL>]
+2024-10-29T12:11:26.328+05:30  INFO 27220 --- [File Watcher] rtingClassPathChangeChangedEventListener : Restarting due to 1 class path change (0 additions, 0 deletions, 1 modification)
+2024-10-29T12:11:26.391+05:30  INFO 27220 --- [Thread-67] com.zaxxer.hikari.HikariDataSource       : HikariPool-17 - Shutdown initiated...
+2024-10-29T12:11:26.393+05:30  INFO 27220 --- [Thread-67] com.zaxxer.hikari.HikariDataSource       : HikariPool-17 - Shutdown completed.
+2024-10-29T12:11:26.494+05:30  INFO 27220 --- [restartedMain] c.s.app.SpringbootFirstAppApplication    : Starting SpringbootFirstAppApplication using Java 17.0.12 with PID 27220 (C:\service\ServEase_BE\target\classes started by shaiq in C:\service\ServEase_BE)
+2024-10-29T12:11:26.495+05:30  INFO 27220 --- [restartedMain] c.s.app.SpringbootFirstAppApplication    : No active profile set, falling back to 1 default profile: "default"
+2024-10-29T12:11:26.773+05:30  INFO 27220 --- [restartedMain] o.s.b.w.embedded.tomcat.TomcatWebServer  : Tomcat initialized with port 8080 (http)
+2024-10-29T12:11:26.775+05:30  INFO 27220 --- [restartedMain] o.apache.catalina.core.StandardService   : Starting service [Tomcat]
+2024-10-29T12:11:26.775+05:30  INFO 27220 --- [restartedMain] o.apache.catalina.core.StandardEngine    : Starting Servlet engine: [Apache Tomcat/10.1.30]
+2024-10-29T12:11:26.801+05:30  INFO 27220 --- [restartedMain] o.a.c.c.C.[Tomcat].[localhost].[/]       : Initializing Spring embedded WebApplicationContext
+2024-10-29T12:11:26.801+05:30  INFO 27220 --- [restartedMain] w.s.c.ServletWebServerApplicationContext : Root WebApplicationContext: initialization completed in 305 ms
+2024-10-29T12:11:26.845+05:30  INFO 27220 --- [restartedMain] o.h.c.internal.RegionFactoryInitiator    : HHH000026: Second-level cache disabled
+2024-10-29T12:11:26.847+05:30  INFO 27220 --- [restartedMain] com.zaxxer.hikari.HikariDataSource       : HikariPool-18 - Starting...
+2024-10-29T12:11:27.006+05:30  INFO 27220 --- [restartedMain] com.zaxxer.hikari.pool.HikariPool        : HikariPool-18 - Added connection org.postgresql.jdbc.PgConnection@3e2d924
+2024-10-29T12:11:27.007+05:30  INFO 27220 --- [restartedMain] com.zaxxer.hikari.HikariDataSource       : HikariPool-18 - Start completed.
+2024-10-29T12:11:27.016+05:30  WARN 27220 --- [restartedMain] org.hibernate.orm.deprecation            : HHH90000025: PostgreSQLDialect does not need to be specified explicitly using 'hibernate.dialect' (remove the property setting and it will be selected by default)
+2024-10-29T12:11:27.119+05:30  INFO 27220 --- [restartedMain] o.h.e.t.j.p.i.JtaPlatformInitiator       : HHH000489: No JTA platform available (set 'hibernate.transaction.jta.platform' to enable JTA platform integration)
+2024-10-29T12:11:27.344+05:30  INFO 27220 --- [restartedMain] o.s.b.d.a.OptionalLiveReloadServer       : LiveReload server is running on port 35729
+2024-10-29T12:11:27.347+05:30  INFO 27220 --- [restartedMain] o.s.b.a.e.web.EndpointLinksResolver      : Exposing 3 endpoints beneath base path '/actuator'
+2024-10-29T12:11:27.364+05:30  INFO 27220 --- [restartedMain] o.s.b.w.embedded.tomcat.TomcatWebServer  : Tomcat started on port 8080 (http) with context path '/'
+2024-10-29T12:11:27.370+05:30  INFO 27220 --- [restartedMain] c.s.app.SpringbootFirstAppApplication    : Started SpringbootFirstAppApplication in 0.892 seconds (process running for 3693.127)
+2024-10-29T12:11:27.373+05:30  INFO 27220 --- [restartedMain] .ConditionEvaluationDeltaLoggingListener : Condition evaluation unchanged
+2024-10-29T12:11:36.083+05:30  INFO 27220 --- [File Watcher] rtingClassPathChangeChangedEventListener : Restarting due to 1 class path change (0 additions, 0 deletions, 1 modification)
+2024-10-29T12:11:36.160+05:30  INFO 27220 --- [Thread-71] com.zaxxer.hikari.HikariDataSource       : HikariPool-18 - Shutdown initiated...
+2024-10-29T12:11:36.162+05:30  INFO 27220 --- [Thread-71] com.zaxxer.hikari.HikariDataSource       : HikariPool-18 - Shutdown completed.
+2024-10-29T12:11:36.297+05:30  INFO 27220 --- [restartedMain] c.s.app.SpringbootFirstAppApplication    : Starting SpringbootFirstAppApplication using Java 17.0.12 with PID 27220 (C:\service\ServEase_BE\target\classes started by shaiq in C:\service\ServEase_BE)
+2024-10-29T12:11:36.298+05:30  INFO 27220 --- [restartedMain] c.s.app.SpringbootFirstAppApplication    : No active profile set, falling back to 1 default profile: "default"
+2024-10-29T12:11:36.568+05:30  INFO 27220 --- [restartedMain] o.s.b.w.embedded.tomcat.TomcatWebServer  : Tomcat initialized with port 8080 (http)
+2024-10-29T12:11:36.569+05:30  INFO 27220 --- [restartedMain] o.apache.catalina.core.StandardService   : Starting service [Tomcat]
+2024-10-29T12:11:36.570+05:30  INFO 27220 --- [restartedMain] o.apache.catalina.core.StandardEngine    : Starting Servlet engine: [Apache Tomcat/10.1.30]
+2024-10-29T12:11:36.608+05:30  INFO 27220 --- [restartedMain] o.a.c.c.C.[Tomcat].[localhost].[/]       : Initializing Spring embedded WebApplicationContext
+2024-10-29T12:11:36.609+05:30  INFO 27220 --- [restartedMain] w.s.c.ServletWebServerApplicationContext : Root WebApplicationContext: initialization completed in 309 ms
+2024-10-29T12:11:36.678+05:30  INFO 27220 --- [restartedMain] o.h.c.internal.RegionFactoryInitiator    : HHH000026: Second-level cache disabled
+2024-10-29T12:11:36.683+05:30  INFO 27220 --- [restartedMain] com.zaxxer.hikari.HikariDataSource       : HikariPool-19 - Starting...
+2024-10-29T12:11:36.889+05:30  INFO 27220 --- [restartedMain] com.zaxxer.hikari.pool.HikariPool        : HikariPool-19 - Added connection org.postgresql.jdbc.PgConnection@7e926757
+2024-10-29T12:11:36.890+05:30  INFO 27220 --- [restartedMain] com.zaxxer.hikari.HikariDataSource       : HikariPool-19 - Start completed.
+2024-10-29T12:11:36.900+05:30  WARN 27220 --- [restartedMain] org.hibernate.orm.deprecation            : HHH90000025: PostgreSQLDialect does not need to be specified explicitly using 'hibernate.dialect' (remove the property setting and it will be selected by default)
+2024-10-29T12:11:37.034+05:30  INFO 27220 --- [restartedMain] o.h.e.t.j.p.i.JtaPlatformInitiator       : HHH000489: No JTA platform available (set 'hibernate.transaction.jta.platform' to enable JTA platform integration)
+2024-10-29T12:11:37.266+05:30  INFO 27220 --- [restartedMain] o.s.b.d.a.OptionalLiveReloadServer       : LiveReload server is running on port 35729
+2024-10-29T12:11:37.268+05:30  INFO 27220 --- [restartedMain] o.s.b.a.e.web.EndpointLinksResolver      : Exposing 3 endpoints beneath base path '/actuator'
+2024-10-29T12:11:37.289+05:30  INFO 27220 --- [restartedMain] o.s.b.w.embedded.tomcat.TomcatWebServer  : Tomcat started on port 8080 (http) with context path '/'
+2024-10-29T12:11:37.297+05:30  INFO 27220 --- [restartedMain] c.s.app.SpringbootFirstAppApplication    : Started SpringbootFirstAppApplication in 1.019 seconds (process running for 3703.055)
+2024-10-29T12:11:37.299+05:30  INFO 27220 --- [restartedMain] .ConditionEvaluationDeltaLoggingListener : Condition evaluation unchanged
+2024-10-29T12:11:48.696+05:30  INFO 27220 --- [http-nio-8080-exec-2] o.a.c.c.C.[Tomcat].[localhost].[/]       : Initializing Spring DispatcherServlet 'dispatcherServlet'
+2024-10-29T12:11:48.708+05:30  INFO 27220 --- [http-nio-8080-exec-2] o.s.web.servlet.DispatcherServlet        : Initializing Servlet 'dispatcherServlet'
+2024-10-29T12:11:48.710+05:30  INFO 27220 --- [http-nio-8080-exec-2] o.s.web.servlet.DispatcherServlet        : Completed initialization in 2 ms
+2024-10-29T12:11:48.716+05:30  INFO 27220 --- [http-nio-8080-exec-2] s.a.s.ServiceProviderFeedbackServiceImpl : Fetching service provider feedbacks with pagination - page: 0, size: 10
+2024-10-29T12:11:48.724+05:30 DEBUG 27220 --- [http-nio-8080-exec-2] s.a.s.ServiceProviderFeedbackServiceImpl : Fetched 10 feedback(s) from the database.
+2024-10-29T12:12:04.668+05:30  INFO 27220 --- [http-nio-8080-exec-3] s.a.s.ServiceProviderFeedbackServiceImpl : Fetching service provider feedbacks with pagination - page: 1, size: 10
+2024-10-29T12:12:04.676+05:30 DEBUG 27220 --- [http-nio-8080-exec-3] s.a.s.ServiceProviderFeedbackServiceImpl : Fetched 6 feedback(s) from the database.
+2024-10-29T12:13:08.867+05:30  INFO 27220 --- [http-nio-8080-exec-5] c.s.a.s.ServiceProviderServiceImpl       : Fetching service providers with pagination - page: 1, size: 10
+2024-10-29T12:13:08.871+05:30 DEBUG 27220 --- [http-nio-8080-exec-5] c.s.a.s.ServiceProviderServiceImpl       : Fetched 0 service provider(s) from the database.
+2024-10-29T12:15:31.755+05:30  INFO 27220 --- [http-nio-8080-exec-6] a.s.ServiceProviderEngagementServiceImpl : Fetching service provider engagements with pagination - page: 1, size: 10
+2024-10-29T12:15:31.763+05:30 DEBUG 27220 --- [http-nio-8080-exec-6] a.s.ServiceProviderEngagementServiceImpl : Fetched 0 service provider engagements from the database.
+2024-10-29T12:15:31.763+05:30  INFO 27220 --- [http-nio-8080-exec-6] a.s.ServiceProviderEngagementServiceImpl : Fetching service provider engagements with pagination - page: 0, size: 10
+2024-10-29T12:15:31.780+05:30 DEBUG 27220 --- [http-nio-8080-exec-6] a.s.ServiceProviderEngagementServiceImpl : Fetched 4 service provider engagements from the database.
+2024-10-29T12:16:43.701+05:30  INFO 27220 --- [http-nio-8080-exec-2] c.s.a.s.ServiceProviderServiceImpl       : Fetching service provider with ID: 852
+2024-10-29T12:16:43.710+05:30 DEBUG 27220 --- [http-nio-8080-exec-2] c.s.a.s.ServiceProviderServiceImpl       : Found service provider: com.springboot.app.entity.ServiceProvider@76e039a7
+2024-10-29T12:18:02.849+05:30  INFO 27220 --- [http-nio-8080-exec-10] c.s.a.s.ServiceProviderServiceImpl       : Fetching service providers with pagination - page: 0, size: 10
+2024-10-29T12:18:02.857+05:30 DEBUG 27220 --- [http-nio-8080-exec-10] c.s.a.s.ServiceProviderServiceImpl       : Fetched 4 service provider(s) from the database.
+2024-10-29T12:19:02.389+05:30  INFO 27220 --- [http-nio-8080-exec-5] c.s.a.s.ServiceProviderServiceImpl       : Fetching service providers with pagination - page: 1, size: 10
+2024-10-29T12:19:02.393+05:30 DEBUG 27220 --- [http-nio-8080-exec-5] c.s.a.s.ServiceProviderServiceImpl       : Fetched 0 service provider(s) from the database.
