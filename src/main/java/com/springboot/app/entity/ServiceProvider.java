@@ -99,6 +99,9 @@ public class ServiceProvider {
 	@Column
 	private Integer age;
 
+	@Column
+	private String info;
+
 	// to automatically set data and isActive field
 	@PrePersist
 	public void prePersist() {

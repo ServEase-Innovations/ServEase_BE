@@ -7,7 +7,7 @@ import com.springboot.app.dto.ServiceProviderFeedbackDTO;
 public interface ServiceProviderFeedbackService {
 
     // Retrieve all ServiceProviderFeedbackDTOs
-    List<ServiceProviderFeedbackDTO> getAllServiceProviderFeedbackDTOs();
+    List<ServiceProviderFeedbackDTO> getAllServiceProviderFeedbackDTOs(int page, int size);
 
     // Retrieve a single ServiceProviderFeedbackDTO by its ID
     ServiceProviderFeedbackDTO getServiceProviderFeedbackDTOById(Long id);

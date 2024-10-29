@@ -6,6 +6,7 @@ import com.springboot.app.entity.CustomerConcern;
 import com.springboot.app.mapper.CustomerConcernMapper;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -29,6 +30,7 @@ public class CustomerConcernServiceImpl implements CustomerConcernService {
         List<CustomerConcern> concerns = session.createQuery(
                 CustomerConstants.GET_ALL_CUSTOMER_CONCERNS, CustomerConcern.class)
                 .getResultList();
+
         return concerns.stream()
                 .map(customerConcernMapper::customerConcernToDTO)
                 .toList();
