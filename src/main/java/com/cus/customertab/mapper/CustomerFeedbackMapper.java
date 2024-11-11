@@ -13,11 +13,11 @@ public interface CustomerFeedbackMapper {
     CustomerFeedbackMapper INSTANCE = Mappers.getMapper(CustomerFeedbackMapper.class);
 
     // Map from CustomerFeedback entity to CustomerFeedbackDTO
-    @Mapping(target = "serviceProviderId", source = "serviceProvider.serviceProviderId") 
+    @Mapping(target = "serviceProviderId", source = "serviceProvider.serviceproviderId") 
     CustomerFeedbackDTO customerFeedbackToDTO(CustomerFeedback customerFeedback);
 
     // Map from CustomerFeedbackDTO to CustomerFeedback entity
-    @Mapping(target = "serviceProvider.serviceProviderId", source = "serviceProviderId") 
+    @Mapping(target = "serviceProvider.serviceproviderId", source = "serviceProviderId") 
     CustomerFeedback dtoToCustomerFeedback(CustomerFeedbackDTO customerFeedbackDTO);
 
     // Default mapping method for converting Long to ServiceProvider
@@ -26,7 +26,7 @@ public interface CustomerFeedbackMapper {
             return null;
         }
         ServiceProvider serviceProvider = new ServiceProvider();
-        serviceProvider.setServiceProviderId(id); 
+        serviceProvider.setServiceproviderId(id); 
         return serviceProvider;
     }
 }

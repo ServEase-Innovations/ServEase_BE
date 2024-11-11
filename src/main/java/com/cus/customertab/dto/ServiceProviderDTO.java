@@ -2,9 +2,10 @@ package com.cus.customertab.dto;
 
 import java.sql.Timestamp;
 
-import com.cus.customertab.enums.DocumentType;
 import com.cus.customertab.enums.Gender;
+import com.cus.customertab.enums.LanguageKnown;
 import com.cus.customertab.enums.ServiceType;
+import com.cus.customertab.enums.Speciality;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -18,7 +19,7 @@ import lombok.Setter;
 
 public class ServiceProviderDTO {
 
-    private Long serviceProviderId;
+    private Long serviceproviderId;
 
     private String firstName;
 
@@ -54,10 +55,13 @@ public class ServiceProviderDTO {
 
     private ServiceType housekeepingRole;
 
-    private DocumentType KYC;
+    // private DocumentType KYC;
 
     private String idNo;
 
     private double rating;
+    private LanguageKnown languageKnown;
+    private Speciality speciality;
+    private Integer age;
 
 }

@@ -84,7 +84,7 @@ public class CustomerFeedbackServiceImpl implements CustomerFeedbackService {
         List<CustomerFeedback> providerFeedbacks = session.createQuery(
                 "FROM CustomerFeedback WHERE serviceProvider.serviceProviderId = :serviceProviderId",
                 CustomerFeedback.class)
-                .setParameter("serviceProviderId", serviceProvider.getServiceProviderId())
+                .setParameter("serviceProviderId", serviceProvider.getServiceproviderId())
                 .list();
 
         double totalRating = providerFeedbacks.stream()

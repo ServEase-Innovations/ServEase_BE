@@ -2,9 +2,10 @@ package com.cus.customertab.entity;
 
 import java.sql.Timestamp;
 
-import com.cus.customertab.enums.DocumentType;
 import com.cus.customertab.enums.Gender;
+import com.cus.customertab.enums.LanguageKnown;
 import com.cus.customertab.enums.ServiceType;
+import com.cus.customertab.enums.Speciality;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -17,21 +18,21 @@ import jakarta.persistence.Lob;
 import jakarta.persistence.PrePersist;
 import jakarta.persistence.Table;
 import lombok.AllArgsConstructor;
-import lombok.Data;
+import lombok.Getter;
 import lombok.NoArgsConstructor;
-
+import lombok.Setter;
 
 @Entity
 @Table(name = "serviceprovider")
-@Data
+@Getter
+@Setter
 @NoArgsConstructor
 @AllArgsConstructor
 public class ServiceProvider {
 
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
-    @Column(name = "serviceProviderId", nullable = false)
-    private Long serviceProviderId;
+    private Long serviceproviderId;
 
     @Column(nullable = false)
     private String firstName;
@@ -75,10 +76,6 @@ public class ServiceProvider {
     @Lob
     private byte[] profilePic;
 
-    @Enumerated(EnumType.STRING)
-    @Column(nullable = false)
-    private DocumentType KYC;
-
     private String idNo;
 
     @Column(nullable = false)
@@ -88,6 +85,15 @@ public class ServiceProvider {
     private ServiceType housekeepingRole;
 
     private double rating;
+
+    @Enumerated(EnumType.STRING)
+    private LanguageKnown languageKnown;
+
+    @Enumerated(EnumType.STRING)
+    private Speciality speciality;
+
+    @Column
+    private Integer age;
 
     // to automatically set data and isActive field
     @PrePersist

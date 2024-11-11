@@ -14,4 +14,5 @@ public interface ServiceProviderMapper {
     ServiceProviderDTO serviceProviderToDTO(ServiceProvider serviceProvider);
 
     ServiceProvider dtoToServiceProvider(ServiceProviderDTO serviceProviderDTO);
+
 }

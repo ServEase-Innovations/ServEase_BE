@@ -3,6 +3,10 @@ package com.cus.customertab.service;
 import java.util.List;
 
 import com.cus.customertab.dto.ServiceProviderDTO;
+import com.cus.customertab.enums.Gender;
+import com.cus.customertab.enums.LanguageKnown;
+import com.cus.customertab.enums.ServiceType;
+import com.cus.customertab.enums.Speciality;
 
 
 
@@ -21,5 +25,8 @@ public interface ServiceProviderService {
 
   // Delete a ServiceProviderDTO by its ID
   void deleteServiceProviderDTO(Long id);
+
+  List<ServiceProviderDTO> getfilters(LanguageKnown language, Double rating, Gender gender,
+      Speciality speciality, ServiceType housekeepingRole, Integer minAge, Integer maxAge);
 
 }

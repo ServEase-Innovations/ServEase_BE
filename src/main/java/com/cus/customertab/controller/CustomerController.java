@@ -22,9 +22,8 @@ import com.cus.customertab.service.CustomerFeedbackService;
 import com.cus.customertab.service.CustomerRequestCommentService;
 import com.cus.customertab.service.CustomerRequestService;
 import com.cus.customertab.service.CustomerService;
- import com.cus.customertab.service.KYCCommentsService;
+import com.cus.customertab.service.KYCCommentsService;
 import com.cus.customertab.service.KYCService;
-
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
@@ -237,11 +236,11 @@ public class CustomerController {
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(required = false) Integer size) {
         if (size == null) {
-            size = defaultPageSize; // Set a default page size if not provided
+            size = defaultPageSize; 
         }
         List<CustomerConcernDTO> concerns = customerConcernService.getAllConcerns(page, size);
         if (concerns.isEmpty() && page > 0) {
-            return getAllConcerns(0, size); // Return the first page if the current page is empty
+            return getAllConcerns(0, size);
         }
         return ResponseEntity.ok(concerns);
     }
@@ -288,11 +287,11 @@ public class CustomerController {
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(required = false) Integer size) {
         if (size == null) {
-            size = defaultPageSize; // Set a default page size if not provided
+            size = defaultPageSize; 
         }
         List<CustomerFeedbackDTO> feedbackList = customerFeedbackService.getAllFeedback(page, size);
         if (feedbackList.isEmpty() && page > 0) {
-            return getAllFeedback(0, size); // Return the first page if the current page is empty
+            return getAllFeedback(0, size); 
         }
         return ResponseEntity.ok(feedbackList);
     }
@@ -329,11 +328,11 @@ public class CustomerController {
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(required = false) Integer size) {
         if (size == null) {
-            size = defaultPageSize; // Set a default page size if not provided
+            size = defaultPageSize;
         }
         List<CustomerRequestCommentDTO> commentsList = customerRequestCommentService.getAllComments(page, size);
         if (commentsList.isEmpty() && page > 0) {
-            return getAllComments(0, size); // Return the first page if the current page is empty
+            return getAllComments(0, size);
         }
         return ResponseEntity.ok(commentsList);
     }
@@ -380,11 +379,11 @@ public class CustomerController {
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(required = false) Integer size) {
         if (size == null) {
-            size = defaultPageSize; // Set a default page size if not provided
+            size = defaultPageSize; 
         }
         List<KYCDTO> kycs = kycService.getAllKYC(page, size);
         if (kycs.isEmpty() && page > 0) {
-            return getAllKYC(0, size); // Return the first page if the current page is empty
+            return getAllKYC(0, size); 
         }
         return ResponseEntity.ok(kycs);
     }
@@ -398,7 +397,7 @@ public class CustomerController {
         if (kycDTO != null) {
             return ResponseEntity.ok(kycDTO);
         } else {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(null); // Return 404 if not found
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(null); 
         }
     }
 
@@ -431,11 +430,11 @@ public class CustomerController {
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(required = false) Integer size) {
         if (size == null) {
-            size = defaultPageSize; // Set a default page size if not provided
+            size = defaultPageSize;
         }
         List<KYCCommentsDTO> commentsList = kycCommentsService.getAllKycComments(page, size);
         if (commentsList.isEmpty() && page > 0) {
-            return getAllKycComments(0, size); // Return the first page if the current page is empty
+            return getAllKycComments(0, size);
         }
         return ResponseEntity.ok(commentsList);
     }
