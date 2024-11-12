@@ -3,6 +3,7 @@ package com.springboot.app.service;
 import java.util.List;
 
 import com.springboot.app.dto.ServiceProviderDTO;
+
 import com.springboot.app.enums.Gender;
 import com.springboot.app.enums.HousekeepingRole;
 import com.springboot.app.enums.LanguageKnown;
@@ -26,5 +27,9 @@ public interface ServiceProviderService {
 
   List<ServiceProviderDTO> getfilters(LanguageKnown language, Double rating, Gender gender, Speciality speciality,
       HousekeepingRole housekeepingRole, Integer minAge, Integer maxAge);
+
+  List<ServiceProviderDTO> getServiceProvidersByFilter(Integer pincode, String street, String locality);
+
+  List<ServiceProviderDTO> getServiceProvidersByOrFilter(Integer pincode, String street, String locality);
 
 }

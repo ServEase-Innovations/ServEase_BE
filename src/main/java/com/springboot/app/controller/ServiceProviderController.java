@@ -63,7 +63,7 @@ public class ServiceProviderController {
     @Value("${app.pagination.default-page-size:10}")
     private int defaultPageSize;
 
-    // --------API's FOR SERVICE PROVIDER REQUEST ENTITY--------------------
+    // --------API's FOR SERVICE PROVIDER ENTITY--------------------
     @GetMapping("/serviceproviders/all")
     @ApiOperation(value = ServiceProviderConstants.RETRIEVE_ALL_DESC, response = List.class)
     public ResponseEntity<List<ServiceProviderDTO>> getAllServiceProviders(
@@ -130,6 +130,42 @@ public class ServiceProviderController {
         List<ServiceProviderDTO> serviceProviders = serviceProviderService.getfilters(language, rating, gender,
                 speciality, housekeepingRole, minAge, maxAge);
         return ResponseEntity.ok(serviceProviders);
+    }
+
+    // Endpoint to filter by only one parameter at a time
+    @GetMapping("/filter")
+    public ResponseEntity<?> getServiceProvidersBySingleFilter(
+            @RequestParam(required = false) Integer pincode,
+            @RequestParam(required = false) String street,
+            @RequestParam(required = false) String locality) {
+
+        // Check that only one parameter is provided
+        int paramCount = 0;
+        if (pincode != null)
+            paramCount++;
+        if (street != null)
+            paramCount++;
+        if (locality != null)
+            paramCount++;
+
+        if (paramCount != 1) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                    .body("Please provide only one filter parameter: pincode, street, or locality.");
+        }
+
+        // Call service method with the provided single parameter
+        List<ServiceProviderDTO> results = serviceProviderService.getServiceProvidersByFilter(pincode, street,
+                locality);
+        return ResponseEntity.ok(results);
+    }
+
+    // New endpoint for OR filtering
+    @GetMapping("/orfilter")
+    public List<ServiceProviderDTO> getServiceProvidersByOrFilter(
+            @RequestParam(required = false) Integer pincode,
+            @RequestParam(required = false) String street,
+            @RequestParam(required = false) String locality) {
+        return serviceProviderService.getServiceProvidersByOrFilter(pincode, street, locality);
     }
 
     // ----------API's FOR SERVICE PROVIDER REQUEST ENTITY-----------------

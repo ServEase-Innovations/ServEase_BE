@@ -107,6 +107,23 @@ public class ServiceProvider {
 	public void prePersist() {
 		this.enrolledDate = new Timestamp(System.currentTimeMillis());
 		this.isActive = true;
+
+		// Convert specified fields to lowercase before saving
+		if (this.street != null) {
+			this.street = this.street.toLowerCase();
+		}
+		if (this.locality != null) {
+			this.locality = this.locality.toLowerCase();
+		}
+		if (this.buildingName != null) {
+			this.buildingName = this.buildingName.toLowerCase();
+		}
+		if (this.currentLocation != null) {
+			this.currentLocation = this.currentLocation.toLowerCase();
+		}
+		if (this.nearbyLocation != null) {
+			this.nearbyLocation = this.nearbyLocation.toLowerCase();
+		}
 	}
 
 	// to deactivate
