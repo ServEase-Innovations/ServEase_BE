@@ -39,4 +39,7 @@ public class CustomerDTO {
     private Timestamp enrolledDate;
     private Speciality speciality;
     private String profilePicUrl;
+
+    private String username;
+    private String password;
 }

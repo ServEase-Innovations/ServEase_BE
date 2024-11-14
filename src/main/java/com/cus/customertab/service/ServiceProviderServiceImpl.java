@@ -12,6 +12,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import com.cus.customertab.constants.ServiceProviderConstants;
 import com.cus.customertab.dto.ServiceProviderDTO;
+import com.cus.customertab.dto.UserCredentialsDTO;
 import com.cus.customertab.entity.ServiceProvider;
 import com.cus.customertab.enums.Gender;
 import com.cus.customertab.enums.LanguageKnown;
@@ -31,6 +32,12 @@ public class ServiceProviderServiceImpl implements ServiceProviderService {
 
     @Autowired
     private ServiceProviderMapper serviceProviderMapper;
+
+    private final UserService userService;
+
+    public ServiceProviderServiceImpl(UserService userService) {
+        this.userService = userService;
+    }
 
     @Override
     @Transactional
@@ -66,11 +73,29 @@ public class ServiceProviderServiceImpl implements ServiceProviderService {
     @Transactional
     public void saveServiceProviderDTO(ServiceProviderDTO serviceProviderDTO) {
         logger.info("Saving a new service provider");
+
+        // Register the user credentials first
+        UserCredentialsDTO userDTO = new UserCredentialsDTO();
+        userDTO.setUsername(serviceProviderDTO.getUsername());
+        userDTO.setPassword(serviceProviderDTO.getPassword());
+        userDTO.setPhoneNumber(serviceProviderDTO.getMobileNo().toString());
+        userDTO.setNoOfTries(0); // Default number of tries
+        userDTO.setTempLocked(false); // Default temporary lock status
+
+        // Call the registerUser method to add the user
+        String registrationResponse = userService.registerUser(userDTO);
+        logger.info("User registration response: {}", registrationResponse);
+
+        // Map ServiceProviderDTO to ServiceProvider entity
         Session session = sessionFactory.getCurrentSession();
         ServiceProvider serviceProvider = serviceProviderMapper.dtoToServiceProvider(serviceProviderDTO);
+        serviceProvider.setActive(true); // Set service provider as active
         session.persist(serviceProvider);
+
         logger.debug("Service provider saved: {}", serviceProvider);
     }
+
+
 
     @Override
     @Transactional

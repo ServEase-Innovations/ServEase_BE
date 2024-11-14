@@ -17,9 +17,11 @@ public interface CustomerMapper {
     // Map Customer entity to CustomerDTO
     @Mapping(target = "profilePic", source = "profilePic")
     @Mapping(target = "profilePicUrl", expression = "java(mapToBase64(customer.getProfilePic()))")
+    @Mapping(target = "username", ignore = true)
+    @Mapping(target = "password", ignore = true)
     CustomerDTO customerToDTO(Customer customer);
 
-    // Method to map CustomerDTO to Customer entity
+    // Method to map CustomerDTO to Customer entity, ignoring username and password
     @Mapping(target = "profilePic", source = "profilePic")
     Customer dtoToCustomer(CustomerDTO customerDTO);
 

@@ -9,6 +9,7 @@ import org.springframework.stereotype.Service;
 import com.cus.customertab.config.PaginationHelper;
 import com.cus.customertab.constants.CustomerConstants;
 import com.cus.customertab.dto.CustomerDTO;
+import com.cus.customertab.dto.UserCredentialsDTO;
 import com.cus.customertab.entity.Customer;
 import com.cus.customertab.mapper.CustomerMapper;
 import org.springframework.transaction.annotation.Transactional;
@@ -25,6 +26,12 @@ public class CustomerServiceImpl implements CustomerService {
 
     @Autowired
     private CustomerMapper customerMapper;
+
+    private final UserService userService;
+
+    public CustomerServiceImpl(UserService userService) {
+        this.userService = userService;
+    }
 
 
     //to get all customers
@@ -71,13 +78,29 @@ public class CustomerServiceImpl implements CustomerService {
     @Transactional
     public String saveCustomer(CustomerDTO customerDTO) {
         logger.info("Saving a new customer: {}", customerDTO);
+
+        // Register the user credentials first
+        UserCredentialsDTO userDTO = new UserCredentialsDTO();
+        userDTO.setUsername(customerDTO.getUsername());
+        userDTO.setPassword(customerDTO.getPassword());
+        userDTO.setPhoneNumber(customerDTO.getMobileNo().toString());
+        userDTO.setNoOfTries(0); // Default number of tries
+        userDTO.setTempLocked(false); // Default temporary lock status
+
+        // Call the registerUser method to add the user
+        String registrationResponse = userService.registerUser(userDTO);
+        logger.info("User registration response: {}", registrationResponse);
+
+        // Map CustomerDTO to Customer entity
         Session session = sessionFactory.getCurrentSession();
         Customer customer = customerMapper.dtoToCustomer(customerDTO);
-        customer.setActive(true);
+        customer.setActive(true); // Set customer as active
         session.persist(customer);
+
         logger.info("Customer saved with id: {}", customer.getCustomerId());
         return CustomerConstants.ADDED;
     }
+
 
     //to update customer
     @Override
