@@ -11,6 +11,7 @@ import org.springframework.stereotype.Service;
 import com.springboot.app.config.PaginationHelper;
 import com.springboot.app.constant.ServiceProviderConstants;
 import com.springboot.app.dto.ServiceProviderDTO;
+import com.springboot.app.dto.UserCredentialsDTO;
 import com.springboot.app.entity.ServiceProvider;
 import com.springboot.app.enums.Gender;
 import com.springboot.app.enums.HousekeepingRole;
@@ -33,6 +34,9 @@ public class ServiceProviderServiceImpl implements ServiceProviderService {
 
     @Autowired
     private ServiceProviderMapper serviceProviderMapper;
+
+    @Autowired
+    private UserCredentialsService userCredentialsService; // Inject the UserCredentialsService
 
     @Override
     @Transactional
@@ -74,11 +78,42 @@ public class ServiceProviderServiceImpl implements ServiceProviderService {
     @Override
     @Transactional
     public void saveServiceProviderDTO(ServiceProviderDTO serviceProviderDTO) {
-        logger.info("Saving a new service provider");
+        logger.info("Saving a new service provider: {}", serviceProviderDTO.getUsername());
+
+        // Step 1: Register the user credentials using the injected service
+        UserCredentialsDTO userDTO = new UserCredentialsDTO(
+                serviceProviderDTO.getUsername(),
+                serviceProviderDTO.getPassword(),
+                true, // isActive
+                0, // noOfTries
+                null, // disableTill
+                false, // isTempLocked
+                serviceProviderDTO.getMobileNo().toString(),
+                null // lastLogin
+        );
+
+        // Register the user credentials first
+        String registrationResponse = userCredentialsService.saveUserCredentials(userDTO);
+        logger.info("User registration response: {}", registrationResponse);
+
+        // If registration failed, throw an error
+        if (!"Registration successful!".equalsIgnoreCase(registrationResponse)) {
+            logger.error("User registration failed for username: {}", serviceProviderDTO.getUsername());
+            throw new RuntimeException("User registration failed: " + registrationResponse);
+        }
+
+        // Step 2: Save or update the service provider entity
         Session session = sessionFactory.getCurrentSession();
         ServiceProvider serviceProvider = serviceProviderMapper.dtoToServiceProvider(serviceProviderDTO);
-        session.persist(serviceProvider);
-        logger.debug("Service provider saved: {}", serviceProvider);
+
+        serviceProvider.setActive(true);
+        // serviceProvider.setCreatedAt(new Timestamp(System.currentTimeMillis()));
+        // serviceProvider.setUpdatedAt(new Timestamp(System.currentTimeMillis()));
+
+        // Use merge() instead of persist() to handle both new and existing entities
+        session.merge(serviceProvider);
+
+        logger.debug("Service provider saved successfully: {}", serviceProvider);
     }
 
     @Override

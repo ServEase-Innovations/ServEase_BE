@@ -101,6 +101,8 @@ public class ServiceProvider {
 
 	@Column
 	private String info;
+	private String username;
+	private String password;
 
 	// to automatically set data and isActive field
 	@PrePersist
