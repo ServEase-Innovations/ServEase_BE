@@ -22,17 +22,22 @@ public class UserCredentialsController {
 
     // Endpoint to login a user account
     @PostMapping("/login")
-    public ResponseEntity<String> login(@RequestParam String username, @RequestParam String password) {
+    public ResponseEntity<String> login(@RequestBody UserCredentialsDTO loginRequest) {
+        String username = loginRequest.username();
+        String password = loginRequest.password();
+
+        // Validate login using the service
         String response = userCredentialsService.checkLoginAttempts(username, password);
 
+        // Return appropriate HTTP status based on the service response
         if (response.contains("User not found")) {
-            return new ResponseEntity<>(response, HttpStatus.NOT_FOUND); // User not found, 404
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(response);
         } else if (response.contains("locked")) {
-            return new ResponseEntity<>(response, HttpStatus.FORBIDDEN); // Account locked, 403
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).body(response);
         } else if (response.contains("Login successful")) {
-            return new ResponseEntity<>(response, HttpStatus.OK); // Login successful, 200
+            return ResponseEntity.ok(response);
         } else {
-            return new ResponseEntity<>(response, HttpStatus.UNAUTHORIZED); // Login failed, 401
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(response);
         }
     }
 

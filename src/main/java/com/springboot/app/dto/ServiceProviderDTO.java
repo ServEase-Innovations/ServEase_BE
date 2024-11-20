@@ -65,5 +65,7 @@ public class ServiceProviderDTO {
     private Speciality speciality;
     private Integer age;
     private String info;
+    private String username;
+    private String password;
 
 }

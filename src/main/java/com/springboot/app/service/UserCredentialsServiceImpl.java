@@ -15,9 +15,13 @@ import org.springframework.stereotype.Service;
 import jakarta.transaction.Transactional;
 import java.sql.Timestamp;
 import java.util.Optional;
+import org.springframework.beans.factory.annotation.Value;
 
 @Service
 public class UserCredentialsServiceImpl implements UserCredentialsService {
+
+    @Value("${user.account.locking.enabled}")
+    private boolean accountLockingEnabled;
 
     private static final Logger logger = LoggerFactory.getLogger(UserCredentialsServiceImpl.class);
 
@@ -46,42 +50,57 @@ public class UserCredentialsServiceImpl implements UserCredentialsService {
     public String checkLoginAttempts(String username, String password) {
         Session session = sessionFactory.getCurrentSession();
 
-        // Fetch user credentials by username (emailId)
+        logger.info("Attempting to log in user: {}", username);
+
+        // Fetch user credentials by username
         UserCredentials userCredentials = session.get(UserCredentials.class, username);
 
         if (userCredentials == null) {
-            // If the user doesn't exist, return a message
+            logger.warn("User not found: {}", username);
             return "User not found. Please register.";
         }
 
-        // Check if the account is locked (disableTill)
-        if (userCredentials.getDisableTill() != null
-                && userCredentials.getDisableTill().after(new Timestamp(System.currentTimeMillis()))) {
-            logger.info("Account is temporarily locked. Please try again after: " + userCredentials.getDisableTill());
+        // If account locking is disabled, skip lock checks and attempt login
+        if (!accountLockingEnabled) {
+            // Verify the password using BCrypt
+            if (passwordEncoder.matches(password, userCredentials.getPassword())) {
+                logger.info("User {} logged in successfully.", username);
+                userCredentials.setNoOfTries(0); // Reset login attempts
+                userCredentials.setLastLogin(new Timestamp(System.currentTimeMillis()));
+                session.merge(userCredentials); // Update last login timestamp
+                return "Login successful!";
+            } else {
+                logger.warn("Incorrect password for user: {}", username);
+                return "Login failed! Incorrect credentials.";
+            }
+        }
+
+        // Account locking logic follows (only applies if accountLockingEnabled is true)
+        if (userCredentials.getDisableTill() != null &&
+                userCredentials.getDisableTill().after(new Timestamp(System.currentTimeMillis()))) {
+            logger.warn("Account is temporarily locked for user: {} until {}", username,
+                    userCredentials.getDisableTill());
             return "Account is temporarily locked. Please try again after: " + userCredentials.getDisableTill();
         }
 
-        // If password is correct (verify against the encrypted password)
         if (passwordEncoder.matches(password, userCredentials.getPassword())) {
-            // Reset failed attempts on successful login
-            userCredentials.setNoOfTries(0);
-            userCredentials.setLastLogin(new Timestamp(System.currentTimeMillis())); // Update last login timestamp
-            session.merge(userCredentials);
+            logger.info("User {} logged in successfully.", username);
+            userCredentials.setNoOfTries(0); // Reset login attempts
+            userCredentials.setLastLogin(new Timestamp(System.currentTimeMillis()));
+            session.merge(userCredentials); // Update last login timestamp
             return "Login successful!";
         } else {
-            // If password is incorrect, increment the number of tries
             int attempts = userCredentials.getNoOfTries() + 1;
             userCredentials.setNoOfTries(attempts);
+            logger.warn("Incorrect password for user: {}. Attempts: {}/3", username, attempts);
 
             if (attempts >= 3) {
-                // Lock the account if more than 3 attempts, set disableTill to 30 minutes from
-                // now
                 Timestamp lockTime = new Timestamp(System.currentTimeMillis() + lockSettingsConfig.getLocktime());
                 userCredentials.setDisableTill(lockTime);
-                userCredentials.lock(); // Temporarily lock the account
+                userCredentials.lock();
+                logger.error("User account locked due to multiple failed attempts. User: {}", username);
             }
 
-            // Save the updated user credentials
             session.merge(userCredentials);
             return "Login failed! You have " + (3 - attempts) + " attempts remaining.";
         }
