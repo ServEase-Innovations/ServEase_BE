@@ -178,7 +178,27 @@ public class UserCredentialsServiceImpl implements UserCredentialsService {
     @Transactional
     public void updateUserCredentials(UserCredentialsDTO userCredentialsDTO) {
         Session session = sessionFactory.getCurrentSession();
-        UserCredentials userCredentials = userCredentialsMapper.dtoToUserCredentials(userCredentialsDTO);
-        session.merge(userCredentials); // Update the user credentials
+
+        // Fetch the existing user by username
+        UserCredentials existingUser = session.get(UserCredentials.class, userCredentialsDTO.username());
+        if (existingUser == null) {
+            throw new IllegalArgumentException("User not found with username: " + userCredentialsDTO.username());
+        }
+
+        // Check if the password in the DTO is different from the existing user's
+        // password
+        String newPassword = userCredentialsDTO.password();
+        if (!passwordEncoder.matches(newPassword, existingUser.getPassword())) {
+            // Encrypt the new password before updating
+            String encryptedPassword = passwordEncoder.encode(newPassword);
+            existingUser.setPassword(encryptedPassword);
+        }
+
+        // Update other fields (if applicable)
+        userCredentialsMapper.updateEntityFromDTO(userCredentialsDTO, existingUser);
+
+        // Persist the updated user credentials
+        session.merge(existingUser);
     }
+
 }

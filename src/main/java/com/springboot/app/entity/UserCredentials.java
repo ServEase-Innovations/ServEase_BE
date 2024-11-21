@@ -6,6 +6,7 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 import java.sql.Timestamp;
+import java.text.SimpleDateFormat;
 
 @Entity
 @Table(name = "user_credentials")
@@ -48,8 +49,19 @@ public class UserCredentials {
 
     public void deactivate() {
         this.isActive = false;
-        this.lastLogin = new Timestamp(System.currentTimeMillis());
+
+        // Formatting the current timestamp to "yyyy-MM-dd HH:mm:ss.SSS"
+        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS");
+        String formattedDate = sdf.format(System.currentTimeMillis());
+
+        // Converting the formatted date back to a Timestamp
+        this.lastLogin = Timestamp.valueOf(formattedDate);
     }
+
+    // public void deactivate() {
+    // this.isActive = false;
+    // this.lastLogin = new Timestamp(System.currentTimeMillis());
+    // }
 
     public void lock() {
         this.isTempLocked = true;
