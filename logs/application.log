@@ -1,44 +1,135 @@
-2024-11-20T12:47:48.677+05:30  INFO 7580 --- [restartedMain] c.s.app.SpringbootFirstAppApplication    : Starting SpringbootFirstAppApplication using Java 23 with PID 7580 (C:\service\ServEase_BE\target\classes started by shaiq in C:\service\ServEase_BE)
-2024-11-20T12:47:48.686+05:30  INFO 7580 --- [restartedMain] c.s.app.SpringbootFirstAppApplication    : No active profile set, falling back to 1 default profile: "default"
-2024-11-20T12:47:48.735+05:30  INFO 7580 --- [restartedMain] .e.DevToolsPropertyDefaultsPostProcessor : Devtools property defaults active! Set 'spring.devtools.add-properties' to 'false' to disable
-2024-11-20T12:47:48.736+05:30  INFO 7580 --- [restartedMain] .e.DevToolsPropertyDefaultsPostProcessor : For additional web related logging consider setting the 'logging.level.web' property to 'DEBUG'
-2024-11-20T12:47:50.161+05:30  INFO 7580 --- [restartedMain] o.s.b.w.embedded.tomcat.TomcatWebServer  : Tomcat initialized with port 8443 (https)
-2024-11-20T12:47:50.180+05:30  INFO 7580 --- [restartedMain] o.apache.catalina.core.StandardService   : Starting service [Tomcat]
-2024-11-20T12:47:50.181+05:30  INFO 7580 --- [restartedMain] o.apache.catalina.core.StandardEngine    : Starting Servlet engine: [Apache Tomcat/10.1.30]
-2024-11-20T12:47:50.220+05:30  INFO 7580 --- [restartedMain] o.a.c.c.C.[Tomcat].[localhost].[/]       : Initializing Spring embedded WebApplicationContext
-2024-11-20T12:47:50.220+05:30  INFO 7580 --- [restartedMain] w.s.c.ServletWebServerApplicationContext : Root WebApplicationContext: initialization completed in 1484 ms
-2024-11-20T12:47:50.517+05:30  INFO 7580 --- [restartedMain] org.hibernate.Version                    : HHH000412: Hibernate ORM core version 6.5.2.Final
-2024-11-20T12:47:50.586+05:30  INFO 7580 --- [restartedMain] o.h.c.internal.RegionFactoryInitiator    : HHH000026: Second-level cache disabled
-2024-11-20T12:47:50.672+05:30  INFO 7580 --- [restartedMain] com.zaxxer.hikari.HikariDataSource       : HikariPool-1 - Starting...
-2024-11-20T12:47:50.820+05:30  INFO 7580 --- [restartedMain] com.zaxxer.hikari.pool.HikariPool        : HikariPool-1 - Added connection org.postgresql.jdbc.PgConnection@d5d5cfb
-2024-11-20T12:47:50.820+05:30  INFO 7580 --- [restartedMain] com.zaxxer.hikari.HikariDataSource       : HikariPool-1 - Start completed.
-2024-11-20T12:47:50.852+05:30  WARN 7580 --- [restartedMain] org.hibernate.orm.deprecation            : HHH90000025: PostgreSQLDialect does not need to be specified explicitly using 'hibernate.dialect' (remove the property setting and it will be selected by default)
-2024-11-20T12:47:51.778+05:30  INFO 7580 --- [restartedMain] o.h.e.t.j.p.i.JtaPlatformInitiator       : HHH000489: No JTA platform available (set 'hibernate.transaction.jta.platform' to enable JTA platform integration)
-2024-11-20T12:47:52.469+05:30  INFO 7580 --- [restartedMain] o.s.b.d.a.OptionalLiveReloadServer       : LiveReload server is running on port 35729
-2024-11-20T12:47:52.484+05:30  INFO 7580 --- [restartedMain] o.s.b.a.e.web.EndpointLinksResolver      : Exposing 3 endpoints beneath base path '/actuator'
-2024-11-20T12:47:52.631+05:30  INFO 7580 --- [restartedMain] o.a.t.util.net.NioEndpoint.certificate   : Connector [https-jsse-nio-8443], TLS virtual host [_default_], certificate type [UNDEFINED] configured from keystore [C:\Users\shaiq\.keystore] using alias [mysslkey] with trust store [null]
-2024-11-20T12:47:52.647+05:30  INFO 7580 --- [restartedMain] o.s.b.w.embedded.tomcat.TomcatWebServer  : Tomcat started on port 8443 (https) with context path '/'
-2024-11-20T12:47:52.647+05:30  INFO 7580 --- [restartedMain] c.s.app.SpringbootFirstAppApplication    : Started SpringbootFirstAppApplication in 4.257 seconds (process running for 4.586)
-2024-11-20T12:48:11.609+05:30  INFO 7580 --- [https-jsse-nio-8443-exec-6] o.a.c.c.C.[Tomcat].[localhost].[/]       : Initializing Spring DispatcherServlet 'dispatcherServlet'
-2024-11-20T12:48:11.610+05:30  INFO 7580 --- [https-jsse-nio-8443-exec-6] o.s.web.servlet.DispatcherServlet        : Initializing Servlet 'dispatcherServlet'
-2024-11-20T12:48:11.611+05:30  INFO 7580 --- [https-jsse-nio-8443-exec-6] o.s.web.servlet.DispatcherServlet        : Completed initialization in 1 ms
-2024-11-20T12:48:11.714+05:30  INFO 7580 --- [https-jsse-nio-8443-exec-6] c.s.a.s.UserCredentialsServiceImpl       : Attempting to log in user: suhailkhnnkhaan@gmail.com
-2024-11-20T12:48:11.809+05:30  INFO 7580 --- [https-jsse-nio-8443-exec-6] c.s.a.s.UserCredentialsServiceImpl       : User suhailkhnnkhaan@gmail.com logged in successfully.
-2024-11-20T12:48:18.752+05:30  INFO 7580 --- [https-jsse-nio-8443-exec-8] c.s.a.s.UserCredentialsServiceImpl       : Attempting to log in user: suhailkhnnkhaan@gmail.com
-2024-11-20T12:48:18.808+05:30  WARN 7580 --- [https-jsse-nio-8443-exec-8] c.s.a.s.UserCredentialsServiceImpl       : Incorrect password for user: suhailkhnnkhaan@gmail.com. Attempts: 1/3
-2024-11-20T12:48:20.672+05:30  INFO 7580 --- [https-jsse-nio-8443-exec-9] c.s.a.s.UserCredentialsServiceImpl       : Attempting to log in user: suhailkhnnkhaan@gmail.com
-2024-11-20T12:48:20.735+05:30  WARN 7580 --- [https-jsse-nio-8443-exec-9] c.s.a.s.UserCredentialsServiceImpl       : Incorrect password for user: suhailkhnnkhaan@gmail.com. Attempts: 2/3
-2024-11-20T12:48:21.810+05:30  INFO 7580 --- [https-jsse-nio-8443-exec-10] c.s.a.s.UserCredentialsServiceImpl       : Attempting to log in user: suhailkhnnkhaan@gmail.com
-2024-11-20T12:48:21.875+05:30  WARN 7580 --- [https-jsse-nio-8443-exec-10] c.s.a.s.UserCredentialsServiceImpl       : Incorrect password for user: suhailkhnnkhaan@gmail.com. Attempts: 3/3
-2024-11-20T12:48:21.876+05:30 ERROR 7580 --- [https-jsse-nio-8443-exec-10] c.s.a.s.UserCredentialsServiceImpl       : User account locked due to multiple failed attempts. User: suhailkhnnkhaan@gmail.com
-2024-11-20T12:48:23.899+05:30  INFO 7580 --- [https-jsse-nio-8443-exec-2] c.s.a.s.UserCredentialsServiceImpl       : Attempting to log in user: suhailkhnnkhaan@gmail.com
-2024-11-20T12:48:23.901+05:30  WARN 7580 --- [https-jsse-nio-8443-exec-2] c.s.a.s.UserCredentialsServiceImpl       : Account is temporarily locked for user: suhailkhnnkhaan@gmail.com until 2024-11-20 13:18:21.876
-2024-11-20T12:48:27.547+05:30  INFO 7580 --- [https-jsse-nio-8443-exec-1] c.s.a.s.UserCredentialsServiceImpl       : Attempting to log in user: suhailkhnnkhaan@gmail.com
-2024-11-20T12:48:27.549+05:30  WARN 7580 --- [https-jsse-nio-8443-exec-1] c.s.a.s.UserCredentialsServiceImpl       : Account is temporarily locked for user: suhailkhnnkhaan@gmail.com until 2024-11-20 13:18:21.876
-2024-11-20T12:48:40.827+05:30  INFO 7580 --- [https-jsse-nio-8443-exec-3] c.s.a.s.UserCredentialsServiceImpl       : Attempting to log in user: suhailkhnnkhaan@gmail.com
-2024-11-20T12:48:40.830+05:30  WARN 7580 --- [https-jsse-nio-8443-exec-3] c.s.a.s.UserCredentialsServiceImpl       : Account is temporarily locked for user: suhailkhnnkhaan@gmail.com until 2024-11-20 13:18:21.876
-2024-11-20T12:51:48.089+05:30  INFO 7580 --- [File Watcher] rtingClassPathChangeChangedEventListener : Restarting due to 1 class path change (0 additions, 0 deletions, 1 modification)
-2024-11-20T12:51:48.106+05:30  INFO 7580 --- [Thread-5] com.zaxxer.hikari.HikariDataSource       : HikariPool-1 - Shutdown initiated...
-2024-11-20T12:51:48.115+05:30  INFO 7580 --- [Thread-5] com.zaxxer.hikari.HikariDataSource       : HikariPool-1 - Shutdown completed.
-2024-11-20T12:51:48.182+05:30  INFO 7580 --- [restartedMain] c.s.app.SpringbootFirstAppApplication    : Starting SpringbootFirstAppApplication using Java 23 with PID 7580 (C:\service\ServEase_BE\target\classes started by shaiq in C:\service\ServEase_BE)
-2024-11-20T12:51:48.182+05:30  INFO 7580 --- [restartedMain] c.s.app.SpringbootFirstAppApplication    : No active profile set, falling back to 1 default profile: "default"
+2024-11-21T10:29:31.783+05:30  INFO 16396 --- [restartedMain] c.s.app.SpringbootFirstAppApplication    : Starting SpringbootFirstAppApplication using Java 23 with PID 16396 (C:\service\ServEase_BE\target\classes started by shaiq in C:\service\ServEase_BE)
+2024-11-21T10:29:31.800+05:30  INFO 16396 --- [restartedMain] c.s.app.SpringbootFirstAppApplication    : No active profile set, falling back to 1 default profile: "default"
+2024-11-21T10:29:31.898+05:30  INFO 16396 --- [restartedMain] .e.DevToolsPropertyDefaultsPostProcessor : Devtools property defaults active! Set 'spring.devtools.add-properties' to 'false' to disable
+2024-11-21T10:29:31.898+05:30  INFO 16396 --- [restartedMain] .e.DevToolsPropertyDefaultsPostProcessor : For additional web related logging consider setting the 'logging.level.web' property to 'DEBUG'
+2024-11-21T10:29:35.277+05:30  INFO 16396 --- [restartedMain] o.s.b.w.embedded.tomcat.TomcatWebServer  : Tomcat initialized with port 8443 (https)
+2024-11-21T10:29:35.304+05:30  INFO 16396 --- [restartedMain] o.apache.catalina.core.StandardService   : Starting service [Tomcat]
+2024-11-21T10:29:35.304+05:30  INFO 16396 --- [restartedMain] o.apache.catalina.core.StandardEngine    : Starting Servlet engine: [Apache Tomcat/10.1.30]
+2024-11-21T10:29:35.395+05:30  INFO 16396 --- [restartedMain] o.a.c.c.C.[Tomcat].[localhost].[/]       : Initializing Spring embedded WebApplicationContext
+2024-11-21T10:29:35.400+05:30  INFO 16396 --- [restartedMain] w.s.c.ServletWebServerApplicationContext : Root WebApplicationContext: initialization completed in 3501 ms
+2024-11-21T10:29:36.150+05:30  INFO 16396 --- [restartedMain] org.hibernate.Version                    : HHH000412: Hibernate ORM core version 6.5.2.Final
+2024-11-21T10:29:36.288+05:30  INFO 16396 --- [restartedMain] o.h.c.internal.RegionFactoryInitiator    : HHH000026: Second-level cache disabled
+2024-11-21T10:29:36.470+05:30  INFO 16396 --- [restartedMain] com.zaxxer.hikari.HikariDataSource       : HikariPool-1 - Starting...
+2024-11-21T10:29:36.916+05:30  INFO 16396 --- [restartedMain] com.zaxxer.hikari.pool.HikariPool        : HikariPool-1 - Added connection org.postgresql.jdbc.PgConnection@71bc6707
+2024-11-21T10:29:36.920+05:30  INFO 16396 --- [restartedMain] com.zaxxer.hikari.HikariDataSource       : HikariPool-1 - Start completed.
+2024-11-21T10:29:37.005+05:30  WARN 16396 --- [restartedMain] org.hibernate.orm.deprecation            : HHH90000025: PostgreSQLDialect does not need to be specified explicitly using 'hibernate.dialect' (remove the property setting and it will be selected by default)
+2024-11-21T10:29:39.192+05:30  INFO 16396 --- [restartedMain] o.h.e.t.j.p.i.JtaPlatformInitiator       : HHH000489: No JTA platform available (set 'hibernate.transaction.jta.platform' to enable JTA platform integration)
+2024-11-21T10:29:41.065+05:30  INFO 16396 --- [restartedMain] o.s.b.d.a.OptionalLiveReloadServer       : LiveReload server is running on port 35729
+2024-11-21T10:29:41.079+05:30  INFO 16396 --- [restartedMain] o.s.b.a.e.web.EndpointLinksResolver      : Exposing 3 endpoints beneath base path '/actuator'
+2024-11-21T10:29:41.472+05:30  INFO 16396 --- [restartedMain] o.a.t.util.net.NioEndpoint.certificate   : Connector [https-jsse-nio-8443], TLS virtual host [_default_], certificate type [UNDEFINED] configured from keystore [C:\Users\shaiq\.keystore] using alias [mysslkey] with trust store [null]
+2024-11-21T10:29:41.500+05:30  INFO 16396 --- [restartedMain] o.s.b.w.embedded.tomcat.TomcatWebServer  : Tomcat started on port 8443 (https) with context path '/'
+2024-11-21T10:29:41.522+05:30  INFO 16396 --- [restartedMain] c.s.app.SpringbootFirstAppApplication    : Started SpringbootFirstAppApplication in 10.439 seconds (process running for 11.192)
+2024-11-21T10:31:43.696+05:30  INFO 16396 --- [https-jsse-nio-8443-exec-6] o.a.c.c.C.[Tomcat].[localhost].[/]       : Initializing Spring DispatcherServlet 'dispatcherServlet'
+2024-11-21T10:31:43.696+05:30  INFO 16396 --- [https-jsse-nio-8443-exec-6] o.s.web.servlet.DispatcherServlet        : Initializing Servlet 'dispatcherServlet'
+2024-11-21T10:31:43.701+05:30  INFO 16396 --- [https-jsse-nio-8443-exec-6] o.s.web.servlet.DispatcherServlet        : Completed initialization in 5 ms
+2024-11-21T10:31:44.067+05:30  INFO 16396 --- [https-jsse-nio-8443-exec-6] c.s.a.s.UserCredentialsServiceImpl       : Attempting to log in user: suhailkhnahmdnkhaan@gmail.com
+2024-11-21T10:31:44.375+05:30  INFO 16396 --- [https-jsse-nio-8443-exec-6] c.s.a.s.UserCredentialsServiceImpl       : User suhailkhnahmdnkhaan@gmail.com logged in successfully.
+2024-11-21T10:59:11.517+05:30  WARN 16396 --- [HikariPool-1 housekeeper] com.zaxxer.hikari.pool.HikariPool        : HikariPool-1 - Thread starvation or clock leap detected (housekeeper delta=18m34s331ms670µs).
+2024-11-21T12:45:19.962+05:30  INFO 18772 --- [restartedMain] c.s.app.SpringbootFirstAppApplication    : Starting SpringbootFirstAppApplication using Java 23 with PID 18772 (C:\service\ServEase_BE\target\classes started by shaiq in C:\service\ServEase_BE)
+2024-11-21T12:45:19.970+05:30  INFO 18772 --- [restartedMain] c.s.app.SpringbootFirstAppApplication    : No active profile set, falling back to 1 default profile: "default"
+2024-11-21T12:45:20.068+05:30  INFO 18772 --- [restartedMain] .e.DevToolsPropertyDefaultsPostProcessor : Devtools property defaults active! Set 'spring.devtools.add-properties' to 'false' to disable
+2024-11-21T12:45:20.068+05:30  INFO 18772 --- [restartedMain] .e.DevToolsPropertyDefaultsPostProcessor : For additional web related logging consider setting the 'logging.level.web' property to 'DEBUG'
+2024-11-21T12:45:22.529+05:30  INFO 18772 --- [restartedMain] o.s.b.w.embedded.tomcat.TomcatWebServer  : Tomcat initialized with port 8443 (https)
+2024-11-21T12:45:22.563+05:30  INFO 18772 --- [restartedMain] o.apache.catalina.core.StandardService   : Starting service [Tomcat]
+2024-11-21T12:45:22.563+05:30  INFO 18772 --- [restartedMain] o.apache.catalina.core.StandardEngine    : Starting Servlet engine: [Apache Tomcat/10.1.30]
+2024-11-21T12:45:22.652+05:30  INFO 18772 --- [restartedMain] o.a.c.c.C.[Tomcat].[localhost].[/]       : Initializing Spring embedded WebApplicationContext
+2024-11-21T12:45:22.652+05:30  INFO 18772 --- [restartedMain] w.s.c.ServletWebServerApplicationContext : Root WebApplicationContext: initialization completed in 2584 ms
+2024-11-21T12:45:23.224+05:30  INFO 18772 --- [restartedMain] org.hibernate.Version                    : HHH000412: Hibernate ORM core version 6.5.2.Final
+2024-11-21T12:45:23.337+05:30  INFO 18772 --- [restartedMain] o.h.c.internal.RegionFactoryInitiator    : HHH000026: Second-level cache disabled
+2024-11-21T12:45:23.538+05:30  INFO 18772 --- [restartedMain] com.zaxxer.hikari.HikariDataSource       : HikariPool-1 - Starting...
+2024-11-21T12:45:23.865+05:30  INFO 18772 --- [restartedMain] com.zaxxer.hikari.pool.HikariPool        : HikariPool-1 - Added connection org.postgresql.jdbc.PgConnection@7d091706
+2024-11-21T12:45:23.865+05:30  INFO 18772 --- [restartedMain] com.zaxxer.hikari.HikariDataSource       : HikariPool-1 - Start completed.
+2024-11-21T12:45:23.911+05:30  WARN 18772 --- [restartedMain] org.hibernate.orm.deprecation            : HHH90000025: PostgreSQLDialect does not need to be specified explicitly using 'hibernate.dialect' (remove the property setting and it will be selected by default)
+2024-11-21T12:45:25.964+05:30  INFO 18772 --- [restartedMain] o.h.e.t.j.p.i.JtaPlatformInitiator       : HHH000489: No JTA platform available (set 'hibernate.transaction.jta.platform' to enable JTA platform integration)
+2024-11-21T12:45:27.439+05:30  INFO 18772 --- [restartedMain] o.s.b.d.a.OptionalLiveReloadServer       : LiveReload server is running on port 35729
+2024-11-21T12:45:27.447+05:30  INFO 18772 --- [restartedMain] o.s.b.a.e.web.EndpointLinksResolver      : Exposing 3 endpoints beneath base path '/actuator'
+2024-11-21T12:45:27.738+05:30  INFO 18772 --- [restartedMain] o.a.t.util.net.NioEndpoint.certificate   : Connector [https-jsse-nio-8443], TLS virtual host [_default_], certificate type [UNDEFINED] configured from keystore [C:\Users\shaiq\.keystore] using alias [mysslkey] with trust store [null]
+2024-11-21T12:45:27.779+05:30  INFO 18772 --- [restartedMain] o.s.b.w.embedded.tomcat.TomcatWebServer  : Tomcat started on port 8443 (https) with context path '/'
+2024-11-21T12:45:27.803+05:30  INFO 18772 --- [restartedMain] c.s.app.SpringbootFirstAppApplication    : Started SpringbootFirstAppApplication in 8.508 seconds (process running for 9.169)
+2024-11-21T12:47:51.817+05:30  INFO 18772 --- [https-jsse-nio-8443-exec-6] o.a.c.c.C.[Tomcat].[localhost].[/]       : Initializing Spring DispatcherServlet 'dispatcherServlet'
+2024-11-21T12:47:51.817+05:30  INFO 18772 --- [https-jsse-nio-8443-exec-6] o.s.web.servlet.DispatcherServlet        : Initializing Servlet 'dispatcherServlet'
+2024-11-21T12:47:51.817+05:30  INFO 18772 --- [https-jsse-nio-8443-exec-6] o.s.web.servlet.DispatcherServlet        : Completed initialization in 0 ms
+2024-11-21T12:47:52.152+05:30  INFO 18772 --- [https-jsse-nio-8443-exec-6] c.s.a.s.UserCredentialsServiceImpl       : Attempting to log in user: suhailkhnahmdnkhaan@gmail.com
+2024-11-21T12:47:52.258+05:30  WARN 18772 --- [https-jsse-nio-8443-exec-6] o.s.s.c.bcrypt.BCryptPasswordEncoder     : Encoded password does not look like BCrypt
+2024-11-21T12:47:52.258+05:30  WARN 18772 --- [https-jsse-nio-8443-exec-6] c.s.a.s.UserCredentialsServiceImpl       : Incorrect password for user: suhailkhnahmdnkhaan@gmail.com
+2024-11-21T12:48:21.069+05:30  INFO 18772 --- [https-jsse-nio-8443-exec-7] c.s.a.s.UserCredentialsServiceImpl       : Attempting to log in user: suhailkhnahmdnkhaan@gmail.com
+2024-11-21T12:48:21.077+05:30  WARN 18772 --- [https-jsse-nio-8443-exec-7] o.s.s.c.bcrypt.BCryptPasswordEncoder     : Encoded password does not look like BCrypt
+2024-11-21T12:48:21.077+05:30  WARN 18772 --- [https-jsse-nio-8443-exec-7] c.s.a.s.UserCredentialsServiceImpl       : Incorrect password for user: suhailkhnahmdnkhaan@gmail.com
+2024-11-21T12:48:34.459+05:30  INFO 18772 --- [https-jsse-nio-8443-exec-8] c.s.a.s.UserCredentialsServiceImpl       : Attempting to log in user: suhailkhnahmdnkhaan@gmail.com
+2024-11-21T12:48:34.467+05:30  WARN 18772 --- [https-jsse-nio-8443-exec-8] o.s.s.c.bcrypt.BCryptPasswordEncoder     : Encoded password does not look like BCrypt
+2024-11-21T12:48:34.467+05:30  WARN 18772 --- [https-jsse-nio-8443-exec-8] c.s.a.s.UserCredentialsServiceImpl       : Incorrect password for user: suhailkhnahmdnkhaan@gmail.com
+2024-11-21T12:48:47.653+05:30  INFO 18772 --- [https-jsse-nio-8443-exec-9] c.s.a.s.UserCredentialsServiceImpl       : Attempting to log in user: suhailkhnahmdnkhaan@gmail.com
+2024-11-21T12:48:47.656+05:30  WARN 18772 --- [https-jsse-nio-8443-exec-9] o.s.s.c.bcrypt.BCryptPasswordEncoder     : Encoded password does not look like BCrypt
+2024-11-21T12:48:47.658+05:30  WARN 18772 --- [https-jsse-nio-8443-exec-9] c.s.a.s.UserCredentialsServiceImpl       : Incorrect password for user: suhailkhnahmdnkhaan@gmail.com
+2024-11-21T12:51:51.482+05:30  INFO 18772 --- [https-jsse-nio-8443-exec-7] c.s.a.s.UserCredentialsServiceImpl       : Attempting to log in user: shaiquataj0987@gmail.com
+2024-11-21T12:51:51.661+05:30  INFO 18772 --- [https-jsse-nio-8443-exec-7] c.s.a.s.UserCredentialsServiceImpl       : User shaiquataj0987@gmail.com logged in successfully.
+2024-11-21T12:54:23.138+05:30  INFO 18772 --- [https-jsse-nio-8443-exec-1] c.s.a.s.UserCredentialsServiceImpl       : Attempting to log in user: shaiquataj0987@gmail.com
+2024-11-21T12:54:23.147+05:30  WARN 18772 --- [https-jsse-nio-8443-exec-1] o.s.s.c.bcrypt.BCryptPasswordEncoder     : Encoded password does not look like BCrypt
+2024-11-21T12:54:23.147+05:30  WARN 18772 --- [https-jsse-nio-8443-exec-1] c.s.a.s.UserCredentialsServiceImpl       : Incorrect password for user: shaiquataj0987@gmail.com
+2024-11-21T12:54:46.467+05:30  INFO 18772 --- [https-jsse-nio-8443-exec-2] c.s.a.s.UserCredentialsServiceImpl       : Attempting to log in user: shaiquataj0987@gmail.com
+2024-11-21T12:54:46.476+05:30  WARN 18772 --- [https-jsse-nio-8443-exec-2] o.s.s.c.bcrypt.BCryptPasswordEncoder     : Encoded password does not look like BCrypt
+2024-11-21T12:54:46.476+05:30  WARN 18772 --- [https-jsse-nio-8443-exec-2] c.s.a.s.UserCredentialsServiceImpl       : Incorrect password for user: shaiquataj0987@gmail.com
+2024-11-21T12:55:20.811+05:30  INFO 18772 --- [https-jsse-nio-8443-exec-4] c.s.a.s.UserCredentialsServiceImpl       : Attempting to log in user: shaiquataj0987@gmail.com
+2024-11-21T12:55:20.821+05:30  WARN 18772 --- [https-jsse-nio-8443-exec-4] o.s.s.c.bcrypt.BCryptPasswordEncoder     : Encoded password does not look like BCrypt
+2024-11-21T12:55:20.821+05:30  WARN 18772 --- [https-jsse-nio-8443-exec-4] c.s.a.s.UserCredentialsServiceImpl       : Incorrect password for user: shaiquataj0987@gmail.com
+2024-11-21T12:55:22.770+05:30  INFO 18772 --- [https-jsse-nio-8443-exec-3] c.s.a.s.UserCredentialsServiceImpl       : Attempting to log in user: shaiquataj0987@gmail.com
+2024-11-21T12:55:22.777+05:30  WARN 18772 --- [https-jsse-nio-8443-exec-3] o.s.s.c.bcrypt.BCryptPasswordEncoder     : Encoded password does not look like BCrypt
+2024-11-21T12:55:22.777+05:30  WARN 18772 --- [https-jsse-nio-8443-exec-3] c.s.a.s.UserCredentialsServiceImpl       : Incorrect password for user: shaiquataj0987@gmail.com
+2024-11-21T12:55:57.063+05:30  INFO 18772 --- [https-jsse-nio-8443-exec-5] c.s.a.s.UserCredentialsServiceImpl       : Attempting to log in user: shaiquataj0987@gmail.com
+2024-11-21T12:55:57.063+05:30  WARN 18772 --- [https-jsse-nio-8443-exec-5] o.s.s.c.bcrypt.BCryptPasswordEncoder     : Encoded password does not look like BCrypt
+2024-11-21T12:55:57.063+05:30  WARN 18772 --- [https-jsse-nio-8443-exec-5] c.s.a.s.UserCredentialsServiceImpl       : Incorrect password for user: shaiquataj0987@gmail.com
+2024-11-21T12:56:27.655+05:30  INFO 18772 --- [https-jsse-nio-8443-exec-7] c.s.a.s.UserCredentialsServiceImpl       : Attempting to log in user: shaiquataj0987@gmail.com
+2024-11-21T12:56:27.655+05:30  WARN 18772 --- [https-jsse-nio-8443-exec-7] o.s.s.c.bcrypt.BCryptPasswordEncoder     : Encoded password does not look like BCrypt
+2024-11-21T12:56:27.655+05:30  WARN 18772 --- [https-jsse-nio-8443-exec-7] c.s.a.s.UserCredentialsServiceImpl       : Incorrect password for user: shaiquataj0987@gmail.com
+2024-11-21T12:56:34.609+05:30  INFO 18772 --- [https-jsse-nio-8443-exec-8] c.s.a.s.UserCredentialsServiceImpl       : Attempting to log in user: shaiquataj0987@gmail.com
+2024-11-21T12:56:34.609+05:30  WARN 18772 --- [https-jsse-nio-8443-exec-8] o.s.s.c.bcrypt.BCryptPasswordEncoder     : Encoded password does not look like BCrypt
+2024-11-21T12:56:34.609+05:30  WARN 18772 --- [https-jsse-nio-8443-exec-8] c.s.a.s.UserCredentialsServiceImpl       : Incorrect password for user: shaiquataj0987@gmail.com
+2024-11-21T13:06:48.630+05:30  INFO 18772 --- [File Watcher] rtingClassPathChangeChangedEventListener : Restarting due to 1 class path change (0 additions, 0 deletions, 1 modification)
+2024-11-21T13:06:48.654+05:30  INFO 18772 --- [Thread-5] com.zaxxer.hikari.HikariDataSource       : HikariPool-1 - Shutdown initiated...
+2024-11-21T13:06:48.663+05:30  INFO 18772 --- [Thread-5] com.zaxxer.hikari.HikariDataSource       : HikariPool-1 - Shutdown completed.
+2024-11-21T13:06:48.845+05:30  INFO 18772 --- [restartedMain] c.s.app.SpringbootFirstAppApplication    : Starting SpringbootFirstAppApplication using Java 23 with PID 18772 (C:\service\ServEase_BE\target\classes started by shaiq in C:\service\ServEase_BE)
+2024-11-21T13:06:48.845+05:30  INFO 18772 --- [restartedMain] c.s.app.SpringbootFirstAppApplication    : No active profile set, falling back to 1 default profile: "default"
+2024-11-21T13:06:49.464+05:30  INFO 18772 --- [restartedMain] o.s.b.w.embedded.tomcat.TomcatWebServer  : Tomcat initialized with port 8443 (https)
+2024-11-21T13:06:49.470+05:30  INFO 18772 --- [restartedMain] o.apache.catalina.core.StandardService   : Starting service [Tomcat]
+2024-11-21T13:06:49.470+05:30  INFO 18772 --- [restartedMain] o.apache.catalina.core.StandardEngine    : Starting Servlet engine: [Apache Tomcat/10.1.30]
+2024-11-21T13:06:49.502+05:30  INFO 18772 --- [restartedMain] o.a.c.c.C.[Tomcat].[localhost].[/]       : Initializing Spring embedded WebApplicationContext
+2024-11-21T13:06:49.502+05:30  INFO 18772 --- [restartedMain] w.s.c.ServletWebServerApplicationContext : Root WebApplicationContext: initialization completed in 647 ms
+2024-11-21T13:06:49.636+05:30  INFO 18772 --- [restartedMain] o.h.c.internal.RegionFactoryInitiator    : HHH000026: Second-level cache disabled
+2024-11-21T13:06:49.645+05:30  INFO 18772 --- [restartedMain] com.zaxxer.hikari.HikariDataSource       : HikariPool-2 - Starting...
+2024-11-21T13:06:49.693+05:30  INFO 18772 --- [restartedMain] com.zaxxer.hikari.pool.HikariPool        : HikariPool-2 - Added connection org.postgresql.jdbc.PgConnection@2f9c592e
+2024-11-21T13:06:49.693+05:30  INFO 18772 --- [restartedMain] com.zaxxer.hikari.HikariDataSource       : HikariPool-2 - Start completed.
+2024-11-21T13:06:49.709+05:30  WARN 18772 --- [restartedMain] org.hibernate.orm.deprecation            : HHH90000025: PostgreSQLDialect does not need to be specified explicitly using 'hibernate.dialect' (remove the property setting and it will be selected by default)
+2024-11-21T13:06:50.229+05:30  INFO 18772 --- [restartedMain] o.h.e.t.j.p.i.JtaPlatformInitiator       : HHH000489: No JTA platform available (set 'hibernate.transaction.jta.platform' to enable JTA platform integration)
+2024-11-21T13:06:50.644+05:30  INFO 18772 --- [restartedMain] o.s.b.d.a.OptionalLiveReloadServer       : LiveReload server is running on port 35729
+2024-11-21T13:06:50.644+05:30  INFO 18772 --- [restartedMain] o.s.b.a.e.web.EndpointLinksResolver      : Exposing 3 endpoints beneath base path '/actuator'
+2024-11-21T13:06:50.696+05:30  INFO 18772 --- [restartedMain] o.a.t.util.net.NioEndpoint.certificate   : Connector [https-jsse-nio-8443], TLS virtual host [_default_], certificate type [UNDEFINED] configured from keystore [C:\Users\shaiq\.keystore] using alias [mysslkey] with trust store [null]
+2024-11-21T13:06:50.707+05:30  INFO 18772 --- [restartedMain] o.s.b.w.embedded.tomcat.TomcatWebServer  : Tomcat started on port 8443 (https) with context path '/'
+2024-11-21T13:06:50.735+05:30  INFO 18772 --- [restartedMain] c.s.app.SpringbootFirstAppApplication    : Started SpringbootFirstAppApplication in 1.94 seconds (process running for 1292.102)
+2024-11-21T13:06:50.745+05:30  INFO 18772 --- [restartedMain] .ConditionEvaluationDeltaLoggingListener : Condition evaluation unchanged
+2024-11-21T13:11:15.696+05:30  INFO 18772 --- [File Watcher] rtingClassPathChangeChangedEventListener : Restarting due to 3 class path changes (0 additions, 0 deletions, 3 modifications)
+2024-11-21T13:11:15.710+05:30  INFO 18772 --- [Thread-7] com.zaxxer.hikari.HikariDataSource       : HikariPool-2 - Shutdown initiated...
+2024-11-21T13:11:15.723+05:30  INFO 18772 --- [Thread-7] com.zaxxer.hikari.HikariDataSource       : HikariPool-2 - Shutdown completed.
+2024-11-21T13:11:15.846+05:30  INFO 18772 --- [restartedMain] c.s.app.SpringbootFirstAppApplication    : Starting SpringbootFirstAppApplication using Java 23 with PID 18772 (C:\service\ServEase_BE\target\classes started by shaiq in C:\service\ServEase_BE)
+2024-11-21T13:11:15.847+05:30  INFO 18772 --- [restartedMain] c.s.app.SpringbootFirstAppApplication    : No active profile set, falling back to 1 default profile: "default"
+2024-11-21T13:11:16.340+05:30  INFO 18772 --- [restartedMain] o.s.b.w.embedded.tomcat.TomcatWebServer  : Tomcat initialized with port 8443 (https)
+2024-11-21T13:11:16.341+05:30  INFO 18772 --- [restartedMain] o.apache.catalina.core.StandardService   : Starting service [Tomcat]
+2024-11-21T13:11:16.342+05:30  INFO 18772 --- [restartedMain] o.apache.catalina.core.StandardEngine    : Starting Servlet engine: [Apache Tomcat/10.1.30]
+2024-11-21T13:11:16.374+05:30  INFO 18772 --- [restartedMain] o.a.c.c.C.[Tomcat].[localhost].[/]       : Initializing Spring embedded WebApplicationContext
+2024-11-21T13:11:16.374+05:30  INFO 18772 --- [restartedMain] w.s.c.ServletWebServerApplicationContext : Root WebApplicationContext: initialization completed in 525 ms
+2024-11-21T13:11:16.430+05:30  INFO 18772 --- [restartedMain] o.h.c.internal.RegionFactoryInitiator    : HHH000026: Second-level cache disabled
+2024-11-21T13:11:16.432+05:30  INFO 18772 --- [restartedMain] com.zaxxer.hikari.HikariDataSource       : HikariPool-3 - Starting...
+2024-11-21T13:11:16.469+05:30  INFO 18772 --- [restartedMain] com.zaxxer.hikari.pool.HikariPool        : HikariPool-3 - Added connection org.postgresql.jdbc.PgConnection@4641e608
+2024-11-21T13:11:16.470+05:30  INFO 18772 --- [restartedMain] com.zaxxer.hikari.HikariDataSource       : HikariPool-3 - Start completed.
+2024-11-21T13:11:16.478+05:30  WARN 18772 --- [restartedMain] org.hibernate.orm.deprecation            : HHH90000025: PostgreSQLDialect does not need to be specified explicitly using 'hibernate.dialect' (remove the property setting and it will be selected by default)
+2024-11-21T13:11:16.775+05:30  INFO 18772 --- [restartedMain] o.h.e.t.j.p.i.JtaPlatformInitiator       : HHH000489: No JTA platform available (set 'hibernate.transaction.jta.platform' to enable JTA platform integration)
+2024-11-21T13:11:17.086+05:30  INFO 18772 --- [restartedMain] o.s.b.d.a.OptionalLiveReloadServer       : LiveReload server is running on port 35729
+2024-11-21T13:11:17.088+05:30  INFO 18772 --- [restartedMain] o.s.b.a.e.web.EndpointLinksResolver      : Exposing 3 endpoints beneath base path '/actuator'
+2024-11-21T13:11:17.124+05:30  INFO 18772 --- [restartedMain] o.a.t.util.net.NioEndpoint.certificate   : Connector [https-jsse-nio-8443], TLS virtual host [_default_], certificate type [UNDEFINED] configured from keystore [C:\Users\shaiq\.keystore] using alias [mysslkey] with trust store [null]
+2024-11-21T13:11:17.129+05:30  INFO 18772 --- [restartedMain] o.s.b.w.embedded.tomcat.TomcatWebServer  : Tomcat started on port 8443 (https) with context path '/'
+2024-11-21T13:11:17.142+05:30  INFO 18772 --- [restartedMain] c.s.app.SpringbootFirstAppApplication    : Started SpringbootFirstAppApplication in 1.328 seconds (process running for 1558.504)
+2024-11-21T13:11:17.145+05:30  INFO 18772 --- [restartedMain] .ConditionEvaluationDeltaLoggingListener : Condition evaluation unchanged
+2024-11-21T13:13:27.144+05:30  INFO 18772 --- [File Watcher] rtingClassPathChangeChangedEventListener : Restarting due to 2 class path changes (0 additions, 0 deletions, 2 modifications)
+2024-11-21T13:13:27.154+05:30  INFO 18772 --- [Thread-11] com.zaxxer.hikari.HikariDataSource       : HikariPool-3 - Shutdown initiated...
+2024-11-21T13:13:27.157+05:30  INFO 18772 --- [Thread-11] com.zaxxer.hikari.HikariDataSource       : HikariPool-3 - Shutdown completed.
+2024-11-21T13:13:27.235+05:30  INFO 18772 --- [restartedMain] c.s.app.SpringbootFirstAppApplication    : Starting SpringbootFirstAppApplication using Java 23 with PID 18772 (C:\service\ServEase_BE\target\classes started by shaiq in C:\service\ServEase_BE)
+2024-11-21T13:13:27.236+05:30  INFO 18772 --- [restartedMain] c.s.app.SpringbootFirstAppApplication    : No active profile set, falling back to 1 default profile: "default"

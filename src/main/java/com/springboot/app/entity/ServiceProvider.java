@@ -1,6 +1,7 @@
 package com.springboot.app.entity;
 
 import java.sql.Timestamp;
+import java.text.SimpleDateFormat;
 
 //import com.springboot.app.enums.DocumentType;
 import com.springboot.app.enums.Gender;
@@ -104,11 +105,20 @@ public class ServiceProvider {
 	private String username;
 	private String password;
 
-	// to automatically set data and isActive field
 	@PrePersist
 	public void prePersist() {
-		this.enrolledDate = new Timestamp(System.currentTimeMillis());
+		// Setting the current timestamp formatted as "yyyy-MM-dd HH:mm:ss.SSS"
+		SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS");
+		String formattedDate = sdf.format(System.currentTimeMillis());
+		this.enrolledDate = Timestamp.valueOf(formattedDate);
+
 		this.isActive = true;
+
+		// to automatically set data and isActive field
+		// @PrePersist
+		// public void prePersist() {
+		// this.enrolledDate = new Timestamp(System.currentTimeMillis());
+		// this.isActive = true;
 
 		// Convert specified fields to lowercase before saving
 		if (this.street != null) {
