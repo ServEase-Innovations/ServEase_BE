@@ -21,6 +21,7 @@ import org.springframework.beans.factory.annotation.Value;
 
 import com.springboot.app.dto.ServiceProviderDTO;
 import com.springboot.app.dto.ServiceProviderEngagementDTO;
+import com.springboot.app.dto.ServiceProviderFeedbackDTO;
 //import com.springboot.app.dto.ServiceProviderFeedbackDTO;
 import com.springboot.app.dto.ServiceProviderRequestCommentDTO;
 import com.springboot.app.dto.ServiceProviderRequestDTO;
@@ -32,7 +33,7 @@ import com.springboot.app.enums.Speciality;
 
 import com.springboot.app.service.ServiceProviderRequestService;
 import com.springboot.app.service.ServiceProviderEngagementService;
-//import com.springboot.app.service.ServiceProviderFeedbackService;
+import com.springboot.app.service.ServiceProviderFeedbackService;
 import com.springboot.app.service.ServiceProviderRequestCommentService;
 import com.springboot.app.service.ServiceProviderService;
 
@@ -51,8 +52,8 @@ public class ServiceProviderController {
     @Autowired
     private ServiceProviderRequestService serviceProviderRequestService;
 
-    // @Autowired
-    // private ServiceProviderFeedbackService serviceProviderFeedbackService;
+    @Autowired
+    private ServiceProviderFeedbackService serviceProviderFeedbackService;
 
     @Autowired
     private ServiceProviderRequestCommentService serviceProviderRequestCommentService;
@@ -228,6 +229,58 @@ public class ServiceProviderController {
 
         serviceProviderRequestService.deleteServiceProviderRequestDTO(id);
         return ResponseEntity.ok(ServiceProviderConstants.SERVICE_PROVIDER_REQUEST_DELETED);
+
+    }
+
+    // ------API's FOR SERVICE PROVIDER FEEDBACK ENTITY--------------------
+    // API to get all service provider feedbacks with pagination
+    @GetMapping("/feedbacks/all")
+    @ApiOperation(value = ServiceProviderConstants.DESC_RETRIEVE_ALL_FEEDBACKS, response = List.class)
+    public ResponseEntity<List<ServiceProviderFeedbackDTO>> getAllServiceProviderFeedbacks(
+            @RequestParam(defaultValue = "0") Integer page,
+            @RequestParam(defaultValue = "10") Integer size) {
+
+        List<ServiceProviderFeedbackDTO> feedbacks = serviceProviderFeedbackService
+                .getAllServiceProviderFeedbackDTOs(page, size);
+        return ResponseEntity.ok(feedbacks);
+    }
+
+    // API to get feedback by ID
+    @GetMapping("/get/feedback/{id}")
+    @ApiOperation(value = ServiceProviderConstants.DESC_GET_FEEDBACK_BY_ID, response = ServiceProviderFeedbackDTO.class)
+    public ResponseEntity<ServiceProviderFeedbackDTO> getServiceProviderFeedbackById(
+            @ApiParam(value = "ID of the feedback", required = true) @PathVariable Long id) {
+        ServiceProviderFeedbackDTO feedbackDTO = serviceProviderFeedbackService.getServiceProviderFeedbackDTOById(id);
+        return feedbackDTO != null ? ResponseEntity.ok(feedbackDTO) : ResponseEntity.notFound().build();
+    }
+
+    // API to add feedback
+    @PostMapping("/feedback/add")
+    @ApiOperation(value = ServiceProviderConstants.DESC_ADD_NEW_FEEDBACK)
+    public ResponseEntity<String> addServiceProviderFeedback(
+            @ApiParam(value = "Service provider feedback DTO", required = true) @RequestBody ServiceProviderFeedbackDTO feedbackDTO) {
+        serviceProviderFeedbackService.saveServiceProviderFeedbackDTO(feedbackDTO);
+        return ResponseEntity.ok(ServiceProviderConstants.FEEDBACK_ADDED);
+    }
+
+    // API to update feedback
+    @PutMapping("/update/feedback/{id}")
+    @ApiOperation(value = ServiceProviderConstants.DESC_UPDATE_FEEDBACK)
+    public ResponseEntity<String> updateServiceProviderFeedback(
+            @ApiParam(value = "ID of the feedback to update", required = true) @PathVariable Long id,
+            @ApiParam(value = "Updated service provider feedback DTO", required = true) @RequestBody ServiceProviderFeedbackDTO feedbackDTO) {
+        feedbackDTO.setId(id); // Set the ID in the DTO
+        serviceProviderFeedbackService.updateServiceProviderFeedbackDTO(feedbackDTO);
+        return ResponseEntity.ok(ServiceProviderConstants.FEEDBACK_UPDATED);
+    }
+
+    // API to delete feedback
+    @DeleteMapping("/delete/feedback/{id}")
+    @ApiOperation(value = ServiceProviderConstants.DESC_DELETE_FEEDBACK)
+    public ResponseEntity<String> deleteServiceProviderFeedback(
+            @ApiParam(value = "ID of the feedback to deactivate", required = true) @PathVariable Long id) {
+        serviceProviderFeedbackService.deleteServiceProviderFeedbackDTO(id);
+        return ResponseEntity.ok(ServiceProviderConstants.FEEDBACK_DELETED);
     }
 
     // -------API's FOR SERVICE PROVIDER REQUEST COMMENT ENTITY-------------

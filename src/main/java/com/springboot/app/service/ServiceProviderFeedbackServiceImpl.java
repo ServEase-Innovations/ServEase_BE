@@ -1,144 +1,162 @@
-// package com.springboot.app.service;
+package com.springboot.app.service;
 
-// import org.springframework.beans.factory.annotation.Autowired;
-// import org.springframework.data.domain.PageRequest;
-// import org.springframework.stereotype.Service;
-// import org.springframework.transaction.annotation.Transactional;
-// import org.slf4j.Logger;
-// import org.slf4j.LoggerFactory;
+import com.springboot.app.dto.ServiceProviderFeedbackDTO;
+import com.springboot.app.entity.ServiceProviderFeedback;
+import com.springboot.app.entity.Customer;
+import com.springboot.app.entity.ServiceProvider;
+import com.springboot.app.mapper.ServiceProviderFeedbackMapper;
+import com.springboot.app.repository.ServiceProviderFeedbackRepository;
+import com.springboot.app.repository.CustomerRepository;
+import com.springboot.app.repository.ServiceProviderRepository;
+//import com.springboot.app.constant.CustomerConstants;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
-// import com.springboot.app.constant.ServiceProviderConstants;
-// import com.springboot.app.dto.ServiceProviderFeedbackDTO;
-// //import com.springboot.app.entity.Customer;
-// import com.springboot.app.entity.ServiceProviderFeedback;
-// import com.springboot.app.mapper.ServiceProviderFeedbackMapper;
-// //import com.springboot.app.repository.CustomerRepository;
-// import com.springboot.app.repository.ServiceProviderFeedbackRepository;
-// import com.springboot.app.repository.ServiceProviderRepository;
+import java.util.List;
+import java.util.stream.Collectors;
 
-// import java.util.List;
-// import java.util.stream.Collectors;
+@Service
+public class ServiceProviderFeedbackServiceImpl implements ServiceProviderFeedbackService {
 
-// @Service
-// public class ServiceProviderFeedbackServiceImpl implements
-// ServiceProviderFeedbackService {
+    private static final Logger logger = LoggerFactory.getLogger(ServiceProviderFeedbackServiceImpl.class);
 
-// private static final Logger logger =
-// LoggerFactory.getLogger(ServiceProviderFeedbackServiceImpl.class);
+    @Autowired
+    private ServiceProviderFeedbackRepository serviceProviderFeedbackRepository;
 
-// @Autowired
-// private ServiceProviderFeedbackRepository feedbackRepository;
+    @Autowired
+    private ServiceProviderFeedbackMapper serviceProviderFeedbackMapper;
 
-// @Autowired
-// private ServiceProviderRepository serviceProviderRepository;
+    @Autowired
+    private CustomerRepository customerRepository;
 
-// @Autowired
-// private ServiceProviderFeedbackMapper serviceProviderFeedbackMapper;
+    @Autowired
+    private ServiceProviderRepository serviceProviderRepository;
 
-// @Override
-// @Transactional(readOnly = true)
-// public List<ServiceProviderFeedbackDTO> getAllServiceProviderFeedbackDTOs(int
-// page, int size) {
-// logger.info(ServiceProviderConstants.DESC_RETRIEVE_ALL_FEEDBACKS + " - page:
-// {}, size: {}", page, size);
+    @Override
+    @Transactional(readOnly = true)
+    public List<ServiceProviderFeedbackDTO> getAllServiceProviderFeedbackDTOs(int page, int size) {
+        logger.info("Fetching all service provider feedback with pagination - page: {}, size: {}", page, size);
+        // Implement pagination logic if needed using Pageable
+        List<ServiceProviderFeedback> feedbackList = serviceProviderFeedbackRepository.findAll(); // Adjust as needed
+        return feedbackList.stream()
+                .map(serviceProviderFeedbackMapper::serviceProviderFeedbackToDTO)
+                .collect(Collectors.toList());
+    }
 
-// return feedbackRepository.findAll(PageRequest.of(page, size))
-// .stream()
-// .map(serviceProviderFeedbackMapper::feedbackToDTO)
-// .collect(Collectors.toList());
-// }
+    @Override
+    @Transactional(readOnly = true)
+    public ServiceProviderFeedbackDTO getServiceProviderFeedbackDTOById(Long id) {
+        logger.info("Fetching service provider feedback by ID: {}", id);
+        ServiceProviderFeedback feedback = serviceProviderFeedbackRepository.findById(id).orElse(null);
+        if (feedback != null) {
+            logger.debug("Found service provider feedback with ID: {}", id);
+        } else {
+            logger.error("No service provider feedback found with ID: {}", id);
+        }
+        return serviceProviderFeedbackMapper.serviceProviderFeedbackToDTO(feedback);
+    }
 
-// @Override
-// @Transactional(readOnly = true)
-// public ServiceProviderFeedbackDTO getServiceProviderFeedbackDTOById(Long id)
-// {
-// logger.info(ServiceProviderConstants.DESC_GET_FEEDBACK_BY_ID + " with ID:
-// {}", id);
+    @Override
+    @Transactional
+    public void saveServiceProviderFeedbackDTO(ServiceProviderFeedbackDTO serviceProviderFeedbackDTO) {
+        logger.info("Saving new service provider feedback for ServiceProvider ID: {}",
+                serviceProviderFeedbackDTO.getServiceproviderId());
 
-// ServiceProviderFeedback feedback = feedbackRepository.findById(id)
-// .orElseThrow(() -> {
-// logger.warn("Feedback with ID {} not found", id);
-// return new RuntimeException(ServiceProviderConstants.FEEDBACK_NOT_FOUND +
-// id);
-// });
+        // Fetch Customer and ServiceProvider entities
+        Customer customer = customerRepository.findById(serviceProviderFeedbackDTO.getCustomerId())
+                .orElseThrow(() -> {
+                    logger.error("Customer not found with ID: {}", serviceProviderFeedbackDTO.getCustomerId());
+                    return new IllegalArgumentException(
+                            "Customer not found with ID: " + serviceProviderFeedbackDTO.getCustomerId());
+                });
 
-// return serviceProviderFeedbackMapper.feedbackToDTO(feedback);
-// }
+        ServiceProvider serviceProvider = serviceProviderRepository
+                .findById(serviceProviderFeedbackDTO.getServiceproviderId())
+                .orElseThrow(() -> {
+                    logger.error("Service Provider not found with ID: {}",
+                            serviceProviderFeedbackDTO.getServiceproviderId());
+                    return new IllegalArgumentException(
+                            "Service Provider not found with ID: " + serviceProviderFeedbackDTO.getServiceproviderId());
+                });
 
-// @Override
-// @Transactional
-// public void saveServiceProviderFeedbackDTO(ServiceProviderFeedbackDTO
-// feedbackDTO) {
-// logger.info(ServiceProviderConstants.DESC_ADD_NEW_FEEDBACK + " for customer
-// ID: {}, service provider ID: {}",
-// feedbackDTO.getCustomerId(), feedbackDTO.getServiceproviderId());
+        // Map DTO to entity and set the relationships
+        ServiceProviderFeedback feedback = serviceProviderFeedbackMapper
+                .dtoToServiceProviderFeedback(serviceProviderFeedbackDTO);
+        feedback.setCustomer(customer);
+        feedback.setServiceprovider(serviceProvider);
 
-// // Validate ServiceProvider existence
-// if
-// (!serviceProviderRepository.existsById(feedbackDTO.getServiceproviderId())) {
-// logger.error("Service Provider with ID {} not found",
-// feedbackDTO.getServiceproviderId());
-// throw new RuntimeException(
-// ServiceProviderConstants.SERVICE_PROVIDER_NOT_FOUND +
-// feedbackDTO.getServiceproviderId());
-// }
+        // Save the feedback entity
+        serviceProviderFeedbackRepository.save(feedback);
+        logger.info("Persisted new service provider feedback for ServiceProvider ID: {}",
+                serviceProviderFeedbackDTO.getServiceproviderId());
 
-// // Save feedback
-// ServiceProviderFeedback feedback =
-// serviceProviderFeedbackMapper.dtoToFeedback(feedbackDTO);
-// feedbackRepository.save(feedback);
-// logger.debug("Feedback saved: {}", feedback);
-// }
+        // Update the average rating for the Customer
+        updateCustomerAverageRating(customer.getCustomerId());
+    }
 
-// @Override
-// @Transactional
-// public void updateServiceProviderFeedbackDTO(ServiceProviderFeedbackDTO
-// feedbackDTO) {
-// logger.info(ServiceProviderConstants.DESC_UPDATE_FEEDBACK + " with ID: {},
-// service provider ID: {}",
-// feedbackDTO.getId(), feedbackDTO.getServiceproviderId());
+    @Override
+    @Transactional
+    public void updateServiceProviderFeedbackDTO(ServiceProviderFeedbackDTO serviceProviderFeedbackDTO) {
+        logger.info("Updating service provider feedback with ID: {}", serviceProviderFeedbackDTO.getId());
 
-// // Validate ServiceProvider existence
-// if
-// (!serviceProviderRepository.existsById(feedbackDTO.getServiceproviderId())) {
-// logger.error("Service Provider with ID {} not found",
-// feedbackDTO.getServiceproviderId());
-// throw new RuntimeException(
-// ServiceProviderConstants.SERVICE_PROVIDER_NOT_FOUND +
-// feedbackDTO.getServiceproviderId());
-// }
+        // Find the existing feedback entry
+        ServiceProviderFeedback existingFeedback = serviceProviderFeedbackRepository
+                .findById(serviceProviderFeedbackDTO.getId())
+                .orElseThrow(() -> {
+                    logger.error("Service provider feedback not found with ID: {}", serviceProviderFeedbackDTO.getId());
+                    return new IllegalArgumentException(
+                            "Service provider feedback not found with ID: " + serviceProviderFeedbackDTO.getId());
+                });
 
-// // Fetch existing feedback
-// ServiceProviderFeedback existingFeedback =
-// feedbackRepository.findById(feedbackDTO.getId())
-// .orElseThrow(() -> {
-// logger.warn("Feedback with ID {} not found for update", feedbackDTO.getId());
-// return new RuntimeException(ServiceProviderConstants.FEEDBACK_NOT_FOUND +
-// feedbackDTO.getId());
-// });
+        // Map DTO to existing entity
+        ServiceProviderFeedback updatedFeedback = serviceProviderFeedbackMapper
+                .dtoToServiceProviderFeedback(serviceProviderFeedbackDTO);
+        updatedFeedback.setId(existingFeedback.getId()); // Retain the original ID
+        updatedFeedback.setCustomer(existingFeedback.getCustomer()); // Retain existing customer
+        updatedFeedback.setServiceprovider(existingFeedback.getServiceprovider()); // Retain existing service provider
 
-// // Update entity fields using mapper
-// serviceProviderFeedbackMapper.updateEntityFromDTO(feedbackDTO,
-// existingFeedback);
-// feedbackRepository.save(existingFeedback);
+        // Save the updated feedback
+        serviceProviderFeedbackRepository.save(updatedFeedback);
+        logger.info("Updated service provider feedback with ID: {}", serviceProviderFeedbackDTO.getId());
 
-// logger.debug("Feedback updated: {}", existingFeedback);
-// }
+        // Update the average rating for the Customer
+        updateCustomerAverageRating(updatedFeedback.getCustomer().getCustomerId());
+    }
 
-// @Override
-// @Transactional
-// public void deleteServiceProviderFeedbackDTO(Long id) {
-// logger.info(ServiceProviderConstants.DESC_DELETE_FEEDBACK + " with ID: {}",
-// id);
+    @Override
+    @Transactional
+    public void deleteServiceProviderFeedbackDTO(Long id) {
+        logger.info("Deleting service provider feedback with ID: {}", id);
+        if (serviceProviderFeedbackRepository.existsById(id)) {
+            serviceProviderFeedbackRepository.deleteById(id);
+            logger.info("Deleted service provider feedback with ID: {}", id);
+        } else {
+            logger.error("Service provider feedback not found with ID: {}", id);
+            throw new IllegalArgumentException("Service provider feedback not found with ID: " + id);
+        }
+    }
 
-// ServiceProviderFeedback feedback = feedbackRepository.findById(id)
-// .orElseThrow(() -> {
-// logger.warn("Feedback with ID {} not found for deletion", id);
-// return new RuntimeException(ServiceProviderConstants.FEEDBACK_NOT_FOUND +
-// id);
-// });
+    private void updateCustomerAverageRating(Long customerId) {
+        logger.info("Updating average rating for Customer ID: {}", customerId);
+        List<ServiceProviderFeedback> customerFeedbacks = serviceProviderFeedbackRepository
+                .findByCustomer_CustomerId(customerId);
 
-// feedbackRepository.delete(feedback);
-// logger.debug("Feedback with ID {} deleted", id);
-// }
-// }
+        double totalRating = customerFeedbacks.stream()
+                .mapToDouble(ServiceProviderFeedback::getRating)
+                .sum();
+        double averageRating = customerFeedbacks.isEmpty() ? 0 : totalRating / customerFeedbacks.size();
+
+        Customer customer = customerRepository.findById(customerId)
+                .orElseThrow(() -> {
+                    logger.error("Customer not found with ID: {}", customerId);
+                    return new IllegalArgumentException("Customer not found with ID: " + customerId);
+                });
+
+        customer.setRating(averageRating);
+        customerRepository.save(customer);
+        logger.info("Updated Customer rating to: {}", averageRating);
+    }
+}
