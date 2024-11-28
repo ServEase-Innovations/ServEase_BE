@@ -4,6 +4,7 @@ import java.sql.Timestamp;
 
 //import com.springboot.app.enums.DocumentType;
 import com.springboot.app.enums.Gender;
+import com.springboot.app.enums.Habit;
 import com.springboot.app.enums.HousekeepingRole;
 import com.springboot.app.enums.LanguageKnown;
 import com.springboot.app.enums.Speciality;
@@ -55,6 +56,8 @@ public class ServiceProviderDTO {
     private boolean isActive;
 
     private HousekeepingRole housekeepingRole;
+
+    private Habit habit;
 
     // private DocumentType KYC;
 

@@ -5,6 +5,7 @@ import java.text.SimpleDateFormat;
 
 //import com.springboot.app.enums.DocumentType;
 import com.springboot.app.enums.Gender;
+import com.springboot.app.enums.Habit;
 import com.springboot.app.enums.HousekeepingRole;
 import com.springboot.app.enums.LanguageKnown;
 import com.springboot.app.enums.Speciality;
@@ -88,6 +89,9 @@ public class ServiceProvider {
 
 	@Enumerated(EnumType.STRING)
 	private HousekeepingRole housekeepingRole;
+
+	@Enumerated(EnumType.STRING)
+	private Habit habit;
 
 	private double rating;
 
