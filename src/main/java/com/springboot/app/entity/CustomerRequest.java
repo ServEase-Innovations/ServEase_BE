@@ -33,7 +33,7 @@ import java.util.ArrayList;
 public class CustomerRequest {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY) // Ensures unique ID generation for CustomerRequest
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long requestId;
 
     private Long customerId;
@@ -50,6 +50,18 @@ public class CustomerRequest {
 
     @Column
     private String ageRange;
+
+    @Column
+    private String area;
+
+    @Column
+    private String locality;
+
+    @Column
+    private String apartment_name;
+
+    @Column(nullable = false, length = 6)
+    private Integer pincode;
 
     @Enumerated(EnumType.STRING)
     private Habit cookingHabit;

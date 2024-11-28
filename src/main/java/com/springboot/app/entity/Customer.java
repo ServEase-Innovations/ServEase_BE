@@ -1,13 +1,10 @@
 package com.springboot.app.entity;
 
 import java.sql.Timestamp;
-
-import com.springboot.app.enums.Gender;
-
 import com.springboot.app.enums.DocumentType;
-
+import com.springboot.app.enums.Gender;
 import com.springboot.app.enums.LanguageKnown;
-
+import com.springboot.app.enums.Speciality;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
@@ -73,8 +70,6 @@ public class Customer {
     @Enumerated(EnumType.STRING)
     private LanguageKnown languageKnown;
 
-    private Double rating;
-
     @Lob
     private byte[] profilePic;
 
@@ -83,8 +78,13 @@ public class Customer {
 
     private String idNo;
 
+    private double rating;
+
     @Column(nullable = false)
     private boolean isActive;
+
+    @Enumerated(EnumType.STRING)
+    private Speciality speciality;
 
     @PrePersist
     public void prePersist() {

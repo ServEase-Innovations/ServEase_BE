@@ -18,13 +18,17 @@ public class CustomerFeedback {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    private Long customerId;
+    // private Long customerId;
+    @ManyToOne
+    @JoinColumn(name = "customerId", nullable = false)
+    private Customer customer;
+
+    @ManyToOne
+    @JoinColumn(name = "serviceProviderId", nullable = false)
+    private ServiceProvider serviceProvider;
 
     @Column(nullable = false)
-    private Long serviceProviderId;
-
-    @Column(nullable = true)
-    private double rating;
+    private Integer rating;
 
     @Column(length = 500)
     private String comment;

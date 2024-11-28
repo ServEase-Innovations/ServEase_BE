@@ -102,8 +102,8 @@ public class ServiceProvider {
 
 	@Column
 	private String info;
-	private String username;
-	private String password;
+	// private String username;
+	// private String password;
 
 	@PrePersist
 	public void prePersist() {
@@ -114,13 +114,6 @@ public class ServiceProvider {
 
 		this.isActive = true;
 
-		// to automatically set data and isActive field
-		// @PrePersist
-		// public void prePersist() {
-		// this.enrolledDate = new Timestamp(System.currentTimeMillis());
-		// this.isActive = true;
-
-		// Convert specified fields to lowercase before saving
 		if (this.street != null) {
 			this.street = this.street.toLowerCase();
 		}

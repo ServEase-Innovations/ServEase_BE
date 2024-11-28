@@ -5,7 +5,7 @@ import com.springboot.app.dto.CustomerDTO;
 
 public interface CustomerService {
 
-    List<CustomerDTO> getAllCustomers();
+    List<CustomerDTO> getAllCustomers(int page, int size);
 
     CustomerDTO getCustomerById(Long id);
 
@@ -14,4 +14,5 @@ public interface CustomerService {
     String updateCustomer(CustomerDTO customerDTO);
 
     String deleteCustomer(Long id);
+
 }

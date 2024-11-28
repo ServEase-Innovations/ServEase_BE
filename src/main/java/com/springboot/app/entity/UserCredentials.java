@@ -8,6 +8,8 @@ import lombok.Setter;
 import java.sql.Timestamp;
 import java.text.SimpleDateFormat;
 
+import com.springboot.app.enums.UserRole;
+
 @Entity
 @Table(name = "user_credentials")
 @Getter
@@ -40,6 +42,10 @@ public class UserCredentials {
     @Column(name = "last_login")
     private Timestamp lastLogin; // Timestamp of the last login
 
+    @Column(name = "user_role")
+    @Enumerated(EnumType.STRING)
+    private UserRole role;
+
     // Automatically set default values before persisting
     @PrePersist
     public void prePersist() {
@@ -62,6 +68,10 @@ public class UserCredentials {
     // this.isActive = false;
     // this.lastLogin = new Timestamp(System.currentTimeMillis());
     // }
+    @Transient
+    public int getRoleAsNumber() {
+        return role.getValue();
+    }
 
     public void lock() {
         this.isTempLocked = true;

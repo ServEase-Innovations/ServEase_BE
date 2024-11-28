@@ -2,10 +2,11 @@ package com.springboot.app.mapper;
 
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
+import org.mapstruct.MappingTarget;
 import org.mapstruct.factory.Mappers;
 
 import com.springboot.app.dto.ServiceProviderEngagementDTO;
-import com.springboot.app.entity.ServiceProviderEngagement;;
+import com.springboot.app.entity.ServiceProviderEngagement;
 
 @Mapper(componentModel = "spring")
 public interface ServiceProviderEngagementMapper {
@@ -17,8 +18,12 @@ public interface ServiceProviderEngagementMapper {
     ServiceProviderEngagementDTO serviceProviderEngagementToDTO(ServiceProviderEngagement serviceProviderEngagement);
 
     // Mapping from DTO to entity
-    @Mapping(source = "serviceProviderId", target = "serviceProvider.serviceproviderId")
-    @Mapping(source = "customerId", target = "customer.customerId")
-    ServiceProviderEngagement dtoToServiceProviderEngagement(ServiceProviderEngagementDTO serviceProviderEngagementDTO);
+    @Mapping(target = "serviceProvider", ignore = true) // Will be set manually
+    @Mapping(target = "customer", ignore = true) // Will be set manually
+    ServiceProviderEngagement dtoToServiceProviderEngagement(ServiceProviderEngagementDTO dto);
 
+    // Update an existing entity from DTO
+    @Mapping(target = "serviceProvider", ignore = true) // Relationship handled manually
+    @Mapping(target = "customer", ignore = true) // Relationship handled manually
+    void updateEntityFromDTO(ServiceProviderEngagementDTO dto, @MappingTarget ServiceProviderEngagement entity);
 }

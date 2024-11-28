@@ -63,6 +63,9 @@ public class ServiceProviderConstants {
     public static final String SERVICE_PROVIDER_REQUEST_NOT_FOUND = "ServiceProviderRequest not found with id: ";
     public static final String FEEDBACK_NOT_FOUND = "ServiceProviderFeedback not found with id: ";
 
+    // Error messages for customer not found
+    public static final String CUSTOMER_NOT_FOUND = "Customer not found with ID: ";
+
     // Status messages
     public static final String REQUEST_RESOLVED = "YES";
 

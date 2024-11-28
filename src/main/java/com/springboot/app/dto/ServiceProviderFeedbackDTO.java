@@ -1,18 +1,18 @@
-package com.springboot.app.dto;
+// package com.springboot.app.dto;
 
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+// import lombok.AllArgsConstructor;
+// import lombok.Data;
+// import lombok.NoArgsConstructor;
 
-@Data
-@NoArgsConstructor
-@AllArgsConstructor
+// @Data
+// @NoArgsConstructor
+// @AllArgsConstructor
 
-public class ServiceProviderFeedbackDTO {
-    private Long id;
-    private Long customerId;
-    private Long housekeepingId;
-    private Double rating;
-    private String feedback;
+// public class ServiceProviderFeedbackDTO {
+// private Long id;
+// private Long customerId;
+// private Long serviceproviderId;
+// private Double rating;
+// private String feedback;
 
-}
+// }
