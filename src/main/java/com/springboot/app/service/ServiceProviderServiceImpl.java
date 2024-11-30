@@ -75,7 +75,13 @@ public class ServiceProviderServiceImpl implements ServiceProviderService {
         @Override
         @Transactional
         public void saveServiceProviderDTO(ServiceProviderDTO serviceProviderDTO) {
-                logger.info("Saving a new service provider: {}", serviceProviderDTO.getUsername());
+                logger.info("Saving a new service provider: {}", serviceProviderDTO);
+                // Automatically set the username as the emailId
+                String email = serviceProviderDTO.getEmailId();
+                if (email == null || email.isEmpty()) {
+                        throw new IllegalArgumentException("EmailId is required to save a service provider.");
+                }
+                serviceProviderDTO.setUsername(email);
 
                 // Step 1: Register user credentials
                 UserCredentialsDTO userDTO = new UserCredentialsDTO(

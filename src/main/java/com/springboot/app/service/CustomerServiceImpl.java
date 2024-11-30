@@ -65,7 +65,12 @@ public class CustomerServiceImpl implements CustomerService {
     @Override
     @Transactional
     public String saveCustomer(CustomerDTO customerDTO) {
-        logger.info("Saving a new customer: {}", customerDTO.getUsername());
+        logger.info("Saving a new customer: {}", customerDTO);
+        String email = customerDTO.getEmailId();
+        if (email == null || email.isEmpty()) {
+            throw new IllegalArgumentException("EmailId is required to save a customer.");
+        }
+        customerDTO.setUsername(email);
         // Step 1: Register the user credentials using the injected service
         UserCredentialsDTO userDTO = new UserCredentialsDTO(
                 customerDTO.getUsername(),

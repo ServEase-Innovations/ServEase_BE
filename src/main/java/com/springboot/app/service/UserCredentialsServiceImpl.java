@@ -3,6 +3,7 @@ package com.springboot.app.service;
 import com.springboot.app.config.LockSettingsConfig;
 import com.springboot.app.dto.UserCredentialsDTO;
 import com.springboot.app.entity.UserCredentials;
+import com.springboot.app.enums.UserRole;
 import com.springboot.app.mapper.UserCredentialsMapper;
 import com.springboot.app.repository.UserCredentialsRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -32,7 +33,7 @@ public class UserCredentialsServiceImpl implements UserCredentialsService {
 
     @Override
     @Transactional
-    public String checkLoginAttempts(String username, String password) {
+    public String checkLoginAttempts(String username, String password, UserRole requiredRole) {
         Optional<UserCredentials> optionalUser = userCredentialsRepository.findById(username);
 
         if (optionalUser.isEmpty()) {
@@ -45,6 +46,13 @@ public class UserCredentialsServiceImpl implements UserCredentialsService {
         if (user.getDisableTill() != null &&
                 user.getDisableTill().after(new Timestamp(System.currentTimeMillis()))) {
             return "Account is temporarily locked. Please try again after: " + user.getDisableTill();
+        }
+
+        // Verify role
+        UserRole userRole = user.getRole(); // Directly use the UserRole object
+
+        if (!requiredRole.equals(userRole)) {
+            return "Access denied. You do not have the required role (" + requiredRole.name() + ") for login.";
         }
 
         // Verify password
@@ -118,6 +126,11 @@ public class UserCredentialsServiceImpl implements UserCredentialsService {
     @Override
     @Transactional
     public void updateUserCredentials(UserCredentialsDTO userCredentialsDTO) {
+        if (userCredentialsDTO.username() == null || userCredentialsDTO.password() == null) {
+            throw new IllegalArgumentException("Username and password are required for updating credentials.");
+        }
+
+        // Fetch the user by username
         Optional<UserCredentials> optionalUser = userCredentialsRepository.findById(userCredentialsDTO.username());
 
         if (optionalUser.isEmpty()) {
@@ -126,11 +139,13 @@ public class UserCredentialsServiceImpl implements UserCredentialsService {
 
         UserCredentials user = optionalUser.get();
 
+        // Update the password if it has changed
         if (!passwordEncoder.matches(userCredentialsDTO.password(), user.getPassword())) {
             user.setPassword(passwordEncoder.encode(userCredentialsDTO.password()));
         }
 
-        userCredentialsMapper.updateEntityFromDTO(userCredentialsDTO, user);
+        // Save the updated entity
         userCredentialsRepository.save(user);
     }
+
 }

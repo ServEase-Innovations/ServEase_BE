@@ -15,10 +15,12 @@ public interface CustomerFeedbackMapper {
 
     // Map from CustomerFeedback entity to CustomerFeedbackDTO
     @Mapping(target = "serviceProviderId", source = "serviceProvider.serviceproviderId")
+    @Mapping(target = "customerId", source = "customer.customerId")
     CustomerFeedbackDTO customerFeedbackToDTO(CustomerFeedback customerFeedback);
 
     // Map from CustomerFeedbackDTO to CustomerFeedback entity
     @Mapping(target = "serviceProvider.serviceproviderId", source = "serviceProviderId")
+    @Mapping(target = "customer.customerId", source = "customerId")
     CustomerFeedback dtoToCustomerFeedback(CustomerFeedbackDTO customerFeedbackDTO);
 
     // Default mapping method for converting Long to ServiceProvider

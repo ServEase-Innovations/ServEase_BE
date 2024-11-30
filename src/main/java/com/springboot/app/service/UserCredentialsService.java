@@ -1,13 +1,14 @@
 package com.springboot.app.service;
 
 import com.springboot.app.dto.UserCredentialsDTO;
+import com.springboot.app.enums.UserRole;
 
 import java.util.Optional;
 
 public interface UserCredentialsService {
 
     // Method to check login attempts
-    String checkLoginAttempts(String username, String password);
+    String checkLoginAttempts(String username, String password, UserRole requiredRole);
 
     // Method to deactivate user
     String deactivateUser(String username);

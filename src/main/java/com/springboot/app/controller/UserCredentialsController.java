@@ -1,6 +1,7 @@
 package com.springboot.app.controller;
 
 import com.springboot.app.dto.UserCredentialsDTO;
+import com.springboot.app.enums.UserRole;
 import com.springboot.app.service.UserCredentialsService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -20,19 +21,22 @@ public class UserCredentialsController {
         this.userCredentialsService = userCredentialsService;
     }
 
-    // Endpoint to login a user account
     @PostMapping("/login")
     public ResponseEntity<String> login(@RequestBody UserCredentialsDTO loginRequest) {
         String username = loginRequest.username();
         String password = loginRequest.password();
+        int roleValue = loginRequest.role(); // Get the role from the request
 
         // Validate login using the service
-        String response = userCredentialsService.checkLoginAttempts(username, password);
+        UserRole requiredRole = UserRole.fromValue(roleValue);
+        String response = userCredentialsService.checkLoginAttempts(username, password, requiredRole);
 
         // Return appropriate HTTP status based on the service response
         if (response.contains("User not found")) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body(response);
         } else if (response.contains("locked")) {
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).body(response);
+        } else if (response.contains("Access denied")) {
             return ResponseEntity.status(HttpStatus.FORBIDDEN).body(response);
         } else if (response.contains("Login successful")) {
             return ResponseEntity.ok(response);

@@ -25,7 +25,7 @@ import com.springboot.app.dto.ServiceProviderFeedbackDTO;
 //import com.springboot.app.dto.ServiceProviderFeedbackDTO;
 import com.springboot.app.dto.ServiceProviderRequestCommentDTO;
 import com.springboot.app.dto.ServiceProviderRequestDTO;
-
+import com.springboot.app.dto.ShortListedServiceProviderDTO;
 import com.springboot.app.enums.Gender;
 import com.springboot.app.enums.HousekeepingRole;
 import com.springboot.app.enums.LanguageKnown;
@@ -36,6 +36,7 @@ import com.springboot.app.service.ServiceProviderEngagementService;
 import com.springboot.app.service.ServiceProviderFeedbackService;
 import com.springboot.app.service.ServiceProviderRequestCommentService;
 import com.springboot.app.service.ServiceProviderService;
+import com.springboot.app.service.ShortListedServiceProviderService;
 
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
@@ -60,6 +61,9 @@ public class ServiceProviderController {
 
     @Autowired
     private ServiceProviderEngagementService serviceProviderEngagementService;
+
+    @Autowired
+    private ShortListedServiceProviderService shortListedServiceProviderService;
 
     @Value("${app.pagination.default-page-size:10}")
     private int defaultPageSize;
@@ -388,13 +392,78 @@ public class ServiceProviderController {
     }
 
     // API to deactivate a service provider engagement
-    @PatchMapping("/deactivate/engagement/{id}")
+    @PatchMapping("/delete/engagement/{id}")
     @ApiOperation(value = "Deactivate a service provider engagement") // Operation description
     public ResponseEntity<String> deactivateServiceProviderEngagement(
             @ApiParam(value = "ID of the service provider engagement to deactivate", required = true) @PathVariable Long id) {
 
         String result = serviceProviderEngagementService.deleteServiceProviderEngagement(id);
         return ResponseEntity.ok(result);
+    }
+
+    // ------API's FOR SHORTLISTED SERVICEPROVIDER------------------
+    // API to get all shortlisted service providers with pagination
+    @GetMapping("/shortlisted/all")
+    @ApiOperation(value = "Retrieve all shortlisted service providers", response = List.class)
+    public ResponseEntity<List<ShortListedServiceProviderDTO>> getAllShortListedServiceProviders(
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(required = false) Integer size) {
+        if (size == null) {
+            size = defaultPageSize;
+        }
+        List<ShortListedServiceProviderDTO> providers = shortListedServiceProviderService
+                .getAllShortListedServiceProviders(page, size);
+        return ResponseEntity.ok(providers);
+    }
+
+    // API to get shortlisted service provider by ID
+    @GetMapping("/get/shortlisted/{id}")
+    @ApiOperation(value = "Retrieve shortlisted service provider by ID", response = ShortListedServiceProviderDTO.class)
+    public ResponseEntity<ShortListedServiceProviderDTO> getShortListedServiceProviderById(
+            @ApiParam(value = "ID of the shortlisted service provider to retrieve", required = true) @PathVariable Long id) {
+        ShortListedServiceProviderDTO providerDTO = shortListedServiceProviderService
+                .getShortListedServiceProviderById(id);
+        return ResponseEntity.ok(providerDTO);
+    }
+
+    // API to add a new shortlisted service provider
+    @PostMapping("/shortlisted/add")
+    @ApiOperation(value = "Add a new shortlisted service provider")
+    public ResponseEntity<String> addShortListedServiceProvider(
+            @ApiParam(value = "Shortlisted service provider data to add", required = true) @RequestBody ShortListedServiceProviderDTO shortListedServiceProviderDTO) {
+        String result = shortListedServiceProviderService.addShortListedServiceProvider(shortListedServiceProviderDTO);
+        return ResponseEntity.status(HttpStatus.CREATED).body(result);
+    }
+
+    // API to update an existing shortlisted service provider
+    @PutMapping("/update/shortlisted/{id}")
+    @ApiOperation(value = "Update an existing shortlisted service provider")
+    public ResponseEntity<String> updateShortListedServiceProvider(
+            @ApiParam(value = "ID of the shortlisted service provider to update", required = true) @PathVariable Long id,
+            @ApiParam(value = "Updated shortlisted service provider object", required = true) @RequestBody ShortListedServiceProviderDTO shortListedServiceProviderDTO) {
+        shortListedServiceProviderDTO.setId(id);
+        String result = shortListedServiceProviderService
+                .updateShortListedServiceProvider(shortListedServiceProviderDTO);
+        return ResponseEntity.ok(result);
+    }
+
+    // API to delete a shortlisted service provider
+    @DeleteMapping("/delete/shortlisted/{id}")
+    @ApiOperation(value = "Delete a shortlisted service provider")
+    public ResponseEntity<String> deleteShortListedServiceProvider(
+            @ApiParam(value = "ID of the shortlisted service provider to delete", required = true) @PathVariable Long id) {
+        String result = shortListedServiceProviderService.deleteShortListedServiceProvider(id);
+        return ResponseEntity.ok(result);
+    }
+
+    // API to remove a specific service provider from the shortlisted list
+    @DeleteMapping("/remove/shortlisted/{customerId}/{serviceProviderId}")
+    public ResponseEntity<String> removeServiceProviderId(
+            @PathVariable Long customerId,
+            @PathVariable String serviceProviderId) {
+        String response = shortListedServiceProviderService.removeFromServiceProviderIdList(customerId,
+                serviceProviderId);
+        return ResponseEntity.ok(response);
     }
 
 }

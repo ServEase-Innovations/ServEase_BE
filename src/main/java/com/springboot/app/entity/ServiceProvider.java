@@ -3,7 +3,7 @@ package com.springboot.app.entity;
 import java.sql.Timestamp;
 import java.text.SimpleDateFormat;
 
-//import com.springboot.app.enums.DocumentType;
+import com.springboot.app.enums.DocumentType;
 import com.springboot.app.enums.Gender;
 import com.springboot.app.enums.Habit;
 import com.springboot.app.enums.HousekeepingRole;
@@ -79,9 +79,6 @@ public class ServiceProvider {
 	@Lob
 	private byte[] profilePic;
 
-	// @Enumerated(EnumType.STRING)
-	// private DocumentType KYC;
-
 	private String idNo;
 
 	@Column(nullable = false)
@@ -91,7 +88,13 @@ public class ServiceProvider {
 	private HousekeepingRole housekeepingRole;
 
 	@Enumerated(EnumType.STRING)
-	private Habit habit;
+	private Habit diet;
+
+	@Enumerated(EnumType.STRING)
+	private Habit cookingSpeciality;
+
+	@Enumerated(EnumType.STRING)
+	private DocumentType KYC;
 
 	private double rating;
 

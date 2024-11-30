@@ -25,7 +25,7 @@ public class ServiceProviderPaymentController {
     private int defaultPageSize;
 
     // API to get all service provider payments with pagination
-    @GetMapping("/get-all-sp-payments")
+    @GetMapping("/payments/all")
     @ApiOperation(value = "Retrieve all service provider payments", response = List.class)
     public ResponseEntity<List<ServiceProviderPaymentDTO>> getAllServiceProviderPayments(
             @RequestParam(defaultValue = "0") int page,
@@ -39,7 +39,7 @@ public class ServiceProviderPaymentController {
     }
 
     // API to get service provider payment by ID
-    @GetMapping("/get-sp-payment-by-id/{id}")
+    @GetMapping("/get/payment/{id}")
     @ApiOperation(value = "Retrieve service provider payment by ID", response = ServiceProviderPaymentDTO.class)
     public ResponseEntity<ServiceProviderPaymentDTO> getServiceProviderPaymentById(
             @ApiParam(value = "ID of the service provider payment to retrieve", required = true) @PathVariable Long id) {
@@ -48,7 +48,7 @@ public class ServiceProviderPaymentController {
     }
 
     // API to add a service provider payment
-    @PostMapping("/add-sp-payment")
+    @PostMapping("/payment/add")
     @ApiOperation(value = "Add a new service provider payment")
     public ResponseEntity<String> addServiceProviderPayment(
             @ApiParam(value = "Service provider payment data to add", required = true) @RequestBody ServiceProviderPaymentDTO serviceProviderPaymentDTO) {
@@ -57,7 +57,7 @@ public class ServiceProviderPaymentController {
     }
 
     // API to update a service provider payment
-    @PutMapping("/update-sp-payment/{id}")
+    @PutMapping("/update/payment/{id}")
     @ApiOperation(value = "Update an existing service provider payment")
     public ResponseEntity<String> updateServiceProviderPayment(
             @ApiParam(value = "ID of the service provider payment to update", required = true) @PathVariable Long id,
@@ -68,7 +68,7 @@ public class ServiceProviderPaymentController {
     }
 
     // API to delete a service provider payment
-    @DeleteMapping("/delete-sp-payment/{id}")
+    @DeleteMapping("/delete/payment/{id}")
     @ApiOperation(value = "Delete a service provider payment")
     public ResponseEntity<String> deleteServiceProviderPayment(
             @ApiParam(value = "ID of the service provider payment to delete", required = true) @PathVariable Long id) {

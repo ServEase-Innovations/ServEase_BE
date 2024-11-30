@@ -2,6 +2,7 @@ package com.springboot.app.dto;
 
 import java.sql.Timestamp;
 
+import com.springboot.app.enums.DocumentType;
 //import com.springboot.app.enums.DocumentType;
 import com.springboot.app.enums.Gender;
 import com.springboot.app.enums.Habit;
@@ -57,12 +58,14 @@ public class ServiceProviderDTO {
 
     private HousekeepingRole housekeepingRole;
 
-    private Habit habit;
+    private Habit diet;
 
-    // private DocumentType KYC;
+    private Habit cookingSpeciality;
+
+    private DocumentType KYC;
 
     private String idNo;
-
+    private String profilePicUrl;
     private double rating;
     private LanguageKnown languageKnown;
     private Speciality speciality;
