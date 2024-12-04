@@ -1,6 +1,7 @@
 package com.springboot.app.service;
 
 import java.util.List;
+
 import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -90,7 +91,9 @@ public class ServiceProviderServiceImpl implements ServiceProviderService {
                                 true, 0, null, false,
                                 serviceProviderDTO.getMobileNo().toString(),
                                 null,
-                                UserRole.SERVICE_PROVIDER.getValue());
+                                UserRole.SERVICE_PROVIDER.getValue()
+
+                );
                 String registrationResponse = userCredentialsService.saveUserCredentials(userDTO);
                 if (!"Registration successful!".equalsIgnoreCase(registrationResponse)) {
                         throw new RuntimeException("User registration failed: " + registrationResponse);
@@ -237,17 +240,60 @@ public class ServiceProviderServiceImpl implements ServiceProviderService {
         @Transactional
         public List<ServiceProviderDTO> getServiceProvidersByOrFilter(Integer pincode, String street, String locality) {
                 logger.info("Fetching service providers with OR filter - Pincode: {}, Street: {}, Locality: {}",
-                                pincode,
-                                street, locality);
+                                pincode, street, locality);
 
-                List<ServiceProvider> serviceProviders = serviceProviderRepository.findByPincodeOrStreetOrLocality(
-                                pincode,
-                                street, locality);
+                // Initialize specification for OR conditions
+                Specification<ServiceProvider> spec = Specification.where(null);
 
-                logger.debug("Found {} service provider(s) matching the criteria.", serviceProviders.size());
+                if (pincode != null) {
+                        spec = spec.or((root, query, criteriaBuilder) -> criteriaBuilder.equal(root.get("pincode"),
+                                        pincode));
+                        logger.debug("Adding OR condition for pincode: {}", pincode);
+                }
+                if (street != null) {
+                        spec = spec.or((root, query, criteriaBuilder) -> criteriaBuilder.equal(root.get("street"),
+                                        street));
+                        logger.debug("Adding OR condition for street: {}", street);
+                }
+                if (locality != null) {
+                        spec = spec.or((root, query, criteriaBuilder) -> criteriaBuilder.equal(root.get("locality"),
+                                        locality));
+                        logger.debug("Adding OR condition for locality: {}", locality);
+                }
 
+                // Fetch results using the built specification
+                List<ServiceProvider> serviceProviders = serviceProviderRepository.findAll(spec);
+                logger.debug("Number of service providers found: {}", serviceProviders.size());
+
+                // Map entities to DTOs
                 return serviceProviders.stream()
                                 .map(serviceProviderMapper::serviceProviderToDTO)
                                 .collect(Collectors.toList());
         }
+
+        /*
+         * @Override
+         * 
+         * @Transactional
+         * public List<ServiceProviderDTO> getServiceProvidersByOrFilter(Integer
+         * pincode, String street, String locality) {
+         * logger.
+         * info("Fetching service providers with OR filter - Pincode: {}, Street: {}, Locality: {}"
+         * ,
+         * pincode,
+         * street, locality);
+         * 
+         * List<ServiceProvider> serviceProviders =
+         * serviceProviderRepository.findByPincodeOrStreetOrLocality(
+         * pincode,
+         * street, locality);
+         * 
+         * logger.debug("Found {} service provider(s) matching the criteria.",
+         * serviceProviders.size());
+         * 
+         * return serviceProviders.stream()
+         * .map(serviceProviderMapper::serviceProviderToDTO)
+         * .collect(Collectors.toList());
+         * }
+         */
 }

@@ -1,6 +1,7 @@
 package com.springboot.app.service;
 
 import java.util.List;
+
 import java.util.stream.Collectors;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -81,7 +82,9 @@ public class CustomerServiceImpl implements CustomerService {
                 false, // Not temporarily locked
                 customerDTO.getMobileNo().toString(),
                 null, // Last login is initially null
-                UserRole.CUSTOMER.getValue());
+                UserRole.CUSTOMER.getValue()
+
+        );
         // Call the registerUser method to add the user
         String registrationResponse = userCredentialsService.saveUserCredentials(userDTO);
         logger.info("User registration response: {}", registrationResponse);

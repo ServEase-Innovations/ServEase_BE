@@ -64,10 +64,6 @@ public class UserCredentials {
         this.lastLogin = Timestamp.valueOf(formattedDate);
     }
 
-    // public void deactivate() {
-    // this.isActive = false;
-    // this.lastLogin = new Timestamp(System.currentTimeMillis());
-    // }
     @Transient
     public int getRoleAsNumber() {
         return role.getValue();

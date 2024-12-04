@@ -2,6 +2,7 @@ package com.springboot.app.entity;
 
 import java.sql.Timestamp;
 import java.text.SimpleDateFormat;
+import java.time.LocalDate;
 
 import com.springboot.app.enums.DocumentType;
 import com.springboot.app.enums.Gender;
@@ -111,6 +112,11 @@ public class ServiceProvider {
 	private String info;
 	// private String username;
 	// private String password;
+	@Column
+	private LocalDate DOB;
+
+	@Column
+	private double expectedSalary = 0.0;
 
 	@PrePersist
 	public void prePersist() {
@@ -118,7 +124,6 @@ public class ServiceProvider {
 		SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS");
 		String formattedDate = sdf.format(System.currentTimeMillis());
 		this.enrolledDate = Timestamp.valueOf(formattedDate);
-
 		this.isActive = true;
 
 		if (this.street != null) {

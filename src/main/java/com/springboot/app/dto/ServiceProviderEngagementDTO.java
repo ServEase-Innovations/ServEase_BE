@@ -2,6 +2,8 @@ package com.springboot.app.dto;
 
 import java.time.LocalDateTime;
 
+import com.springboot.app.enums.PaymentMode;
+
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -21,4 +23,6 @@ public class ServiceProviderEngagementDTO {
     private String engagements;
     private String timeslot;
     private boolean isActive;
+    private double monthlyAmount;
+    private PaymentMode paymentMode;
 }

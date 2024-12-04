@@ -1,17 +1,29 @@
 package com.springboot.app.service;
 
 import com.springboot.app.config.LockSettingsConfig;
+
 import com.springboot.app.dto.UserCredentialsDTO;
+
 import com.springboot.app.entity.UserCredentials;
 import com.springboot.app.enums.UserRole;
+import com.springboot.app.mapper.CustomerMapper;
+import com.springboot.app.mapper.ServiceProviderMapper;
 import com.springboot.app.mapper.UserCredentialsMapper;
+import com.springboot.app.repository.CustomerRepository;
+import com.springboot.app.repository.ServiceProviderRepository;
 import com.springboot.app.repository.UserCredentialsRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.sql.Timestamp;
+import java.util.HashMap;
+import java.util.Map;
+
 import java.util.Optional;
 
 @Service
@@ -21,6 +33,17 @@ public class UserCredentialsServiceImpl implements UserCredentialsService {
     private final UserCredentialsMapper userCredentialsMapper;
     private final LockSettingsConfig lockSettingsConfig;
     private final BCryptPasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
+    @Autowired
+    private CustomerRepository customerRepository;
+
+    @Autowired
+    private ServiceProviderRepository serviceProviderRepository;
+
+    @Autowired
+    private CustomerMapper customerMapper;
+
+    @Autowired
+    private ServiceProviderMapper serviceProviderMapper;
 
     @Autowired
     public UserCredentialsServiceImpl(UserCredentialsRepository userCredentialsRepository,
@@ -33,48 +56,80 @@ public class UserCredentialsServiceImpl implements UserCredentialsService {
 
     @Override
     @Transactional
-    public String checkLoginAttempts(String username, String password, UserRole requiredRole) {
-        Optional<UserCredentials> optionalUser = userCredentialsRepository.findById(username);
+    public ResponseEntity<Map<String, Object>> checkLoginAttempts(String username, String password) {
+        UserCredentials user = getUserCredentials(username);
 
-        if (optionalUser.isEmpty()) {
-            return "User not found. Please register.";
+        if (isAccountLocked(user)) {
+            // Create a structured response for an account locked scenario
+            Map<String, Object> response = new HashMap<>();
+            response.put("message", "Account is temporarily locked. Please try again after: " + user.getDisableTill());
+            return ResponseEntity.status(HttpStatus.LOCKED).body(response);
         }
 
-        UserCredentials user = optionalUser.get();
-
-        // Check if the account is temporarily locked
-        if (user.getDisableTill() != null &&
-                user.getDisableTill().after(new Timestamp(System.currentTimeMillis()))) {
-            return "Account is temporarily locked. Please try again after: " + user.getDisableTill();
-        }
-
-        // Verify role
-        UserRole userRole = user.getRole(); // Directly use the UserRole object
-
-        if (!requiredRole.equals(userRole)) {
-            return "Access denied. You do not have the required role (" + requiredRole.name() + ") for login.";
-        }
-
-        // Verify password
         if (passwordEncoder.matches(password, user.getPassword())) {
-            user.setNoOfTries(0); // Reset failed attempts on successful login
+            user.setNoOfTries(0);
             user.setLastLogin(new Timestamp(System.currentTimeMillis()));
             userCredentialsRepository.save(user);
-            return "Login successful!";
-        } else {
-            int attempts = user.getNoOfTries() + 1;
-            user.setNoOfTries(attempts);
 
-            if (attempts >= 3) {
-                // Lock account using the configured lock time
-                long lockDuration = lockSettingsConfig.getLocktime();
-                user.setDisableTill(new Timestamp(System.currentTimeMillis() + lockDuration));
-                user.lock();
-            }
-
-            userCredentialsRepository.save(user);
-            return "Login failed! You have " + (3 - attempts) + " attempts remaining.";
+            // Use the simplified response structure
+            Map<String, Object> response = createSuccessResponse(user);
+            return ResponseEntity.ok(response);
         }
+        Map<String, Object> response = handleFailedLogin(user);
+        return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(response);
+    }
+
+    private boolean isAccountLocked(UserCredentials user) {
+        return user.getDisableTill() != null && user.getDisableTill().after(new Timestamp(System.currentTimeMillis()));
+    }
+
+    private UserCredentials getUserCredentials(String username) {
+        return userCredentialsRepository.findById(username)
+                .orElseThrow(() -> new RuntimeException("User not found"));
+    }
+
+    private Map<String, Object> createSuccessResponse(UserCredentials user) {
+        Map<String, Object> response = new HashMap<>();
+        // response.put("username", user.getUsername());
+        // response.put("isActive", user.isActive());
+        response.put("role", user.getRole().name());
+        // response.put("lastLogin", user.getLastLogin());
+
+        if (user.getRole() == UserRole.CUSTOMER) {
+            customerRepository.findAll().stream()
+                    .filter(customer -> customer.getEmailId().equals(user.getUsername()))
+                    .findFirst()
+                    .map(customerMapper::customerToDTO)
+                    .ifPresent(dto -> response.put("customerDetails", dto));
+        } else if (user.getRole() == UserRole.SERVICE_PROVIDER) {
+            serviceProviderRepository.findAll().stream()
+                    .filter(provider -> provider.getEmailId().equals(user.getUsername()))
+                    .findFirst()
+                    .map(serviceProviderMapper::serviceProviderToDTO)
+                    .ifPresent(dto -> response.put("serviceProviderDetails", dto));
+        }
+
+        return response;
+    }
+
+    // Modify handleFailedLogin to return a Map<String, Object>
+    private Map<String, Object> handleFailedLogin(UserCredentials user) {
+        int attempts = user.getNoOfTries() + 1;
+        user.setNoOfTries(attempts);
+
+        if (attempts >= 3) {
+            long lockDuration = lockSettingsConfig.getLocktime();
+            user.setDisableTill(new Timestamp(System.currentTimeMillis() + lockDuration));
+            user.lock();
+        }
+
+        userCredentialsRepository.save(user);
+
+        // Return a structured response
+        Map<String, Object> response = new HashMap<>();
+        response.put("message", "Login failed! You have " + (3 - attempts) + " attempts remaining.");
+        // response.put("remainingAttempts", 3 - attempts);
+        return response;
     }
 
     @Override
