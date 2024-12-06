@@ -1,6 +1,7 @@
 package com.springboot.app.controller;
 
 import java.util.List;
+import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -179,6 +180,16 @@ public class ServiceProviderController {
             @RequestParam(required = false) String street,
             @RequestParam(required = false) String locality) {
         return serviceProviderService.getServiceProvidersByOrFilter(pincode, street, locality);
+    }
+
+    @GetMapping("/{serviceProviderId}/expected-salary")
+    public ResponseEntity<Map<String, Object>> getExpectedSalary(@PathVariable Long serviceProviderId) {
+
+        Map<String, Object> response = serviceProviderService.calculateExpectedSalary(serviceProviderId);
+        if (response.containsKey("error")) {
+            return ResponseEntity.badRequest().body(response);
+        }
+        return ResponseEntity.ok(response);
     }
 
     // ----------API's FOR SERVICE PROVIDER REQUEST ENTITY-----------------

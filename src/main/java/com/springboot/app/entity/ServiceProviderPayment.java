@@ -4,7 +4,6 @@ import java.sql.Date;
 import java.sql.Timestamp;
 import com.springboot.app.enums.Currency;
 import com.springboot.app.enums.PaymentMode;
-import com.springboot.app.listener.ServiceProviderPaymentListener;
 
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
@@ -13,7 +12,6 @@ import lombok.NoArgsConstructor;
 
 @Entity
 @Table(name = "service_provider_payment")
-@EntityListeners(ServiceProviderPaymentListener.class)
 @Data
 @NoArgsConstructor
 @AllArgsConstructor

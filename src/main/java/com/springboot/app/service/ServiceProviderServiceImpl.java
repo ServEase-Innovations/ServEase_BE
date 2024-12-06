@@ -1,7 +1,13 @@
 package com.springboot.app.service;
 
+import java.math.BigDecimal;
+import java.math.RoundingMode;
+import java.time.LocalDate;
+import java.time.temporal.ChronoUnit;
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
-
+import java.util.Map;
 import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -18,12 +24,14 @@ import com.springboot.app.constant.ServiceProviderConstants;
 import com.springboot.app.dto.ServiceProviderDTO;
 import com.springboot.app.dto.UserCredentialsDTO;
 import com.springboot.app.entity.ServiceProvider;
+import com.springboot.app.entity.ServiceProviderEngagement;
 import com.springboot.app.enums.Gender;
 import com.springboot.app.enums.HousekeepingRole;
 import com.springboot.app.enums.LanguageKnown;
 import com.springboot.app.enums.Speciality;
 import com.springboot.app.enums.UserRole;
 import com.springboot.app.mapper.ServiceProviderMapper;
+import com.springboot.app.repository.ServiceProviderEngagementRepository;
 import com.springboot.app.repository.ServiceProviderRepository;
 
 @Service
@@ -39,6 +47,9 @@ public class ServiceProviderServiceImpl implements ServiceProviderService {
 
         @Autowired
         private UserCredentialsService userCredentialsService;
+
+        @Autowired
+        private ServiceProviderEngagementRepository engagementRepository;
 
         @Override
         @Transactional
@@ -269,6 +280,64 @@ public class ServiceProviderServiceImpl implements ServiceProviderService {
                 return serviceProviders.stream()
                                 .map(serviceProviderMapper::serviceProviderToDTO)
                                 .collect(Collectors.toList());
+        }
+
+        @Override
+        public Map<String, Object> calculateExpectedSalary(Long serviceProviderId) {
+                logger.info("Calculating expected salary for service provider ID: {}", serviceProviderId);
+
+                Map<String, Object> response = new HashMap<>();
+                try {
+                        // Fetch all engagements and filter for the given service provider ID
+                        List<ServiceProviderEngagement> engagements = engagementRepository.findAll();
+                        List<ServiceProviderEngagement> filteredEngagements = new ArrayList<>();
+
+                        for (ServiceProviderEngagement engagement : engagements) {
+                                if (engagement.getServiceProvider().getServiceproviderId().equals(serviceProviderId)) {
+                                        filteredEngagements.add(engagement);
+                                }
+                        }
+
+                        if (filteredEngagements.isEmpty()) {
+                                logger.warn("No engagements found for service provider ID: {}", serviceProviderId);
+                                response.put("error", "No engagements found");
+                                return response;
+                        }
+
+                        double totalSalary = 0.0;
+
+                        for (ServiceProviderEngagement engagement : filteredEngagements) {
+                                LocalDate startDate = engagement.getStartDate().toLocalDate();
+                                LocalDate endDate = (engagement.getEndDate() != null)
+                                                ? engagement.getEndDate().toLocalDate()
+                                                : LocalDate.now().withDayOfMonth(LocalDate.now().lengthOfMonth());
+
+                                long noOfDays = (ChronoUnit.DAYS.between(startDate, endDate)) + 1;
+                                int monthlyAmount = (int) engagement.getMonthlyAmount();
+                                int daysInMonth = endDate.lengthOfMonth();
+                                double calculatedAmount = (double) monthlyAmount / daysInMonth * noOfDays;
+
+                                // Round the calculated amount to 2 decimal places
+                                BigDecimal roundedAmount = new BigDecimal(calculatedAmount).setScale(2,
+                                                RoundingMode.HALF_UP);
+                                totalSalary += roundedAmount.doubleValue();
+                        }
+
+                        // Add service provider ID and expected salary to the response
+                        response.put("serviceProviderId", serviceProviderId);
+                        response.put("expectedSalary", totalSalary);
+
+                        logger.info("Calculated expected salary for service provider ID: {} is {}", serviceProviderId,
+                                        totalSalary);
+
+                        return response;
+
+                } catch (Exception e) {
+                        logger.error("Error calculating expected salary for service provider ID: {}", serviceProviderId,
+                                        e);
+                        response.put("error", "Error calculating salary");
+                        return response;
+                }
         }
 
         /*

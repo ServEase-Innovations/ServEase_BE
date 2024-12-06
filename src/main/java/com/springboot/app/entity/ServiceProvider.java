@@ -115,9 +115,6 @@ public class ServiceProvider {
 	@Column
 	private LocalDate DOB;
 
-	@Column
-	private double expectedSalary = 0.0;
-
 	@PrePersist
 	public void prePersist() {
 		// Setting the current timestamp formatted as "yyyy-MM-dd HH:mm:ss.SSS"
