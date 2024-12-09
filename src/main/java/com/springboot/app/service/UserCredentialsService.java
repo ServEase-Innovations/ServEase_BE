@@ -1,14 +1,18 @@
 package com.springboot.app.service;
 
 import com.springboot.app.dto.UserCredentialsDTO;
-import com.springboot.app.enums.UserRole;
 
+import java.util.Map;
 import java.util.Optional;
+
+import org.springframework.http.ResponseEntity;
+
+//import org.springframework.http.ResponseEntity;
 
 public interface UserCredentialsService {
 
     // Method to check login attempts
-    String checkLoginAttempts(String username, String password, UserRole requiredRole);
+    public ResponseEntity<Map<String, Object>> checkLoginAttempts(String username, String password);
 
     // Method to deactivate user
     String deactivateUser(String username);

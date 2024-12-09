@@ -1,20 +1,23 @@
 package com.springboot.app.controller;
 
 import com.springboot.app.dto.UserCredentialsDTO;
-import com.springboot.app.enums.UserRole;
+//import com.springboot.app.entity.UserCredentials;
 import com.springboot.app.service.UserCredentialsService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.Map;
 import java.util.Optional;
 
 @RestController
 @RequestMapping("/api/user")
 public class UserCredentialsController {
 
-    private final UserCredentialsService userCredentialsService;
+    @Autowired
+    private UserCredentialsService userCredentialsService;
+    // private final UserCredentialsService userCredentialsService;
 
     @Autowired
     public UserCredentialsController(UserCredentialsService userCredentialsService) {
@@ -22,26 +25,20 @@ public class UserCredentialsController {
     }
 
     @PostMapping("/login")
-    public ResponseEntity<String> login(@RequestBody UserCredentialsDTO loginRequest) {
+    public ResponseEntity<?> login(@RequestBody UserCredentialsDTO loginRequest) {
         String username = loginRequest.username();
         String password = loginRequest.password();
-        int roleValue = loginRequest.role(); // Get the role from the request
 
-        // Validate login using the service
-        UserRole requiredRole = UserRole.fromValue(roleValue);
-        String response = userCredentialsService.checkLoginAttempts(username, password, requiredRole);
+        try {
+            // Call the service method to check login attempts
+            ResponseEntity<Map<String, Object>> response = userCredentialsService.checkLoginAttempts(username,
+                    password);
 
-        // Return appropriate HTTP status based on the service response
-        if (response.contains("User not found")) {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(response);
-        } else if (response.contains("locked")) {
-            return ResponseEntity.status(HttpStatus.FORBIDDEN).body(response);
-        } else if (response.contains("Access denied")) {
-            return ResponseEntity.status(HttpStatus.FORBIDDEN).body(response);
-        } else if (response.contains("Login successful")) {
-            return ResponseEntity.ok(response);
-        } else {
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(response);
+            // Return the response directly, which contains the proper JSON data
+            return response;
+        } catch (RuntimeException e) {
+            // Return a 401 Unauthorized response with the exception message
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(Map.of("message", e.getMessage()));
         }
     }
 

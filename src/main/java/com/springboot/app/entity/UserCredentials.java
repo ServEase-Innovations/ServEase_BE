@@ -36,7 +36,7 @@ public class UserCredentials {
     @Column(name = "is_temp_locked", nullable = false)
     private boolean isTempLocked; // True if account is temporarily locked
 
-    @Column(name = "phone_number", length = 15)
+    @Column(name = "phone_number", length = 10, unique = true)
     private String phoneNumber; // Stores phone number as VARCHAR
 
     @Column(name = "last_login")
@@ -64,10 +64,6 @@ public class UserCredentials {
         this.lastLogin = Timestamp.valueOf(formattedDate);
     }
 
-    // public void deactivate() {
-    // this.isActive = false;
-    // this.lastLogin = new Timestamp(System.currentTimeMillis());
-    // }
     @Transient
     public int getRoleAsNumber() {
         return role.getValue();

@@ -36,5 +36,10 @@ public class CustomerRequestDTO {
     private Long supervisorId;
     private String isPotential = "NO";
     private Long modifiedBy;
+    private Timestamp startDate;
+    private Timestamp endDate;
+    private String noOfResources;
+    private String days;
+    private double amount;
     private List<CustomerRequestComment> comments;
 }

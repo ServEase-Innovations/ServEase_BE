@@ -51,7 +51,7 @@ public class KYC {
     @Column(name = "kyc_type", nullable = false)
     private DocumentType kycType;
 
-    @Column(name = "kyc_type_id", nullable = false)
+    @Column(name = "kyc_type_id", nullable = false, unique = true)
     private String kycTypeId;
 
     @Lob

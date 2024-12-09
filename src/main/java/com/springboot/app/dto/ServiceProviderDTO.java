@@ -1,6 +1,7 @@
 package com.springboot.app.dto;
 
 import java.sql.Timestamp;
+import java.time.LocalDate;
 
 import com.springboot.app.enums.DocumentType;
 //import com.springboot.app.enums.DocumentType;
@@ -71,6 +72,9 @@ public class ServiceProviderDTO {
     private Speciality speciality;
     private Integer age;
     private String info;
+    private LocalDate DOB;
+    private double expectedSalary = 0.0;
+    private Integer experience;
     private String username;
     private String password;
 

@@ -96,6 +96,21 @@ public class CustomerRequest {
     @Column
     private Long modifiedBy;
 
+    @Column
+    private Timestamp startDate;
+
+    @Column
+    private Timestamp endDate;
+
+    @Column
+    private String noOfResources;
+
+    @Column
+    private String days;
+
+    @Column
+    private double amount;
+
     @OneToMany(mappedBy = "customerRequest", cascade = CascadeType.ALL, orphanRemoval = true)
     @JsonManagedReference
     private List<CustomerRequestComment> comments = new ArrayList<>();

@@ -2,6 +2,8 @@ package com.springboot.app.entity;
 
 import java.time.LocalDateTime; // Import LocalDateTime
 
+import com.springboot.app.enums.PaymentMode;
+
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
@@ -50,6 +52,12 @@ public class ServiceProviderEngagement {
 
     @Column(nullable = false)
     private boolean isActive;
+
+    @Column
+    private double monthlyAmount;
+
+    @Column
+    private PaymentMode paymentMode;
 
     // Automatically set isActive field on creation
     @PrePersist
