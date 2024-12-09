@@ -110,10 +110,12 @@ public class ServiceProvider {
 
 	@Column
 	private String info;
-	// private String username;
-	// private String password;
+
 	@Column
 	private LocalDate DOB;
+
+	@Column
+	private Integer experience;
 
 	@PrePersist
 	public void prePersist() {

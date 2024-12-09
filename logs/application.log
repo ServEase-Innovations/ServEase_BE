@@ -1,57 +1,131 @@
-2024-12-06T15:41:55.186+05:30  INFO 22248 --- [restartedMain] c.s.app.SpringbootFirstAppApplication    : Starting SpringbootFirstAppApplication using Java 23 with PID 22248 (C:\service\ServEase_BE\target\classes started by shaiq in C:\service\ServEase_BE)
-2024-12-06T15:41:55.206+05:30  INFO 22248 --- [restartedMain] c.s.app.SpringbootFirstAppApplication    : No active profile set, falling back to 1 default profile: "default"
-2024-12-06T15:41:55.315+05:30  INFO 22248 --- [restartedMain] .e.DevToolsPropertyDefaultsPostProcessor : Devtools property defaults active! Set 'spring.devtools.add-properties' to 'false' to disable
-2024-12-06T15:41:55.331+05:30  INFO 22248 --- [restartedMain] .e.DevToolsPropertyDefaultsPostProcessor : For additional web related logging consider setting the 'logging.level.web' property to 'DEBUG'
-2024-12-06T15:41:56.552+05:30  INFO 22248 --- [restartedMain] .s.d.r.c.RepositoryConfigurationDelegate : Bootstrapping Spring Data JPA repositories in DEFAULT mode.
-2024-12-06T15:41:56.652+05:30  INFO 22248 --- [restartedMain] .s.d.r.c.RepositoryConfigurationDelegate : Finished Spring Data repository scanning in 91 ms. Found 15 JPA repository interfaces.
-2024-12-06T15:41:56.669+05:30  INFO 22248 --- [restartedMain] .s.d.r.c.RepositoryConfigurationDelegate : Bootstrapping Spring Data JPA repositories in DEFAULT mode.
-2024-12-06T15:41:56.690+05:30  INFO 22248 --- [restartedMain] .s.d.r.c.RepositoryConfigurationDelegate : Finished Spring Data repository scanning in 22 ms. Found 15 JPA repository interfaces.
-2024-12-06T15:41:58.820+05:30  INFO 22248 --- [restartedMain] o.s.b.w.embedded.tomcat.TomcatWebServer  : Tomcat initialized with port 8080 (http)
-2024-12-06T15:41:58.872+05:30  INFO 22248 --- [restartedMain] o.apache.catalina.core.StandardService   : Starting service [Tomcat]
-2024-12-06T15:41:58.875+05:30  INFO 22248 --- [restartedMain] o.apache.catalina.core.StandardEngine    : Starting Servlet engine: [Apache Tomcat/10.1.30]
-2024-12-06T15:41:58.952+05:30  INFO 22248 --- [restartedMain] o.a.c.c.C.[Tomcat].[localhost].[/]       : Initializing Spring embedded WebApplicationContext
-2024-12-06T15:41:58.952+05:30  INFO 22248 --- [restartedMain] w.s.c.ServletWebServerApplicationContext : Root WebApplicationContext: initialization completed in 3621 ms
-2024-12-06T15:41:59.452+05:30  INFO 22248 --- [restartedMain] o.hibernate.jpa.internal.util.LogHelper  : HHH000204: Processing PersistenceUnitInfo [name: default]
-2024-12-06T15:41:59.535+05:30  INFO 22248 --- [restartedMain] org.hibernate.Version                    : HHH000412: Hibernate ORM core version 6.5.3.Final
-2024-12-06T15:41:59.573+05:30  INFO 22248 --- [restartedMain] o.h.c.internal.RegionFactoryInitiator    : HHH000026: Second-level cache disabled
-2024-12-06T15:42:00.133+05:30  INFO 22248 --- [restartedMain] o.s.o.j.p.SpringPersistenceUnitInfo      : No LoadTimeWeaver setup: ignoring JPA class transformer
-2024-12-06T15:42:00.205+05:30  INFO 22248 --- [restartedMain] com.zaxxer.hikari.HikariDataSource       : HikariPool-1 - Starting...
-2024-12-06T15:42:00.506+05:30  INFO 22248 --- [restartedMain] com.zaxxer.hikari.pool.HikariPool        : HikariPool-1 - Added connection org.postgresql.jdbc.PgConnection@5dd20e23
-2024-12-06T15:42:00.506+05:30  INFO 22248 --- [restartedMain] com.zaxxer.hikari.HikariDataSource       : HikariPool-1 - Start completed.
-2024-12-06T15:42:00.557+05:30  WARN 22248 --- [restartedMain] org.hibernate.orm.deprecation            : HHH90000025: PostgreSQLDialect does not need to be specified explicitly using 'hibernate.dialect' (remove the property setting and it will be selected by default)
-2024-12-06T15:42:02.393+05:30  INFO 22248 --- [restartedMain] o.h.e.t.j.p.i.JtaPlatformInitiator       : HHH000489: No JTA platform available (set 'hibernate.transaction.jta.platform' to enable JTA platform integration)
-2024-12-06T15:42:02.666+05:30  INFO 22248 --- [restartedMain] j.LocalContainerEntityManagerFactoryBean : Initialized JPA EntityManagerFactory for persistence unit 'default'
-2024-12-06T15:42:06.401+05:30  INFO 22248 --- [restartedMain] o.s.b.d.a.OptionalLiveReloadServer       : LiveReload server is running on port 35729
-2024-12-06T15:42:06.425+05:30  INFO 22248 --- [restartedMain] o.s.b.a.e.web.EndpointLinksResolver      : Exposing 3 endpoints beneath base path '/actuator'
-2024-12-06T15:42:06.556+05:30  INFO 22248 --- [restartedMain] o.s.b.w.embedded.tomcat.TomcatWebServer  : Tomcat started on port 8080 (http) with context path '/'
-2024-12-06T15:42:06.576+05:30  INFO 22248 --- [restartedMain] c.s.app.SpringbootFirstAppApplication    : Started SpringbootFirstAppApplication in 12.278 seconds (process running for 13.072)
-2024-12-06T15:42:16.383+05:30  INFO 22248 --- [http-nio-8080-exec-7] o.a.c.c.C.[Tomcat].[localhost].[/]       : Initializing Spring DispatcherServlet 'dispatcherServlet'
-2024-12-06T15:42:16.383+05:30  INFO 22248 --- [http-nio-8080-exec-7] o.s.web.servlet.DispatcherServlet        : Initializing Servlet 'dispatcherServlet'
-2024-12-06T15:42:16.383+05:30  INFO 22248 --- [http-nio-8080-exec-7] o.s.web.servlet.DispatcherServlet        : Completed initialization in 0 ms
-2024-12-06T19:10:44.918+05:30  INFO 16544 --- [restartedMain] c.s.app.SpringbootFirstAppApplication    : Starting SpringbootFirstAppApplication using Java 23 with PID 16544 (C:\service\ServEase_BE\target\classes started by shaiq in C:\service\ServEase_BE)
-2024-12-06T19:10:44.926+05:30  INFO 16544 --- [restartedMain] c.s.app.SpringbootFirstAppApplication    : No active profile set, falling back to 1 default profile: "default"
-2024-12-06T19:10:45.061+05:30  INFO 16544 --- [restartedMain] .e.DevToolsPropertyDefaultsPostProcessor : Devtools property defaults active! Set 'spring.devtools.add-properties' to 'false' to disable
-2024-12-06T19:10:45.061+05:30  INFO 16544 --- [restartedMain] .e.DevToolsPropertyDefaultsPostProcessor : For additional web related logging consider setting the 'logging.level.web' property to 'DEBUG'
-2024-12-06T19:10:46.334+05:30  INFO 16544 --- [restartedMain] .s.d.r.c.RepositoryConfigurationDelegate : Bootstrapping Spring Data JPA repositories in DEFAULT mode.
-2024-12-06T19:10:46.461+05:30  INFO 16544 --- [restartedMain] .s.d.r.c.RepositoryConfigurationDelegate : Finished Spring Data repository scanning in 119 ms. Found 15 JPA repository interfaces.
-2024-12-06T19:10:46.467+05:30  INFO 16544 --- [restartedMain] .s.d.r.c.RepositoryConfigurationDelegate : Bootstrapping Spring Data JPA repositories in DEFAULT mode.
-2024-12-06T19:10:46.504+05:30  INFO 16544 --- [restartedMain] .s.d.r.c.RepositoryConfigurationDelegate : Finished Spring Data repository scanning in 37 ms. Found 15 JPA repository interfaces.
-2024-12-06T19:10:48.731+05:30  INFO 16544 --- [restartedMain] o.s.b.w.embedded.tomcat.TomcatWebServer  : Tomcat initialized with port 8080 (http)
-2024-12-06T19:10:48.788+05:30  INFO 16544 --- [restartedMain] o.apache.catalina.core.StandardService   : Starting service [Tomcat]
-2024-12-06T19:10:48.788+05:30  INFO 16544 --- [restartedMain] o.apache.catalina.core.StandardEngine    : Starting Servlet engine: [Apache Tomcat/10.1.30]
-2024-12-06T19:10:48.862+05:30  INFO 16544 --- [restartedMain] o.a.c.c.C.[Tomcat].[localhost].[/]       : Initializing Spring embedded WebApplicationContext
-2024-12-06T19:10:48.862+05:30  INFO 16544 --- [restartedMain] w.s.c.ServletWebServerApplicationContext : Root WebApplicationContext: initialization completed in 3801 ms
-2024-12-06T19:10:49.397+05:30  INFO 16544 --- [restartedMain] o.hibernate.jpa.internal.util.LogHelper  : HHH000204: Processing PersistenceUnitInfo [name: default]
-2024-12-06T19:10:49.541+05:30  INFO 16544 --- [restartedMain] org.hibernate.Version                    : HHH000412: Hibernate ORM core version 6.5.3.Final
-2024-12-06T19:10:49.603+05:30  INFO 16544 --- [restartedMain] o.h.c.internal.RegionFactoryInitiator    : HHH000026: Second-level cache disabled
-2024-12-06T19:10:50.334+05:30  INFO 16544 --- [restartedMain] o.s.o.j.p.SpringPersistenceUnitInfo      : No LoadTimeWeaver setup: ignoring JPA class transformer
-2024-12-06T19:10:50.406+05:30  INFO 16544 --- [restartedMain] com.zaxxer.hikari.HikariDataSource       : HikariPool-1 - Starting...
-2024-12-06T19:10:51.011+05:30  INFO 16544 --- [restartedMain] com.zaxxer.hikari.pool.HikariPool        : HikariPool-1 - Added connection org.postgresql.jdbc.PgConnection@f7649a7
-2024-12-06T19:10:51.017+05:30  INFO 16544 --- [restartedMain] com.zaxxer.hikari.HikariDataSource       : HikariPool-1 - Start completed.
-2024-12-06T19:10:51.087+05:30  WARN 16544 --- [restartedMain] org.hibernate.orm.deprecation            : HHH90000025: PostgreSQLDialect does not need to be specified explicitly using 'hibernate.dialect' (remove the property setting and it will be selected by default)
-2024-12-06T19:10:53.287+05:30  INFO 16544 --- [restartedMain] o.h.e.t.j.p.i.JtaPlatformInitiator       : HHH000489: No JTA platform available (set 'hibernate.transaction.jta.platform' to enable JTA platform integration)
-2024-12-06T19:10:53.633+05:30  INFO 16544 --- [restartedMain] j.LocalContainerEntityManagerFactoryBean : Initialized JPA EntityManagerFactory for persistence unit 'default'
-2024-12-06T19:10:56.941+05:30  INFO 16544 --- [restartedMain] o.s.b.d.a.OptionalLiveReloadServer       : LiveReload server is running on port 35729
-2024-12-06T19:10:56.961+05:30  INFO 16544 --- [restartedMain] o.s.b.a.e.web.EndpointLinksResolver      : Exposing 3 endpoints beneath base path '/actuator'
-2024-12-06T19:10:57.127+05:30  INFO 16544 --- [restartedMain] o.s.b.w.embedded.tomcat.TomcatWebServer  : Tomcat started on port 8080 (http) with context path '/'
-2024-12-06T19:10:57.151+05:30  INFO 16544 --- [restartedMain] c.s.app.SpringbootFirstAppApplication    : Started SpringbootFirstAppApplication in 12.934 seconds (process running for 13.963)
+2024-12-09T11:04:16.764+05:30  INFO 6188 --- [restartedMain] c.s.app.SpringbootFirstAppApplication    : Starting SpringbootFirstAppApplication using Java 23 with PID 6188 (C:\service\ServEase_BE\target\classes started by shaiq in C:\service\ServEase_BE)
+2024-12-09T11:04:16.779+05:30  INFO 6188 --- [restartedMain] c.s.app.SpringbootFirstAppApplication    : No active profile set, falling back to 1 default profile: "default"
+2024-12-09T11:04:16.888+05:30  INFO 6188 --- [restartedMain] .e.DevToolsPropertyDefaultsPostProcessor : Devtools property defaults active! Set 'spring.devtools.add-properties' to 'false' to disable
+2024-12-09T11:04:16.891+05:30  INFO 6188 --- [restartedMain] .e.DevToolsPropertyDefaultsPostProcessor : For additional web related logging consider setting the 'logging.level.web' property to 'DEBUG'
+2024-12-09T11:04:18.004+05:30  INFO 6188 --- [restartedMain] .s.d.r.c.RepositoryConfigurationDelegate : Bootstrapping Spring Data JPA repositories in DEFAULT mode.
+2024-12-09T11:04:18.156+05:30  INFO 6188 --- [restartedMain] .s.d.r.c.RepositoryConfigurationDelegate : Finished Spring Data repository scanning in 127 ms. Found 15 JPA repository interfaces.
+2024-12-09T11:04:18.162+05:30  INFO 6188 --- [restartedMain] .s.d.r.c.RepositoryConfigurationDelegate : Bootstrapping Spring Data JPA repositories in DEFAULT mode.
+2024-12-09T11:04:18.197+05:30  INFO 6188 --- [restartedMain] .s.d.r.c.RepositoryConfigurationDelegate : Finished Spring Data repository scanning in 35 ms. Found 15 JPA repository interfaces.
+2024-12-09T11:04:20.074+05:30  INFO 6188 --- [restartedMain] o.s.b.w.embedded.tomcat.TomcatWebServer  : Tomcat initialized with port 8080 (http)
+2024-12-09T11:04:20.106+05:30  INFO 6188 --- [restartedMain] o.apache.catalina.core.StandardService   : Starting service [Tomcat]
+2024-12-09T11:04:20.106+05:30  INFO 6188 --- [restartedMain] o.apache.catalina.core.StandardEngine    : Starting Servlet engine: [Apache Tomcat/10.1.30]
+2024-12-09T11:04:20.204+05:30  INFO 6188 --- [restartedMain] o.a.c.c.C.[Tomcat].[localhost].[/]       : Initializing Spring embedded WebApplicationContext
+2024-12-09T11:04:20.204+05:30  INFO 6188 --- [restartedMain] w.s.c.ServletWebServerApplicationContext : Root WebApplicationContext: initialization completed in 3312 ms
+2024-12-09T11:04:20.674+05:30  INFO 6188 --- [restartedMain] o.hibernate.jpa.internal.util.LogHelper  : HHH000204: Processing PersistenceUnitInfo [name: default]
+2024-12-09T11:04:20.793+05:30  INFO 6188 --- [restartedMain] org.hibernate.Version                    : HHH000412: Hibernate ORM core version 6.5.3.Final
+2024-12-09T11:04:20.859+05:30  INFO 6188 --- [restartedMain] o.h.c.internal.RegionFactoryInitiator    : HHH000026: Second-level cache disabled
+2024-12-09T11:04:21.513+05:30  INFO 6188 --- [restartedMain] o.s.o.j.p.SpringPersistenceUnitInfo      : No LoadTimeWeaver setup: ignoring JPA class transformer
+2024-12-09T11:04:21.561+05:30  INFO 6188 --- [restartedMain] com.zaxxer.hikari.HikariDataSource       : HikariPool-1 - Starting...
+2024-12-09T11:04:21.881+05:30  INFO 6188 --- [restartedMain] com.zaxxer.hikari.pool.HikariPool        : HikariPool-1 - Added connection org.postgresql.jdbc.PgConnection@68a09125
+2024-12-09T11:04:21.881+05:30  INFO 6188 --- [restartedMain] com.zaxxer.hikari.HikariDataSource       : HikariPool-1 - Start completed.
+2024-12-09T11:04:21.953+05:30  WARN 6188 --- [restartedMain] org.hibernate.orm.deprecation            : HHH90000025: PostgreSQLDialect does not need to be specified explicitly using 'hibernate.dialect' (remove the property setting and it will be selected by default)
+2024-12-09T11:04:23.627+05:30  INFO 6188 --- [restartedMain] o.h.e.t.j.p.i.JtaPlatformInitiator       : HHH000489: No JTA platform available (set 'hibernate.transaction.jta.platform' to enable JTA platform integration)
+2024-12-09T11:04:23.850+05:30  INFO 6188 --- [restartedMain] j.LocalContainerEntityManagerFactoryBean : Initialized JPA EntityManagerFactory for persistence unit 'default'
+2024-12-09T11:04:26.705+05:30  INFO 6188 --- [restartedMain] o.s.b.d.a.OptionalLiveReloadServer       : LiveReload server is running on port 35729
+2024-12-09T11:04:26.724+05:30  INFO 6188 --- [restartedMain] o.s.b.a.e.web.EndpointLinksResolver      : Exposing 3 endpoints beneath base path '/actuator'
+2024-12-09T11:04:26.821+05:30  INFO 6188 --- [restartedMain] o.s.b.w.embedded.tomcat.TomcatWebServer  : Tomcat started on port 8080 (http) with context path '/'
+2024-12-09T11:04:26.837+05:30  INFO 6188 --- [restartedMain] c.s.app.SpringbootFirstAppApplication    : Started SpringbootFirstAppApplication in 10.71 seconds (process running for 11.295)
+2024-12-09T11:15:47.790+05:30  INFO 14880 --- [restartedMain] c.s.app.SpringbootFirstAppApplication    : Starting SpringbootFirstAppApplication using Java 23 with PID 14880 (C:\service\ServEase_BE\target\classes started by shaiq in C:\service\ServEase_BE)
+2024-12-09T11:15:47.793+05:30  INFO 14880 --- [restartedMain] c.s.app.SpringbootFirstAppApplication    : No active profile set, falling back to 1 default profile: "default"
+2024-12-09T11:15:47.871+05:30  INFO 14880 --- [restartedMain] .e.DevToolsPropertyDefaultsPostProcessor : Devtools property defaults active! Set 'spring.devtools.add-properties' to 'false' to disable
+2024-12-09T11:15:47.872+05:30  INFO 14880 --- [restartedMain] .e.DevToolsPropertyDefaultsPostProcessor : For additional web related logging consider setting the 'logging.level.web' property to 'DEBUG'
+2024-12-09T11:15:48.746+05:30  INFO 14880 --- [restartedMain] .s.d.r.c.RepositoryConfigurationDelegate : Bootstrapping Spring Data JPA repositories in DEFAULT mode.
+2024-12-09T11:15:48.846+05:30  INFO 14880 --- [restartedMain] .s.d.r.c.RepositoryConfigurationDelegate : Finished Spring Data repository scanning in 90 ms. Found 15 JPA repository interfaces.
+2024-12-09T11:15:48.851+05:30  INFO 14880 --- [restartedMain] .s.d.r.c.RepositoryConfigurationDelegate : Bootstrapping Spring Data JPA repositories in DEFAULT mode.
+2024-12-09T11:15:48.880+05:30  INFO 14880 --- [restartedMain] .s.d.r.c.RepositoryConfigurationDelegate : Finished Spring Data repository scanning in 27 ms. Found 15 JPA repository interfaces.
+2024-12-09T11:15:50.666+05:30  INFO 14880 --- [restartedMain] o.s.b.w.embedded.tomcat.TomcatWebServer  : Tomcat initialized with port 8080 (http)
+2024-12-09T11:15:50.684+05:30  INFO 14880 --- [restartedMain] o.apache.catalina.core.StandardService   : Starting service [Tomcat]
+2024-12-09T11:15:50.685+05:30  INFO 14880 --- [restartedMain] o.apache.catalina.core.StandardEngine    : Starting Servlet engine: [Apache Tomcat/10.1.30]
+2024-12-09T11:15:50.753+05:30  INFO 14880 --- [restartedMain] o.a.c.c.C.[Tomcat].[localhost].[/]       : Initializing Spring embedded WebApplicationContext
+2024-12-09T11:15:50.754+05:30  INFO 14880 --- [restartedMain] w.s.c.ServletWebServerApplicationContext : Root WebApplicationContext: initialization completed in 2881 ms
+2024-12-09T11:15:51.191+05:30  INFO 14880 --- [restartedMain] o.hibernate.jpa.internal.util.LogHelper  : HHH000204: Processing PersistenceUnitInfo [name: default]
+2024-12-09T11:15:51.270+05:30  INFO 14880 --- [restartedMain] org.hibernate.Version                    : HHH000412: Hibernate ORM core version 6.5.3.Final
+2024-12-09T11:15:51.308+05:30  INFO 14880 --- [restartedMain] o.h.c.internal.RegionFactoryInitiator    : HHH000026: Second-level cache disabled
+2024-12-09T11:15:51.796+05:30  INFO 14880 --- [restartedMain] o.s.o.j.p.SpringPersistenceUnitInfo      : No LoadTimeWeaver setup: ignoring JPA class transformer
+2024-12-09T11:15:51.838+05:30  INFO 14880 --- [restartedMain] com.zaxxer.hikari.HikariDataSource       : HikariPool-1 - Starting...
+2024-12-09T11:15:52.225+05:30  INFO 14880 --- [restartedMain] com.zaxxer.hikari.pool.HikariPool        : HikariPool-1 - Added connection org.postgresql.jdbc.PgConnection@6bf61f3d
+2024-12-09T11:15:52.229+05:30  INFO 14880 --- [restartedMain] com.zaxxer.hikari.HikariDataSource       : HikariPool-1 - Start completed.
+2024-12-09T11:15:52.269+05:30  WARN 14880 --- [restartedMain] org.hibernate.orm.deprecation            : HHH90000025: PostgreSQLDialect does not need to be specified explicitly using 'hibernate.dialect' (remove the property setting and it will be selected by default)
+2024-12-09T11:15:53.723+05:30  INFO 14880 --- [restartedMain] o.h.e.t.j.p.i.JtaPlatformInitiator       : HHH000489: No JTA platform available (set 'hibernate.transaction.jta.platform' to enable JTA platform integration)
+2024-12-09T11:15:53.927+05:30  INFO 14880 --- [restartedMain] j.LocalContainerEntityManagerFactoryBean : Initialized JPA EntityManagerFactory for persistence unit 'default'
+2024-12-09T11:15:56.333+05:30  INFO 14880 --- [restartedMain] o.s.b.d.a.OptionalLiveReloadServer       : LiveReload server is running on port 35729
+2024-12-09T11:15:56.344+05:30  INFO 14880 --- [restartedMain] o.s.b.a.e.web.EndpointLinksResolver      : Exposing 3 endpoints beneath base path '/actuator'
+2024-12-09T11:15:56.445+05:30  INFO 14880 --- [restartedMain] o.s.b.w.embedded.tomcat.TomcatWebServer  : Tomcat started on port 8080 (http) with context path '/'
+2024-12-09T11:15:56.466+05:30  INFO 14880 --- [restartedMain] c.s.app.SpringbootFirstAppApplication    : Started SpringbootFirstAppApplication in 9.278 seconds (process running for 9.883)
+2024-12-09T11:17:20.280+05:30  INFO 14880 --- [http-nio-8080-exec-3] o.a.c.c.C.[Tomcat].[localhost].[/]       : Initializing Spring DispatcherServlet 'dispatcherServlet'
+2024-12-09T11:17:20.288+05:30  INFO 14880 --- [http-nio-8080-exec-3] o.s.web.servlet.DispatcherServlet        : Initializing Servlet 'dispatcherServlet'
+2024-12-09T11:17:20.288+05:30  INFO 14880 --- [http-nio-8080-exec-3] o.s.web.servlet.DispatcherServlet        : Completed initialization in 0 ms
+2024-12-09T11:17:20.378+05:30  WARN 14880 --- [http-nio-8080-exec-3] .m.m.a.ExceptionHandlerExceptionResolver : Resolved [org.springframework.web.servlet.resource.NoResourceFoundException: No static resource serviceproviders/role.]
+2024-12-09T11:18:07.954+05:30  INFO 14880 --- [http-nio-8080-exec-5] c.s.a.s.ServiceProviderServiceImpl       : Fetching service providers with role: COOK
+2024-12-09T11:18:08.238+05:30 DEBUG 14880 --- [http-nio-8080-exec-5] c.s.a.s.ServiceProviderServiceImpl       : Number of service providers found for role COOK: 2
+2024-12-09T11:18:43.548+05:30  INFO 14880 --- [http-nio-8080-exec-2] c.s.a.s.ServiceProviderServiceImpl       : Fetching service providers with role: NANNY
+2024-12-09T11:18:43.559+05:30 DEBUG 14880 --- [http-nio-8080-exec-2] c.s.a.s.ServiceProviderServiceImpl       : Number of service providers found for role NANNY: 7
+2024-12-09T11:19:30.499+05:30  INFO 14880 --- [http-nio-8080-exec-6] c.s.a.s.ServiceProviderServiceImpl       : Fetching service providers with role: MAID
+2024-12-09T11:19:30.499+05:30 DEBUG 14880 --- [http-nio-8080-exec-6] c.s.a.s.ServiceProviderServiceImpl       : Number of service providers found for role MAID: 0
+2024-12-09T11:19:38.854+05:30  INFO 14880 --- [http-nio-8080-exec-8] c.s.a.s.ServiceProviderServiceImpl       : Fetching service providers with role: COOK
+2024-12-09T11:19:38.862+05:30 DEBUG 14880 --- [http-nio-8080-exec-8] c.s.a.s.ServiceProviderServiceImpl       : Number of service providers found for role COOK: 2
+2024-12-09T11:23:46.360+05:30  INFO 14880 --- [File Watcher] rtingClassPathChangeChangedEventListener : Restarting due to 1 class path change (0 additions, 0 deletions, 1 modification)
+2024-12-09T11:23:46.391+05:30  INFO 14880 --- [Thread-5] j.LocalContainerEntityManagerFactoryBean : Closing JPA EntityManagerFactory for persistence unit 'default'
+2024-12-09T11:23:46.394+05:30  INFO 14880 --- [Thread-5] com.zaxxer.hikari.HikariDataSource       : HikariPool-1 - Shutdown initiated...
+2024-12-09T11:23:46.403+05:30  INFO 14880 --- [Thread-5] com.zaxxer.hikari.HikariDataSource       : HikariPool-1 - Shutdown completed.
+2024-12-09T11:23:46.561+05:30  INFO 14880 --- [restartedMain] c.s.app.SpringbootFirstAppApplication    : Starting SpringbootFirstAppApplication using Java 23 with PID 14880 (C:\service\ServEase_BE\target\classes started by shaiq in C:\service\ServEase_BE)
+2024-12-09T11:23:46.562+05:30  INFO 14880 --- [restartedMain] c.s.app.SpringbootFirstAppApplication    : No active profile set, falling back to 1 default profile: "default"
+2024-12-09T11:23:46.871+05:30  INFO 14880 --- [restartedMain] .s.d.r.c.RepositoryConfigurationDelegate : Bootstrapping Spring Data JPA repositories in DEFAULT mode.
+2024-12-09T11:23:46.924+05:30  INFO 14880 --- [restartedMain] .s.d.r.c.RepositoryConfigurationDelegate : Finished Spring Data repository scanning in 52 ms. Found 15 JPA repository interfaces.
+2024-12-09T11:23:46.924+05:30  INFO 14880 --- [restartedMain] .s.d.r.c.RepositoryConfigurationDelegate : Bootstrapping Spring Data JPA repositories in DEFAULT mode.
+2024-12-09T11:23:46.944+05:30  INFO 14880 --- [restartedMain] .s.d.r.c.RepositoryConfigurationDelegate : Finished Spring Data repository scanning in 21 ms. Found 15 JPA repository interfaces.
+2024-12-09T11:23:47.292+05:30  INFO 14880 --- [restartedMain] o.s.b.w.embedded.tomcat.TomcatWebServer  : Tomcat initialized with port 8080 (http)
+2024-12-09T11:23:47.292+05:30  INFO 14880 --- [restartedMain] o.apache.catalina.core.StandardService   : Starting service [Tomcat]
+2024-12-09T11:23:47.292+05:30  INFO 14880 --- [restartedMain] o.apache.catalina.core.StandardEngine    : Starting Servlet engine: [Apache Tomcat/10.1.30]
+2024-12-09T11:23:47.322+05:30  INFO 14880 --- [restartedMain] o.a.c.c.C.[Tomcat].[localhost].[/]       : Initializing Spring embedded WebApplicationContext
+2024-12-09T11:23:47.322+05:30  INFO 14880 --- [restartedMain] w.s.c.ServletWebServerApplicationContext : Root WebApplicationContext: initialization completed in 755 ms
+2024-12-09T11:23:47.439+05:30  INFO 14880 --- [restartedMain] o.hibernate.jpa.internal.util.LogHelper  : HHH000204: Processing PersistenceUnitInfo [name: default]
+2024-12-09T11:23:47.448+05:30  INFO 14880 --- [restartedMain] o.h.c.internal.RegionFactoryInitiator    : HHH000026: Second-level cache disabled
+2024-12-09T11:23:47.567+05:30  INFO 14880 --- [restartedMain] o.s.o.j.p.SpringPersistenceUnitInfo      : No LoadTimeWeaver setup: ignoring JPA class transformer
+2024-12-09T11:23:47.567+05:30  INFO 14880 --- [restartedMain] com.zaxxer.hikari.HikariDataSource       : HikariPool-2 - Starting...
+2024-12-09T11:23:47.671+05:30  INFO 14880 --- [restartedMain] com.zaxxer.hikari.pool.HikariPool        : HikariPool-2 - Added connection org.postgresql.jdbc.PgConnection@79db714
+2024-12-09T11:23:47.671+05:30  INFO 14880 --- [restartedMain] com.zaxxer.hikari.HikariDataSource       : HikariPool-2 - Start completed.
+2024-12-09T11:23:47.686+05:30  WARN 14880 --- [restartedMain] org.hibernate.orm.deprecation            : HHH90000025: PostgreSQLDialect does not need to be specified explicitly using 'hibernate.dialect' (remove the property setting and it will be selected by default)
+2024-12-09T11:23:48.043+05:30  INFO 14880 --- [restartedMain] o.h.e.t.j.p.i.JtaPlatformInitiator       : HHH000489: No JTA platform available (set 'hibernate.transaction.jta.platform' to enable JTA platform integration)
+2024-12-09T11:23:48.239+05:30  INFO 14880 --- [restartedMain] j.LocalContainerEntityManagerFactoryBean : Initialized JPA EntityManagerFactory for persistence unit 'default'
+2024-12-09T11:23:49.089+05:30  INFO 14880 --- [restartedMain] o.s.b.d.a.OptionalLiveReloadServer       : LiveReload server is running on port 35729
+2024-12-09T11:23:49.100+05:30  INFO 14880 --- [restartedMain] o.s.b.a.e.web.EndpointLinksResolver      : Exposing 3 endpoints beneath base path '/actuator'
+2024-12-09T11:23:49.147+05:30  INFO 14880 --- [restartedMain] o.s.b.w.embedded.tomcat.TomcatWebServer  : Tomcat started on port 8080 (http) with context path '/'
+2024-12-09T11:23:49.176+05:30  INFO 14880 --- [restartedMain] c.s.app.SpringbootFirstAppApplication    : Started SpringbootFirstAppApplication in 2.663 seconds (process running for 482.585)
+2024-12-09T11:23:49.184+05:30  INFO 14880 --- [restartedMain] .ConditionEvaluationDeltaLoggingListener : Condition evaluation unchanged
+2024-12-09T11:24:12.510+05:30  INFO 14880 --- [File Watcher] rtingClassPathChangeChangedEventListener : Restarting due to 2 class path changes (0 additions, 0 deletions, 2 modifications)
+2024-12-09T11:24:12.516+05:30  INFO 14880 --- [Thread-7] j.LocalContainerEntityManagerFactoryBean : Closing JPA EntityManagerFactory for persistence unit 'default'
+2024-12-09T11:24:12.517+05:30  INFO 14880 --- [Thread-7] com.zaxxer.hikari.HikariDataSource       : HikariPool-2 - Shutdown initiated...
+2024-12-09T11:24:12.520+05:30  INFO 14880 --- [Thread-7] com.zaxxer.hikari.HikariDataSource       : HikariPool-2 - Shutdown completed.
+2024-12-09T11:24:12.615+05:30  INFO 14880 --- [restartedMain] c.s.app.SpringbootFirstAppApplication    : Starting SpringbootFirstAppApplication using Java 23 with PID 14880 (C:\service\ServEase_BE\target\classes started by shaiq in C:\service\ServEase_BE)
+2024-12-09T11:24:12.616+05:30  INFO 14880 --- [restartedMain] c.s.app.SpringbootFirstAppApplication    : No active profile set, falling back to 1 default profile: "default"
+2024-12-09T11:24:12.870+05:30  INFO 14880 --- [restartedMain] .s.d.r.c.RepositoryConfigurationDelegate : Bootstrapping Spring Data JPA repositories in DEFAULT mode.
+2024-12-09T11:24:12.896+05:30  INFO 14880 --- [restartedMain] .s.d.r.c.RepositoryConfigurationDelegate : Finished Spring Data repository scanning in 27 ms. Found 15 JPA repository interfaces.
+2024-12-09T11:24:12.896+05:30  INFO 14880 --- [restartedMain] .s.d.r.c.RepositoryConfigurationDelegate : Bootstrapping Spring Data JPA repositories in DEFAULT mode.
+2024-12-09T11:24:12.908+05:30  INFO 14880 --- [restartedMain] .s.d.r.c.RepositoryConfigurationDelegate : Finished Spring Data repository scanning in 11 ms. Found 15 JPA repository interfaces.
+2024-12-09T11:24:13.174+05:30  INFO 14880 --- [restartedMain] o.s.b.w.embedded.tomcat.TomcatWebServer  : Tomcat initialized with port 8080 (http)
+2024-12-09T11:24:13.174+05:30  INFO 14880 --- [restartedMain] o.apache.catalina.core.StandardService   : Starting service [Tomcat]
+2024-12-09T11:24:13.174+05:30  INFO 14880 --- [restartedMain] o.apache.catalina.core.StandardEngine    : Starting Servlet engine: [Apache Tomcat/10.1.30]
+2024-12-09T11:24:13.213+05:30  INFO 14880 --- [restartedMain] o.a.c.c.C.[Tomcat].[localhost].[/]       : Initializing Spring embedded WebApplicationContext
+2024-12-09T11:24:13.213+05:30  INFO 14880 --- [restartedMain] w.s.c.ServletWebServerApplicationContext : Root WebApplicationContext: initialization completed in 595 ms
+2024-12-09T11:24:13.291+05:30  INFO 14880 --- [restartedMain] o.hibernate.jpa.internal.util.LogHelper  : HHH000204: Processing PersistenceUnitInfo [name: default]
+2024-12-09T11:24:13.291+05:30  INFO 14880 --- [restartedMain] o.h.c.internal.RegionFactoryInitiator    : HHH000026: Second-level cache disabled
+2024-12-09T11:24:13.342+05:30  INFO 14880 --- [restartedMain] o.s.o.j.p.SpringPersistenceUnitInfo      : No LoadTimeWeaver setup: ignoring JPA class transformer
+2024-12-09T11:24:13.342+05:30  INFO 14880 --- [restartedMain] com.zaxxer.hikari.HikariDataSource       : HikariPool-3 - Starting...
+2024-12-09T11:24:13.440+05:30  INFO 14880 --- [restartedMain] com.zaxxer.hikari.pool.HikariPool        : HikariPool-3 - Added connection org.postgresql.jdbc.PgConnection@1dbd6dd9
+2024-12-09T11:24:13.440+05:30  INFO 14880 --- [restartedMain] com.zaxxer.hikari.HikariDataSource       : HikariPool-3 - Start completed.
+2024-12-09T11:24:13.440+05:30  WARN 14880 --- [restartedMain] org.hibernate.orm.deprecation            : HHH90000025: PostgreSQLDialect does not need to be specified explicitly using 'hibernate.dialect' (remove the property setting and it will be selected by default)
+2024-12-09T11:24:13.671+05:30  INFO 14880 --- [restartedMain] o.h.e.t.j.p.i.JtaPlatformInitiator       : HHH000489: No JTA platform available (set 'hibernate.transaction.jta.platform' to enable JTA platform integration)
+2024-12-09T11:24:13.805+05:30  INFO 14880 --- [restartedMain] j.LocalContainerEntityManagerFactoryBean : Initialized JPA EntityManagerFactory for persistence unit 'default'
+2024-12-09T11:24:14.599+05:30  INFO 14880 --- [restartedMain] o.s.b.d.a.OptionalLiveReloadServer       : LiveReload server is running on port 35729
+2024-12-09T11:24:14.615+05:30  INFO 14880 --- [restartedMain] o.s.b.a.e.web.EndpointLinksResolver      : Exposing 3 endpoints beneath base path '/actuator'
+2024-12-09T11:24:14.647+05:30  INFO 14880 --- [restartedMain] o.s.b.w.embedded.tomcat.TomcatWebServer  : Tomcat started on port 8080 (http) with context path '/'
+2024-12-09T11:24:14.672+05:30  INFO 14880 --- [restartedMain] c.s.app.SpringbootFirstAppApplication    : Started SpringbootFirstAppApplication in 2.089 seconds (process running for 508.081)
+2024-12-09T11:24:14.672+05:30  INFO 14880 --- [restartedMain] .ConditionEvaluationDeltaLoggingListener : Condition evaluation unchanged
+2024-12-09T11:24:33.991+05:30  INFO 14880 --- [http-nio-8080-exec-2] o.a.c.c.C.[Tomcat].[localhost].[/]       : Initializing Spring DispatcherServlet 'dispatcherServlet'
+2024-12-09T11:24:33.991+05:30  INFO 14880 --- [http-nio-8080-exec-2] o.s.web.servlet.DispatcherServlet        : Initializing Servlet 'dispatcherServlet'
+2024-12-09T11:24:33.991+05:30  INFO 14880 --- [http-nio-8080-exec-2] o.s.web.servlet.DispatcherServlet        : Completed initialization in 0 ms
+2024-12-09T11:24:33.991+05:30  INFO 14880 --- [http-nio-8080-exec-2] c.s.a.s.ServiceProviderServiceImpl       : Fetching service providers with role: COOK
+2024-12-09T11:24:34.007+05:30 DEBUG 14880 --- [http-nio-8080-exec-2] c.s.a.s.ServiceProviderServiceImpl       : Number of service providers found for role COOK: 2
+2024-12-09T11:24:48.285+05:30  INFO 14880 --- [http-nio-8080-exec-3] c.s.a.s.ServiceProviderServiceImpl       : Fetching service providers with role: NANNY
+2024-12-09T11:24:48.294+05:30 DEBUG 14880 --- [http-nio-8080-exec-3] c.s.a.s.ServiceProviderServiceImpl       : Number of service providers found for role NANNY: 7

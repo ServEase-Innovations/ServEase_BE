@@ -35,4 +35,6 @@ public interface ServiceProviderService {
 
   Map<String, Object> calculateExpectedSalary(Long serviceProviderId);
 
+  List<ServiceProviderDTO> getServiceProvidersByRole(HousekeepingRole role);
+
 }

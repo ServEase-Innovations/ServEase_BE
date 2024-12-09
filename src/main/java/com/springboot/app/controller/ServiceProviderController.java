@@ -192,6 +192,18 @@ public class ServiceProviderController {
         return ResponseEntity.ok(response);
     }
 
+    @GetMapping("/role")
+    public ResponseEntity<List<ServiceProviderDTO>> getServiceProvidersByRole(
+            @RequestParam("role") HousekeepingRole role) {
+        // Validate the input role
+        if (role == null) {
+            return ResponseEntity.badRequest().body(null);
+        }
+
+        List<ServiceProviderDTO> serviceProviders = serviceProviderService.getServiceProvidersByRole(role);
+        return ResponseEntity.ok(serviceProviders);
+    }
+
     // ----------API's FOR SERVICE PROVIDER REQUEST ENTITY-----------------
     @GetMapping("/requests/all")
     @ApiOperation(value = ServiceProviderConstants.DESC_RETRIEVE_ALL_SERVICE_PROVIDER_REQUESTS, response = List.class)

@@ -338,31 +338,31 @@ public class ServiceProviderServiceImpl implements ServiceProviderService {
                         response.put("error", "Error calculating salary");
                         return response;
                 }
+
         }
 
-        /*
-         * @Override
-         * 
-         * @Transactional
-         * public List<ServiceProviderDTO> getServiceProvidersByOrFilter(Integer
-         * pincode, String street, String locality) {
-         * logger.
-         * info("Fetching service providers with OR filter - Pincode: {}, Street: {}, Locality: {}"
-         * ,
-         * pincode,
-         * street, locality);
-         * 
-         * List<ServiceProvider> serviceProviders =
-         * serviceProviderRepository.findByPincodeOrStreetOrLocality(
-         * pincode,
-         * street, locality);
-         * 
-         * logger.debug("Found {} service provider(s) matching the criteria.",
-         * serviceProviders.size());
-         * 
-         * return serviceProviders.stream()
-         * .map(serviceProviderMapper::serviceProviderToDTO)
-         * .collect(Collectors.toList());
-         * }
-         */
+        @Override
+        @Transactional
+        public List<ServiceProviderDTO> getServiceProvidersByRole(HousekeepingRole role) {
+                logger.info("Fetching service providers with role: {}", role);
+
+                // Check if the role is provided
+                if (role == null) {
+                        logger.warn("Role cannot be null");
+                        throw new IllegalArgumentException("Role must be provided to fetch service providers.");
+                }
+
+                // Filter service providers by the specified housekeeping role
+                Specification<ServiceProvider> spec = (root, query, criteriaBuilder) -> criteriaBuilder
+                                .equal(root.get("housekeepingRole"), role);
+
+                List<ServiceProvider> serviceProviders = serviceProviderRepository.findAll(spec);
+                logger.debug("Number of service providers found for role {}: {}", role, serviceProviders.size());
+
+                // Map entities to DTOs
+                return serviceProviders.stream()
+                                .map(serviceProviderMapper::serviceProviderToDTO)
+                                .collect(Collectors.toList());
+        }
+
 }
