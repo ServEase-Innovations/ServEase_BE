@@ -46,7 +46,7 @@ public class ServiceProvider {
 	@Column(nullable = false)
 	private String lastName;
 
-	@Column(nullable = false, length = 10)
+	@Column(nullable = false, length = 10, unique = true)
 	private Long mobileNo;
 
 	@Column(length = 10)
