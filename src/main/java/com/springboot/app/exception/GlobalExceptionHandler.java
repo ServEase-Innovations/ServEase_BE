@@ -23,6 +23,7 @@ public class GlobalExceptionHandler {
     // for any other exception
     @ExceptionHandler(Exception.class)
     public ResponseEntity<String> handleException(Exception e) {
-        return new ResponseEntity<>("Error : " + e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
+        return new ResponseEntity<>("An error occured, please try again later : " + e.getMessage(),
+                HttpStatus.INTERNAL_SERVER_ERROR);
     }
 }
