@@ -57,26 +57,46 @@ public class UserCredentialsServiceImpl implements UserCredentialsService {
     @Override
     @Transactional
     public ResponseEntity<Map<String, Object>> checkLoginAttempts(String username, String password) {
-        UserCredentials user = getUserCredentials(username);
 
-        if (isAccountLocked(user)) {
-            // Create a structured response for an account locked scenario
+        try {
+            // Attempt to retrieve user credentials, throws "User not registered" if not
+            // found
+            UserCredentials user = getUserCredentials(username);
+
+            // Check if the account is locked
+            if (isAccountLocked(user)) {
+                Map<String, Object> response = new HashMap<>();
+                response.put("message",
+                        "Account is temporarily locked. Please try again after: " + user.getDisableTill());
+                return ResponseEntity.status(HttpStatus.LOCKED).body(response);
+            }
+
+            // Check if the password is correct
+            if (passwordEncoder.matches(password, user.getPassword())) {
+                user.setNoOfTries(0);
+                user.setLastLogin(new Timestamp(System.currentTimeMillis()));
+                userCredentialsRepository.save(user);
+
+                // Create the response for successful login
+                Map<String, Object> response = createSuccessResponse(user);
+                return ResponseEntity.ok(response);
+            }
+
+            // Handle failed login attempt
+            Map<String, Object> response = handleFailedLogin(user);
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(response);
+
+        } catch (RuntimeException e) {
+            // Handle specific exception for user not registered
             Map<String, Object> response = new HashMap<>();
-            response.put("message", "Account is temporarily locked. Please try again after: " + user.getDisableTill());
-            return ResponseEntity.status(HttpStatus.LOCKED).body(response);
+            response.put("message", e.getMessage()); // Will show "User not registered"
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
+        } catch (Exception e) {
+            // Handle any other unexpected errors
+            Map<String, Object> response = new HashMap<>();
+            response.put("message", "An error occurred");
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(response);
         }
-
-        if (passwordEncoder.matches(password, user.getPassword())) {
-            user.setNoOfTries(0);
-            user.setLastLogin(new Timestamp(System.currentTimeMillis()));
-            userCredentialsRepository.save(user);
-
-            // Use the simplified response structure
-            Map<String, Object> response = createSuccessResponse(user);
-            return ResponseEntity.ok(response);
-        }
-        Map<String, Object> response = handleFailedLogin(user);
-        return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(response);
     }
 
     private boolean isAccountLocked(UserCredentials user) {
@@ -85,15 +105,12 @@ public class UserCredentialsServiceImpl implements UserCredentialsService {
 
     private UserCredentials getUserCredentials(String username) {
         return userCredentialsRepository.findById(username)
-                .orElseThrow(() -> new RuntimeException("User not found"));
+                .orElseThrow(() -> new RuntimeException("User not registered"));
     }
 
     private Map<String, Object> createSuccessResponse(UserCredentials user) {
         Map<String, Object> response = new HashMap<>();
-        // response.put("username", user.getUsername());
-        // response.put("isActive", user.isActive());
         response.put("role", user.getRole().name());
-        // response.put("lastLogin", user.getLastLogin());
 
         if (user.getRole() == UserRole.CUSTOMER) {
             customerRepository.findAll().stream()
@@ -112,7 +129,6 @@ public class UserCredentialsServiceImpl implements UserCredentialsService {
         return response;
     }
 
-    // Modify handleFailedLogin to return a Map<String, Object>
     private Map<String, Object> handleFailedLogin(UserCredentials user) {
         int attempts = user.getNoOfTries() + 1;
         user.setNoOfTries(attempts);
@@ -125,10 +141,9 @@ public class UserCredentialsServiceImpl implements UserCredentialsService {
 
         userCredentialsRepository.save(user);
 
-        // Return a structured response
         Map<String, Object> response = new HashMap<>();
-        response.put("message", "Login failed! You have " + (3 - attempts) + " attempts remaining.");
-        // response.put("remainingAttempts", 3 - attempts);
+        response.put("message",
+                "Login failed! Please check your credentials. You have " + (3 - attempts) + " attempts remaining.");
         return response;
     }
 

@@ -89,13 +89,9 @@ public class CustomerController {
     // API to add a customer
     @PostMapping("/add-customer")
     @ApiOperation(value = CustomerConstants.ADD_NEW_DESC)
-    public ResponseEntity<String> addCustomer(
-            @ApiParam(value = "Customer data to add", required = true) @ModelAttribute CustomerDTO customerDTO,
-            @ApiParam(value = "Profile picture of the customer") @RequestParam(value = "profilePic", required = false) MultipartFile profilePic)
-            throws IOException {
-        customerDTO.setProfilePic(profilePic);
-        String registrationResponse = customerService.saveCustomer(customerDTO);
-        return ResponseEntity.ok(registrationResponse);
+    public ResponseEntity<String> addCustomer(@RequestBody CustomerDTO customerDTO) {
+        customerService.saveCustomer(customerDTO);
+        return ResponseEntity.status(HttpStatus.CREATED).body(CustomerConstants.ADDED);
     }
 
     // API to update a customer
@@ -108,7 +104,7 @@ public class CustomerController {
             throws IOException {
 
         customerDTO.setCustomerId(id);
-        customerDTO.setProfilePic(profilePic); // Set profile picture if provided
+        // customerDTO.setProfilePic(profilePic); // Set profile picture if provided
         customerService.updateCustomer(customerDTO);
         return ResponseEntity.ok(CustomerConstants.UPDATED);
     }

@@ -37,4 +37,6 @@ public interface ServiceProviderService {
 
   List<ServiceProviderDTO> getServiceProvidersByRole(HousekeepingRole role);
 
+  String uploadExcelRecords(String filename);
+
 }

@@ -11,6 +11,7 @@ import com.springboot.app.enums.HousekeepingRole;
 import com.springboot.app.enums.LanguageKnown;
 import com.springboot.app.enums.Speciality;
 
+//import jakarta.persistence.Column;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -53,7 +54,8 @@ public class ServiceProviderDTO {
 
     private Timestamp enrolledDate;
 
-    private byte[] profilePic;
+    // private byte[] profilePic;
+    private String profilePic;
 
     private boolean isActive;
 
@@ -66,7 +68,7 @@ public class ServiceProviderDTO {
     private DocumentType KYC;
 
     private String idNo;
-    private String profilePicUrl;
+    // private String profilePicUrl;
     private double rating;
     private LanguageKnown languageKnown;
     private Speciality speciality;

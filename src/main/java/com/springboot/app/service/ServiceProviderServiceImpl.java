@@ -18,6 +18,8 @@ import org.springframework.stereotype.Service;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import jakarta.persistence.EntityManager;
+import jakarta.persistence.PersistenceContext;
 import jakarta.transaction.Transactional;
 
 import com.springboot.app.constant.ServiceProviderConstants;
@@ -33,6 +35,7 @@ import com.springboot.app.enums.UserRole;
 import com.springboot.app.mapper.ServiceProviderMapper;
 import com.springboot.app.repository.ServiceProviderEngagementRepository;
 import com.springboot.app.repository.ServiceProviderRepository;
+import com.springboot.app.util.ExcelSheetHandler;
 
 @Service
 public class ServiceProviderServiceImpl implements ServiceProviderService {
@@ -50,6 +53,12 @@ public class ServiceProviderServiceImpl implements ServiceProviderService {
 
         @Autowired
         private ServiceProviderEngagementRepository engagementRepository;
+
+        @PersistenceContext
+        private EntityManager entityManager;
+
+        @Autowired
+        private ExcelSheetHandler excelSheetHandler;
 
         @Override
         @Transactional
@@ -94,8 +103,21 @@ public class ServiceProviderServiceImpl implements ServiceProviderService {
                         throw new IllegalArgumentException("EmailId is required to save a service provider.");
                 }
                 serviceProviderDTO.setUsername(email);
+                // Step 1: Calculate age from DOB and set it
+                LocalDate dob = serviceProviderDTO.getDOB();
+                if (dob != null) {
+                        int calculatedAge = calculateAge(dob);
+                        // Add the age validation check
+                        if (calculatedAge < 18) {
+                                throw new IllegalArgumentException("You must be at least 18 years old to proceed.");
+                        }
+                        serviceProviderDTO.setAge(calculatedAge);
+                        logger.info("Calculated age: {}", calculatedAge);
+                } else {
+                        throw new IllegalArgumentException("Date of Birth (DOB) is required to calculate age.");
+                }
 
-                // Step 1: Register user credentials
+                // Step 2: Register user credentials
                 UserCredentialsDTO userDTO = new UserCredentialsDTO(
                                 serviceProviderDTO.getUsername(),
                                 serviceProviderDTO.getPassword(),
@@ -115,6 +137,10 @@ public class ServiceProviderServiceImpl implements ServiceProviderService {
                 serviceProvider.setActive(true);
                 serviceProviderRepository.save(serviceProvider);
                 logger.debug("Service provider saved successfully: {}", serviceProvider);
+        }
+
+        private int calculateAge(LocalDate dob) {
+                return LocalDate.now().getYear() - dob.getYear();
         }
 
         @Override
@@ -363,6 +389,19 @@ public class ServiceProviderServiceImpl implements ServiceProviderService {
                 return serviceProviders.stream()
                                 .map(serviceProviderMapper::serviceProviderToDTO)
                                 .collect(Collectors.toList());
+        }
+
+        @Override
+        @Transactional
+        public String uploadExcelRecords(String filename) {
+                // Read the Excel file and retrieve the list of ServiceProviders
+                List<ServiceProvider> serviceProviders = excelSheetHandler.readExcelFile(filename);
+
+                if (serviceProviders != null && !serviceProviders.isEmpty()) {
+                        // Save each ServiceProvider to the database
+                        serviceProviderRepository.saveAll(serviceProviders);
+                }
+                return "successfull";
         }
 
 }
