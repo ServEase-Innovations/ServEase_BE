@@ -18,6 +18,8 @@ import org.springframework.stereotype.Service;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import jakarta.persistence.EntityManager;
+import jakarta.persistence.PersistenceContext;
 import jakarta.transaction.Transactional;
 
 import com.springboot.app.constant.ServiceProviderConstants;
@@ -33,6 +35,7 @@ import com.springboot.app.enums.UserRole;
 import com.springboot.app.mapper.ServiceProviderMapper;
 import com.springboot.app.repository.ServiceProviderEngagementRepository;
 import com.springboot.app.repository.ServiceProviderRepository;
+import com.springboot.app.util.ExcelSheetHandler;
 
 @Service
 public class ServiceProviderServiceImpl implements ServiceProviderService {
@@ -50,6 +53,12 @@ public class ServiceProviderServiceImpl implements ServiceProviderService {
 
         @Autowired
         private ServiceProviderEngagementRepository engagementRepository;
+
+        @PersistenceContext
+        private EntityManager entityManager;
+
+        @Autowired
+        private ExcelSheetHandler excelSheetHandler;
 
         @Override
         @Transactional
@@ -363,6 +372,19 @@ public class ServiceProviderServiceImpl implements ServiceProviderService {
                 return serviceProviders.stream()
                                 .map(serviceProviderMapper::serviceProviderToDTO)
                                 .collect(Collectors.toList());
+        }
+
+        @Override
+        @Transactional
+        public String uploadExcelRecords(String filename) {
+                // Read the Excel file and retrieve the list of ServiceProviders
+                List<ServiceProvider> serviceProviders = excelSheetHandler.readExcelFile(filename);
+
+                if (serviceProviders != null && !serviceProviders.isEmpty()) {
+                        // Save each ServiceProvider to the database
+                        serviceProviderRepository.saveAll(serviceProviders);
+                }
+                return "successfull";
         }
 
 }

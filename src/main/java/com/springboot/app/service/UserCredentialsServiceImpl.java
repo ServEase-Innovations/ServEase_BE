@@ -85,7 +85,7 @@ public class UserCredentialsServiceImpl implements UserCredentialsService {
 
     private UserCredentials getUserCredentials(String username) {
         return userCredentialsRepository.findById(username)
-                .orElseThrow(() -> new RuntimeException("User not found"));
+                .orElseThrow(() -> new RuntimeException("User not registerd"));
     }
 
     private Map<String, Object> createSuccessResponse(UserCredentials user) {
@@ -127,9 +127,11 @@ public class UserCredentialsServiceImpl implements UserCredentialsService {
 
         // Return a structured response
         Map<String, Object> response = new HashMap<>();
-        response.put("message", "Login failed! You have " + (3 - attempts) + " attempts remaining.");
+        response.put("message",
+                "Login failed! please check your credentials. You have " + (3 - attempts) + " attempts remaining.");
         // response.put("remainingAttempts", 3 - attempts);
         return response;
+
     }
 
     @Override

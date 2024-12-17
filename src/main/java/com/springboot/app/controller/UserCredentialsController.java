@@ -83,6 +83,6 @@ public class UserCredentialsController {
     @PutMapping("/update")
     public ResponseEntity<String> updateUserCredentials(@RequestBody UserCredentialsDTO userCredentialsDTO) {
         userCredentialsService.updateUserCredentials(userCredentialsDTO);
-        return ResponseEntity.ok("User credentials updated successfully.");
+        return ResponseEntity.ok("Password updated successfully.");
     }
 }

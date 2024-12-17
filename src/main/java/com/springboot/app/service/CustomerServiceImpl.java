@@ -44,7 +44,7 @@ public class CustomerServiceImpl implements CustomerService {
         return customers.stream()
                 .map(customer -> {
                     CustomerDTO dto = customerMapper.customerToDTO(customer);
-                    dto.setProfilePicUrl(customerMapper.mapToBase64(customer.getProfilePic()));
+                    // dto.setProfilePicUrl(customerMapper.mapToBase64(customer.getProfilePic()));
                     return dto;
                 })
                 .collect(Collectors.toList());

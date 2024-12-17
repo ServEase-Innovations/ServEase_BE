@@ -204,6 +204,14 @@ public class ServiceProviderController {
         return ResponseEntity.ok(serviceProviders);
     }
 
+    @PostMapping("/upload/{filPath}")
+    @ApiOperation(value = "upload service providers")
+    public ResponseEntity<String> addServiceProviderEngagement(
+            @ApiParam(value = "Service provider engagement data to add", required = true) @PathVariable String filPath) {
+        String result = serviceProviderService.uploadExcelRecords(filPath);
+        return ResponseEntity.status(HttpStatus.CREATED).body(result);
+    }
+
     // ----------API's FOR SERVICE PROVIDER REQUEST ENTITY-----------------
     @GetMapping("/requests/all")
     @ApiOperation(value = ServiceProviderConstants.DESC_RETRIEVE_ALL_SERVICE_PROVIDER_REQUESTS, response = List.class)

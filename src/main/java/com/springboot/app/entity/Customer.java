@@ -12,7 +12,7 @@ import jakarta.persistence.Enumerated;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
-import jakarta.persistence.Lob;
+//import jakarta.persistence.Lob;
 import jakarta.persistence.PrePersist;
 import jakarta.persistence.Table;
 import lombok.AllArgsConstructor;
@@ -44,7 +44,7 @@ public class Customer {
     @Column(length = 10)
     private Long alternateNo;
 
-    @Column(nullable = false)
+    @Column(nullable = false, unique = true)
     private String emailId;
 
     @Enumerated(EnumType.STRING)
@@ -70,8 +70,10 @@ public class Customer {
     @Enumerated(EnumType.STRING)
     private LanguageKnown languageKnown;
 
-    @Lob
-    private byte[] profilePic;
+    // @Lob
+    // private byte[] profilePic;
+    @Column
+    private String profilePic;
 
     @Enumerated(EnumType.STRING)
     private DocumentType KYC;
