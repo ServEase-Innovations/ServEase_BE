@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 2024-12-26T10:55:48.271+05:30  INFO 18224 --- [restartedMain] c.s.app.SpringbootFirstAppApplication    : Starting SpringbootFirstAppApplication using Java 23 with PID 18224 (C:\service\ServEase_BE\target\classes started by shaiq in C:\service\ServEase_BE)
 2024-12-26T10:55:48.287+05:30  INFO 18224 --- [restartedMain] c.s.app.SpringbootFirstAppApplication    : No active profile set, falling back to 1 default profile: "default"
 2024-12-26T10:55:48.356+05:30  INFO 18224 --- [restartedMain] o.s.b.devtools.restart.ChangeableUrls    : The Class-Path manifest attribute in C:\Users\shaiq\.m2\repository\xalan\xalan\2.7.2\xalan-2.7.2.jar referenced one or more files that do not exist: file:/C:/Users/shaiq/.m2/repository/xalan/xalan/2.7.2/xercesImpl.jar,file:/C:/Users/shaiq/.m2/repository/xalan/xalan/2.7.2/xml-apis.jar,file:/C:/Users/shaiq/.m2/repository/xalan/xalan/2.7.2/serializer.jar
@@ -403,3 +404,5 @@
 2024-12-26T18:18:52.378+05:30  INFO 9500 --- [scheduling-1] c.s.a.task.AttendanceConflictScheduler   : Running scheduled check for attendance conflicts...
 2024-12-26T18:18:52.658+05:30  WARN 9500 --- [scheduling-1] c.s.a.task.AttendanceConflictScheduler   : Conflicting attendance records found:
 2024-12-26T18:18:52.658+05:30  WARN 9500 --- [scheduling-1] c.s.a.task.AttendanceConflictScheduler   : Conflict detected - Customer ID: 3, ServiceProvider ID: 13, isAttended: true, isCustomerAgreed: false
+=======
+>>>>>>> 8fa33240cb9ca38e8da96e3f38f6c6716e6d5529
