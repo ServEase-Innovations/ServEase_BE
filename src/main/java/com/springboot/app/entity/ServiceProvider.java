@@ -119,6 +119,9 @@ public class ServiceProvider {
 	@Column
 	private Integer experience;
 
+	@Column
+	private String timeslot;
+
 	@PrePersist
 	public void prePersist() {
 		// Setting the current timestamp formatted as "yyyy-MM-dd HH:mm:ss.SSS"

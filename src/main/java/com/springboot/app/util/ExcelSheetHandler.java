@@ -4,12 +4,13 @@ import com.springboot.app.entity.ServiceProvider;
 import com.springboot.app.enums.Gender;
 import com.springboot.app.enums.HousekeepingRole;
 import org.apache.poi.ss.usermodel.*;
-import org.apache.poi.ss.usermodel.WorkbookFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
 import java.io.File;
 import java.io.IOException;
+import java.sql.Timestamp;
+import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -84,6 +85,10 @@ public class ExcelSheetHandler {
                             serviceProvider.setStreet("Street " + index);
                             serviceProvider.setPincode(560000 + index % 101);
                             serviceProvider.setCurrentLocation("Location " + index);
+
+                            // Automatically set enrolledDate
+                            serviceProvider.setEnrolledDate(Timestamp.from(Instant.now()));
+                            logger.debug("Set enrolled date: {}", serviceProvider.getEnrolledDate());
 
                             // Add to the list
                             serviceProviders.add(serviceProvider);

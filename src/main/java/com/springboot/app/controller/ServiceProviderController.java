@@ -20,6 +20,7 @@ import org.springframework.web.bind.annotation.RestController;
 import com.springboot.app.constant.ServiceProviderConstants;
 import org.springframework.beans.factory.annotation.Value;
 
+import com.springboot.app.dto.AttendanceDTO;
 import com.springboot.app.dto.ServiceProviderDTO;
 import com.springboot.app.dto.ServiceProviderEngagementDTO;
 import com.springboot.app.dto.ServiceProviderFeedbackDTO;
@@ -33,6 +34,7 @@ import com.springboot.app.enums.LanguageKnown;
 import com.springboot.app.enums.Speciality;
 
 import com.springboot.app.service.ServiceProviderRequestService;
+import com.springboot.app.service.AttendanceService;
 import com.springboot.app.service.ServiceProviderEngagementService;
 import com.springboot.app.service.ServiceProviderFeedbackService;
 import com.springboot.app.service.ServiceProviderRequestCommentService;
@@ -65,6 +67,9 @@ public class ServiceProviderController {
 
     @Autowired
     private ShortListedServiceProviderService shortListedServiceProviderService;
+
+    @Autowired
+    private AttendanceService attendanceService;
 
     @Value("${app.pagination.default-page-size:10}")
     private int defaultPageSize;
@@ -495,6 +500,110 @@ public class ServiceProviderController {
         String response = shortListedServiceProviderService.removeFromServiceProviderIdList(customerId,
                 serviceProviderId);
         return ResponseEntity.ok(response);
+    }
+
+    // ------API's FOR ATTENDANCE-----------------
+
+    // API to get all attendance records
+    @GetMapping("/attendance/all")
+    @ApiOperation(value = "Retrieve all attendance records", response = List.class)
+    public ResponseEntity<List<AttendanceDTO>> getAllAttendanceRecords(
+            @RequestParam(defaultValue = "0") Integer page,
+            @RequestParam(defaultValue = "10") Integer size) {
+
+        List<AttendanceDTO> attendanceList = attendanceService.getAllAttendance(page, size);
+        return ResponseEntity.ok(attendanceList);
+    }
+
+    // API to get an attendance record by ID
+    @GetMapping("/get/attendance/{id}")
+    @ApiOperation(value = "Retrieve an attendance record by ID", response = AttendanceDTO.class)
+    public ResponseEntity<AttendanceDTO> getAttendanceRecordById(
+            @ApiParam(value = "ID of the attendance record", required = true) @PathVariable Long id) {
+
+        AttendanceDTO attendanceDTO = attendanceService.getAttendanceByAttendenceId(id);
+        return attendanceDTO != null ? ResponseEntity.ok(attendanceDTO)
+                : ResponseEntity.notFound().build();
+    }
+
+    // Retrieve all AttendanceDTOs for a specific customer ID
+    @GetMapping("/get/customer/{customerId}")
+    public ResponseEntity<List<AttendanceDTO>> getAttendanceByCustomerId(@PathVariable Long customerId) {
+        List<AttendanceDTO> attendances = attendanceService.getAttendanceByCustomerId(customerId);
+        return ResponseEntity.ok(attendances);
+    }
+
+    // Retrieve all AttendanceDTOs for a specific service provider ID
+    @GetMapping("/get/serviceProvider/{serviceProviderId}")
+    public ResponseEntity<List<AttendanceDTO>> getAttendanceByServiceProviderId(@PathVariable Long serviceProviderId) {
+        List<AttendanceDTO> attendances = attendanceService.getAttendanceByServiceProviderId(serviceProviderId);
+        return ResponseEntity.ok(attendances);
+    }
+
+    // API to add a new attendance record
+    @PostMapping("/attendance/add")
+    @ApiOperation(value = "Add a new attendance record")
+    public ResponseEntity<String> addAttendanceRecord(
+            @ApiParam(value = "Attendance record DTO", required = true) @RequestBody AttendanceDTO attendanceDTO) {
+
+        attendanceService.saveAttendance(attendanceDTO);
+        return ResponseEntity.ok(ServiceProviderConstants.ATTENDANCE_ADDED);
+    }
+
+    // API to update an attendance record
+    @PutMapping("/update/attendance/{id}")
+    @ApiOperation(value = "Update an attendance record by ID")
+    public ResponseEntity<String> updateAttendanceRecord(
+            @ApiParam(value = "ID of the attendance record to update", required = true) @PathVariable Long id,
+            @ApiParam(value = "Updated attendance record DTO", required = true) @RequestBody AttendanceDTO attendanceDTO) {
+
+        attendanceDTO.setId(id); // Set the ID in the DTO
+        attendanceService.updateAttendance(attendanceDTO);
+        return ResponseEntity.ok(ServiceProviderConstants.ATTENDANCE_UPDATED);
+    }
+
+    // API to delete an attendance record (mark as deleted)
+    @PatchMapping("/delete/attendance/{id}")
+    @ApiOperation(value = "Delete (resolve) an attendance record by ID")
+    public ResponseEntity<String> deleteAttendanceRecord(
+            @ApiParam(value = "ID of the attendance record to delete", required = true) @PathVariable Long id) {
+
+        attendanceService.deleteAttendance(id);
+        return ResponseEntity.ok(ServiceProviderConstants.ATTENDANCE_DELETED);
+    }
+
+    @GetMapping("/get/notifications")
+    public ResponseEntity<List<AttendanceDTO>> getAllNotifications() {
+        List<AttendanceDTO> notifications = attendanceService.getAllNotifications();
+        return ResponseEntity.ok(notifications);
+    }
+
+    // Endpoint to get conflicts for today
+    @GetMapping("/get/today/conflicts")
+    public ResponseEntity<List<AttendanceDTO>> getTodayConflicts() {
+        List<AttendanceDTO> notifications = attendanceService.getTodayConflicts();
+        return ResponseEntity.ok(notifications);
+    }
+
+    // Endpoint to get conflicts for the past one week
+    @GetMapping("/get/oneweek/conflicts")
+    public ResponseEntity<List<AttendanceDTO>> getOneWeekConflicts() {
+        List<AttendanceDTO> notifications = attendanceService.getOneWeekConflicts();
+        return ResponseEntity.ok(notifications);
+    }
+
+    // Endpoint to get conflicts for the past two weeks
+    @GetMapping("/get/twoweeks/conflicts")
+    public ResponseEntity<List<AttendanceDTO>> getTwoWeeksConflicts() {
+        List<AttendanceDTO> notifications = attendanceService.getTwoWeeksConflicts();
+        return ResponseEntity.ok(notifications);
+    }
+
+    // Endpoint to get conflicts for the past one month
+    @GetMapping("/get/onemonth/conflicts")
+    public ResponseEntity<List<AttendanceDTO>> getOneMonthConflicts() {
+        List<AttendanceDTO> notifications = attendanceService.getOneMonthConflicts();
+        return ResponseEntity.ok(notifications);
     }
 
 }

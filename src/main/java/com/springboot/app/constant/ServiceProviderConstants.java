@@ -58,6 +58,11 @@ public class ServiceProviderConstants {
     public static final String COMMENT_UPDATED_SUCCESS = "Comment updated successfully for the service provider request.";
     public static final String COMMENT_DELETED_SUCCESS = "Comment deleted successfully for the service provider request.";
 
+    // Attendance Constants
+    public static final String ATTENDANCE_ADDED = "Attendance record added successfully";
+    public static final String ATTENDANCE_UPDATED = "Attendance record updated successfully";
+    public static final String ATTENDANCE_DELETED = "Attendance record marked as deleted successfully";
+
     // Error messages
     public static final String SERVICE_PROVIDER_NOT_FOUND = "ServiceProvider not found with id: ";
     public static final String SERVICE_PROVIDER_REQUEST_NOT_FOUND = "ServiceProviderRequest not found with id: ";

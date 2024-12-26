@@ -75,6 +75,7 @@ public class ServiceProviderDTO {
     private Integer age;
     private String info;
     private LocalDate DOB;
+    private String timeslot;
     private double expectedSalary = 0.0;
     private Integer experience;
     private String username;
