@@ -44,6 +44,7 @@ import com.springboot.app.service.ShortListedServiceProviderService;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
+import java.util.Collections;
 
 @RestController
 @RequestMapping(ServiceProviderConstants.BASE_API_PATH)
@@ -75,23 +76,34 @@ public class ServiceProviderController {
     private int defaultPageSize;
 
     // --------API's FOR SERVICE PROVIDER ENTITY--------------------
+
+    // API to get all service providers
     @GetMapping("/serviceproviders/all")
     @ApiOperation(value = ServiceProviderConstants.RETRIEVE_ALL_DESC, response = List.class)
     public ResponseEntity<List<ServiceProviderDTO>> getAllServiceProviders(
-            @RequestParam(defaultValue = "0") Integer page,
-            @RequestParam(defaultValue = "10") Integer size) {
-
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(required = false) Integer size) {
+        if (size == null) {
+            size = defaultPageSize; // Default page size if not provided
+        }
         List<ServiceProviderDTO> serviceProviders = serviceProviderService.getAllServiceProviderDTOs(page, size);
+        if (serviceProviders.isEmpty()) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                    .body(Collections.singletonList(new ServiceProviderDTO()));
+        }
         return ResponseEntity.ok(serviceProviders);
     }
 
-    // API to get serviceproviders by id
+    // API to get service provider by id
     @GetMapping("/get/serviceprovider/{id}")
     @ApiOperation(value = ServiceProviderConstants.GET_BY_ID_DESC, response = ServiceProviderDTO.class)
     public ResponseEntity<ServiceProviderDTO> getServiceProviderById(
-            @ApiParam(value = "ID of the service provider", required = true) @PathVariable Long id) {
+            @ApiParam(value = "ID of the service provider to retrieve", required = true) @PathVariable Long id) {
         ServiceProviderDTO serviceProviderDTO = serviceProviderService.getServiceProviderDTOById(id);
-        return serviceProviderDTO != null ? ResponseEntity.ok(serviceProviderDTO) : ResponseEntity.notFound().build();
+        if (serviceProviderDTO == null) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(null); // Service provider not found
+        }
+        return ResponseEntity.ok(serviceProviderDTO);
     }
 
     // API to add a serviceprovider
@@ -103,25 +115,49 @@ public class ServiceProviderController {
         return ResponseEntity.ok(ServiceProviderConstants.SERVICE_PROVIDER_ADDED);
     }
 
-    // API to update fields
+    // API to add a service provider
+    // @PostMapping("/serviceprovider/add")
+    // @ApiOperation(value = ServiceProviderConstants.ADD_NEW_DESC)
+    // public ResponseEntity<String> addServiceProvider(@RequestBody
+    // ServiceProviderDTO serviceProviderDTO) {
+    // try {
+    // serviceProviderService.saveServiceProviderDTO(serviceProviderDTO);
+    // return
+    // ResponseEntity.status(HttpStatus.CREATED).body(ServiceProviderConstants.SERVICE_PROVIDER_ADDED);
+    // } catch (IllegalArgumentException ex) {
+    // return ResponseEntity.status(HttpStatus.CONFLICT)
+    // .body(ServiceProviderConstants.SERVICE_PROVIDER_ALREADY_EXISTS);
+    // } catch (Exception ex) {
+    // return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+    // .body(ServiceProviderConstants.SERVICE_PROVIDER_ERROR);
+    // }
+    // }
+
+    // API to update a service provider
     @PutMapping("/update/serviceprovider/{id}")
     @ApiOperation(value = ServiceProviderConstants.UPDATE_DESC)
     public ResponseEntity<String> updateServiceProvider(
             @ApiParam(value = "ID of the service provider to update", required = true) @PathVariable Long id,
-            @ApiParam(value = "Updated service provider DTO", required = true) @RequestBody ServiceProviderDTO serviceProviderDTO) {
-
-        serviceProviderDTO.setServiceproviderId(id); // Set the ID in the DTO
-        serviceProviderService.updateServiceProviderDTO(serviceProviderDTO); // Update using the DTO
+            @ApiParam(value = "Updated service provider object", required = true) @RequestBody ServiceProviderDTO serviceProviderDTO) {
+        serviceProviderDTO.setServiceproviderId(id);
+        String updateResponse = serviceProviderService.updateServiceProviderDTO(serviceProviderDTO);
+        if (updateResponse.equals(ServiceProviderConstants.SERVICE_PROVIDER_NOT_FOUND)) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                    .body(ServiceProviderConstants.SERVICE_PROVIDER_NOT_FOUND);
+        }
         return ResponseEntity.ok(ServiceProviderConstants.SERVICE_PROVIDER_UPDATED);
     }
 
-    // API to delete a serviceprovider
+    // API to delete a service provider (soft-delete)
     @PatchMapping("delete/serviceprovider/{id}")
-    @ApiOperation(value = ServiceProviderConstants.DELETE_DESC) // Operation description
+    @ApiOperation(value = ServiceProviderConstants.DELETE_DESC)
     public ResponseEntity<String> deleteServiceProvider(
             @ApiParam(value = "ID of the service provider to deactivate", required = true) @PathVariable Long id) {
-
-        serviceProviderService.deleteServiceProviderDTO(id);
+        String deleteResponse = serviceProviderService.deleteServiceProviderDTO(id);
+        if (deleteResponse.equals(ServiceProviderConstants.SERVICE_PROVIDER_NOT_FOUND)) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                    .body(ServiceProviderConstants.SERVICE_PROVIDER_NOT_FOUND);
+        }
         return ResponseEntity.ok(ServiceProviderConstants.SERVICE_PROVIDER_DELETED);
     }
 
@@ -378,63 +414,82 @@ public class ServiceProviderController {
 
     // -------API's FOR SERVICE PROVIDER ENGAGENENTS ENTITY-------------
     // API to get all service provider engagements with pagination
+    // API to get all service provider engagements
     @GetMapping("/engagements/all")
-    @ApiOperation(value = "Retrieve all service provider engagements with pagination", response = List.class)
+    @ApiOperation(value = ServiceProviderConstants.RETRIEVE_ALL_ENGAGEMENT_DESC, response = List.class)
     public ResponseEntity<List<ServiceProviderEngagementDTO>> getAllServiceProviderEngagements(
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(required = false) Integer size) {
         if (size == null) {
-            size = defaultPageSize; // Replace with the actual default page size
+            size = defaultPageSize; // Default page size if not provided
         }
         List<ServiceProviderEngagementDTO> engagements = serviceProviderEngagementService
                 .getAllServiceProviderEngagements(page, size);
-
-        // Fallback to the first page if the requested page is empty
-        if (engagements.isEmpty() && page > 0) {
-            return getAllServiceProviderEngagements(0, size);
+        if (engagements.isEmpty()) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                    .body(Collections.singletonList(new ServiceProviderEngagementDTO()));
         }
-
         return ResponseEntity.ok(engagements);
     }
 
-    // API to get service provider engagement by ID
+    // API to get service provider engagement by id
     @GetMapping("/get/engagement/{id}")
-    @ApiOperation(value = "Retrieve service provider engagement by ID", response = ServiceProviderEngagementDTO.class)
+    @ApiOperation(value = ServiceProviderConstants.GET_BY_ID_ENGAGEMENT_DESC, response = ServiceProviderEngagementDTO.class)
     public ResponseEntity<ServiceProviderEngagementDTO> getServiceProviderEngagementById(
             @ApiParam(value = "ID of the service provider engagement to retrieve", required = true) @PathVariable Long id) {
         ServiceProviderEngagementDTO engagementDTO = serviceProviderEngagementService
                 .getServiceProviderEngagementById(id);
-        return engagementDTO != null ? ResponseEntity.ok(engagementDTO) : ResponseEntity.notFound().build();
+        if (engagementDTO == null) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(null); // Engagement not found
+        }
+        return ResponseEntity.ok(engagementDTO);
     }
 
-    // API to add a new service provider engagement
+    // API to add a service provider engagement
     @PostMapping("/engagement/add")
-    @ApiOperation(value = "Add a new service provider engagement")
+    @ApiOperation(value = ServiceProviderConstants.ADD_NEW_ENGAGEMENT_DESC)
     public ResponseEntity<String> addServiceProviderEngagement(
-            @ApiParam(value = "Service provider engagement data to add", required = true) @RequestBody ServiceProviderEngagementDTO serviceProviderEngagementDTO) {
-        String result = serviceProviderEngagementService.addServiceProviderEngagement(serviceProviderEngagementDTO);
-        return ResponseEntity.status(HttpStatus.CREATED).body(result);
+            @RequestBody ServiceProviderEngagementDTO serviceProviderEngagementDTO) {
+        try {
+            serviceProviderEngagementService.addServiceProviderEngagement(serviceProviderEngagementDTO);
+            return ResponseEntity.status(HttpStatus.CREATED)
+                    .body(ServiceProviderConstants.ENGAGEMENT_ADDED);
+        } catch (IllegalArgumentException ex) {
+            return ResponseEntity.status(HttpStatus.CONFLICT)
+                    .body(ServiceProviderConstants.ENGAGEMENT_ALREADY_EXISTS);
+        } catch (Exception ex) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body(ServiceProviderConstants.ENGAGEMENT_ERROR);
+        }
     }
 
-    // API to update an existing service provider engagement
+    // API to update a service provider engagement
     @PutMapping("/update/engagement/{id}")
-    @ApiOperation(value = "Update an existing service provider engagement")
+    @ApiOperation(value = ServiceProviderConstants.UPDATE_ENGAGEMENT_DESC)
     public ResponseEntity<String> updateServiceProviderEngagement(
             @ApiParam(value = "ID of the service provider engagement to update", required = true) @PathVariable Long id,
             @ApiParam(value = "Updated service provider engagement object", required = true) @RequestBody ServiceProviderEngagementDTO serviceProviderEngagementDTO) {
-        serviceProviderEngagementDTO.setId(id); // Set the ID in the DTO
-        String result = serviceProviderEngagementService.updateServiceProviderEngagement(serviceProviderEngagementDTO);
-        return ResponseEntity.ok(result);
+        serviceProviderEngagementDTO.setId(id);
+        String updateResponse = serviceProviderEngagementService
+                .updateServiceProviderEngagement(serviceProviderEngagementDTO);
+        if (updateResponse.equals(ServiceProviderConstants.ENGAGEMENT_NOT_FOUND)) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                    .body(ServiceProviderConstants.ENGAGEMENT_NOT_FOUND);
+        }
+        return ResponseEntity.ok(ServiceProviderConstants.ENGAGEMENT_UPDATED);
     }
 
     // API to deactivate a service provider engagement
     @PatchMapping("/delete/engagement/{id}")
-    @ApiOperation(value = "Deactivate a service provider engagement") // Operation description
+    @ApiOperation(value = ServiceProviderConstants.DEACTIVATE_ENGAGEMENT_DESC)
     public ResponseEntity<String> deactivateServiceProviderEngagement(
             @ApiParam(value = "ID of the service provider engagement to deactivate", required = true) @PathVariable Long id) {
-
-        String result = serviceProviderEngagementService.deleteServiceProviderEngagement(id);
-        return ResponseEntity.ok(result);
+        String deleteResponse = serviceProviderEngagementService.deleteServiceProviderEngagement(id);
+        if (deleteResponse.equals(ServiceProviderConstants.ENGAGEMENT_NOT_FOUND)) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                    .body(ServiceProviderConstants.ENGAGEMENT_NOT_FOUND);
+        }
+        return ResponseEntity.ok(ServiceProviderConstants.ENGAGEMENT_DELETED);
     }
 
     // ------API's FOR SHORTLISTED SERVICEPROVIDER------------------
@@ -603,6 +658,83 @@ public class ServiceProviderController {
     @GetMapping("/get/onemonth/conflicts")
     public ResponseEntity<List<AttendanceDTO>> getOneMonthConflicts() {
         List<AttendanceDTO> notifications = attendanceService.getOneMonthConflicts();
+        return ResponseEntity.ok(notifications);
+    }
+
+    // Endpoint to fetch all attendance records where isCustomerAgreed is false
+    @GetMapping("/customer/notagreed")
+    public ResponseEntity<List<AttendanceDTO>> getAllCustomerNotAgreedAttendance() {
+        List<AttendanceDTO> notifications = attendanceService.getAllCustomerNotAgreedAttendance();
+        return ResponseEntity.ok(notifications);
+    }
+
+    // Endpoint to fetch attendance records where isCustomerAgreed is false for
+    // today
+    @GetMapping("/customer/notagreed/today")
+    public ResponseEntity<List<AttendanceDTO>> getTodayCustomerNotAgreed() {
+        List<AttendanceDTO> notifications = attendanceService.getTodayCustomerNotAgreed();
+        return ResponseEntity.ok(notifications);
+    }
+
+    // Endpoint to fetch attendance records where isCustomerAgreed is false for the
+    // past week
+    @GetMapping("/customer/notagreed/week")
+    public ResponseEntity<List<AttendanceDTO>> getLastWeekCustomerNotAgreed() {
+        List<AttendanceDTO> notifications = attendanceService.getLastWeekCustomerNotAgreed();
+        return ResponseEntity.ok(notifications);
+    }
+
+    // Endpoint to fetch attendance records where isCustomerAgreed is false for the
+    // past two weeks
+    @GetMapping("/customer/notagreed/twoweeks")
+    public ResponseEntity<List<AttendanceDTO>> getLastTwoWeeksCustomerNotAgreed() {
+        List<AttendanceDTO> notifications = attendanceService.getLastTwoWeeksCustomerNotAgreed();
+        return ResponseEntity.ok(notifications);
+    }
+
+    // Endpoint to fetch attendance records where isCustomerAgreed is false for the
+    // past month
+    @GetMapping("/customer/notagreed/month")
+    public ResponseEntity<List<AttendanceDTO>> getLastMonthCustomerNotAgreed() {
+        List<AttendanceDTO> notifications = attendanceService.getLastMonthCustomerNotAgreed();
+        return ResponseEntity.ok(notifications);
+    }
+
+    // Endpoint to fetch all attendance records where isAttended is false
+    @GetMapping("/service/notattended")
+    public ResponseEntity<List<AttendanceDTO>> getAllNotAttendedRecords() {
+        List<AttendanceDTO> notifications = attendanceService.getAllNotAttendedRecords();
+        return ResponseEntity.ok(notifications);
+    }
+
+    // Endpoint to fetch attendance records where isAttended is false for today
+    @GetMapping("/service/notattended/today")
+    public ResponseEntity<List<AttendanceDTO>> getTodayNotAttendedRecords() {
+        List<AttendanceDTO> notifications = attendanceService.getTodayNotAttendedRecords();
+        return ResponseEntity.ok(notifications);
+    }
+
+    // Endpoint to fetch attendance records where isAttended is false for the past
+    // week
+    @GetMapping("/service/notattended/week")
+    public ResponseEntity<List<AttendanceDTO>> getOneWeekNotAttendedRecords() {
+        List<AttendanceDTO> notifications = attendanceService.getOneWeekNotAttendedRecords();
+        return ResponseEntity.ok(notifications);
+    }
+
+    // Endpoint to fetch attendance records where isAttended is false for the past
+    // two weeks
+    @GetMapping("/service/notattended/twoweeks")
+    public ResponseEntity<List<AttendanceDTO>> getTwoWeeksNotAttendedRecords() {
+        List<AttendanceDTO> notifications = attendanceService.getTwoWeeksNotAttendedRecords();
+        return ResponseEntity.ok(notifications);
+    }
+
+    // Endpoint to fetch attendance records where isAttended is false for the past
+    // month
+    @GetMapping("/service/notattended/month")
+    public ResponseEntity<List<AttendanceDTO>> getOneMonthNotAttendedRecords() {
+        List<AttendanceDTO> notifications = attendanceService.getOneMonthNotAttendedRecords();
         return ResponseEntity.ok(notifications);
     }
 

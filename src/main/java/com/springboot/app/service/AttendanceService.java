@@ -37,4 +37,25 @@ public interface AttendanceService {
     List<AttendanceDTO> getTwoWeeksConflicts();
 
     List<AttendanceDTO> getOneMonthConflicts();
+
+    List<AttendanceDTO> getAllCustomerNotAgreedAttendance();
+
+    List<AttendanceDTO> getTodayCustomerNotAgreed();
+
+    List<AttendanceDTO> getLastWeekCustomerNotAgreed();
+
+    List<AttendanceDTO> getLastTwoWeeksCustomerNotAgreed();
+
+    List<AttendanceDTO> getLastMonthCustomerNotAgreed();
+
+    List<AttendanceDTO> getAllNotAttendedRecords();
+
+    List<AttendanceDTO> getTodayNotAttendedRecords();
+
+    List<AttendanceDTO> getOneWeekNotAttendedRecords();
+
+    List<AttendanceDTO> getTwoWeeksNotAttendedRecords();
+
+    List<AttendanceDTO> getOneMonthNotAttendedRecords();
+
 }

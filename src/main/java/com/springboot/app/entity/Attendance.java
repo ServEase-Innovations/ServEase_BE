@@ -3,6 +3,7 @@ package com.springboot.app.entity;
 //import java.time.LocalDate;
 import java.time.LocalDateTime;
 //import java.time.LocalTime;
+import com.springboot.app.enums.TaskStatus;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.GeneratedValue;
@@ -17,6 +18,8 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
 import jakarta.persistence.Table;
 
 @Entity
@@ -54,6 +57,15 @@ public class Attendance {
 
     @Column(name = "is_customer_agreed", nullable = false)
     private boolean isCustomerAgreed = true;
+
+    @Enumerated(EnumType.STRING)
+    private TaskStatus taskStatus = TaskStatus.NOT_STARTED;
+
+    @Column(name = "is_resolved", nullable = false)
+    private boolean isResolved = false;
+
+    @Column(name = "description", length = 500)
+    private String description;
 
     @PrePersist
     public void prePersist() {

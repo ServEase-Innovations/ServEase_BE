@@ -8,6 +8,10 @@ import org.springframework.stereotype.Repository;
 
 @Repository
 public interface ServiceProviderRepository
-        extends JpaRepository<ServiceProvider, Long>, JpaSpecificationExecutor<ServiceProvider> {
+                extends JpaRepository<ServiceProvider, Long>, JpaSpecificationExecutor<ServiceProvider> {
+
+        boolean existsByMobileNo(Long mobileNo);
+
+        boolean existsByEmailId(String emailId);
 
 }

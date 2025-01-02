@@ -22,5 +22,6 @@ public interface AttendanceMapper {
     @Mapping(target = "customer", ignore = true) // Will be set manually
     @Mapping(source = "attended", target = "attended")
     @Mapping(source = "customerAgreed", target = "customerAgreed") // Map 'isCustomerAgreed'
+    @Mapping(source = "resolved", target = "resolved")
     Attendance dtoToAttendance(AttendanceDTO attendanceDTO);
 }

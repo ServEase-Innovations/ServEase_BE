@@ -6,6 +6,8 @@ import com.springboot.app.enums.PaymentMode;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
@@ -56,8 +58,11 @@ public class ServiceProviderEngagement {
     @Column
     private double monthlyAmount;
 
-    @Column
+    @Enumerated(EnumType.STRING)
     private PaymentMode paymentMode;
+
+    @Column(columnDefinition = "TEXT") // Store as a JSON string
+    private String responsibilities;
 
     // Automatically set isActive field on creation
     @PrePersist

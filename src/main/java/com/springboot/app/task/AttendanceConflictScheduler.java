@@ -51,8 +51,6 @@ public class AttendanceConflictScheduler {
                                                                 criteriaBuilder.equal(root.get("isCustomerAgreed"),
                                                                                 true))),
                                 criteriaBuilder.greaterThanOrEqualTo(root.get("attendanceStatus"), startOfDay) // Filter
-                                                                                                               // by
-                                                                                                               // today's
 
                 );
 

@@ -16,6 +16,8 @@ public class ServiceProviderConstants {
     public static final String ADD_NEW_DESC = "Add a new customer";
     public static final String UPDATE_DESC = "Update an existing customer";
     public static final String DELETE_DESC = "Delete a customer by ID";
+    public static final String SERVICE_PROVIDER_ALREADY_EXISTS = "Service provider with this email or mobile number already exists.";
+    public static final String SERVICE_PROVIDER_ERROR = "An error occurred while processing the service provider request.";
 
     // Constants for service provider Request
     public static final String DESC_RETRIEVE_ALL_SERVICE_PROVIDER_REQUESTS = "Retrieve all service provider requests";
@@ -73,6 +75,20 @@ public class ServiceProviderConstants {
 
     // Status messages
     public static final String REQUEST_RESOLVED = "YES";
+
+    // Eng
+    public static final String RETRIEVE_ALL_ENGAGEMENT_DESC = "Retrieve all service provider engagements ";
+    public static final String GET_BY_ID_ENGAGEMENT_DESC = "Retrieve service provider engagement by ID";
+    public static final String ADD_NEW_ENGAGEMENT_DESC = "Add a new service provider engagement";
+    public static final String UPDATE_ENGAGEMENT_DESC = "Update an existing service provider engagement";
+    public static final String DEACTIVATE_ENGAGEMENT_DESC = "Deactivate a service provider engagement";
+    public static final String ENGAGEMENT_ALREADY_EXISTS = "Service provider engagement already exists.";
+    public static final String ENGAGEMENT_NOT_FOUND = "Service provider engagement not found.";
+    public static final String ENGAGEMENT_ERROR = "Error occurred while processing the service provider engagement.";
+
+    public static final String ENGAGEMENT_ADDED = "Service Provider Engagement added successfully.";
+    public static final String ENGAGEMENT_UPDATED = "Service Provider Engagement updated successfully.";
+    public static final String ENGAGEMENT_DELETED = "Service Provider Engagement deactivated successfully.";
 
     // Prevent instantiation
     private ServiceProviderConstants() {
