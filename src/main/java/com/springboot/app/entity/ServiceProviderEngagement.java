@@ -1,6 +1,7 @@
 package com.springboot.app.entity;
 
-import java.time.LocalDateTime; // Import LocalDateTime
+import java.time.LocalDate;
+//import java.time.LocalDateTime; // Import LocalDateTime
 
 import com.springboot.app.enums.PaymentMode;
 
@@ -41,10 +42,11 @@ public class ServiceProviderEngagement {
     private Customer customer;
 
     @Column(nullable = false)
-    private LocalDateTime startDate;
+    private LocalDate startDate;
 
     @Column // Optional: Adding @Column for consistency
-    private LocalDateTime endDate;
+    private LocalDate endDate;
+    // private LocalDateTime endDate;
 
     @Column(length = 255)
     private String engagements;
@@ -61,6 +63,9 @@ public class ServiceProviderEngagement {
     @Enumerated(EnumType.STRING)
     private PaymentMode paymentMode;
 
+    @Column(length = 255)
+    private String bookingType;
+
     @Column(columnDefinition = "TEXT") // Store as a JSON string
     private String responsibilities;
 
@@ -68,12 +73,12 @@ public class ServiceProviderEngagement {
     @PrePersist
     public void prePersist() {
         this.isActive = true; // Set to true by default when the record is created
-        this.startDate = LocalDateTime.now(); // Set current date-time
+        // this.startDate = LocalDateTime.now(); // Set current date-time
     }
 
     // Mark engagement as completed
     public void completeEngagement() {
-        this.endDate = LocalDateTime.now(); // Set end date to current date-time
+        // this.endDate = LocalDateTime.now(); // Set end date to current date-time
         this.isActive = false; // Mark as inactive
     }
 }

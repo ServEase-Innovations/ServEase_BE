@@ -1,6 +1,7 @@
 package com.springboot.app.dto;
 
-import java.time.LocalDateTime;
+import java.time.LocalDate;
+//import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Map;
 
@@ -21,12 +22,13 @@ public class ServiceProviderEngagementDTO {
     private Long id;
     private Long serviceProviderId;
     private Long customerId;
-    private LocalDateTime startDate;
-    private LocalDateTime endDate;
+    private LocalDate startDate;
+    private LocalDate endDate;
     private String engagements;
     private String timeslot;
     private boolean isActive;
     private double monthlyAmount;
     private PaymentMode paymentMode;
+    private String bookingType;
     private List<Map<String, Object>> responsibilities;
 }

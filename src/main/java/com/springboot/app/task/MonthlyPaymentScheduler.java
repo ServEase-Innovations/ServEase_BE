@@ -50,7 +50,7 @@ public class MonthlyPaymentScheduler {
                     // Get the last payment date if exists
                     ServiceProviderPayment lastPayment = getLastPayment(engagement);
                     LocalDate startDate = (lastPayment != null) ? lastPayment.getEndDate().toLocalDate().plusDays(1)
-                            : engagement.getStartDate().toLocalDate();
+                            : engagement.getStartDate();
 
                     LocalDate endDate = LocalDate.now().withDayOfMonth(LocalDate.now().lengthOfMonth());
 

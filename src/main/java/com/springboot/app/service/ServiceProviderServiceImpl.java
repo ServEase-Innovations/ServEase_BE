@@ -348,9 +348,9 @@ public class ServiceProviderServiceImpl implements ServiceProviderService {
                         double totalSalary = 0.0;
 
                         for (ServiceProviderEngagement engagement : filteredEngagements) {
-                                LocalDate startDate = engagement.getStartDate().toLocalDate();
+                                LocalDate startDate = engagement.getStartDate();
                                 LocalDate endDate = (engagement.getEndDate() != null)
-                                                ? engagement.getEndDate().toLocalDate()
+                                                ? engagement.getEndDate()
                                                 : LocalDate.now().withDayOfMonth(LocalDate.now().lengthOfMonth());
 
                                 long noOfDays = (ChronoUnit.DAYS.between(startDate, endDate)) + 1;
