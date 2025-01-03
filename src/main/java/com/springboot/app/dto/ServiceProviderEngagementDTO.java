@@ -1,13 +1,13 @@
 package com.springboot.app.dto;
 
 import java.time.LocalDate;
-//import java.time.LocalDateTime;
+import java.time.LocalDateTime;
+
 import java.util.List;
 import java.util.Map;
 
 import com.springboot.app.enums.PaymentMode;
 
-//import jakarta.persistence.Column;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -30,5 +30,12 @@ public class ServiceProviderEngagementDTO {
     private double monthlyAmount;
     private PaymentMode paymentMode;
     private String bookingType;
+    private LocalDateTime bookingDate;
     private List<Map<String, Object>> responsibilities;
+    private String serviceType;
+    private String mealType;
+    private String noOfPersons;
+    private String experience;
+    private String childAge;
+    private String serviceeType;
 }

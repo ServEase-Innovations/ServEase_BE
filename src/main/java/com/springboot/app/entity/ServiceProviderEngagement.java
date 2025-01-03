@@ -1,7 +1,7 @@
 package com.springboot.app.entity;
 
 import java.time.LocalDate;
-//import java.time.LocalDateTime; // Import LocalDateTime
+import java.time.LocalDateTime; // Import LocalDateTime
 
 import com.springboot.app.enums.PaymentMode;
 
@@ -42,6 +42,9 @@ public class ServiceProviderEngagement {
     private Customer customer;
 
     @Column(nullable = false)
+    private LocalDateTime bookingDate;
+
+    @Column(nullable = false)
     private LocalDate startDate;
 
     @Column // Optional: Adding @Column for consistency
@@ -69,11 +72,29 @@ public class ServiceProviderEngagement {
     @Column(columnDefinition = "TEXT") // Store as a JSON string
     private String responsibilities;
 
+    @Column(length = 255)
+    private String serviceType; // The type of service provided
+
+    @Column(length = 255)
+    private String mealType; // The meal type (e.g., vegetarian, non-vegetarian, etc.)
+
+    @Column(length = 255)
+    private String noOfPersons; // Number of persons involved in the engagement (as a string)
+
+    @Column(length = 255)
+    private String experience; // Experience of the service provider (as a string)
+
+    @Column(length = 255)
+    private String childAge;
+
+    @Column(length = 255)
+    private String serviceeType;
+
     // Automatically set isActive field on creation
     @PrePersist
     public void prePersist() {
         this.isActive = true; // Set to true by default when the record is created
-        // this.startDate = LocalDateTime.now(); // Set current date-time
+        this.bookingDate = LocalDateTime.now(); // Set current date-time
     }
 
     // Mark engagement as completed
