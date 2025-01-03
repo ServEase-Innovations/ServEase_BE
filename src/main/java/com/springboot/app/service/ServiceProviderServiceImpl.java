@@ -9,19 +9,16 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
-
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.jpa.domain.Specification;
+
 import org.springframework.stereotype.Service;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
 import jakarta.transaction.Transactional;
-
 import com.springboot.app.constant.ServiceProviderConstants;
 import com.springboot.app.dto.ServiceProviderDTO;
 import com.springboot.app.dto.UserCredentialsDTO;
@@ -36,6 +33,7 @@ import com.springboot.app.mapper.ServiceProviderMapper;
 import com.springboot.app.repository.ServiceProviderEngagementRepository;
 import com.springboot.app.repository.ServiceProviderRepository;
 import com.springboot.app.util.ExcelSheetHandler;
+import org.springframework.data.domain.Pageable;
 
 @Service
 public class ServiceProviderServiceImpl implements ServiceProviderService {
@@ -63,18 +61,22 @@ public class ServiceProviderServiceImpl implements ServiceProviderService {
         @Override
         @Transactional
         public List<ServiceProviderDTO> getAllServiceProviderDTOs(int page, int size) {
-                logger.info("Fetching service providers with pagination - page: {}, size: {}", page, size);
+                logger.info("Fetching service providers with page: {} and size: {}", page, size);
 
                 // Fetch paginated results using Spring Data JPA
-                Page<ServiceProvider> serviceProvidersPage = serviceProviderRepository
-                                .findAll(PageRequest.of(page, size));
+                Pageable pageable = PageRequest.of(page, size);
+                List<ServiceProvider> serviceProviders = serviceProviderRepository.findAll(pageable).getContent();
 
-                logger.debug("Fetched {} service provider(s) from the database.",
-                                serviceProvidersPage.getTotalElements());
+                logger.debug("Number of service providers fetched: {}", serviceProviders.size());
+
+                if (serviceProviders.isEmpty()) {
+                        logger.warn("No service providers found on the requested page.");
+                        return new ArrayList<>(); // Return empty list if no service providers found
+                }
 
                 // Map entities to DTOs
-                return serviceProvidersPage.stream()
-                                .map(serviceProviderMapper::serviceProviderToDTO)
+                return serviceProviders.stream()
+                                .map(serviceProvider -> serviceProviderMapper.serviceProviderToDTO(serviceProvider))
                                 .collect(Collectors.toList());
         }
 
@@ -102,7 +104,16 @@ public class ServiceProviderServiceImpl implements ServiceProviderService {
                 if (email == null || email.isEmpty()) {
                         throw new IllegalArgumentException("EmailId is required to save a service provider.");
                 }
+
+                // Check if service provider already exists by email or mobile number
+                if (serviceProviderRepository.existsByEmailId(serviceProviderDTO.getEmailId())) {
+                        throw new IllegalArgumentException("Service provider with this email already exists.");
+                }
+                if (serviceProviderRepository.existsByMobileNo(serviceProviderDTO.getMobileNo())) {
+                        throw new IllegalArgumentException("Service provider with this mobile number already exists.");
+                }
                 serviceProviderDTO.setUsername(email);
+
                 // Step 1: Calculate age from DOB and set it
                 LocalDate dob = serviceProviderDTO.getDOB();
                 if (dob != null) {
@@ -117,7 +128,7 @@ public class ServiceProviderServiceImpl implements ServiceProviderService {
                         throw new IllegalArgumentException("Date of Birth (DOB) is required to calculate age.");
                 }
 
-                // Step 2: Register user credentials
+                // Step 4: Register user credentials
                 UserCredentialsDTO userDTO = new UserCredentialsDTO(
                                 serviceProviderDTO.getUsername(),
                                 serviceProviderDTO.getPassword(),
@@ -132,7 +143,7 @@ public class ServiceProviderServiceImpl implements ServiceProviderService {
                         throw new RuntimeException("User registration failed: " + registrationResponse);
                 }
 
-                // Step 2: Save the service provider
+                // Step 5: Save the service provider
                 ServiceProvider serviceProvider = serviceProviderMapper.dtoToServiceProvider(serviceProviderDTO);
                 serviceProvider.setActive(true);
                 serviceProviderRepository.save(serviceProvider);
@@ -145,41 +156,45 @@ public class ServiceProviderServiceImpl implements ServiceProviderService {
 
         @Override
         @Transactional
-        public void updateServiceProviderDTO(ServiceProviderDTO serviceProviderDTO) {
+        public String updateServiceProviderDTO(ServiceProviderDTO serviceProviderDTO) {
                 logger.info("Updating service provider with ID: {}", serviceProviderDTO.getServiceproviderId());
 
-                ServiceProvider existingServiceProvider = serviceProviderRepository
-                                .findById(serviceProviderDTO.getServiceproviderId())
-                                .orElseThrow(() -> {
-                                        logger.warn("Service provider with ID {} not found for update",
-                                                        serviceProviderDTO.getServiceproviderId());
-                                        return new RuntimeException(ServiceProviderConstants.SERVICE_PROVIDER_NOT_FOUND
-                                                        + serviceProviderDTO.getServiceproviderId());
-                                });
+                // Check if the service provider exists
+                if (serviceProviderRepository.existsById(serviceProviderDTO.getServiceproviderId())) {
 
-                serviceProviderMapper.updateServiceProviderFromDTO(serviceProviderDTO, existingServiceProvider);
-                serviceProviderRepository.save(existingServiceProvider);
+                        // Map DTO to entity and update
+                        ServiceProvider existingServiceProvider = serviceProviderMapper
+                                        .dtoToServiceProvider(serviceProviderDTO);
 
-                logger.debug("Service provider updated: {}", existingServiceProvider);
+                        // Save the updated service provider
+                        serviceProviderRepository.save(existingServiceProvider);
+
+                        logger.info("Service provider updated with ID: {}", serviceProviderDTO.getServiceproviderId());
+                        return ServiceProviderConstants.UPDATE_DESC;
+                } else {
+                        logger.error("Service provider not found for update with ID: {}",
+                                        serviceProviderDTO.getServiceproviderId());
+                        return ServiceProviderConstants.SERVICE_PROVIDER_NOT_FOUND;
+                }
         }
 
         @Override
         @Transactional
-        public void deleteServiceProviderDTO(Long id) {
+        public String deleteServiceProviderDTO(Long id) {
                 logger.info("Deactivating service provider with ID: {}", id);
 
-                ServiceProvider serviceProvider = serviceProviderRepository.findById(id)
-                                .orElseThrow(() -> {
-                                        logger.warn("Service provider with ID {} not found for deletion", id);
-                                        return new RuntimeException(
-                                                        ServiceProviderConstants.SERVICE_PROVIDER_NOT_FOUND + id);
+                return serviceProviderRepository.findById(id)
+                                .map(serviceProvider -> {
+                                        // Deactivate the service provider
+                                        serviceProvider.deactivate(); // Assuming deactivate() s
+                                        serviceProviderRepository.save(serviceProvider);
+                                        logger.info("Service provider with ID {} deactivated", id);
+                                        return ServiceProviderConstants.DELETE_DESC;
+                                })
+                                .orElseGet(() -> {
+                                        logger.error("Service provider not found for deletion with ID: {}", id);
+                                        return ServiceProviderConstants.SERVICE_PROVIDER_NOT_FOUND;
                                 });
-
-                serviceProvider.deactivate();
-                serviceProviderRepository.save(serviceProvider);
-
-                logger.debug("Service provider with ID {} deactivated", id);
-
         }
 
         @Override
@@ -333,9 +348,9 @@ public class ServiceProviderServiceImpl implements ServiceProviderService {
                         double totalSalary = 0.0;
 
                         for (ServiceProviderEngagement engagement : filteredEngagements) {
-                                LocalDate startDate = engagement.getStartDate().toLocalDate();
+                                LocalDate startDate = engagement.getStartDate();
                                 LocalDate endDate = (engagement.getEndDate() != null)
-                                                ? engagement.getEndDate().toLocalDate()
+                                                ? engagement.getEndDate()
                                                 : LocalDate.now().withDayOfMonth(LocalDate.now().lengthOfMonth());
 
                                 long noOfDays = (ChronoUnit.DAYS.between(startDate, endDate)) + 1;

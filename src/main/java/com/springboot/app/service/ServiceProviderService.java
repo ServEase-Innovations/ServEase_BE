@@ -21,10 +21,10 @@ public interface ServiceProviderService {
   void saveServiceProviderDTO(ServiceProviderDTO serviceProviderDTO);
 
   // Update an existing ServiceProviderDTO
-  void updateServiceProviderDTO(ServiceProviderDTO serviceProviderDTO);
+  String updateServiceProviderDTO(ServiceProviderDTO serviceProviderDTO);
 
   // Delete a ServiceProviderDTO by its ID
-  void deleteServiceProviderDTO(Long id);
+  String deleteServiceProviderDTO(Long id);
 
   List<ServiceProviderDTO> getfilters(LanguageKnown language, Double rating, Gender gender, Speciality speciality,
       HousekeepingRole housekeepingRole, Integer minAge, Integer maxAge);

@@ -1,5 +1,6 @@
 package com.springboot.app.service;
 
+import com.springboot.app.constant.ServiceProviderConstants;
 import com.springboot.app.dto.ServiceProviderEngagementDTO;
 import com.springboot.app.entity.Customer;
 import com.springboot.app.entity.ServiceProvider;
@@ -14,9 +15,13 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+//import com.springboot.app.util.ResponsibilityParser;
 
+import java.util.ArrayList;
 import java.util.List;
+//import java.util.Map;
 import java.util.stream.Collectors;
+import org.springframework.data.domain.Pageable;
 
 @Service
 public class ServiceProviderEngagementServiceImpl implements ServiceProviderEngagementService {
@@ -36,12 +41,25 @@ public class ServiceProviderEngagementServiceImpl implements ServiceProviderEnga
     private ServiceProviderEngagementMapper engagementMapper;
 
     @Override
-    @Transactional(readOnly = true)
+    @Transactional
     public List<ServiceProviderEngagementDTO> getAllServiceProviderEngagements(int page, int size) {
-        logger.info("Fetching service provider engagements with pagination - page: {}, size: {}", page, size);
+        logger.info("Fetching service provider engagements with page: {} and size: {}", page, size);
 
-        return engagementRepository.findAll(PageRequest.of(page, size)).stream()
-                .map(engagementMapper::serviceProviderEngagementToDTO)
+        // Fetch paginated results using Spring Data JPA
+        Pageable pageable = PageRequest.of(page, size);
+        List<ServiceProviderEngagement> engagements = engagementRepository.findAll(pageable).getContent();
+
+        logger.debug("Number of service provider engagements fetched: {}", engagements.size());
+
+        // Check if no engagements are found and log a warning
+        if (engagements.isEmpty()) {
+            logger.warn("No service provider engagements found on the requested page.");
+            return new ArrayList<>(); // Return empty list if no engagements found
+        }
+
+        // Map entities to DTOs
+        return engagements.stream()
+                .map(engagement -> engagementMapper.serviceProviderEngagementToDTO(engagement))
                 .collect(Collectors.toList());
     }
 
@@ -92,16 +110,21 @@ public class ServiceProviderEngagementServiceImpl implements ServiceProviderEnga
     public String updateServiceProviderEngagement(ServiceProviderEngagementDTO dto) {
         logger.info("Updating service provider engagement with ID: {}", dto.getId());
 
-        ServiceProviderEngagement engagement = engagementRepository.findById(dto.getId())
-                .orElseThrow(() -> {
-                    logger.warn("Service provider engagement not found with ID: {}", dto.getId());
-                    return new RuntimeException("Service Provider Engagement not found.");
-                });
+        // Check if the service provider engagement exists
+        if (engagementRepository.existsById(dto.getId())) {
 
-        engagementMapper.updateEntityFromDTO(dto, engagement);
-        engagementRepository.save(engagement);
-        logger.debug("Updated service provider engagement with ID: {}", dto.getId());
-        return "Service Provider Engagement updated successfully.";
+            // Map DTO to entity and update
+            ServiceProviderEngagement existingEngagement = engagementMapper.dtoToServiceProviderEngagement(dto);
+
+            // Save the updated service provider engagement
+            engagementRepository.save(existingEngagement);
+
+            logger.info("Service provider engagement updated with ID: {}", dto.getId());
+            return ServiceProviderConstants.ENGAGEMENT_UPDATED;
+        } else {
+            logger.error("Service provider engagement not found for update with ID: {}", dto.getId());
+            return ServiceProviderConstants.ENGAGEMENT_NOT_FOUND;
+        }
     }
 
     @Override
@@ -109,15 +132,26 @@ public class ServiceProviderEngagementServiceImpl implements ServiceProviderEnga
     public String deleteServiceProviderEngagement(Long id) {
         logger.info("Deactivating service provider engagement with ID: {}", id);
 
-        ServiceProviderEngagement engagement = engagementRepository.findById(id)
-                .orElseThrow(() -> {
-                    logger.error("Service provider engagement not found with ID: {}", id);
-                    return new RuntimeException("Service Provider Engagement not found.");
-                });
+        // Check if the service provider engagement exists
+        if (engagementRepository.existsById(id)) {
 
-        engagement.completeEngagement(); // Mark as completed (e.g., set `isActive` to false)
-        engagementRepository.save(engagement); // Update engagement in the repository
-        logger.debug("Service provider engagement with ID {} deactivated", id);
-        return "Service Provider Engagement deactivated successfully.";
+            // Fetch the engagement from the repository
+            ServiceProviderEngagement engagement = engagementRepository.findById(id)
+                    .orElseThrow(() -> {
+                        logger.error("Service provider engagement not found with ID: {}", id);
+                        return new RuntimeException("Service Provider Engagement not found.");
+                    });
+
+            // Mark engagement as completed (e.g., set `isActive` to false or similar)
+            engagement.completeEngagement(); // Example method to deactivate engagement
+            engagementRepository.save(engagement); // Save the updated engagement
+
+            logger.info("Service provider engagement with ID {} deactivated", id);
+            return ServiceProviderConstants.ENGAGEMENT_DELETED;
+        } else {
+            logger.error("Service provider engagement not found for deactivation with ID: {}", id);
+            return ServiceProviderConstants.ENGAGEMENT_NOT_FOUND;
+        }
     }
+
 }

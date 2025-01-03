@@ -9,6 +9,8 @@ import lombok.Setter;
 import java.time.LocalDateTime;
 //import java.time.LocalTime;
 
+import com.springboot.app.enums.TaskStatus;
+
 @Getter
 @Setter
 @NoArgsConstructor
@@ -29,4 +31,11 @@ public class AttendanceDTO {
     private boolean isAttended = false;
 
     private boolean isCustomerAgreed = true;
+
+    private TaskStatus taskStatus = TaskStatus.NOT_STARTED;
+
+    private boolean isResolved = false;
+
+    private String description;
+
 }
