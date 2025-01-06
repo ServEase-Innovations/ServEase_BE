@@ -34,7 +34,7 @@ public class ServiceProviderEngagement {
     private Long id;
 
     @ManyToOne
-    @JoinColumn(name = "serviceProviderId", nullable = false)
+    @JoinColumn(name = "serviceProviderId", nullable = true)
     private ServiceProvider serviceProvider;
 
     @ManyToOne

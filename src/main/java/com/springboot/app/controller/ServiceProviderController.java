@@ -106,32 +106,21 @@ public class ServiceProviderController {
         return ResponseEntity.ok(serviceProviderDTO);
     }
 
-    // API to add a serviceprovider
+    // API to add a service provider
     @PostMapping("/serviceprovider/add")
     @ApiOperation(value = ServiceProviderConstants.ADD_NEW_DESC)
-    public ResponseEntity<String> addServiceProvider(
-            @ApiParam(value = "Service provider DTO", required = true) @RequestBody ServiceProviderDTO serviceProviderDTO) {
-        serviceProviderService.saveServiceProviderDTO(serviceProviderDTO);
-        return ResponseEntity.ok(ServiceProviderConstants.SERVICE_PROVIDER_ADDED);
+    public ResponseEntity<String> addServiceProvider(@RequestBody ServiceProviderDTO serviceProviderDTO) {
+        try {
+            serviceProviderService.saveServiceProviderDTO(serviceProviderDTO);
+            return ResponseEntity.status(HttpStatus.CREATED).body(ServiceProviderConstants.SERVICE_PROVIDER_ADDED);
+        } catch (IllegalArgumentException ex) {
+            return ResponseEntity.status(HttpStatus.CONFLICT)
+                    .body(ServiceProviderConstants.SERVICE_PROVIDER_ALREADY_EXISTS);
+        } catch (Exception ex) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body(ServiceProviderConstants.SERVICE_PROVIDER_ERROR);
+        }
     }
-
-    // API to add a service provider
-    // @PostMapping("/serviceprovider/add")
-    // @ApiOperation(value = ServiceProviderConstants.ADD_NEW_DESC)
-    // public ResponseEntity<String> addServiceProvider(@RequestBody
-    // ServiceProviderDTO serviceProviderDTO) {
-    // try {
-    // serviceProviderService.saveServiceProviderDTO(serviceProviderDTO);
-    // return
-    // ResponseEntity.status(HttpStatus.CREATED).body(ServiceProviderConstants.SERVICE_PROVIDER_ADDED);
-    // } catch (IllegalArgumentException ex) {
-    // return ResponseEntity.status(HttpStatus.CONFLICT)
-    // .body(ServiceProviderConstants.SERVICE_PROVIDER_ALREADY_EXISTS);
-    // } catch (Exception ex) {
-    // return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-    // .body(ServiceProviderConstants.SERVICE_PROVIDER_ERROR);
-    // }
-    // }
 
     // API to update a service provider
     @PutMapping("/update/serviceprovider/{id}")

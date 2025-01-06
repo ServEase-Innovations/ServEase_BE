@@ -81,12 +81,18 @@ public class ServiceProviderEngagementServiceImpl implements ServiceProviderEnga
     public String addServiceProviderEngagement(ServiceProviderEngagementDTO dto) {
         logger.info("Adding new service provider engagement");
 
-        // Fetch the ServiceProvider
-        ServiceProvider serviceProvider = serviceProviderRepository.findById(dto.getServiceProviderId())
-                .orElseThrow(() -> {
-                    logger.error("ServiceProvider with ID {} not found.", dto.getServiceProviderId());
-                    return new RuntimeException("Service Provider not found.");
-                });
+        ServiceProvider serviceProvider = null;
+
+        // Check if ServiceProviderId is provided
+        if (dto.getServiceProviderId() != null) {
+            serviceProvider = serviceProviderRepository.findById(dto.getServiceProviderId())
+                    .orElseThrow(() -> {
+                        logger.error("ServiceProvider with ID {} not found.", dto.getServiceProviderId());
+                        return new RuntimeException("Service Provider not found.");
+                    });
+        } else {
+            logger.warn("No ServiceProvider ID provided. Skipping ServiceProvider association.");
+        }
 
         // Fetch the Customer
         Customer customer = customerRepository.findById(dto.getCustomerId())
@@ -97,13 +103,51 @@ public class ServiceProviderEngagementServiceImpl implements ServiceProviderEnga
 
         // Map DTO to entity and set relationships
         ServiceProviderEngagement engagement = engagementMapper.dtoToServiceProviderEngagement(dto);
-        engagement.setServiceProvider(serviceProvider);
+
+        // Set relationships if ServiceProvider exists
+        if (serviceProvider != null) {
+            engagement.setServiceProvider(serviceProvider);
+        }
         engagement.setCustomer(customer);
 
         engagementRepository.save(engagement);
         logger.debug("Persisted new service provider engagement with ID: {}", engagement.getId());
         return "Service Provider Engagement added successfully.";
     }
+
+    // @Override
+    // @Transactional
+    // public String addServiceProviderEngagement(ServiceProviderEngagementDTO dto)
+    // {
+    // logger.info("Adding new service provider engagement");
+
+    // // Fetch the ServiceProvider
+    // ServiceProvider serviceProvider =
+    // serviceProviderRepository.findById(dto.getServiceProviderId())
+    // .orElseThrow(() -> {
+    // logger.error("ServiceProvider with ID {} not found.",
+    // dto.getServiceProviderId());
+    // return new RuntimeException("Service Provider not found.");
+    // });
+
+    // // Fetch the Customer
+    // Customer customer = customerRepository.findById(dto.getCustomerId())
+    // .orElseThrow(() -> {
+    // logger.error("Customer with ID {} not found.", dto.getCustomerId());
+    // return new RuntimeException("Customer not found.");
+    // });
+
+    // // Map DTO to entity and set relationships
+    // ServiceProviderEngagement engagement =
+    // engagementMapper.dtoToServiceProviderEngagement(dto);
+    // engagement.setServiceProvider(serviceProvider);
+    // engagement.setCustomer(customer);
+
+    // engagementRepository.save(engagement);
+    // logger.debug("Persisted new service provider engagement with ID: {}",
+    // engagement.getId());
+    // return "Service Provider Engagement added successfully.";
+    // }
 
     @Override
     @Transactional

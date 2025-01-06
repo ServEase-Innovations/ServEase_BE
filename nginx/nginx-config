@@ -1,0 +1,46 @@
+server {
+    listen 80;
+    server_name _;  # This can be replaced with your domain or IP address
+
+    # Root directory for static files (optional)
+    # root /var/www/html;
+
+    # Reverse proxy settings for the Spring Boot application
+    location / {
+        proxy_pass http://localhost:8080;  # Forward requests to Spring Boot app on port 8080
+        proxy_set_header Host $host;  # Preserve original host header
+        proxy_set_header X-Real-IP $remote_addr;  # Get the real IP address of the client
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;  # Forward IP chain
+        proxy_set_header X-Forwarded-Proto $scheme;  # Preserve the protocol (http or https)
+    }
+
+    # Optionally, if you are handling WebSockets, you may need to add this:
+    # location /ws/ {
+    #     proxy_pass http://localhost:8080;
+    #     proxy_http_version 1.1;
+    #     proxy_set_header Upgrade $http_upgrade;
+    #     proxy_set_header Connection 'upgrade';
+    #     proxy_set_header Host $host;
+    # }
+
+    # Error page redirects (optional)
+    error_page  404              /404.html;
+    error_page  500 502 503 504  /50x.html;
+    
+    location = /50x.html {
+        root /usr/share/nginx/html;
+    }
+}
+
+# Optional: Add SSL (HTTPS) support if you're using it:
+# server {
+#     listen 443 ssl;
+#     server_name your-domain.com;  # Replace with your actual domain
+# 
+#     ssl_certificate /etc/nginx/ssl/your-domain.crt;
+#     ssl_certificate_key /etc/nginx/ssl/your-domain.key;
+# 
+#     location / {
+#         proxy_pass http://localhost:8080;
+#     }
+# }
