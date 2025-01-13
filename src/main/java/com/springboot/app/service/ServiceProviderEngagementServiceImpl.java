@@ -154,4 +154,21 @@ public class ServiceProviderEngagementServiceImpl implements ServiceProviderEnga
         }
     }
 
+    @Override
+    @Transactional(readOnly = true)
+    public List<ServiceProviderEngagementDTO> getServiceProviderEngagementsByServiceProviderId(Long serviceProviderId) {
+        logger.info("Fetching service provider engagements by ServiceProvider ID: {}", serviceProviderId);
+
+        // Fetch all engagements and filter by serviceProviderId
+        List<ServiceProviderEngagement> engagements = engagementRepository.findAll(); // Fetch all records
+        List<ServiceProviderEngagement> filteredEngagements = engagements.stream()
+                .filter(e -> e.getServiceProvider().getServiceproviderId().equals(serviceProviderId))
+                .collect(Collectors.toList());
+
+        // Convert to DTO
+        return filteredEngagements.stream()
+                .map(engagementMapper::serviceProviderEngagementToDTO)
+                .collect(Collectors.toList());
+    }
+
 }

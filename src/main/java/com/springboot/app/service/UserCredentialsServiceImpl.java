@@ -45,7 +45,6 @@ public class UserCredentialsServiceImpl implements UserCredentialsService {
     @Autowired
     private ServiceProviderMapper serviceProviderMapper;
 
-    @Autowired
     public UserCredentialsServiceImpl(UserCredentialsRepository userCredentialsRepository,
             UserCredentialsMapper userCredentialsMapper,
             LockSettingsConfig lockSettingsConfig) {

@@ -1,6 +1,8 @@
 package com.springboot.app.controller;
 
 import java.util.List;
+import java.util.Map;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
@@ -134,6 +136,24 @@ public class CustomerController {
             return getAllCustomerRequests(0, size);
         }
         return ResponseEntity.ok(requests);
+    }
+
+    // API to retrieve categorized customer requests
+    @GetMapping("/get-booking-history")
+    @ApiOperation(value = "Retrieve categorized customer requests", response = Map.class)
+    public ResponseEntity<?> getCategorizedCustomerRequests(
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(required = false) Integer size) {
+        if (size == null) {
+            size = defaultPageSize;
+        }
+
+        Map<String, List<CustomerRequestDTO>> categorizedRequests = customerRequestService.getBookingHistory(page,
+                size);
+        if (categorizedRequests == null || categorizedRequests.isEmpty()) {
+            return ResponseEntity.status(HttpStatus.NO_CONTENT).body("No Data Found");
+        }
+        return ResponseEntity.ok(categorizedRequests);
     }
 
     // API to get customer request by ID

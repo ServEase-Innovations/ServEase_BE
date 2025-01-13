@@ -1,6 +1,8 @@
 package com.springboot.app.service;
 
 import java.util.List;
+import java.util.Map;
+
 import com.springboot.app.dto.CustomerRequestDTO;
 import com.springboot.app.enums.Gender;
 import com.springboot.app.enums.HousekeepingRole;
@@ -17,6 +19,8 @@ public interface CustomerRequestService {
     String insert(CustomerRequestDTO customerRequestDTO);
 
     String update(CustomerRequestDTO customerRequestDTO);
+
+    Map<String, List<CustomerRequestDTO>> getBookingHistory(int page, int size);
 
     List<CustomerRequestDTO> getRequestFilters(
             HousekeepingRole housekeepingRole, Gender gender,
