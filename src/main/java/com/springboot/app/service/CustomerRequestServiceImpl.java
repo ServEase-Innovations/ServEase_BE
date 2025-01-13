@@ -13,6 +13,7 @@ import org.springframework.transaction.annotation.Transactional;
 import com.springboot.app.dto.CustomerRequestDTO;
 import com.springboot.app.entity.CustomerRequest;
 import com.springboot.app.enums.Gender;
+import com.springboot.app.enums.Status;
 import com.springboot.app.enums.HousekeepingRole;
 import com.springboot.app.mapper.CustomerRequestMapper;
 import com.springboot.app.repository.CustomerRequestRepository;
@@ -126,5 +127,17 @@ public class CustomerRequestServiceImpl implements CustomerRequestService {
         return filteredRequests.stream()
                 .map(customerRequestMapper::customerRequestToDTO)
                 .collect(Collectors.toList());
+    }
+
+    @Override
+    @Transactional
+    public void updateStatus(Long requestId, Status status) {
+        logger.info("Updating status of customer request with id: {}", requestId);
+
+        CustomerRequest customerRequest = customerRequestRepository.findById(requestId)
+                .orElseThrow(() -> new IllegalArgumentException("CustomerRequest not found with id: " + requestId));
+        customerRequest.setStatus(status);
+        customerRequest.setModifiedDate(java.sql.Timestamp.valueOf(java.time.LocalDateTime.now()));
+        customerRequestRepository.save(customerRequest);
     }
 }

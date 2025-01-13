@@ -37,6 +37,10 @@ public class ServiceProviderEngagement {
     @JoinColumn(name = "serviceProviderId", nullable = true)
     private ServiceProvider serviceProvider;
 
+    // @ManyToOne
+    // @JoinColumn(name = "serviceproviderId", nullable = true)
+    // private ServiceProvider serviceProvider;
+
     @ManyToOne
     @JoinColumn(name = "customerId", nullable = false)
     private Customer customer;

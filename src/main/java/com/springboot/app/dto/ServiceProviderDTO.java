@@ -52,6 +52,8 @@ public class ServiceProviderDTO {
 
     private String nearbyLocation;
 
+    private String location;
+
     private Timestamp enrolledDate;
 
     // private byte[] profilePic;

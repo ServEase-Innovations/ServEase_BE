@@ -71,10 +71,15 @@ public class ServiceProvider {
 	private Integer pincode;
 
 	@Column(nullable = false)
-
 	private String currentLocation;
+
+	@Column
 	private String nearbyLocation;
 
+	@Column
+	private String location;
+
+	@Column
 	private Timestamp enrolledDate;
 
 	// @Lob

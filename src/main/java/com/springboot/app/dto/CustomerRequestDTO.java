@@ -4,6 +4,7 @@ import com.springboot.app.entity.CustomerRequestComment;
 import com.springboot.app.enums.Gender;
 import com.springboot.app.enums.Habit;
 import com.springboot.app.enums.LanguageKnown;
+import com.springboot.app.enums.Status;
 import com.springboot.app.enums.HousekeepingRole;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -21,6 +22,7 @@ public class CustomerRequestDTO {
     private String timeSlotlist;
     private Gender gender;
     private LanguageKnown languageKnown;
+    private Status status = Status.NEW;
     private String ageRange;
     private String locality;
     private String area;

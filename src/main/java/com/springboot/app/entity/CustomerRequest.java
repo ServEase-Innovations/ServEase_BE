@@ -5,8 +5,10 @@ import java.time.LocalDateTime;
 import com.springboot.app.enums.Gender;
 import com.springboot.app.enums.Habit;
 import com.springboot.app.enums.LanguageKnown;
+import com.springboot.app.enums.Status;
 import com.springboot.app.enums.HousekeepingRole;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
+//import com.fasterxml.jackson.annotation.JsonProperty;
 
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
@@ -83,6 +85,9 @@ public class CustomerRequest {
 
     @Enumerated(EnumType.STRING)
     private LanguageKnown languageKnown;
+
+    @Enumerated(EnumType.STRING)
+    private Status status = Status.NEW;
 
     @Column(nullable = false)
     private String isResolved = "NO";

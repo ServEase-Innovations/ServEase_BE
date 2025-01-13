@@ -58,25 +58,61 @@ public class ServiceProviderServiceImpl implements ServiceProviderService {
         @Autowired
         private ExcelSheetHandler excelSheetHandler;
 
-        @Override
-        @Transactional
-        public List<ServiceProviderDTO> getAllServiceProviderDTOs(int page, int size) {
-                logger.info("Fetching service providers with page: {} and size: {}", page, size);
+        // @Override
+        // @Transactional
+        // public List<ServiceProviderDTO> getAllServiceProviderDTOs(int page, int size)
+        // {
+        // logger.info("Fetching service providers with page: {} and size: {}", page,
+        // size);
 
-                // Fetch paginated results using Spring Data JPA
+        // // Fetch paginated results using Spring Data JPA
+        // Pageable pageable = PageRequest.of(page, size);
+        // List<ServiceProvider> serviceProviders =
+        // serviceProviderRepository.findAll(pageable).getContent();
+
+        // logger.debug("Number of service providers fetched: {}",
+        // serviceProviders.size());
+
+        // if (serviceProviders.isEmpty()) {
+        // logger.warn("No service providers found on the requested page.");
+        // return new ArrayList<>(); // Return empty list if no service providers found
+        // }
+
+        // // Map entities to DTOs
+        // return serviceProviders.stream()
+        // .map(serviceProvider ->
+        // serviceProviderMapper.serviceProviderToDTO(serviceProvider))
+        // .collect(Collectors.toList());
+        // }
+        @Transactional
+        public List<ServiceProviderDTO> getAllServiceProviderDTOs(int page, int size, String location) {
+                logger.info("Fetching service providers with page: {}, size: {}, and location: {}", page, size,
+                                location);
+
+                // Define pageable object
                 Pageable pageable = PageRequest.of(page, size);
-                List<ServiceProvider> serviceProviders = serviceProviderRepository.findAll(pageable).getContent();
+                List<ServiceProvider> serviceProviders;
+
+                if (location != null && !location.trim().isEmpty()) {
+                        // Fetch service providers by location if location is provided
+                        logger.debug("Filtering service providers by location: {}", location);
+                        serviceProviders = serviceProviderRepository.findByLocation(location, pageable).getContent();
+                } else {
+                        // Fetch all service providers if no location filter is provided
+                        logger.debug("Fetching all service providers without location filter.");
+                        serviceProviders = serviceProviderRepository.findAll(pageable).getContent();
+                }
 
                 logger.debug("Number of service providers fetched: {}", serviceProviders.size());
 
                 if (serviceProviders.isEmpty()) {
-                        logger.warn("No service providers found on the requested page.");
-                        return new ArrayList<>(); // Return empty list if no service providers found
+                        logger.warn("No service providers found for the given criteria.");
+                        return new ArrayList<>(); // Return empty list if no results found
                 }
 
                 // Map entities to DTOs
                 return serviceProviders.stream()
-                                .map(serviceProvider -> serviceProviderMapper.serviceProviderToDTO(serviceProvider))
+                                .map(serviceProviderMapper::serviceProviderToDTO)
                                 .collect(Collectors.toList());
         }
 

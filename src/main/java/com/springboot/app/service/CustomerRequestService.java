@@ -4,6 +4,7 @@ import java.util.List;
 import com.springboot.app.dto.CustomerRequestDTO;
 import com.springboot.app.enums.Gender;
 import com.springboot.app.enums.HousekeepingRole;
+import com.springboot.app.enums.Status;
 
 public interface CustomerRequestService {
     List<CustomerRequestDTO> getAll(int page, int size);
@@ -17,6 +18,8 @@ public interface CustomerRequestService {
     String insert(CustomerRequestDTO customerRequestDTO);
 
     String update(CustomerRequestDTO customerRequestDTO);
+
+    void updateStatus(Long requestId, Status status);
 
     List<CustomerRequestDTO> getRequestFilters(
             HousekeepingRole housekeepingRole, Gender gender,

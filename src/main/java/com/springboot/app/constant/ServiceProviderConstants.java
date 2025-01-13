@@ -85,6 +85,7 @@ public class ServiceProviderConstants {
     public static final String ENGAGEMENT_ALREADY_EXISTS = "Service provider engagement already exists.";
     public static final String ENGAGEMENT_NOT_FOUND = "Service provider engagement not found.";
     public static final String ENGAGEMENT_ERROR = "Error occurred while processing the service provider engagement.";
+    public static final String GET_BY_SERVICE_PROVIDER_ID_DESC = "Get all engagements for a given ServiceProvider ID.";
 
     public static final String ENGAGEMENT_ADDED = "Service Provider Engagement added successfully.";
     public static final String ENGAGEMENT_UPDATED = "Service Provider Engagement updated successfully.";

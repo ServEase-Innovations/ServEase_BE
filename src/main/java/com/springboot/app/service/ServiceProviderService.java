@@ -9,10 +9,11 @@ import com.springboot.app.enums.Gender;
 import com.springboot.app.enums.HousekeepingRole;
 import com.springboot.app.enums.LanguageKnown;
 import com.springboot.app.enums.Speciality;
+//import org.springframework.lang.Nullable;
 
 public interface ServiceProviderService {
   // Retrieve all ServiceProviderDTOs
-  List<ServiceProviderDTO> getAllServiceProviderDTOs(int page, int size);
+  List<ServiceProviderDTO> getAllServiceProviderDTOs(int page, int size, String location);
 
   // Retrieve a single ServiceProviderDTO by its ID
   ServiceProviderDTO getServiceProviderDTOById(Long id);

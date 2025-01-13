@@ -45,6 +45,7 @@ import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
 import java.util.Collections;
+//import java.util.HashMap;
 
 @RestController
 @RequestMapping(ServiceProviderConstants.BASE_API_PATH)
@@ -76,23 +77,77 @@ public class ServiceProviderController {
     private int defaultPageSize;
 
     // --------API's FOR SERVICE PROVIDER ENTITY--------------------
-
     // API to get all service providers
     @GetMapping("/serviceproviders/all")
     @ApiOperation(value = ServiceProviderConstants.RETRIEVE_ALL_DESC, response = List.class)
     public ResponseEntity<List<ServiceProviderDTO>> getAllServiceProviders(
             @RequestParam(defaultValue = "0") int page,
-            @RequestParam(required = false) Integer size) {
-        if (size == null) {
-            size = defaultPageSize; // Default page size if not provided
+            @RequestParam(required = false) Integer size,
+            @RequestParam(required = false) String location) {
+
+        // Validate page and size
+        if (page < 0) {
+            return ResponseEntity.badRequest().body(Collections.emptyList());
         }
-        List<ServiceProviderDTO> serviceProviders = serviceProviderService.getAllServiceProviderDTOs(page, size);
-        if (serviceProviders.isEmpty()) {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND)
-                    .body(Collections.singletonList(new ServiceProviderDTO()));
+
+        if (size == null || size <= 0) {
+            size = defaultPageSize; // Default page size if not provided or invalid
         }
-        return ResponseEntity.ok(serviceProviders);
+
+        // Get service providers, filtered by location if provided
+        List<ServiceProviderDTO> serviceProviders = serviceProviderService.getAllServiceProviderDTOs(page, size,
+                location);
+
+        // Return response with service providers (empty list if no results found)
+        return serviceProviders.isEmpty()
+                ? ResponseEntity.status(HttpStatus.NOT_FOUND).body(Collections.emptyList())
+                : ResponseEntity.ok(serviceProviders);
     }
+
+    // @GetMapping("/serviceproviders/all")
+    // @ApiOperation(value = ServiceProviderConstants.RETRIEVE_ALL_DESC, response =
+    // List.class)
+    // public ResponseEntity<List<ServiceProviderDTO>> getAllServiceProviders(
+    // @RequestParam(defaultValue = "0") int page,
+    // @RequestParam(required = false) Integer size,
+    // @RequestParam(required = false) String location) {
+
+    // if (size == null) {
+    // size = defaultPageSize; // Default page size if not provided
+    // }
+
+    // // Get service providers, filter by location if provided
+    // List<ServiceProviderDTO> serviceProviders =
+    // serviceProviderService.getAllServiceProviderDTOs(page, size,
+    // location);
+
+    // // If no data found, return NOT_FOUND status with an empty list
+    // if (serviceProviders.isEmpty()) {
+    // return
+    // ResponseEntity.status(HttpStatus.NOT_FOUND).body(Collections.emptyList());
+    // }
+
+    // return ResponseEntity.ok(serviceProviders);
+    // }
+
+    // // API to get all service providers
+    // @GetMapping("/serviceproviders/all")
+    // @ApiOperation(value = ServiceProviderConstants.RETRIEVE_ALL_DESC, response =
+    // List.class)
+    // public ResponseEntity<List<ServiceProviderDTO>> getAllServiceProviders(
+    // @RequestParam(defaultValue = "0") int page,
+    // @RequestParam(required = false) Integer size) {
+    // if (size == null) {
+    // size = defaultPageSize; // Default page size if not provided
+    // }
+    // List<ServiceProviderDTO> serviceProviders =
+    // serviceProviderService.getAllServiceProviderDTOs(page, size);
+    // if (serviceProviders.isEmpty()) {
+    // return ResponseEntity.status(HttpStatus.NOT_FOUND)
+    // .body(Collections.singletonList(new ServiceProviderDTO()));
+    // }
+    // return ResponseEntity.ok(serviceProviders);
+    // }
 
     // API to get service provider by id
     @GetMapping("/get/serviceprovider/{id}")
@@ -480,6 +535,28 @@ public class ServiceProviderController {
         }
         return ResponseEntity.ok(ServiceProviderConstants.ENGAGEMENT_DELETED);
     }
+
+    // // API to get service provider engagements by serviceProviderId
+    // @GetMapping("/get/engagements/service-provider/{serviceProviderId}")
+    // @ApiOperation(value =
+    // ServiceProviderConstants.GET_BY_SERVICE_PROVIDER_ID_DESC, response =
+    // List.class)
+    // public ResponseEntity<List<ServiceProviderEngagementDTO>>
+    // getServiceProviderEngagementsByServiceProviderId(
+    // @ApiParam(value = "ID of the service provider to retrieve engagements for",
+    // required = true) @PathVariable Long serviceProviderId) {
+
+    // List<ServiceProviderEngagementDTO> engagements =
+    // serviceProviderEngagementService
+    // .getEngagementsByServiceProviderId(serviceProviderId);
+
+    // if (engagements == null || engagements.isEmpty()) {
+    // return
+    // ResponseEntity.status(HttpStatus.NOT_FOUND).body(Collections.emptyList()); //
+    // No engagements found
+    // }
+    // return ResponseEntity.ok(engagements);
+    // }
 
     // ------API's FOR SHORTLISTED SERVICEPROVIDER------------------
     // API to get all shortlisted service providers with pagination
