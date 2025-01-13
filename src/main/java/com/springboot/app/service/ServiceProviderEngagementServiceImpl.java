@@ -160,10 +160,16 @@ public class ServiceProviderEngagementServiceImpl implements ServiceProviderEnga
         logger.info("Fetching service provider engagements by ServiceProvider ID: {}", serviceProviderId);
 
         // Fetch all engagements and filter by serviceProviderId
-        List<ServiceProviderEngagement> engagements = engagementRepository.findAll(); // Fetch all records
+        List<ServiceProviderEngagement> engagements = engagementRepository.findAll();
         List<ServiceProviderEngagement> filteredEngagements = engagements.stream()
-                .filter(e -> e.getServiceProvider().getServiceproviderId().equals(serviceProviderId))
+                .filter(e -> e.getServiceProvider() != null
+                        && e.getServiceProvider().getServiceproviderId().equals(serviceProviderId))
                 .collect(Collectors.toList());
+
+        // Check if no engagements found
+        if (filteredEngagements.isEmpty()) {
+            throw new RuntimeException("No data found for ServiceProvider ID: " + serviceProviderId);
+        }
 
         // Convert to DTO
         return filteredEngagements.stream()
