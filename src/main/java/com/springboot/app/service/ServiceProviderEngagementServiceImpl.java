@@ -198,17 +198,50 @@ public class ServiceProviderEngagementServiceImpl implements ServiceProviderEnga
         }
     }
 
-    // @Override
-    // public List<ServiceProviderEngagementDTO>
-    // getEngagementsByServiceProviderId(Long serviceProviderId) {
-    // // Fetch all engagements by serviceProviderId from the repository
-    // List<ServiceProviderEngagement> engagements =
-    // engagementRepository.findByServiceProviderId(serviceProviderId);
+    @Override
+    @Transactional(readOnly = true)
+    public List<ServiceProviderEngagementDTO> getServiceProviderEngagementsByServiceProviderId(Long serviceProviderId) {
+        logger.info("Fetching service provider engagements by ServiceProvider ID: {}", serviceProviderId);
 
-    // // Map each engagement entity to its corresponding DTO and return the list
-    // return engagements.stream()
-    // .map(engagementMapper::serviceProviderEngagementToDTO)
-    // .collect(Collectors.toList());
-    // }
+        // Fetch all engagements and filter by serviceProviderId
+        List<ServiceProviderEngagement> engagements = engagementRepository.findAll();
+        List<ServiceProviderEngagement> filteredEngagements = engagements.stream()
+                .filter(e -> e.getServiceProvider() != null
+                        && e.getServiceProvider().getServiceproviderId().equals(serviceProviderId))
+                .collect(Collectors.toList());
+
+        // Check if no engagements found
+        if (filteredEngagements.isEmpty()) {
+            throw new RuntimeException("No data found for ServiceProvider ID: " + serviceProviderId);
+        }
+
+        // Convert to DTO
+        return filteredEngagements.stream()
+                .map(engagementMapper::serviceProviderEngagementToDTO)
+                .collect(Collectors.toList());
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public List<ServiceProviderEngagementDTO> getServiceProviderEngagementsByCustomerId(Long customerId) {
+        logger.info("Fetching service provider engagements by Customer ID: {}", customerId);
+
+        // Fetch all engagements and filter by customerId
+        List<ServiceProviderEngagement> engagements = engagementRepository.findAll();
+        List<ServiceProviderEngagement> filteredEngagements = engagements.stream()
+                .filter(e -> e.getCustomer() != null
+                        && e.getCustomer().getCustomerId().equals(customerId))
+                .collect(Collectors.toList());
+
+        // Check if no engagements found
+        if (filteredEngagements.isEmpty()) {
+            throw new RuntimeException("No data found for Customer ID: " + customerId);
+        }
+
+        // Convert to DTO
+        return filteredEngagements.stream()
+                .map(engagementMapper::serviceProviderEngagementToDTO)
+                .collect(Collectors.toList());
+    }
 
 }

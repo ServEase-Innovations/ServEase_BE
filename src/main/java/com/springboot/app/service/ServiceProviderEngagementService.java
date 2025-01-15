@@ -21,6 +21,8 @@ public interface ServiceProviderEngagementService {
     String deleteServiceProviderEngagement(Long id);
 
     // Get a specific ServiceProvider by ID
-    // List<ServiceProviderEngagementDTO> getEngagementsByServiceProviderId(Long
-    // serviceProviderId);
+    List<ServiceProviderEngagementDTO> getServiceProviderEngagementsByServiceProviderId(Long serviceProviderId);
+
+    // Get a specific Customer by ID
+    List<ServiceProviderEngagementDTO> getServiceProviderEngagementsByCustomerId(Long customerId);
 }
