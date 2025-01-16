@@ -2,6 +2,7 @@ package com.springboot.app.dto;
 
 import java.sql.Timestamp;
 import java.time.LocalDate;
+import java.util.List;
 
 import com.springboot.app.enums.DocumentType;
 //import com.springboot.app.enums.DocumentType;
@@ -82,5 +83,6 @@ public class ServiceProviderDTO {
     private Integer experience;
     private String username;
     private String password;
+    private List<String> availableTimeSlots;
 
 }

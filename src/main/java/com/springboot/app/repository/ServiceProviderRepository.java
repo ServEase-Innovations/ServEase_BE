@@ -20,4 +20,6 @@ public interface ServiceProviderRepository
         // Slice<ServiceProvider> findByLocation(String location, Pageable pageable);
         Page<ServiceProvider> findByLocation(String location, Pageable pageable);
 
+        // boolean existsByEmailIdOrMobileNo(String normalizedEmail, Long mobileNo);
+
 }
