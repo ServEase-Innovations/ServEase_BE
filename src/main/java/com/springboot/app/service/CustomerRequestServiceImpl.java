@@ -1,6 +1,8 @@
 
 package com.springboot.app.service;
 
+import java.util.Map;
+import java.time.LocalDate;
 import java.util.List;
 import java.util.stream.Collectors;
 import org.springframework.data.domain.PageRequest;
@@ -139,5 +141,42 @@ public class CustomerRequestServiceImpl implements CustomerRequestService {
         customerRequest.setStatus(status);
         customerRequest.setModifiedDate(java.sql.Timestamp.valueOf(java.time.LocalDateTime.now()));
         customerRequestRepository.save(customerRequest);
+    }
+
+    // To get and categorize all customer requests
+    @Override
+    @Transactional(readOnly = true)
+    public Map<String, List<CustomerRequestDTO>> getBookingHistory(int page, int size) {
+        logger.info("Fetching and categorizing customer requests with pagination - page: {}, size: {}", page, size);
+
+        Pageable pageable = PageRequest.of(page, size);
+        List<CustomerRequest> requests = customerRequestRepository.findAll(pageable).getContent();
+
+        if (requests.isEmpty()) {
+            return null;
+        }
+
+        // Get current date
+        LocalDate currentDate = LocalDate.now();
+
+        // Categorize requests
+        Map<String, List<CustomerRequestDTO>> categorizedRequests = requests.stream()
+                .map(customerRequestMapper::customerRequestToDTO)
+                .collect(Collectors.groupingBy(request -> {
+                    LocalDate startDate = request.getStartDate().toLocalDateTime().toLocalDate();
+                    LocalDate endDate = request.getEndDate() != null
+                            ? request.getEndDate().toLocalDateTime().toLocalDate()
+                            : null;
+
+                    if (startDate == null || startDate.isAfter(currentDate)) {
+                        return "future";
+                    } else if (endDate == null || endDate.isAfter(currentDate) || endDate.isEqual(currentDate)) {
+                        return "current";
+                    } else {
+                        return "past";
+                    }
+                }));
+
+        return categorizedRequests;
     }
 }

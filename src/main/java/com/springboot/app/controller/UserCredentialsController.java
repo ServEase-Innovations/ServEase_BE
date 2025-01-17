@@ -19,7 +19,6 @@ public class UserCredentialsController {
     private UserCredentialsService userCredentialsService;
     // private final UserCredentialsService userCredentialsService;
 
-    @Autowired
     public UserCredentialsController(UserCredentialsService userCredentialsService) {
         this.userCredentialsService = userCredentialsService;
     }

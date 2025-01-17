@@ -139,6 +139,24 @@ public class CustomerController {
         return ResponseEntity.ok(requests);
     }
 
+    // API to retrieve categorized customer requests
+    @GetMapping("/get-booking-history")
+    @ApiOperation(value = "Retrieve categorized customer requests", response = Map.class)
+    public ResponseEntity<?> getCategorizedCustomerRequests(
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(required = false) Integer size) {
+        if (size == null) {
+            size = defaultPageSize;
+        }
+
+        Map<String, List<CustomerRequestDTO>> categorizedRequests = customerRequestService.getBookingHistory(page,
+                size);
+        if (categorizedRequests == null || categorizedRequests.isEmpty()) {
+            return ResponseEntity.status(HttpStatus.NO_CONTENT).body("No Data Found");
+        }
+        return ResponseEntity.ok(categorizedRequests);
+    }
+
     // API to get customer request by ID
     @GetMapping("/get-customer-request-by-id/{requestId}")
     @ApiOperation(value = "Get customer request by ID", response = CustomerRequestDTO.class)

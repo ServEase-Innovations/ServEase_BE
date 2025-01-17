@@ -500,6 +500,17 @@ public class ServiceProviderController {
         return ResponseEntity.ok(engagementDTO);
     }
 
+    // API to get service provider engagements by ServiceProvider ID
+    @GetMapping("/get/serviceproviderid/{serviceProviderId}")
+    @ApiOperation(value = "Retrieve service provider engagements by ServiceProvider ID", response = List.class)
+    public ResponseEntity<List<ServiceProviderEngagementDTO>> getServiceProviderEngagementsByServiceProviderId(
+            @ApiParam(value = "ServiceProvider ID to retrieve engagements for", required = true) @PathVariable Long serviceProviderId) {
+        List<ServiceProviderEngagementDTO> engagements = serviceProviderEngagementService
+                .getServiceProviderEngagementsByServiceProviderId(serviceProviderId);
+
+        return ResponseEntity.ok(engagements);
+    }
+
     // API to add a service provider engagement
     @PostMapping("/engagement/add")
     @ApiOperation(value = ServiceProviderConstants.ADD_NEW_ENGAGEMENT_DESC)
@@ -547,16 +558,20 @@ public class ServiceProviderController {
         return ResponseEntity.ok(ServiceProviderConstants.ENGAGEMENT_DELETED);
     }
 
-    // API to get service provider engagements by ServiceProvider ID
-    @GetMapping("/get/serviceproviderid/{serviceProviderId}")
-    @ApiOperation(value = "Retrieve service provider engagements by ServiceProvider ID", response = List.class)
-    public ResponseEntity<List<ServiceProviderEngagementDTO>> getServiceProviderEngagementsByServiceProviderId(
-            @ApiParam(value = "ServiceProvider ID to retrieve engagements for", required = true) @PathVariable Long serviceProviderId) {
-        List<ServiceProviderEngagementDTO> engagements = serviceProviderEngagementService
-                .getServiceProviderEngagementsByServiceProviderId(serviceProviderId);
+    // // API to get service provider engagements by ServiceProvider ID
+    // @GetMapping("/get/serviceproviderid/{serviceProviderId}")
+    // @ApiOperation(value = "Retrieve service provider engagements by
+    // ServiceProvider ID", response = List.class)
+    // public ResponseEntity<List<ServiceProviderEngagementDTO>>
+    // getServiceProviderEngagementsByServiceProviderId(
+    // @ApiParam(value = "ServiceProvider ID to retrieve engagements for", required
+    // = true) @PathVariable Long serviceProviderId) {
+    // List<ServiceProviderEngagementDTO> engagements =
+    // serviceProviderEngagementService
+    // .getServiceProviderEngagementsByServiceProviderId(serviceProviderId);
 
-        return ResponseEntity.ok(engagements);
-    }
+    // return ResponseEntity.ok(engagements);
+    // }
 
     // API to get service provider engagements by Customer ID
     @GetMapping("/get/customerid/{customerId}")
