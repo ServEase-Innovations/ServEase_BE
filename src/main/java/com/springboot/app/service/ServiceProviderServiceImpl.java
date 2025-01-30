@@ -28,6 +28,7 @@ import com.springboot.app.dto.UserCredentialsDTO;
 import com.springboot.app.entity.ServiceProvider;
 import com.springboot.app.entity.ServiceProviderEngagement;
 import com.springboot.app.enums.Gender;
+import com.springboot.app.enums.Habit;
 import com.springboot.app.enums.HousekeepingRole;
 import com.springboot.app.enums.LanguageKnown;
 import com.springboot.app.enums.Speciality;
@@ -132,6 +133,22 @@ public class ServiceProviderServiceImpl implements ServiceProviderService {
                                 });
 
                 return serviceProviderMapper.serviceProviderToDTO(serviceProvider);
+        }
+
+        @Override
+        @Transactional
+        public List<ServiceProviderDTO> getServiceProvidersByVendorId(Long vendorId) {
+                logger.info("Fetching service providers for vendor ID: {}", vendorId);
+
+                List<ServiceProvider> serviceProviders = serviceProviderRepository.findByVendorId(vendorId);
+
+                if (serviceProviders.isEmpty()) {
+                        logger.warn("No service providers found for vendor ID {}", vendorId);
+                        throw new RuntimeException(
+                                        ServiceProviderConstants.NO_SERVICE_PROVIDERS_FOUND_FOR_VENDOR + vendorId);
+                }
+
+                return serviceProviderMapper.serviceProvidersToDTOs(serviceProviders);
         }
 
         // @Override
@@ -542,7 +559,8 @@ public class ServiceProviderServiceImpl implements ServiceProviderService {
         @Override
         @Transactional
         public List<ServiceProviderDTO> getfilters(LanguageKnown language, Double rating, Gender gender,
-                        Speciality speciality, HousekeepingRole housekeepingRole, Integer minAge, Integer maxAge) {
+                        Speciality speciality, HousekeepingRole housekeepingRole, Integer minAge, Integer maxAge,
+                        String timeslot, Habit diet) {
 
                 logger.info("Filtering service providers with specified criteria");
 
@@ -583,6 +601,17 @@ public class ServiceProviderServiceImpl implements ServiceProviderService {
                         spec = spec.and((root, query, criteriaBuilder) -> criteriaBuilder
                                         .lessThanOrEqualTo(root.get("age"), maxAge));
                         logger.debug("Filtering by maximum age: {}", maxAge);
+                }
+                if (timeslot != null && !timeslot.isEmpty()) {
+                        spec = spec.and((root, query, criteriaBuilder) -> criteriaBuilder.like(
+                                        criteriaBuilder.lower(root.get("timeslot")),
+                                        "%" + timeslot.toLowerCase() + "%"));
+                        logger.debug("Filtering by timeslot: {}", timeslot);
+                }
+                if (diet != null) {
+                        spec = spec.and((root, query, criteriaBuilder) -> criteriaBuilder.equal(root.get("diet"),
+                                        diet));
+                        logger.debug("Filtering by diet: {}", diet);
                 }
 
                 // Execute the query using the Specification

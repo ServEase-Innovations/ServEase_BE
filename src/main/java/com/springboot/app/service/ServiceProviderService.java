@@ -6,6 +6,7 @@ import java.util.Map;
 import com.springboot.app.dto.ServiceProviderDTO;
 
 import com.springboot.app.enums.Gender;
+import com.springboot.app.enums.Habit;
 import com.springboot.app.enums.HousekeepingRole;
 import com.springboot.app.enums.LanguageKnown;
 import com.springboot.app.enums.Speciality;
@@ -18,6 +19,9 @@ public interface ServiceProviderService {
   // Retrieve a single ServiceProviderDTO by its ID
   ServiceProviderDTO getServiceProviderDTOById(Long id);
 
+  // Retrieve all ServiceProviderDTO by its vendorId
+  List<ServiceProviderDTO> getServiceProvidersByVendorId(Long vendorId);
+
   // Save a new ServiceProviderDTO (create a new service provider)
   void saveServiceProviderDTO(ServiceProviderDTO serviceProviderDTO);
 
@@ -28,7 +32,7 @@ public interface ServiceProviderService {
   String deleteServiceProviderDTO(Long id);
 
   List<ServiceProviderDTO> getfilters(LanguageKnown language, Double rating, Gender gender, Speciality speciality,
-      HousekeepingRole housekeepingRole, Integer minAge, Integer maxAge);
+      HousekeepingRole housekeepingRole, Integer minAge, Integer maxAge, String timeslot, Habit diet);
 
   List<ServiceProviderDTO> getServiceProvidersByFilter(Integer pincode, String street, String locality);
 

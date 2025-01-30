@@ -81,6 +81,7 @@ public class ServiceProviderDTO {
     private String timeslot;
     private double expectedSalary = 0.0;
     private Integer experience;
+    private Long vendorId;
     private String username;
     private String password;
     private List<String> availableTimeSlots;

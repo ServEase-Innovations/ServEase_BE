@@ -7,6 +7,9 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 import org.springframework.stereotype.Repository;
+
+import java.util.List;
+
 import org.springframework.data.domain.Page;
 
 @Repository
@@ -21,5 +24,7 @@ public interface ServiceProviderRepository
         Page<ServiceProvider> findByLocation(String location, Pageable pageable);
 
         // boolean existsByEmailIdOrMobileNo(String normalizedEmail, Long mobileNo);
+
+        List<ServiceProvider> findByVendorId(Long vendorId);
 
 }

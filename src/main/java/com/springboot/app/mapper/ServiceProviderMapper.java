@@ -31,6 +31,9 @@ public interface ServiceProviderMapper {
     void updateServiceProviderFromDTO(ServiceProviderDTO serviceProviderDTO,
             @MappingTarget ServiceProvider existingServiceProvider);
 
+    // Maps a list of ServiceProviders to a list of ServiceProviderDTOs
+    List<ServiceProviderDTO> serviceProvidersToDTOs(List<ServiceProvider> serviceProviders);
+
     // Add this helper method to calculate available times from the timeslot
     default List<String> calculateAvailableTimes(String busyTimeRange) {
         // If the timeslot is null, return an empty list

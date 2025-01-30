@@ -127,6 +127,9 @@ public class ServiceProvider {
 	@Column
 	private String timeslot;
 
+	@Column
+	private Long vendorId;
+
 	@PrePersist
 	public void prePersist() {
 		// Setting the current timestamp formatted as "yyyy-MM-dd HH:mm:ss.SSS"

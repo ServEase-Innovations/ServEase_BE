@@ -18,6 +18,8 @@ public class ServiceProviderConstants {
     public static final String DELETE_DESC = "Delete a customer by ID";
     public static final String SERVICE_PROVIDER_ALREADY_EXISTS = "Service provider with this email or mobile number already exists.";
     public static final String SERVICE_PROVIDER_ERROR = "An error occurred while processing the service provider request.";
+    public static final String NO_SERVICE_PROVIDERS_FOUND_FOR_VENDOR = "No service providers found for vendor ID: ";
+    public static final String GET_BY_VENDOR_ID_DESC = "Retrieve all service providers by Vendor ID";
 
     // Constants for service provider Request
     public static final String DESC_RETRIEVE_ALL_SERVICE_PROVIDER_REQUESTS = "Retrieve all service provider requests";
@@ -90,6 +92,25 @@ public class ServiceProviderConstants {
     public static final String ENGAGEMENT_ADDED = "Service Provider Engagement added successfully.";
     public static final String ENGAGEMENT_UPDATED = "Service Provider Engagement updated successfully.";
     public static final String ENGAGEMENT_DELETED = "Service Provider Engagement deactivated successfully.";
+
+    public static final String PASSWORD_UPDATED = "Password updated successfully.";
+    public static final String ACCOUNT_DEACTIVATED = "Account deactivated successfully.";
+    public static final String USER_NOT_FOUND = "User not found.";
+
+    public static final String VENDOR_SAVED = "Vendor saved successfully.";
+    public static final String VENDOR_UPDATED = "Vendor updated successfully.";
+    public static final String VENDOR_DELETED = "Vendor deactivated successfully.";
+    public static final String VENDOR_NOT_FOUND = "Vendor not found.";
+    public static final String RETRIEVE_ALL_VENDOR_DESC = "Retrieve all vendors";
+    public static final int DEFAULT_PAGE_SIZE = 10;
+    public static final String GET_VENDOR_BY_ID_DESC = "Get a vendor by ID";
+    public static final String ADD_NEW_VENDOR_DESC = "Add a new vendor";
+    public static final String VENDOR_ADDED = "Vendor has been added successfully.";
+    public static final String VENDOR_ALREADY_EXISTS = "Vendor already exists.";
+    public static final String VENDOR_ERROR = "An error occurred while adding the vendor.";
+    public static final String UPDATE_VENDOR_DESC = "Update vendor details";
+
+    public static final String DELETE_VENDOR_DESC = "Delete a vendor (deactivate)";
 
     // Prevent instantiation
     private ServiceProviderConstants() {
