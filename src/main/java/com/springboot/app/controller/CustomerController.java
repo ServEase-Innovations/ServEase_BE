@@ -17,6 +17,7 @@ import com.springboot.app.dto.KYCCommentsDTO;
 import com.springboot.app.dto.KYCDTO;
 import com.springboot.app.enums.Gender;
 import com.springboot.app.enums.HousekeepingRole;
+import com.springboot.app.enums.Status;
 import com.springboot.app.dto.CustomerFeedbackDTO;
 import com.springboot.app.dto.CustomerRequestCommentDTO;
 import com.springboot.app.service.CustomerConcernService;
@@ -235,6 +236,30 @@ public class CustomerController {
             return getRequestFilters(housekeepingRole, gender, area, pincode, locality, apartment_name, 0, size);
         }
         return ResponseEntity.ok(filteredRequests);
+    }
+
+    // API to update the status of a customer request
+    @PatchMapping("/{requestId}/status")
+    @ApiOperation(value = "Update the status of a customer request")
+    public ResponseEntity<String> updateStatus(
+            @PathVariable Long requestId,
+            @RequestBody Map<String, String> requestBody) {
+
+        // Extract status from the request body
+        String status = requestBody.get("status");
+
+        if (status == null || status.isEmpty()) {
+            return ResponseEntity.badRequest().body("Status value is required");
+        }
+
+        try {
+            customerRequestService.updateStatus(requestId, Status.valueOf(status.toUpperCase()));
+            return ResponseEntity.ok("Status updated successfully");
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.badRequest().body("Invalid status value: " + e.getMessage());
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("An unexpected error occurred.");
+        }
     }
 
     // EXAMPLE URL

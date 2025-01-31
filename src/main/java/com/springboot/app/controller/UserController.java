@@ -19,7 +19,8 @@ public class UserController {
     @GetMapping("/translate")
     public Map<String, String> getAllTranslations(
             @RequestParam(name = "lang", defaultValue = "en") String lang) {
-        Locale locale = new Locale(lang);
+        Locale locale = Locale.forLanguageTag(lang);
+        // Locale locale = new Locale(lang);
 
         // List of all fields to translate
         String[] fields = {

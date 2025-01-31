@@ -2,7 +2,8 @@ package com.springboot.app.enums;
 
 public enum UserRole {
     CUSTOMER(101111),
-    SERVICE_PROVIDER(103333);
+    SERVICE_PROVIDER(103333),
+    VENDOR(105555);
 
     private final int value;
 

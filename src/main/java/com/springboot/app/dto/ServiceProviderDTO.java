@@ -2,6 +2,7 @@ package com.springboot.app.dto;
 
 import java.sql.Timestamp;
 import java.time.LocalDate;
+import java.util.List;
 
 import com.springboot.app.enums.DocumentType;
 //import com.springboot.app.enums.DocumentType;
@@ -52,6 +53,8 @@ public class ServiceProviderDTO {
 
     private String nearbyLocation;
 
+    private String location;
+
     private Timestamp enrolledDate;
 
     // private byte[] profilePic;
@@ -78,7 +81,9 @@ public class ServiceProviderDTO {
     private String timeslot;
     private double expectedSalary = 0.0;
     private Integer experience;
+    private Long vendorId;
     private String username;
     private String password;
+    private List<String> availableTimeSlots;
 
 }

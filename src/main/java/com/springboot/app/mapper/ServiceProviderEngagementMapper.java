@@ -8,6 +8,7 @@ import java.io.IOException;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import org.mapstruct.MappingTarget;
+import org.mapstruct.Named;
 //import org.mapstruct.MappingTarget;
 import org.mapstruct.factory.Mappers;
 
@@ -38,7 +39,7 @@ public interface ServiceProviderEngagementMapper {
     void updateEntityFromDTO(ServiceProviderEngagementDTO dto, @MappingTarget ServiceProviderEngagement entity);
 
     // Convert responsibilities JSON string to List<Map<String, Object>> (DTO)
-    @org.mapstruct.Named("responsibilitiesToDto")
+    @Named("responsibilitiesToDto")
     default List<Map<String, Object>> responsibilitiesToDto(String responsibilitiesJson) {
         try {
             if (responsibilitiesJson != null && !responsibilitiesJson.isEmpty()) {
@@ -54,7 +55,7 @@ public interface ServiceProviderEngagementMapper {
 
     // Convert List<Map<String, Object>> (DTO) to responsibilities JSON string
     // (Entity)
-    @org.mapstruct.Named("responsibilitiesToEntity")
+    @Named("responsibilitiesToEntity")
     default String responsibilitiesToEntity(List<Map<String, Object>> responsibilities) {
         try {
             if (responsibilities != null && !responsibilities.isEmpty()) {
@@ -66,6 +67,41 @@ public interface ServiceProviderEngagementMapper {
             throw new RuntimeException("Failed to convert responsibilities List<Map<String, Object>> to JSON", e);
         }
     }
+
+    // // Convert responsibilities JSON string to List<Map<String, Object>> (DTO)
+    // @org.mapstruct.Named("responsibilitiesToDto")
+    // default List<Map<String, Object>> responsibilitiesToDto(String
+    // responsibilitiesJson) {
+    // try {
+    // if (responsibilitiesJson != null && !responsibilitiesJson.isEmpty()) {
+    // ObjectMapper objectMapper = new ObjectMapper();
+    // return objectMapper.readValue(responsibilitiesJson, new
+    // TypeReference<List<Map<String, Object>>>() {
+    // });
+    // }
+    // return null;
+    // } catch (IOException e) {
+    // throw new RuntimeException("Failed to convert responsibilities JSON to
+    // List<Map<String, Object>>", e);
+    // }
+    // }
+
+    // // Convert List<Map<String, Object>> (DTO) to responsibilities JSON string
+    // // (Entity)
+    // @org.mapstruct.Named("responsibilitiesToEntity")
+    // default String responsibilitiesToEntity(List<Map<String, Object>>
+    // responsibilities) {
+    // try {
+    // if (responsibilities != null && !responsibilities.isEmpty()) {
+    // ObjectMapper objectMapper = new ObjectMapper();
+    // return objectMapper.writeValueAsString(responsibilities);
+    // }
+    // return null;
+    // } catch (IOException e) {
+    // throw new RuntimeException("Failed to convert responsibilities
+    // List<Map<String, Object>> to JSON", e);
+    // }
+    // }
 }
 
 // @Mapper(componentModel = "spring")

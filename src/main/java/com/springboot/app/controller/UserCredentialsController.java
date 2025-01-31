@@ -1,8 +1,13 @@
 package com.springboot.app.controller;
 
+import com.springboot.app.constant.ServiceProviderConstants;
 import com.springboot.app.dto.UserCredentialsDTO;
 //import com.springboot.app.entity.UserCredentials;
 import com.springboot.app.service.UserCredentialsService;
+
+import io.swagger.annotations.ApiOperation;
+import io.swagger.annotations.ApiParam;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -73,15 +78,44 @@ public class UserCredentialsController {
 
     // Endpoint to deactivate a user account
     @PatchMapping("/deactivate/{username}")
-    public ResponseEntity<String> deactivateUser(@PathVariable String username) {
-        userCredentialsService.deactivateUser(username);
-        return ResponseEntity.ok("Account deactivated successfully.");
+    @ApiOperation(value = "Deactivate a user account")
+    public ResponseEntity<String> deactivateUser(
+            @ApiParam(value = "Username of the account to deactivate", required = true) @PathVariable String username) {
+        boolean isDeactivated = userCredentialsService.deactivateUser(username);
+
+        if (!isDeactivated) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                    .body(ServiceProviderConstants.USER_NOT_FOUND);
+        }
+        return ResponseEntity.ok(ServiceProviderConstants.ACCOUNT_DEACTIVATED);
+    }
+
+    // // Endpoint to deactivate a user account
+    // @PatchMapping("/deactivate/{username}")
+    // public ResponseEntity<String> deactivateUser(@PathVariable String username) {
+    // userCredentialsService.deactivateUser(username);
+    // return ResponseEntity.ok("Account deactivated successfully.");
+    // }
+
+    // API to update user credentials
+    @PutMapping("/update")
+    @ApiOperation(value = "Update user credentials")
+    public ResponseEntity<String> updateUserCredentials(
+            @ApiParam(value = "Updated user credentials object", required = true) @RequestBody UserCredentialsDTO userCredentialsDTO) {
+        try {
+            userCredentialsService.updateUserCredentials(userCredentialsDTO);
+            return ResponseEntity.ok(ServiceProviderConstants.PASSWORD_UPDATED);
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                    .body(e.getMessage());
+        }
     }
 
     // Endpoint to update user credentials
-    @PutMapping("/update")
-    public ResponseEntity<String> updateUserCredentials(@RequestBody UserCredentialsDTO userCredentialsDTO) {
-        userCredentialsService.updateUserCredentials(userCredentialsDTO);
-        return ResponseEntity.ok("Password updated successfully.");
-    }
+    // @PutMapping("/update")
+    // public ResponseEntity<String> updateUserCredentials(@RequestBody
+    // UserCredentialsDTO userCredentialsDTO) {
+    // userCredentialsService.updateUserCredentials(userCredentialsDTO);
+    // return ResponseEntity.ok("Password updated successfully.");
+    // }
 }

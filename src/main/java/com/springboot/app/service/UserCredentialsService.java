@@ -15,7 +15,8 @@ public interface UserCredentialsService {
     public ResponseEntity<Map<String, Object>> checkLoginAttempts(String username, String password);
 
     // Method to deactivate user
-    String deactivateUser(String username);
+    // String deactivateUser(String username);
+    public boolean deactivateUser(String username);
 
     // Method to register a new user
     String saveUserCredentials(UserCredentialsDTO userCredentialsDTO);

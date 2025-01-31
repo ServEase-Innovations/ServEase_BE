@@ -9,9 +9,12 @@ import com.springboot.app.enums.UserRole;
 import com.springboot.app.mapper.CustomerMapper;
 import com.springboot.app.mapper.ServiceProviderMapper;
 import com.springboot.app.mapper.UserCredentialsMapper;
+import com.springboot.app.mapper.VendorMapper;
 import com.springboot.app.repository.CustomerRepository;
 import com.springboot.app.repository.ServiceProviderRepository;
 import com.springboot.app.repository.UserCredentialsRepository;
+import com.springboot.app.repository.VendorRepository;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -44,6 +47,12 @@ public class UserCredentialsServiceImpl implements UserCredentialsService {
 
     @Autowired
     private ServiceProviderMapper serviceProviderMapper;
+
+    @Autowired
+    private VendorRepository vendorRepository;
+
+    @Autowired
+    private VendorMapper vendorMapper;
 
     public UserCredentialsServiceImpl(UserCredentialsRepository userCredentialsRepository,
             UserCredentialsMapper userCredentialsMapper,
@@ -123,6 +132,12 @@ public class UserCredentialsServiceImpl implements UserCredentialsService {
                     .findFirst()
                     .map(serviceProviderMapper::serviceProviderToDTO)
                     .ifPresent(dto -> response.put("serviceProviderDetails", dto));
+        } else if (user.getRole() == UserRole.VENDOR) {
+            vendorRepository.findAll().stream()
+                    .filter(vendor -> vendor.getEmailId().equals(user.getUsername()))
+                    .findFirst()
+                    .map(vendorMapper::vendorToDTO)
+                    .ifPresent(dto -> response.put("vendorDetails", dto));
         }
 
         return response;
@@ -148,18 +163,34 @@ public class UserCredentialsServiceImpl implements UserCredentialsService {
 
     @Override
     @Transactional
-    public String deactivateUser(String username) {
+    public boolean deactivateUser(String username) {
         Optional<UserCredentials> optionalUser = userCredentialsRepository.findById(username);
 
         if (optionalUser.isEmpty()) {
-            return "User not found. Unable to deactivate account.";
+            return false; // Indicating the user was not found
         }
 
         UserCredentials user = optionalUser.get();
         user.deactivate();
         userCredentialsRepository.save(user);
-        return "Account deactivated successfully.";
+        return true; // Indicating the account was successfully deactivated
     }
+
+    // @Override
+    // @Transactional
+    // public String deactivateUser(String username) {
+    // Optional<UserCredentials> optionalUser =
+    // userCredentialsRepository.findById(username);
+
+    // if (optionalUser.isEmpty()) {
+    // return "User not found. Unable to deactivate account.";
+    // }
+
+    // UserCredentials user = optionalUser.get();
+    // user.deactivate();
+    // userCredentialsRepository.save(user);
+    // return "Account deactivated successfully.";
+    // }
 
     @Override
     @Transactional

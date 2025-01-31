@@ -15,6 +15,7 @@ import org.springframework.transaction.annotation.Transactional;
 import com.springboot.app.dto.CustomerRequestDTO;
 import com.springboot.app.entity.CustomerRequest;
 import com.springboot.app.enums.Gender;
+import com.springboot.app.enums.Status;
 import com.springboot.app.enums.HousekeepingRole;
 import com.springboot.app.mapper.CustomerRequestMapper;
 import com.springboot.app.repository.CustomerRequestRepository;
@@ -130,6 +131,18 @@ public class CustomerRequestServiceImpl implements CustomerRequestService {
                 .collect(Collectors.toList());
     }
 
+    @Override
+    @Transactional
+    public void updateStatus(Long requestId, Status status) {
+        logger.info("Updating status of customer request with id: {}", requestId);
+
+        CustomerRequest customerRequest = customerRequestRepository.findById(requestId)
+                .orElseThrow(() -> new IllegalArgumentException("CustomerRequest not found with id: " + requestId));
+        customerRequest.setStatus(status);
+        customerRequest.setModifiedDate(java.sql.Timestamp.valueOf(java.time.LocalDateTime.now()));
+        customerRequestRepository.save(customerRequest);
+    }
+
     // To get and categorize all customer requests
     @Override
     @Transactional(readOnly = true)
@@ -140,7 +153,7 @@ public class CustomerRequestServiceImpl implements CustomerRequestService {
         List<CustomerRequest> requests = customerRequestRepository.findAll(pageable).getContent();
 
         if (requests.isEmpty()) {
-            return null; 
+            return null;
         }
 
         // Get current date
@@ -151,9 +164,11 @@ public class CustomerRequestServiceImpl implements CustomerRequestService {
                 .map(customerRequestMapper::customerRequestToDTO)
                 .collect(Collectors.groupingBy(request -> {
                     LocalDate startDate = request.getStartDate().toLocalDateTime().toLocalDate();
-                    LocalDate endDate = request.getEndDate() != null ? request.getEndDate().toLocalDateTime().toLocalDate() : null;
+                    LocalDate endDate = request.getEndDate() != null
+                            ? request.getEndDate().toLocalDateTime().toLocalDate()
+                            : null;
 
-                    if ( startDate == null || startDate.isAfter(currentDate)) {
+                    if (startDate == null || startDate.isAfter(currentDate)) {
                         return "future";
                     } else if (endDate == null || endDate.isAfter(currentDate) || endDate.isEqual(currentDate)) {
                         return "current";
