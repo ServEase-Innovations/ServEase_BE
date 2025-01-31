@@ -12,6 +12,7 @@ public class WebMvcConfiguration
 {
 
     @Bean
+
     public WebMvcConfigurer corsConfigurer() {
         return new WebMvcConfigurer() {
             @Override

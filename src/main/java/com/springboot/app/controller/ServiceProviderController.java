@@ -21,9 +21,11 @@ import com.springboot.app.constant.ServiceProviderConstants;
 import org.springframework.beans.factory.annotation.Value;
 
 import com.springboot.app.dto.AttendanceDTO;
+import com.springboot.app.dto.LeaveBalanceDTO;
 import com.springboot.app.dto.ServiceProviderDTO;
 import com.springboot.app.dto.ServiceProviderEngagementDTO;
 import com.springboot.app.dto.ServiceProviderFeedbackDTO;
+import com.springboot.app.dto.ServiceProviderLeaveDTO;
 //import com.springboot.app.dto.ServiceProviderLeaveDTO;
 //import com.springboot.app.dto.ServiceProviderFeedbackDTO;
 import com.springboot.app.dto.ServiceProviderRequestCommentDTO;
@@ -37,8 +39,10 @@ import com.springboot.app.enums.Speciality;
 
 import com.springboot.app.service.ServiceProviderRequestService;
 import com.springboot.app.service.AttendanceService;
+import com.springboot.app.service.LeaveBalanceService;
 import com.springboot.app.service.ServiceProviderEngagementService;
 import com.springboot.app.service.ServiceProviderFeedbackService;
+import com.springboot.app.service.ServiceProviderLeaveService;
 //import com.springboot.app.service.ServiceProviderLeaveService;
 import com.springboot.app.service.ServiceProviderRequestCommentService;
 import com.springboot.app.service.ServiceProviderService;
@@ -76,8 +80,11 @@ public class ServiceProviderController {
     @Autowired
     private AttendanceService attendanceService;
 
-    // @Autowired
-    // private ServiceProviderLeaveService serviceProviderLeaveService;
+    @Autowired
+    private ServiceProviderLeaveService serviceProviderLeaveService;
+
+    @Autowired
+    private LeaveBalanceService leaveBalanceService;
 
     @Value("${app.pagination.default-page-size:10}")
     private int defaultPageSize;
@@ -852,144 +859,185 @@ public class ServiceProviderController {
         return ResponseEntity.ok(notifications);
     }
 
-    // // --------------API's FOR SERVICE PROVIDER
-    // // LEAVE-----------------------------------------------
-    // // API to get all service provider leave records
-    // @GetMapping("/get-all-leaves")
-    // @ApiOperation(value = "Retrieve all service provider leave records", response
-    // = List.class)
-    // public ResponseEntity<?> getAllServiceProviderLeaves() {
-    // List<ServiceProviderLeaveDTO> leaves =
-    // serviceProviderLeaveService.getAllLeaves();
-    // if (leaves == null || leaves.isEmpty()) {
-    // return ResponseEntity.status(HttpStatus.NOT_FOUND).body("No Data Found");
-    // }
-    // return ResponseEntity.ok(leaves);
-    // }
+    // --------------API's FOR SERVICE PROVIDER
+    // LEAVE-----------------------------------------------
+    // API to get all service provider leave records
+    @GetMapping("/get-all-leaves")
+    @ApiOperation(value = "Retrieve all service provider leave records", response = List.class)
+    public ResponseEntity<?> getAllServiceProviderLeaves() {
+        List<ServiceProviderLeaveDTO> leaves = serviceProviderLeaveService.getAllLeaves();
+        if (leaves == null || leaves.isEmpty()) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("No Data Found");
+        }
+        return ResponseEntity.ok(leaves);
+    }
 
-    // // API to get service provider leave by ID
-    // @GetMapping("/get-leave-by-id/{id}")
-    // @ApiOperation(value = "Retrieve service provider leave by ID", response =
-    // ServiceProviderLeaveDTO.class)
-    // public ResponseEntity<?> getServiceProviderLeaveById(
-    // @ApiParam(value = "ID of the service provider leave", required = true)
-    // @PathVariable Long id) {
-    // ServiceProviderLeaveDTO serviceProviderLeaveDTO =
-    // serviceProviderLeaveService.getLeaveById(id);
-    // if (serviceProviderLeaveDTO == null) {
-    // return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Data not found with
-    // this ID");
-    // }
-    // return ResponseEntity.ok(serviceProviderLeaveDTO);
-    // }
+    // API to get service provider leave by ID
+    @GetMapping("/get-leave-by-id/{id}")
+    @ApiOperation(value = "Retrieve service provider leave by ID", response = ServiceProviderLeaveDTO.class)
+    public ResponseEntity<?> getServiceProviderLeaveById(
+            @ApiParam(value = "ID of the service provider leave", required = true) @PathVariable Long id) {
+        ServiceProviderLeaveDTO serviceProviderLeaveDTO = serviceProviderLeaveService.getLeaveById(id);
+        if (serviceProviderLeaveDTO == null) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Data not found with this ID");
+        }
+        return ResponseEntity.ok(serviceProviderLeaveDTO);
+    }
 
-    // // API to get service provider leaves by service provider ID
-    // @GetMapping("/get-leave-by-sp-id/{serviceProviderId}")
-    // @ApiOperation(value = "Retrieve service provider leaves by service provider
-    // ID", response = List.class)
-    // public ResponseEntity<?> getServiceProviderLeavesByServiceProviderId(
-    // @ApiParam(value = "Service provider ID", required = true) @PathVariable Long
-    // serviceProviderId) {
-    // List<ServiceProviderLeaveDTO> leaves = serviceProviderLeaveService
-    // .getLeaveByServiceProviderId(serviceProviderId);
-    // if (leaves == null || leaves.isEmpty()) {
-    // return ResponseEntity.status(HttpStatus.NOT_FOUND).body("No Data Found");
-    // }
-    // return ResponseEntity.ok(leaves);
-    // }
+    // API to get service provider leaves by service provider ID
+    @GetMapping("/get-leave-by-sp-id/{serviceProviderId}")
+    @ApiOperation(value = "Retrieve service provider leaves by service provider ID", response = List.class)
+    public ResponseEntity<?> getServiceProviderLeavesByServiceProviderId(
+            @ApiParam(value = "Service provider ID", required = true) @PathVariable Long serviceProviderId) {
+        List<ServiceProviderLeaveDTO> leaves = serviceProviderLeaveService
+                .getLeaveByServiceProviderId(serviceProviderId);
+        if (leaves == null || leaves.isEmpty()) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("No Data Found");
+        }
+        return ResponseEntity.ok(leaves);
+    }
 
-    // // API to add a new service provider leave record
-    // @PostMapping("/add-leave")
-    // @ApiOperation(value = "Add a new service provider leave record")
-    // public ResponseEntity<String> addServiceProviderLeave(
-    // @ApiParam(value = "Service provider leave DTO", required = true) @RequestBody
-    // ServiceProviderLeaveDTO leaveDTO) {
-    // String response = serviceProviderLeaveService.addLeave(leaveDTO);
-    // if ("Failed".equals(response)) {
-    // return
-    // ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Failed");
-    // }
-    // return ResponseEntity.ok(response);
-    // }
+    // API to add a new service provider leave record
+    @PostMapping("/add-leave")
+    @ApiOperation(value = "Add a new service provider leave record")
+    public ResponseEntity<String> addServiceProviderLeave(
+            @ApiParam(value = "Service provider leave DTO", required = true) @RequestBody ServiceProviderLeaveDTO leaveDTO) {
+        String response = serviceProviderLeaveService.addLeave(leaveDTO);
+        if ("Failed".equals(response)) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Failed");
+        }
+        return ResponseEntity.ok(response);
+    }
 
-    // // API to update a service provider leave record by ID
-    // @PutMapping("/update-leave/{id}")
-    // @ApiOperation(value = "Update service provider leave record by ID")
-    // public ResponseEntity<String> updateServiceProviderLeave(
-    // @ApiParam(value = "ID of the service provider leave to update", required =
-    // true) @PathVariable Long id,
-    // @ApiParam(value = "Updated service provider leave DTO", required = true)
-    // @RequestBody ServiceProviderLeaveDTO leaveDTO) {
-    // String response = serviceProviderLeaveService.updateLeave(id, leaveDTO);
-    // if ("Data not found with this ID".equals(response)) {
-    // return ResponseEntity.status(HttpStatus.NOT_FOUND).body(response);
-    // }
-    // return ResponseEntity.ok(response);
-    // }
+    // API to update a service provider leave record by ID
+    @PutMapping("/update-leave/{id}")
+    @ApiOperation(value = "Update service provider leave record by ID")
+    public ResponseEntity<String> updateServiceProviderLeave(
+            @ApiParam(value = "ID of the service provider leave to update", required = true) @PathVariable Long id,
+            @ApiParam(value = "Updated service provider leave DTO", required = true) @RequestBody ServiceProviderLeaveDTO leaveDTO) {
+        String response = serviceProviderLeaveService.updateLeave(id, leaveDTO);
+        if ("Data not found with this ID".equals(response)) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(response);
+        }
+        return ResponseEntity.ok(response);
+    }
 
-    // // API to delete a service provider leave record by ID
-    // @DeleteMapping("/delete-leave/{id}")
-    // @ApiOperation(value = "Delete service provider leave record by ID")
-    // public ResponseEntity<String> deleteServiceProviderLeave(
-    // @ApiParam(value = "ID of the service provider leave to delete", required =
-    // true) @PathVariable Long id) {
-    // String response = serviceProviderLeaveService.deleteLeave(id);
-    // if ("Data not found with this ID".equals(response)) {
-    // return ResponseEntity.status(HttpStatus.NOT_FOUND).body(response);
-    // }
-    // return ResponseEntity.ok(response);
-    // }
+    // API to delete a service provider leave record by ID
+    @DeleteMapping("/delete-leave/{id}")
+    @ApiOperation(value = "Delete service provider leave record by ID")
+    public ResponseEntity<String> deleteServiceProviderLeave(
+            @ApiParam(value = "ID of the service provider leave to delete", required = true) @PathVariable Long id) {
+        String response = serviceProviderLeaveService.deleteLeave(id);
+        if ("Data not found with this ID".equals(response)) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(response);
+        }
+        return ResponseEntity.ok(response);
+    }
 
-    // // API to get service providers on leave today
-    // @GetMapping("/on-leave-today")
-    // @ApiOperation(value = "Retrieve service provider leaves on today", response =
-    // List.class)
-    // public ResponseEntity<?> getServiceProvidersOnLeaveToday() {
-    // List<ServiceProviderLeaveDTO> leaves =
-    // serviceProviderLeaveService.getServiceProvidersOnLeaveToday();
-    // if (leaves == null || leaves.isEmpty()) {
-    // return ResponseEntity.status(HttpStatus.NOT_FOUND).body("No Data Found");
-    // }
-    // return ResponseEntity.ok(leaves);
-    // }
+    // API to get service providers on leave today
+    @GetMapping("/on-leave-today")
+    @ApiOperation(value = "Retrieve service provider leaves on today", response = List.class)
+    public ResponseEntity<?> getServiceProvidersOnLeaveToday() {
+        List<ServiceProviderLeaveDTO> leaves = serviceProviderLeaveService.getServiceProvidersOnLeaveToday();
+        if (leaves == null || leaves.isEmpty()) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("No Data Found");
+        }
+        return ResponseEntity.ok(leaves);
+    }
 
-    // // API to get service providers on leave next week
-    // @GetMapping("/on-leave-next-week")
-    // @ApiOperation(value = "Retrieve service provider leaves next week", response
-    // = List.class)
-    // public ResponseEntity<?> getServiceProvidersOnLeaveNextWeek() {
-    // List<ServiceProviderLeaveDTO> leaves =
-    // serviceProviderLeaveService.getServiceProvidersOnLeaveNextWeek();
-    // if (leaves == null || leaves.isEmpty()) {
-    // return ResponseEntity.status(HttpStatus.NOT_FOUND).body("No Data Found");
-    // }
-    // return ResponseEntity.ok(leaves);
-    // }
+    // API to get service providers on leave next week
+    @GetMapping("/on-leave-next-week")
+    @ApiOperation(value = "Retrieve service provider leaves next week", response = List.class)
+    public ResponseEntity<?> getServiceProvidersOnLeaveNextWeek() {
+        List<ServiceProviderLeaveDTO> leaves = serviceProviderLeaveService.getServiceProvidersOnLeaveNextWeek();
+        if (leaves == null || leaves.isEmpty()) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("No Data Found");
+        }
+        return ResponseEntity.ok(leaves);
+    }
 
-    // // API to get approved service provider leaves
-    // @GetMapping("/get-approved-leaves")
-    // @ApiOperation(value = "Retrieve approved service provider leaves", response =
-    // List.class)
-    // public ResponseEntity<?> getApprovedServiceProviderLeaves() {
-    // List<ServiceProviderLeaveDTO> leaves =
-    // serviceProviderLeaveService.getApprovedLeaves();
-    // if (leaves == null || leaves.isEmpty()) {
-    // return ResponseEntity.status(HttpStatus.NOT_FOUND).body("No Data Found");
-    // }
-    // return ResponseEntity.ok(leaves);
-    // }
+    // API to get approved service provider leaves
+    @GetMapping("/get-approved-leaves")
+    @ApiOperation(value = "Retrieve approved service provider leaves", response = List.class)
+    public ResponseEntity<?> getApprovedServiceProviderLeaves() {
+        List<ServiceProviderLeaveDTO> leaves = serviceProviderLeaveService.getApprovedLeaves();
+        if (leaves == null || leaves.isEmpty()) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("No Data Found");
+        }
+        return ResponseEntity.ok(leaves);
+    }
 
-    // // API to get unapproved service provider leaves
-    // @GetMapping("/get-unapproved-leaves")
-    // @ApiOperation(value = "Retrieve unapproved service provider leaves", response
-    // = List.class)
-    // public ResponseEntity<?> getUnapprovedServiceProviderLeaves() {
-    // List<ServiceProviderLeaveDTO> leaves =
-    // serviceProviderLeaveService.getUnapprovedLeaves();
-    // if (leaves == null || leaves.isEmpty()) {
-    // return ResponseEntity.status(HttpStatus.NOT_FOUND).body("No Data Found");
-    // }
-    // return ResponseEntity.ok(leaves);
-    // }
+    // API to get unapproved service provider leaves
+    @GetMapping("/get-unapproved-leaves")
+    @ApiOperation(value = "Retrieve unapproved service provider leaves", response = List.class)
+    public ResponseEntity<?> getUnapprovedServiceProviderLeaves() {
+        List<ServiceProviderLeaveDTO> leaves = serviceProviderLeaveService.getUnapprovedLeaves();
+        if (leaves == null || leaves.isEmpty()) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("No Data Found");
+        }
+        return ResponseEntity.ok(leaves);
+    }
+
+    // ----------------API's FOR LEAVE
+    // BALANCE------------------------------------------------------
+    // API to get all leave balance records
+    @GetMapping("/get-all-leave-balances")
+    @ApiOperation(value = "Retrieve all leave balance records", response = List.class)
+    public ResponseEntity<?> getAllLeaveBalances() {
+        List<LeaveBalanceDTO> leaveBalances = leaveBalanceService.getAllLeaveBalances();
+        if (leaveBalances == null || leaveBalances.isEmpty()) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("No Data Found");
+        }
+        return ResponseEntity.ok(leaveBalances);
+    }
+
+    // API to get leave balance by ID
+    @GetMapping("/get-balance-by-id/{id}")
+    @ApiOperation(value = "Retrieve leave balance by ID", response = LeaveBalanceDTO.class)
+    public ResponseEntity<?> getLeaveBalanceById(
+            @ApiParam(value = "ID of the leave balance", required = true) @PathVariable Long id) {
+        LeaveBalanceDTO leaveBalanceDTO = leaveBalanceService.getLeaveBalanceById(id);
+        if (leaveBalanceDTO == null) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Data not found with this ID");
+        }
+        return ResponseEntity.ok(leaveBalanceDTO);
+    }
+
+    // API to add a new leave balance record
+    @PostMapping("/add-leavebalance")
+    @ApiOperation(value = "Add a new leave balance record")
+    public ResponseEntity<?> addLeaveBalance(
+            @ApiParam(value = "Leave balance DTO", required = true) @RequestBody LeaveBalanceDTO leaveBalanceDTO) {
+        String response = leaveBalanceService.addLeaveBalance(leaveBalanceDTO);
+        if ("Failed".equals(response)) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Failed to add data");
+        }
+        return ResponseEntity.ok(response);
+    }
+
+    // API to update a leave balance record by ID
+    @PutMapping("/update-balance/{id}")
+    @ApiOperation(value = "Update leave balance record by ID")
+    public ResponseEntity<?> updateLeaveBalance(
+            @ApiParam(value = "ID of the leave balance to update", required = true) @PathVariable Long id,
+            @ApiParam(value = "Updated leave balance DTO", required = true) @RequestBody LeaveBalanceDTO leaveBalanceDTO) {
+        String response = leaveBalanceService.updateLeaveBalance(id, leaveBalanceDTO);
+        if ("Data not found with this ID".equals(response)) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(response);
+        }
+        return ResponseEntity.ok(response);
+    }
+
+    // API to delete a leave balance record by ID
+    @DeleteMapping("/delete-balance/{id}")
+    @ApiOperation(value = "Delete leave balance record by ID")
+    public ResponseEntity<?> deleteLeaveBalance(
+            @ApiParam(value = "ID of the leave balance to delete", required = true) @PathVariable Long id) {
+        String response = leaveBalanceService.deleteLeaveBalance(id);
+        if ("Data not found with this ID".equals(response)) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(response);
+        }
+        return ResponseEntity.ok(response);
+    }
 
 }
