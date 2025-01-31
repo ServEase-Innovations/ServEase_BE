@@ -1,29 +1,28 @@
-// package com.springboot.app.service;
+package com.springboot.app.service;
 
-// import java.util.List;
-// import com.springboot.app.dto.ServiceProviderLeaveDTO;
+import java.util.List;
+import com.springboot.app.dto.ServiceProviderLeaveDTO;
 
-// public interface ServiceProviderLeaveService {
+public interface ServiceProviderLeaveService {
 
-// List<ServiceProviderLeaveDTO> getAllLeaves();
+    List<ServiceProviderLeaveDTO> getAllLeaves();
 
-// ServiceProviderLeaveDTO getLeaveById(Long id);
+    ServiceProviderLeaveDTO getLeaveById(Long id);
 
-// List<ServiceProviderLeaveDTO> getLeaveByServiceProviderId(Long
-// serviceProviderId);
+    List<ServiceProviderLeaveDTO> getLeaveByServiceProviderId(Long serviceProviderId);
 
-// String addLeave(ServiceProviderLeaveDTO leaveDTO);
+    String addLeave(ServiceProviderLeaveDTO leaveDTO);
 
-// String updateLeave(Long id, ServiceProviderLeaveDTO leaveDTO);
+    String updateLeave(Long id, ServiceProviderLeaveDTO leaveDTO);
 
-// String deleteLeave(Long id);
+    String deleteLeave(Long id);
 
-// List<ServiceProviderLeaveDTO> getServiceProvidersOnLeaveToday();
+    List<ServiceProviderLeaveDTO> getServiceProvidersOnLeaveToday();
 
-// List<ServiceProviderLeaveDTO> getServiceProvidersOnLeaveNextWeek();
+    List<ServiceProviderLeaveDTO> getServiceProvidersOnLeaveNextWeek();
 
-// List<ServiceProviderLeaveDTO> getApprovedLeaves();
+    List<ServiceProviderLeaveDTO> getApprovedLeaves();
 
-// List<ServiceProviderLeaveDTO> getUnapprovedLeaves();
+    List<ServiceProviderLeaveDTO> getUnapprovedLeaves();
 
-// }
+}
