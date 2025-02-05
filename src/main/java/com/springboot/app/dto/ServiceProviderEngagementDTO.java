@@ -38,4 +38,5 @@ public class ServiceProviderEngagementDTO {
     private String experience;
     private String childAge;
     private String serviceeType;
+    private List<String> availableTimeSlots;
 }

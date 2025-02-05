@@ -630,30 +630,83 @@ public class ServiceProviderController {
     public ResponseEntity<List<ServiceProviderEngagementDTO>> getAllServiceProviderEngagements(
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(required = false) Integer size) {
+
         if (size == null) {
             size = defaultPageSize; // Default page size if not provided
         }
+
         List<ServiceProviderEngagementDTO> engagements = serviceProviderEngagementService
                 .getAllServiceProviderEngagements(page, size);
+
         if (engagements.isEmpty()) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND)
                     .body(Collections.singletonList(new ServiceProviderEngagementDTO()));
         }
+
+        // Process each engagement to calculate available times
+        engagements.forEach(engagement -> {
+            List<String> availableTimes = calculateAvailableTimes(engagement.getTimeslot());
+            engagement.setAvailableTimeSlots(availableTimes);
+        });
+
         return ResponseEntity.ok(engagements);
     }
+
+    // @GetMapping("/engagements/all")
+    // @ApiOperation(value = ServiceProviderConstants.RETRIEVE_ALL_ENGAGEMENT_DESC,
+    // response = List.class)
+    // public ResponseEntity<List<ServiceProviderEngagementDTO>>
+    // getAllServiceProviderEngagements(
+    // @RequestParam(defaultValue = "0") int page,
+    // @RequestParam(required = false) Integer size) {
+    // if (size == null) {
+    // size = defaultPageSize; // Default page size if not provided
+    // }
+    // List<ServiceProviderEngagementDTO> engagements =
+    // serviceProviderEngagementService
+    // .getAllServiceProviderEngagements(page, size);
+    // if (engagements.isEmpty()) {
+    // return ResponseEntity.status(HttpStatus.NOT_FOUND)
+    // .body(Collections.singletonList(new ServiceProviderEngagementDTO()));
+    // }
+    // return ResponseEntity.ok(engagements);
+    // }
 
     // API to get service provider engagement by id
     @GetMapping("/get/engagement/{id}")
     @ApiOperation(value = ServiceProviderConstants.GET_BY_ID_ENGAGEMENT_DESC, response = ServiceProviderEngagementDTO.class)
     public ResponseEntity<ServiceProviderEngagementDTO> getServiceProviderEngagementById(
             @ApiParam(value = "ID of the service provider engagement to retrieve", required = true) @PathVariable Long id) {
+
         ServiceProviderEngagementDTO engagementDTO = serviceProviderEngagementService
                 .getServiceProviderEngagementById(id);
+
         if (engagementDTO == null) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body(null); // Engagement not found
         }
+
+        // Calculate available times before returning response
+        List<String> availableTimes = calculateAvailableTimes(engagementDTO.getTimeslot());
+        engagementDTO.setAvailableTimeSlots(availableTimes);
+
         return ResponseEntity.ok(engagementDTO);
     }
+
+    // @GetMapping("/get/engagement/{id}")
+    // @ApiOperation(value = ServiceProviderConstants.GET_BY_ID_ENGAGEMENT_DESC,
+    // response = ServiceProviderEngagementDTO.class)
+    // public ResponseEntity<ServiceProviderEngagementDTO>
+    // getServiceProviderEngagementById(
+    // @ApiParam(value = "ID of the service provider engagement to retrieve",
+    // required = true) @PathVariable Long id) {
+    // ServiceProviderEngagementDTO engagementDTO = serviceProviderEngagementService
+    // .getServiceProviderEngagementById(id);
+    // if (engagementDTO == null) {
+    // return ResponseEntity.status(HttpStatus.NOT_FOUND).body(null); // Engagement
+    // not found
+    // }
+    // return ResponseEntity.ok(engagementDTO);
+    // }
 
     // API to get service provider engagements by ServiceProvider ID
     @GetMapping("/get/serviceproviderid/{serviceProviderId}")
