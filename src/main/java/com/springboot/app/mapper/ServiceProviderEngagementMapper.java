@@ -24,6 +24,7 @@ public interface ServiceProviderEngagementMapper {
     @Mapping(source = "serviceProvider.serviceproviderId", target = "serviceProviderId")
     @Mapping(source = "customer.customerId", target = "customerId")
     @Mapping(source = "responsibilities", target = "responsibilities", qualifiedByName = "responsibilitiesToDto")
+    @Mapping(target = "availableTimeSlots", ignore = true)
     ServiceProviderEngagementDTO serviceProviderEngagementToDTO(ServiceProviderEngagement serviceProviderEngagement);
 
     // Mapping from DTO to entity

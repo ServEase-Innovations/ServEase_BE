@@ -708,17 +708,6 @@ public class ServiceProviderController {
     // return ResponseEntity.ok(engagementDTO);
     // }
 
-    // API to get service provider engagements by ServiceProvider ID
-    @GetMapping("/get/serviceproviderid/{serviceProviderId}")
-    @ApiOperation(value = "Retrieve service provider engagements by ServiceProvider ID", response = List.class)
-    public ResponseEntity<List<ServiceProviderEngagementDTO>> getServiceProviderEngagementsByServiceProviderId(
-            @ApiParam(value = "ServiceProvider ID to retrieve engagements for", required = true) @PathVariable Long serviceProviderId) {
-        List<ServiceProviderEngagementDTO> engagements = serviceProviderEngagementService
-                .getServiceProviderEngagementsByServiceProviderId(serviceProviderId);
-
-        return ResponseEntity.ok(engagements);
-    }
-
     // API to add a service provider engagement
     @PostMapping("/engagement/add")
     @ApiOperation(value = ServiceProviderConstants.ADD_NEW_ENGAGEMENT_DESC)
@@ -766,8 +755,25 @@ public class ServiceProviderController {
         return ResponseEntity.ok(ServiceProviderConstants.ENGAGEMENT_DELETED);
     }
 
-    // // API to get service provider engagements by ServiceProvider ID
-    // @GetMapping("/get/serviceproviderid/{serviceProviderId}")
+    // API to get service provider engagements by ServiceProvider ID
+    @GetMapping("/get/engagement/by/serviceProvider/{serviceProviderId}")
+    @ApiOperation(value = "Retrieve service provider engagements by ServiceProvider ID", response = List.class)
+    public ResponseEntity<List<ServiceProviderEngagementDTO>> getServiceProviderEngagementsByServiceProviderId(
+            @ApiParam(value = "ServiceProvider ID to retrieve engagements for", required = true) @PathVariable Long serviceProviderId) {
+
+        List<ServiceProviderEngagementDTO> engagements = serviceProviderEngagementService
+                .getServiceProviderEngagementsByServiceProviderId(serviceProviderId);
+
+        // Calculate available times for each engagement before returning response
+        engagements.forEach(engagement -> {
+            List<String> availableTimes = calculateAvailableTimes(engagement.getTimeslot());
+            engagement.setAvailableTimeSlots(availableTimes);
+        });
+
+        return ResponseEntity.ok(engagements);
+    }
+
+    // @GetMapping("/get/engagement/by/{serviceProviderId}")
     // @ApiOperation(value = "Retrieve service provider engagements by
     // ServiceProvider ID", response = List.class)
     // public ResponseEntity<List<ServiceProviderEngagementDTO>>
@@ -777,12 +783,18 @@ public class ServiceProviderController {
     // List<ServiceProviderEngagementDTO> engagements =
     // serviceProviderEngagementService
     // .getServiceProviderEngagementsByServiceProviderId(serviceProviderId);
+    // // Calculate available times for each engagement before returning response
+    // engagements.forEach(engagement -> {
+    // List<String> availableTimes =
+    // calculateAvailableTimes(engagement.getTimeslot());
+    // engagement.setAvailableTimeSlots(availableTimes);
+    // });
 
     // return ResponseEntity.ok(engagements);
     // }
 
     // API to get service provider engagements by Customer ID
-    @GetMapping("/get/customerid/{customerId}")
+    @GetMapping("/get/engagement/by/{customerId}")
     @ApiOperation(value = "Retrieve service provider engagements by Customer ID", response = List.class)
     public ResponseEntity<List<ServiceProviderEngagementDTO>> getServiceProviderEngagementsByCustomerId(
             @ApiParam(value = "Customer ID to retrieve engagements for", required = true) @PathVariable Long customerId) {
