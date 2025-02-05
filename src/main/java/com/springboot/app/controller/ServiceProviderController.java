@@ -51,6 +51,8 @@ import com.springboot.app.service.ShortListedServiceProviderService;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
+
+import java.util.ArrayList;
 import java.util.Collections;
 //import java.util.HashMap;
 
@@ -90,7 +92,8 @@ public class ServiceProviderController {
     private int defaultPageSize;
 
     // --------API's FOR SERVICE PROVIDER ENTITY--------------------
-    // API to get all service providers
+    // // API to get all service providers
+
     @GetMapping("/serviceproviders/all")
     @ApiOperation(value = ServiceProviderConstants.RETRIEVE_ALL_DESC, response = List.class)
     public ResponseEntity<List<ServiceProviderDTO>> getAllServiceProviders(
@@ -111,11 +114,111 @@ public class ServiceProviderController {
         List<ServiceProviderDTO> serviceProviders = serviceProviderService.getAllServiceProviderDTOs(page, size,
                 location);
 
+        // Ensure availableTimeSlots are calculated before returning the response
+        serviceProviders.forEach(serviceProviderDTO -> {
+            if (serviceProviderDTO.getTimeslot() != null &&
+                    !serviceProviderDTO.getTimeslot().isEmpty()) {
+                serviceProviderDTO.setAvailableTimeSlots(calculateAvailableTimes(serviceProviderDTO.getTimeslot()));
+            } else {
+                serviceProviderDTO.setAvailableTimeSlots(Collections.emptyList());
+            }
+        });
+
         // Return response with service providers (empty list if no results found)
         return serviceProviders.isEmpty()
                 ? ResponseEntity.status(HttpStatus.NOT_FOUND).body(Collections.emptyList())
                 : ResponseEntity.ok(serviceProviders);
     }
+
+    /**
+     * Method to calculate available time slots based on the busy timeslot.
+     */
+    private List<String> calculateAvailableTimes(String timeslot) {
+        List<String> availableTimes = new ArrayList<>();
+
+        try {
+            // Validate input
+            if (timeslot == null || timeslot.isEmpty()) {
+                return availableTimes;
+            }
+
+            // Create an array to track busy hours (0-23)
+            boolean[] busyHours = new boolean[24];
+
+            // Parse multiple busy timeslots (comma-separated)
+            String[] timeRanges = timeslot.split(",");
+            for (String range : timeRanges) {
+                String[] hours = range.trim().split("-");
+                if (hours.length != 2) {
+                    continue; // Skip invalid format
+                }
+
+                int startHour = parseHour(hours[0]);
+                int endHour = parseHour(hours[1]);
+
+                // Mark busy hours
+                for (int i = startHour; i < endHour; i++) {
+                    if (i >= 0 && i < 24) {
+                        busyHours[i] = true;
+                    }
+                }
+            }
+
+            // Identify available hours
+            for (int i = 0; i < 24; i++) {
+                if (!busyHours[i]) {
+                    availableTimes.add(String.format("%02d:00", i));
+                }
+            }
+
+        } catch (Exception e) {
+            throw new IllegalArgumentException("Invalid timeslot input. Ensure it's in 'HH:mm-HH:mm' format.", e);
+        }
+        return availableTimes;
+    }
+
+    /**
+     * Method to extract the hour from "HH:mm" format.
+     */
+    private int parseHour(String time) {
+        try {
+            String[] parts = time.split(":");
+            if (parts.length != 2) {
+                throw new IllegalArgumentException("Invalid time format. Expected 'HH:mm'.");
+            }
+            return Integer.parseInt(parts[0]); // Return the hour as an integer
+        } catch (NumberFormatException e) {
+            throw new IllegalArgumentException("Time contains non-numeric values.", e);
+        }
+    }
+
+    // @GetMapping("/serviceproviders/all")
+    // @ApiOperation(value = ServiceProviderConstants.RETRIEVE_ALL_DESC, response =
+    // List.class)
+    // public ResponseEntity<List<ServiceProviderDTO>> getAllServiceProviders(
+    // @RequestParam(defaultValue = "0") int page,
+    // @RequestParam(required = false) Integer size,
+    // @RequestParam(required = false) String location) {
+
+    // // Validate page and size
+    // if (page < 0) {
+    // return ResponseEntity.badRequest().body(Collections.emptyList());
+    // }
+
+    // if (size == null || size <= 0) {
+    // size = defaultPageSize; // Default page size if not provided or invalid
+    // }
+
+    // // Get service providers, filtered by location if provided
+    // List<ServiceProviderDTO> serviceProviders =
+    // serviceProviderService.getAllServiceProviderDTOs(page, size,
+    // location);
+
+    // // Return response with service providers (empty list if no results found)
+    // return serviceProviders.isEmpty()
+    // ? ResponseEntity.status(HttpStatus.NOT_FOUND).body(Collections.emptyList())
+    // : ResponseEntity.ok(serviceProviders);
+    // }
 
     // @GetMapping("/serviceproviders/all")
     // @ApiOperation(value = ServiceProviderConstants.RETRIEVE_ALL_DESC, response =
@@ -163,16 +266,39 @@ public class ServiceProviderController {
     // }
 
     // API to get service provider by id
+    // API to get service provider by id
     @GetMapping("/get/serviceprovider/{id}")
     @ApiOperation(value = ServiceProviderConstants.GET_BY_ID_DESC, response = ServiceProviderDTO.class)
     public ResponseEntity<ServiceProviderDTO> getServiceProviderById(
             @ApiParam(value = "ID of the service provider to retrieve", required = true) @PathVariable Long id) {
+
         ServiceProviderDTO serviceProviderDTO = serviceProviderService.getServiceProviderDTOById(id);
+
         if (serviceProviderDTO == null) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body(null); // Service provider not found
         }
+
+        // Calculate available times before returning response
+        List<String> availableTimes = calculateAvailableTimes(serviceProviderDTO.getTimeslot());
+        serviceProviderDTO.setAvailableTimeSlots(availableTimes);
+
         return ResponseEntity.ok(serviceProviderDTO);
     }
+
+    // @GetMapping("/get/serviceprovider/{id}")
+    // @ApiOperation(value = ServiceProviderConstants.GET_BY_ID_DESC, response =
+    // ServiceProviderDTO.class)
+    // public ResponseEntity<ServiceProviderDTO> getServiceProviderById(
+    // @ApiParam(value = "ID of the service provider to retrieve", required = true)
+    // @PathVariable Long id) {
+    // ServiceProviderDTO serviceProviderDTO =
+    // serviceProviderService.getServiceProviderDTOById(id);
+    // if (serviceProviderDTO == null) {
+    // return ResponseEntity.status(HttpStatus.NOT_FOUND).body(null); // Service
+    // provider not found
+    // }
+    // return ResponseEntity.ok(serviceProviderDTO);
+    // }
 
     // API to get service providers by vendor ID
     @GetMapping("/get/serviceproviders/vendor/{vendorId}")

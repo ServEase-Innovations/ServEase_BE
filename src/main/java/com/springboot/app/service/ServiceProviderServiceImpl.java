@@ -12,6 +12,7 @@ import java.util.List;
 import java.util.Map;
 //import java.util.Set;
 import java.util.stream.Collectors;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.jpa.domain.Specification;
@@ -393,17 +394,17 @@ public class ServiceProviderServiceImpl implements ServiceProviderService {
         // throw new IllegalArgumentException("Time contains non-numeric values.", e);
         // }
         // }
+
         @Override
         @Transactional
         public void saveServiceProviderDTO(ServiceProviderDTO serviceProviderDTO) {
                 logger.info("Saving a new service provider: {}", serviceProviderDTO);
-                // Automatically set the username as the emailId
+
                 String email = serviceProviderDTO.getEmailId();
                 if (email == null || email.isEmpty()) {
                         throw new IllegalArgumentException("EmailId is required to save a service provider.");
                 }
 
-                // Check if service provider already exists by email or mobile number
                 if (serviceProviderRepository.existsByEmailId(serviceProviderDTO.getEmailId())) {
                         throw new IllegalArgumentException("Service provider with this email already exists.");
                 }
@@ -412,7 +413,6 @@ public class ServiceProviderServiceImpl implements ServiceProviderService {
                 }
                 serviceProviderDTO.setUsername(email);
 
-                // Step 1: Calculate age from DOB and set it
                 LocalDate dob = serviceProviderDTO.getDOB();
                 if (dob != null) {
                         int calculatedAge = calculateAge(dob);
@@ -425,20 +425,11 @@ public class ServiceProviderServiceImpl implements ServiceProviderService {
                         throw new IllegalArgumentException("Date of Birth (DOB) is required to calculate age.");
                 }
 
-                // Step 2: Calculate available time slots from the timeslot field
                 String timeslot = serviceProviderDTO.getTimeslot();
                 if (timeslot == null || timeslot.isEmpty()) {
-                        throw new IllegalArgumentException("Timeslot is required to save a serviceprovider.");
+                        throw new IllegalArgumentException("Timeslot is required to save a service provider.");
                 }
 
-                List<String> availableTimes = calculateAvailableTimes(timeslot);
-                if (availableTimes.isEmpty()) {
-                        throw new IllegalArgumentException("Invalid timeslot format or no available times calculated.");
-                }
-                serviceProviderDTO.setAvailableTimeSlots(availableTimes); // Ensure this step is correctly executed.
-                logger.info("Calculated available time slots: {}", availableTimes);
-
-                // Step 4: Register user credentials
                 UserCredentialsDTO userDTO = new UserCredentialsDTO(
                                 serviceProviderDTO.getUsername(),
                                 serviceProviderDTO.getPassword(),
@@ -451,7 +442,6 @@ public class ServiceProviderServiceImpl implements ServiceProviderService {
                         throw new RuntimeException("User registration failed: " + registrationResponse);
                 }
 
-                // Step 5: Save the service provider
                 ServiceProvider serviceProvider = serviceProviderMapper.dtoToServiceProvider(serviceProviderDTO);
                 serviceProvider.setActive(true);
                 serviceProviderRepository.save(serviceProvider);
@@ -462,56 +452,140 @@ public class ServiceProviderServiceImpl implements ServiceProviderService {
                 return LocalDate.now().getYear() - dob.getYear();
         }
 
-        private List<String> calculateAvailableTimes(String busyTimeRange) {
-                List<String> availableTimes = new ArrayList<>();
-                try {
-                        // Validate input
-                        if (busyTimeRange == null || busyTimeRange.isEmpty()) {
-                                throw new IllegalArgumentException(
-                                                "Timeslot is required to calculate available times.");
-                        }
+        // @Override
+        // @Transactional
+        // public void saveServiceProviderDTO(ServiceProviderDTO serviceProviderDTO) {
+        // logger.info("Saving a new service provider: {}", serviceProviderDTO);
+        // // Automatically set the username as the emailId
+        // String email = serviceProviderDTO.getEmailId();
+        // if (email == null || email.isEmpty()) {
+        // throw new IllegalArgumentException("EmailId is required to save a service
+        // provider.");
+        // }
 
-                        // Parse busy range (e.g., "08:00-09:00")
-                        String[] range = busyTimeRange.split("-");
-                        if (range.length != 2) {
-                                throw new IllegalArgumentException(
-                                                "Invalid timeslot format. Expected format: 'HH:mm-HH:mm'.");
-                        }
+        // // Check if service provider already exists by email or mobile number
+        // if
+        // (serviceProviderRepository.existsByEmailId(serviceProviderDTO.getEmailId()))
+        // {
+        // throw new IllegalArgumentException("Service provider with this email already
+        // exists.");
+        // }
+        // if
+        // (serviceProviderRepository.existsByMobileNo(serviceProviderDTO.getMobileNo()))
+        // {
+        // throw new IllegalArgumentException("Service provider with this mobile number
+        // already exists.");
+        // }
+        // serviceProviderDTO.setUsername(email);
 
-                        int startHour = parseHour(range[0]);
-                        int endHour = parseHour(range[1]);
+        // // Step 1: Calculate age from DOB and set it
+        // LocalDate dob = serviceProviderDTO.getDOB();
+        // if (dob != null) {
+        // int calculatedAge = calculateAge(dob);
+        // if (calculatedAge < 18) {
+        // throw new IllegalArgumentException("You must be at least 18 years old to
+        // proceed.");
+        // }
+        // serviceProviderDTO.setAge(calculatedAge);
+        // logger.info("Calculated age: {}", calculatedAge);
+        // } else {
+        // throw new IllegalArgumentException("Date of Birth (DOB) is required to
+        // calculate age.");
+        // }
 
-                        // Validate range
-                        if (startHour >= endHour || startHour < 0 || endHour > 24) {
-                                throw new IllegalArgumentException(
-                                                "Invalid time range: must be within 0-24 and start < end.");
-                        }
+        // // Step 2: Calculate available time slots from the timeslot field
+        // String timeslot = serviceProviderDTO.getTimeslot();
+        // if (timeslot == null || timeslot.isEmpty()) {
+        // throw new IllegalArgumentException("Timeslot is required to save a
+        // serviceprovider.");
+        // }
 
-                        // Calculate available hours
-                        for (int hour = 0; hour < 24; hour++) {
-                                if (hour < startHour || hour >= endHour) {
-                                        availableTimes.add(String.format("%02d:00", hour));
-                                }
-                        }
-                } catch (IllegalArgumentException e) {
-                        throw new IllegalArgumentException(
-                                        "Invalid timeslot input. Ensure it's in 'HH:mm-HH:mm' format.", e);
-                }
-                return availableTimes;
-        }
+        // List<String> availableTimes = calculateAvailableTimes(timeslot);
+        // if (availableTimes.isEmpty()) {
+        // throw new IllegalArgumentException("Invalid timeslot format or no available
+        // times calculated.");
+        // }
+        // serviceProviderDTO.setAvailableTimeSlots(availableTimes); // Ensure this step
+        // is correctly executed.
+        // logger.info("Calculated available time slots: {}", availableTimes);
 
-        private int parseHour(String time) {
-                // Extract the hour part from "HH:mm"
-                try {
-                        String[] parts = time.split(":");
-                        if (parts.length != 2) {
-                                throw new IllegalArgumentException("Invalid time format. Expected 'HH:mm'.");
-                        }
-                        return Integer.parseInt(parts[0]); // Return the hour as an integer
-                } catch (NumberFormatException e) {
-                        throw new IllegalArgumentException("Time contains non-numeric values.", e);
-                }
-        }
+        // // Step 4: Register user credentials
+        // UserCredentialsDTO userDTO = new UserCredentialsDTO(
+        // serviceProviderDTO.getUsername(),
+        // serviceProviderDTO.getPassword(),
+        // true, 0, null, false,
+        // serviceProviderDTO.getMobileNo().toString(),
+        // null,
+        // UserRole.SERVICE_PROVIDER.getValue());
+        // String registrationResponse =
+        // userCredentialsService.saveUserCredentials(userDTO);
+        // if (!"Registration successful!".equalsIgnoreCase(registrationResponse)) {
+        // throw new RuntimeException("User registration failed: " +
+        // registrationResponse);
+        // }
+
+        // // Step 5: Save the service provider
+        // ServiceProvider serviceProvider =
+        // serviceProviderMapper.dtoToServiceProvider(serviceProviderDTO);
+        // serviceProvider.setActive(true);
+        // serviceProviderRepository.save(serviceProvider);
+        // logger.debug("Service provider saved successfully: {}", serviceProvider);
+        // }
+
+        // private int calculateAge(LocalDate dob) {
+        // return LocalDate.now().getYear() - dob.getYear();
+        // }
+
+        // private List<String> calculateAvailableTimes(String busyTimeRange) {
+        // List<String> availableTimes = new ArrayList<>();
+        // try {
+        // // Validate input
+        // if (busyTimeRange == null || busyTimeRange.isEmpty()) {
+        // throw new IllegalArgumentException(
+        // "Timeslot is required to calculate available times.");
+        // }
+
+        // // Parse busy range (e.g., "08:00-09:00")
+        // String[] range = busyTimeRange.split("-");
+        // if (range.length != 2) {
+        // throw new IllegalArgumentException(
+        // "Invalid timeslot format. Expected format: 'HH:mm-HH:mm'.");
+        // }
+
+        // int startHour = parseHour(range[0]);
+        // int endHour = parseHour(range[1]);
+
+        // // Validate range
+        // if (startHour >= endHour || startHour < 0 || endHour > 24) {
+        // throw new IllegalArgumentException(
+        // "Invalid time range: must be within 0-24 and start < end.");
+        // }
+
+        // // Calculate available hours
+        // for (int hour = 0; hour < 24; hour++) {
+        // if (hour < startHour || hour >= endHour) {
+        // availableTimes.add(String.format("%02d:00", hour));
+        // }
+        // }
+        // } catch (IllegalArgumentException e) {
+        // throw new IllegalArgumentException(
+        // "Invalid timeslot input. Ensure it's in 'HH:mm-HH:mm' format.", e);
+        // }
+        // return availableTimes;
+        // }
+
+        // private int parseHour(String time) {
+        // // Extract the hour part from "HH:mm"
+        // try {
+        // String[] parts = time.split(":");
+        // if (parts.length != 2) {
+        // throw new IllegalArgumentException("Invalid time format. Expected 'HH:mm'.");
+        // }
+        // return Integer.parseInt(parts[0]); // Return the hour as an integer
+        // } catch (NumberFormatException e) {
+        // throw new IllegalArgumentException("Time contains non-numeric values.", e);
+        // }
+        // }
 
         @Override
         @Transactional

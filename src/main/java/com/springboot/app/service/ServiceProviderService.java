@@ -44,4 +44,6 @@ public interface ServiceProviderService {
 
   String uploadExcelRecords(String filename);
 
+  // List<String> calculateAvailableTimes(String timeslot);
+
 }
