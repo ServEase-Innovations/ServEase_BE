@@ -1,6 +1,8 @@
 package com.springboot.app.service;
 
 import java.util.List;
+import java.util.Map;
+
 import com.springboot.app.dto.ServiceProviderEngagementDTO;
 
 public interface ServiceProviderEngagementService {
@@ -25,4 +27,6 @@ public interface ServiceProviderEngagementService {
 
     // Get a specific Customer by ID
     List<ServiceProviderEngagementDTO> getServiceProviderEngagementsByCustomerId(Long customerId);
+
+    public Map<String, List<ServiceProviderEngagementDTO>> getServiceProviderBookingHistory(int page, int size);
 }

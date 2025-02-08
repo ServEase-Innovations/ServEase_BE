@@ -794,14 +794,35 @@ public class ServiceProviderController {
     // }
 
     // API to get service provider engagements by Customer ID
-    @GetMapping("/get/engagement/by/{customerId}")
+    @GetMapping("/get/engagement/by/customer/{customerId}")
     @ApiOperation(value = "Retrieve service provider engagements by Customer ID", response = List.class)
     public ResponseEntity<List<ServiceProviderEngagementDTO>> getServiceProviderEngagementsByCustomerId(
             @ApiParam(value = "Customer ID to retrieve engagements for", required = true) @PathVariable Long customerId) {
         List<ServiceProviderEngagementDTO> engagements = serviceProviderEngagementService
                 .getServiceProviderEngagementsByCustomerId(customerId);
+        // Calculate available times for each engagement before returning response
+        engagements.forEach(engagement -> {
+            List<String> availableTimes = calculateAvailableTimes(engagement.getTimeslot());
+            engagement.setAvailableTimeSlots(availableTimes);
+        });
 
         return ResponseEntity.ok(engagements);
+    }
+
+    @GetMapping("/get-sp-booking-history")
+    @ApiOperation(value = "Retrieve categorized service provider engagements", response = Map.class)
+    public ResponseEntity<?> getCategorizedServiceProviderEngagements(
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(required = false) Integer size) {
+        if (size == null) {
+            size = defaultPageSize;
+        }
+        Map<String, List<ServiceProviderEngagementDTO>> categorizedEngagements = serviceProviderEngagementService
+                .getServiceProviderBookingHistory(page, size);
+        if (categorizedEngagements == null || categorizedEngagements.isEmpty()) {
+            return ResponseEntity.status(HttpStatus.NO_CONTENT).body("No Data Found");
+        }
+        return ResponseEntity.ok(categorizedEngagements);
     }
 
     // ------API's FOR SHORTLISTED SERVICEPROVIDER------------------

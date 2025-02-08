@@ -17,8 +17,10 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 //import com.springboot.app.util.ResponsibilityParser;
 
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 //import java.util.Map;
 import java.util.stream.Collectors;
 import org.springframework.data.domain.Pageable;
@@ -242,6 +244,47 @@ public class ServiceProviderEngagementServiceImpl implements ServiceProviderEnga
         return filteredEngagements.stream()
                 .map(engagementMapper::serviceProviderEngagementToDTO)
                 .collect(Collectors.toList());
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public Map<String, List<ServiceProviderEngagementDTO>> getServiceProviderBookingHistory(int page, int size) {
+        logger.info("Fetching and categorizing service provider engagements with pagination - page: {}, size: {}", page,
+                size);
+
+        Pageable pageable = PageRequest.of(page, size);
+        List<ServiceProviderEngagement> engagements = engagementRepository.findAll(pageable).getContent();
+
+        if (engagements.isEmpty()) {
+            return null;
+        }
+        // Get current date
+        LocalDate currentDate = LocalDate.now();
+        // Categorize engagements
+        Map<String, List<ServiceProviderEngagementDTO>> categorizedEngagements = engagements.stream()
+                .map(engagementMapper::serviceProviderEngagementToDTO)
+                .collect(Collectors.groupingBy(engagement -> {
+                    LocalDate startDate = engagement.getStartDate();
+                    LocalDate endDate = engagement.getEndDate();
+
+                    if (endDate == null) {
+                        if (startDate != null && (startDate.isBefore(currentDate) || startDate.isEqual(currentDate))) {
+                            return "current";
+                        } else {
+                            return "future";
+                        }
+                    } else {
+                        if (endDate.isBefore(currentDate)) {
+                            return "past";
+                        } else if (startDate != null && startDate.isAfter(currentDate)) {
+                            return "future";
+                        } else {
+                            return "current";
+                        }
+                    }
+                }));
+
+        return categorizedEngagements;
     }
 
 }
