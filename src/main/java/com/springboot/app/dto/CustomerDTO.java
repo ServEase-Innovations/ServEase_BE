@@ -2,11 +2,12 @@ package com.springboot.app.dto;
 
 import java.sql.Timestamp;
 
-import com.springboot.app.enums.Gender;
+//import org.springframework.web.multipart.MultipartFile;
 
 import com.springboot.app.enums.DocumentType;
-
+import com.springboot.app.enums.Gender;
 import com.springboot.app.enums.LanguageKnown;
+import com.springboot.app.enums.Speciality;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -30,12 +31,17 @@ public class CustomerDTO {
     private String locality;
     private String street;
     private Integer pincode;
-    private byte[] profilePic;
+    // private MultipartFile profilePic;
+    private String profilePic;
     private String currentLocation;
     private DocumentType KYC;
     private String idNo;
     private boolean isActive;
-    private Double rating; // Field to store the average rating
-
     private Timestamp enrolledDate;
+    private Speciality speciality;
+    // private String profilePicUrl;
+    private double rating;
+
+    private String username;
+    private String password;
 }

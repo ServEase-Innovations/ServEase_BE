@@ -2,9 +2,11 @@ package com.springboot.app.entity;
 
 import java.sql.Timestamp;
 import java.text.SimpleDateFormat;
+import java.time.LocalDate;
 
-//import com.springboot.app.enums.DocumentType;
+import com.springboot.app.enums.DocumentType;
 import com.springboot.app.enums.Gender;
+import com.springboot.app.enums.Habit;
 import com.springboot.app.enums.HousekeepingRole;
 import com.springboot.app.enums.LanguageKnown;
 import com.springboot.app.enums.Speciality;
@@ -16,7 +18,7 @@ import jakarta.persistence.Enumerated;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
-import jakarta.persistence.Lob;
+//import jakarta.persistence.Lob;
 import jakarta.persistence.PrePersist;
 import jakarta.persistence.Table;
 import lombok.AllArgsConstructor;
@@ -44,13 +46,13 @@ public class ServiceProvider {
 	@Column(nullable = false)
 	private String lastName;
 
-	@Column(nullable = false, length = 10)
+	@Column(nullable = false, length = 10, unique = true)
 	private Long mobileNo;
 
 	@Column(length = 10)
 	private Long alternateNo;
 
-	@Column(nullable = false)
+	@Column(nullable = false, unique = true)
 	private String emailId;
 
 	@Enumerated(EnumType.STRING)
@@ -69,17 +71,21 @@ public class ServiceProvider {
 	private Integer pincode;
 
 	@Column(nullable = false)
-
 	private String currentLocation;
+
+	@Column
 	private String nearbyLocation;
 
+	@Column
+	private String location;
+
+	@Column
 	private Timestamp enrolledDate;
 
-	@Lob
-	private byte[] profilePic;
-
-	// @Enumerated(EnumType.STRING)
-	// private DocumentType KYC;
+	// @Lob
+	// private byte[] profilePic;
+	@Column
+	private String profilePic;
 
 	private String idNo;
 
@@ -88,6 +94,15 @@ public class ServiceProvider {
 
 	@Enumerated(EnumType.STRING)
 	private HousekeepingRole housekeepingRole;
+
+	@Enumerated(EnumType.STRING)
+	private Habit diet;
+
+	@Enumerated(EnumType.STRING)
+	private Habit cookingSpeciality;
+
+	@Enumerated(EnumType.STRING)
+	private DocumentType KYC;
 
 	private double rating;
 
@@ -102,8 +117,18 @@ public class ServiceProvider {
 
 	@Column
 	private String info;
-	private String username;
-	private String password;
+
+	@Column
+	private LocalDate DOB;
+
+	@Column
+	private Integer experience;
+
+	@Column
+	private String timeslot;
+
+	@Column
+	private Long vendorId;
 
 	@PrePersist
 	public void prePersist() {
@@ -111,16 +136,8 @@ public class ServiceProvider {
 		SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS");
 		String formattedDate = sdf.format(System.currentTimeMillis());
 		this.enrolledDate = Timestamp.valueOf(formattedDate);
-
 		this.isActive = true;
 
-		// to automatically set data and isActive field
-		// @PrePersist
-		// public void prePersist() {
-		// this.enrolledDate = new Timestamp(System.currentTimeMillis());
-		// this.isActive = true;
-
-		// Convert specified fields to lowercase before saving
 		if (this.street != null) {
 			this.street = this.street.toLowerCase();
 		}

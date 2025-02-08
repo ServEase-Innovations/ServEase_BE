@@ -11,7 +11,7 @@ import lombok.NoArgsConstructor;
 public class ServiceProviderFeedbackDTO {
     private Long id;
     private Long customerId;
-    private Long housekeepingId;
+    private Long serviceproviderId;
     private Double rating;
     private String feedback;
 

@@ -1,334 +1,867 @@
 package com.springboot.app.service;
 
+import java.math.BigDecimal;
+import java.math.RoundingMode;
+import java.time.LocalDate;
+//import java.time.Period;
+import java.time.temporal.ChronoUnit;
+import java.util.ArrayList;
+//import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+//import java.util.Set;
 import java.util.stream.Collectors;
 
-import org.hibernate.Session;
-import org.hibernate.SessionFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Service;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.jpa.domain.Specification;
 
-import com.springboot.app.config.PaginationHelper;
+import org.springframework.stereotype.Service;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import jakarta.persistence.EntityManager;
+import jakarta.persistence.PersistenceContext;
+import jakarta.transaction.Transactional;
 import com.springboot.app.constant.ServiceProviderConstants;
 import com.springboot.app.dto.ServiceProviderDTO;
 import com.springboot.app.dto.UserCredentialsDTO;
 import com.springboot.app.entity.ServiceProvider;
+import com.springboot.app.entity.ServiceProviderEngagement;
 import com.springboot.app.enums.Gender;
+import com.springboot.app.enums.Habit;
 import com.springboot.app.enums.HousekeepingRole;
 import com.springboot.app.enums.LanguageKnown;
 import com.springboot.app.enums.Speciality;
+import com.springboot.app.enums.UserRole;
 import com.springboot.app.mapper.ServiceProviderMapper;
-import org.hibernate.query.Query;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import jakarta.transaction.Transactional;
+import com.springboot.app.repository.ServiceProviderEngagementRepository;
+import com.springboot.app.repository.ServiceProviderRepository;
+import com.springboot.app.util.ExcelSheetHandler;
+import org.springframework.data.domain.Pageable;
 
 @Service
 public class ServiceProviderServiceImpl implements ServiceProviderService {
 
-    private static final Logger logger = LoggerFactory.getLogger(ServiceProviderServiceImpl.class);
+        private static final Logger logger = LoggerFactory.getLogger(ServiceProviderServiceImpl.class);
 
-    @Autowired
-    private SessionFactory sessionFactory;
+        @Autowired
+        private ServiceProviderRepository serviceProviderRepository;
 
-    @Autowired
-    private ServiceProviderMapper serviceProviderMapper;
+        @Autowired
+        private ServiceProviderMapper serviceProviderMapper;
 
-    @Autowired
-    private UserCredentialsService userCredentialsService; // Inject the UserCredentialsService
+        @Autowired
+        private UserCredentialsService userCredentialsService;
 
-    @Override
-    @Transactional
-    public List<ServiceProviderDTO> getAllServiceProviderDTOs(int page, int size) {
-        logger.info("Fetching service providers with pagination - page: {}, size: {}", page, size);
-        Session session = sessionFactory.getCurrentSession();
+        @Autowired
+        private ServiceProviderEngagementRepository engagementRepository;
 
-        // Using PaginationHelper to get paginated results
-        List<ServiceProvider> serviceProviders = PaginationHelper.getPaginatedResults(
-                session,
-                "FROM ServiceProvider", // Use uppercase for consistency with HQL
-                page,
-                size,
-                ServiceProvider.class);
+        @PersistenceContext
+        private EntityManager entityManager;
 
-        logger.debug("Fetched {} service provider(s) from the database.", serviceProviders.size());
+        @Autowired
+        private ExcelSheetHandler excelSheetHandler;
 
-        return serviceProviders.stream()
-                .map(serviceProviderMapper::serviceProviderToDTO)
-                .collect(Collectors.toList());
-    }
+        // @Override
+        // @Transactional
+        // public List<ServiceProviderDTO> getAllServiceProviderDTOs(int page, int size)
+        // {
+        // logger.info("Fetching service providers with page: {} and size: {}", page,
+        // size);
 
-    @Override
-    @Transactional
-    public ServiceProviderDTO getServiceProviderDTOById(Long id) {
-        logger.info("Fetching service provider with ID: {}", id);
-        Session session = sessionFactory.getCurrentSession();
-        ServiceProvider serviceProvider = session.get(ServiceProvider.class, id);
+        // // Fetch paginated results using Spring Data JPA
+        // Pageable pageable = PageRequest.of(page, size);
+        // List<ServiceProvider> serviceProviders =
+        // serviceProviderRepository.findAll(pageable).getContent();
 
-        if (serviceProvider == null) {
-            logger.warn("Service provider with ID {} not found", id);
-            throw new RuntimeException(ServiceProviderConstants.SERVICE_PROVIDER_NOT_FOUND + id);
+        // logger.debug("Number of service providers fetched: {}",
+        // serviceProviders.size());
+
+        // if (serviceProviders.isEmpty()) {
+        // logger.warn("No service providers found on the requested page.");
+        // return new ArrayList<>(); // Return empty list if no service providers found
+        // }
+
+        // // Map entities to DTOs
+        // return serviceProviders.stream()
+        // .map(serviceProvider ->
+        // serviceProviderMapper.serviceProviderToDTO(serviceProvider))
+        // .collect(Collectors.toList());
+        // }
+        @Transactional
+        public List<ServiceProviderDTO> getAllServiceProviderDTOs(int page, int size, String location) {
+                logger.info("Fetching service providers with page: {}, size: {}, and location: {}", page, size,
+                                location);
+
+                // Define pageable object
+                Pageable pageable = PageRequest.of(page, size);
+                List<ServiceProvider> serviceProviders;
+
+                if (location != null && !location.trim().isEmpty()) {
+                        // Fetch service providers by location if location is provided
+                        logger.debug("Filtering service providers by location: {}", location);
+                        serviceProviders = serviceProviderRepository.findByLocation(location, pageable).getContent();
+                } else {
+                        // Fetch all service providers if no location filter is provided
+                        logger.debug("Fetching all service providers without location filter.");
+                        serviceProviders = serviceProviderRepository.findAll(pageable).getContent();
+                }
+
+                logger.debug("Number of service providers fetched: {}", serviceProviders.size());
+
+                if (serviceProviders.isEmpty()) {
+                        logger.warn("No service providers found for the given criteria.");
+                        return new ArrayList<>(); // Return empty list if no results found
+                }
+
+                // Map entities to DTOs
+                return serviceProviders.stream()
+                                .map(serviceProviderMapper::serviceProviderToDTO)
+                                .collect(Collectors.toList());
         }
 
-        logger.debug("Found service provider: {}", serviceProvider);
-        return serviceProviderMapper.serviceProviderToDTO(serviceProvider);
-    }
+        @Override
+        @Transactional
+        public ServiceProviderDTO getServiceProviderDTOById(Long id) {
+                logger.info("Fetching service provider with ID: {}", id);
 
-    @Override
-    @Transactional
-    public void saveServiceProviderDTO(ServiceProviderDTO serviceProviderDTO) {
-        logger.info("Saving a new service provider: {}", serviceProviderDTO.getUsername());
+                ServiceProvider serviceProvider = serviceProviderRepository.findById(id)
+                                .orElseThrow(() -> {
+                                        logger.warn("Service provider with ID {} not found", id);
+                                        return new RuntimeException(
+                                                        ServiceProviderConstants.SERVICE_PROVIDER_NOT_FOUND + id);
+                                });
 
-        // Step 1: Register the user credentials using the injected service
-        UserCredentialsDTO userDTO = new UserCredentialsDTO(
-                serviceProviderDTO.getUsername(),
-                serviceProviderDTO.getPassword(),
-                true, // isActive
-                0, // noOfTries
-                null, // disableTill
-                false, // isTempLocked
-                serviceProviderDTO.getMobileNo().toString(),
-                null // lastLogin
-        );
-
-        // Register the user credentials first
-        String registrationResponse = userCredentialsService.saveUserCredentials(userDTO);
-        logger.info("User registration response: {}", registrationResponse);
-
-        // If registration failed, throw an error
-        if (!"Registration successful!".equalsIgnoreCase(registrationResponse)) {
-            logger.error("User registration failed for username: {}", serviceProviderDTO.getUsername());
-            throw new RuntimeException("User registration failed: " + registrationResponse);
+                return serviceProviderMapper.serviceProviderToDTO(serviceProvider);
         }
 
-        // Step 2: Save or update the service provider entity
-        Session session = sessionFactory.getCurrentSession();
-        ServiceProvider serviceProvider = serviceProviderMapper.dtoToServiceProvider(serviceProviderDTO);
+        @Override
+        @Transactional
+        public List<ServiceProviderDTO> getServiceProvidersByVendorId(Long vendorId) {
+                logger.info("Fetching service providers for vendor ID: {}", vendorId);
 
-        serviceProvider.setActive(true);
-        // serviceProvider.setCreatedAt(new Timestamp(System.currentTimeMillis()));
-        // serviceProvider.setUpdatedAt(new Timestamp(System.currentTimeMillis()));
+                List<ServiceProvider> serviceProviders = serviceProviderRepository.findByVendorId(vendorId);
 
-        // Use merge() instead of persist() to handle both new and existing entities
-        session.merge(serviceProvider);
+                if (serviceProviders.isEmpty()) {
+                        logger.warn("No service providers found for vendor ID {}", vendorId);
+                        throw new RuntimeException(
+                                        ServiceProviderConstants.NO_SERVICE_PROVIDERS_FOUND_FOR_VENDOR + vendorId);
+                }
 
-        logger.debug("Service provider saved successfully: {}", serviceProvider);
-    }
-
-    @Override
-    @Transactional
-    public void updateServiceProviderDTO(ServiceProviderDTO serviceProviderDTO) {
-        logger.info("Updating service provider with ID: {}", serviceProviderDTO.getServiceproviderId());
-        Session session = sessionFactory.getCurrentSession();
-        ServiceProvider existingServiceProvider = session.get(ServiceProvider.class,
-                serviceProviderDTO.getServiceproviderId());
-
-        if (existingServiceProvider == null) {
-            logger.warn("Service provider with ID {} not found for update", serviceProviderDTO.getServiceproviderId());
-            throw new RuntimeException(ServiceProviderConstants.SERVICE_PROVIDER_NOT_FOUND
-                    + serviceProviderDTO.getServiceproviderId());
+                return serviceProviderMapper.serviceProvidersToDTOs(serviceProviders);
         }
 
-        existingServiceProvider = serviceProviderMapper.dtoToServiceProvider(serviceProviderDTO);
-        session.merge(existingServiceProvider);
-        logger.debug("Service provider updated: {}", existingServiceProvider);
-    }
+        // @Override
+        // @Transactional
+        // public void saveServiceProviderDTO(ServiceProviderDTO serviceProviderDTO) {
+        // logger.info("Saving a new service provider: {}", serviceProviderDTO);
 
-    @Override
-    @Transactional
-    public void deleteServiceProviderDTO(Long id) {
-        logger.info("Deleting (deactivating) service provider with ID: {}", id);
-        Session session = sessionFactory.getCurrentSession();
-        ServiceProvider serviceProvider = session.get(ServiceProvider.class, id);
+        // // Automatically set the username as the emailId
+        // String email = serviceProviderDTO.getEmailId();
+        // if (email == null || email.isEmpty()) {
+        // throw new IllegalArgumentException("EmailId is required to save a service
+        // provider.");
+        // }
 
-        if (serviceProvider != null) {
-            serviceProvider.deactivate();
-            session.merge(serviceProvider);
-            logger.debug("Service provider with ID {} deactivated", id);
-        } else {
-            logger.warn("Service provider with ID {} not found for deletion", id);
-            throw new RuntimeException(ServiceProviderConstants.SERVICE_PROVIDER_NOT_FOUND + id);
+        // // Check if service provider already exists by email or mobile number
+        // if
+        // (serviceProviderRepository.existsByEmailId(serviceProviderDTO.getEmailId()))
+        // {
+        // throw new IllegalArgumentException("Service provider with this email already
+        // exists.");
+        // }
+        // if
+        // (serviceProviderRepository.existsByMobileNo(serviceProviderDTO.getMobileNo()))
+        // {
+        // throw new IllegalArgumentException("Service provider with this mobile number
+        // already exists.");
+        // }
+        // serviceProviderDTO.setUsername(email);
+
+        // // Step 1: Calculate age from DOB and set it
+        // LocalDate dob = serviceProviderDTO.getDOB();
+        // if (dob != null) {
+        // int calculatedAge = calculateAge(dob);
+        // if (calculatedAge < 18) {
+        // throw new IllegalArgumentException("You must be at least 18 years old to
+        // proceed.");
+        // }
+        // serviceProviderDTO.setAge(calculatedAge);
+        // logger.info("Calculated age: {}", calculatedAge);
+        // } else {
+        // throw new IllegalArgumentException("Date of Birth (DOB) is required to
+        // calculate age.");
+        // }
+
+        // // Step 2: Calculate available time slots from the timeslot field
+        // String timeslot = serviceProviderDTO.getTimeslot();
+        // if (timeslot == null || timeslot.isEmpty()) {
+        // throw new IllegalArgumentException("Timeslot is required to save a service
+        // provider.");
+        // }
+
+        // List<String> availableTimes = calculateAvailableTimes(timeslot);
+        // if (availableTimes.isEmpty()) {
+        // throw new IllegalArgumentException("Invalid timeslot format or no available
+        // times calculated.");
+        // }
+        // serviceProviderDTO.setAvailableTimeSlots(availableTimes);
+        // logger.info("Calculated available time slots: {}", availableTimes);
+
+        // // Step 3: Register user credentials
+        // UserCredentialsDTO userDTO = new UserCredentialsDTO(
+        // serviceProviderDTO.getUsername(),
+        // serviceProviderDTO.getPassword(),
+        // true, 0, null, false,
+        // serviceProviderDTO.getMobileNo().toString(),
+        // null,
+        // UserRole.SERVICE_PROVIDER.getValue());
+        // String registrationResponse =
+        // userCredentialsService.saveUserCredentials(userDTO);
+        // if (!"Registration successful!".equalsIgnoreCase(registrationResponse)) {
+        // throw new RuntimeException("User registration failed: " +
+        // registrationResponse);
+        // }
+
+        // // Step 4: Save the service provider
+        // ServiceProvider serviceProvider =
+        // serviceProviderMapper.dtoToServiceProvider(serviceProviderDTO);
+        // serviceProvider.setActive(true);
+        // serviceProviderRepository.save(serviceProvider);
+        // logger.debug("Service provider saved successfully: {}", serviceProvider);
+        // }
+
+        // private List<String> calculateAvailableTimes(String timeslot) {
+        // List<String> availableTimes = new ArrayList<>();
+        // try {
+        // String[] times = timeslot.split("-");
+        // if (times.length != 2) {
+        // throw new IllegalArgumentException(
+        // "Invalid timeslot format. Expected format: 'start-end'");
+        // }
+
+        // int startHour = Integer.parseInt(times[0]);
+        // int endHour = Integer.parseInt(times[1]);
+
+        // if (startHour >= endHour || startHour < 0 || endHour > 24) {
+        // throw new IllegalArgumentException(
+        // "Invalid timeslot hours: must be within 0-24 and start < end.");
+        // }
+
+        // for (int hour = startHour; hour < endHour; hour++) {
+        // availableTimes.add(String.format("%02d:00", hour));
+        // }
+        // } catch (NumberFormatException e) {
+        // throw new IllegalArgumentException("Timeslot contains non-numeric values.",
+        // e);
+        // }
+        // return availableTimes;
+        // }
+
+        // @Override
+        // @Transactional
+        // public void saveServiceProviderDTO(ServiceProviderDTO serviceProviderDTO) {
+        // logger.info("Saving a new service provider: {}", serviceProviderDTO);
+        // // Automatically set the username as the emailId
+        // String email = serviceProviderDTO.getEmailId();
+        // if (email == null || email.isEmpty()) {
+        // throw new IllegalArgumentException("EmailId is required to save a service
+        // provider.");
+        // }
+
+        // // Check if service provider already exists by email or mobile number
+        // if
+        // (serviceProviderRepository.existsByEmailId(serviceProviderDTO.getEmailId()))
+        // {
+        // throw new IllegalArgumentException("Service provider with this email already
+        // exists.");
+        // }
+        // if
+        // (serviceProviderRepository.existsByMobileNo(serviceProviderDTO.getMobileNo()))
+        // {
+        // throw new IllegalArgumentException("Service provider with this mobile number
+        // already exists.");
+        // }
+        // serviceProviderDTO.setUsername(email);
+
+        // // Step 1: Calculate age from DOB and set it
+        // LocalDate dob = serviceProviderDTO.getDOB();
+        // if (dob != null) {
+        // int calculatedAge = calculateAge(dob);
+        // // Add the age validation check
+        // if (calculatedAge < 18) {
+        // throw new IllegalArgumentException("You must be at least 18 years old to
+        // proceed.");
+        // }
+        // serviceProviderDTO.setAge(calculatedAge);
+        // logger.info("Calculated age: {}", calculatedAge);
+        // } else {
+        // throw new IllegalArgumentException("Date of Birth (DOB) is required to
+        // calculate age.");
+        // }
+
+        // // Step 2: Calculate available time slots
+        // String busyTimeRange = serviceProviderDTO.getTimeslot();
+        // if (busyTimeRange == null || busyTimeRange.isEmpty()) {
+        // throw new IllegalArgumentException("Timeslot is required to save a service
+        // provider.");
+        // }
+
+        // List<String> availableTimes = calculateAvailableTimes(busyTimeRange);
+        // if (availableTimes.isEmpty()) {
+        // throw new IllegalArgumentException("Invalid timeslot format or no available
+        // times calculated.");
+        // }
+        // serviceProviderDTO.setAvailableTimeSlots(availableTimes);
+        // logger.info("Calculated available time slots: {}", availableTimes);
+
+        // // Step 4: Register user credentials
+        // UserCredentialsDTO userDTO = new UserCredentialsDTO(
+        // serviceProviderDTO.getUsername(),
+        // serviceProviderDTO.getPassword(),
+        // true, 0, null, false,
+        // serviceProviderDTO.getMobileNo().toString(),
+        // null,
+        // UserRole.SERVICE_PROVIDER.getValue()
+
+        // );
+        // String registrationResponse =
+        // userCredentialsService.saveUserCredentials(userDTO);
+        // if (!"Registration successful!".equalsIgnoreCase(registrationResponse)) {
+        // throw new RuntimeException("User registration failed: " +
+        // registrationResponse);
+        // }
+
+        // // Step 5: Save the service provider
+        // ServiceProvider serviceProvider =
+        // serviceProviderMapper.dtoToServiceProvider(serviceProviderDTO);
+        // serviceProvider.setActive(true);
+        // serviceProviderRepository.save(serviceProvider);
+        // logger.debug("Service provider saved successfully: {}", serviceProvider);
+        // }
+
+        // private int calculateAge(LocalDate dob) {
+        // return LocalDate.now().getYear() - dob.getYear();
+        // }
+
+        // private List<String> calculateAvailableTimes(String busyTimeRange) {
+        // List<String> availableTimes = new ArrayList<>();
+        // try {
+        // // Validate input
+        // if (busyTimeRange == null || busyTimeRange.isEmpty()) {
+        // throw new IllegalArgumentException(
+        // "Timeslot is required to calculate available times.");
+        // }
+
+        // // Parse busy range (e.g., "08:00-09:00")
+        // String[] range = busyTimeRange.split("-");
+        // if (range.length != 2) {
+        // throw new IllegalArgumentException(
+        // "Invalid timeslot format. Expected format: 'HH:mm-HH:mm'.");
+        // }
+
+        // int startHour = parseHour(range[0]);
+        // int endHour = parseHour(range[1]);
+
+        // // Validate range
+        // if (startHour >= endHour || startHour < 0 || endHour > 24) {
+        // throw new IllegalArgumentException(
+        // "Invalid time range: must be within 0-24 and start < end.");
+        // }
+
+        // // Calculate available hours
+        // for (int hour = 0; hour < 24; hour++) {
+        // if (hour < startHour || hour >= endHour) {
+        // availableTimes.add(String.format("%02d:00", hour));
+        // }
+        // }
+        // } catch (IllegalArgumentException e) {
+        // throw new IllegalArgumentException(
+        // "Invalid timeslot input. Ensure it's in 'HH:mm-HH:mm' format.", e);
+        // }
+        // return availableTimes;
+        // }
+
+        // private int parseHour(String time) {
+        // try {
+        // String[] parts = time.split(":");
+        // if (parts.length != 2) {
+        // throw new IllegalArgumentException("Invalid time format. Expected 'HH:mm'.");
+        // }
+        // return Integer.parseInt(parts[0]);
+        // } catch (NumberFormatException e) {
+        // throw new IllegalArgumentException("Time contains non-numeric values.", e);
+        // }
+        // }
+
+        @Override
+        @Transactional
+        public void saveServiceProviderDTO(ServiceProviderDTO serviceProviderDTO) {
+                logger.info("Saving a new service provider: {}", serviceProviderDTO);
+
+                String email = serviceProviderDTO.getEmailId();
+                if (email == null || email.isEmpty()) {
+                        throw new IllegalArgumentException("EmailId is required to save a service provider.");
+                }
+
+                if (serviceProviderRepository.existsByEmailId(serviceProviderDTO.getEmailId())) {
+                        throw new IllegalArgumentException("Service provider with this email already exists.");
+                }
+                if (serviceProviderRepository.existsByMobileNo(serviceProviderDTO.getMobileNo())) {
+                        throw new IllegalArgumentException("Service provider with this mobile number already exists.");
+                }
+                serviceProviderDTO.setUsername(email);
+
+                LocalDate dob = serviceProviderDTO.getDOB();
+                if (dob != null) {
+                        int calculatedAge = calculateAge(dob);
+                        if (calculatedAge < 18) {
+                                throw new IllegalArgumentException("You must be at least 18 years old to proceed.");
+                        }
+                        serviceProviderDTO.setAge(calculatedAge);
+                        logger.info("Calculated age: {}", calculatedAge);
+                } else {
+                        throw new IllegalArgumentException("Date of Birth (DOB) is required to calculate age.");
+                }
+
+                String timeslot = serviceProviderDTO.getTimeslot();
+                if (timeslot == null || timeslot.isEmpty()) {
+                        throw new IllegalArgumentException("Timeslot is required to save a service provider.");
+                }
+
+                UserCredentialsDTO userDTO = new UserCredentialsDTO(
+                                serviceProviderDTO.getUsername(),
+                                serviceProviderDTO.getPassword(),
+                                true, 0, null, false,
+                                serviceProviderDTO.getMobileNo().toString(),
+                                null,
+                                UserRole.SERVICE_PROVIDER.getValue());
+                String registrationResponse = userCredentialsService.saveUserCredentials(userDTO);
+                if (!"Registration successful!".equalsIgnoreCase(registrationResponse)) {
+                        throw new RuntimeException("User registration failed: " + registrationResponse);
+                }
+
+                ServiceProvider serviceProvider = serviceProviderMapper.dtoToServiceProvider(serviceProviderDTO);
+                serviceProvider.setActive(true);
+                serviceProviderRepository.save(serviceProvider);
+                logger.debug("Service provider saved successfully: {}", serviceProvider);
         }
-    }
 
-    @Override
-    @Transactional
-    public List<ServiceProviderDTO> getfilters(LanguageKnown language, Double rating, Gender gender,
-            Speciality speciality, HousekeepingRole housekeepingRole, Integer minAge, Integer maxAge) {
-        logger.info("Filtering service providers with specified criteria");
-        Session session = sessionFactory.getCurrentSession();
-
-        // Start building the base HQL query
-        StringBuilder hql = new StringBuilder("FROM ServiceProvider WHERE 1=1");
-
-        // Dynamically append conditions based on non-null parameters
-        if (language != null) {
-            hql.append(" AND languageKnown = :language");
-            logger.debug("Filtering by language: {}", language);
-        }
-        if (rating != null) {
-            hql.append(" AND rating = :rating");
-            logger.debug("Filtering by rating: {}", rating);
-        }
-        if (gender != null) {
-            hql.append(" AND gender = :gender");
-            logger.debug("Filtering by gender: {}", gender);
-        }
-        if (speciality != null) {
-            hql.append(" AND speciality = :speciality");
-            logger.debug("Filtering by speciality: {}", speciality);
-        }
-        if (housekeepingRole != null) {
-            hql.append(" AND housekeepingRole = :housekeepingRole");
-            logger.debug("Filtering by housekeeping role: {}", housekeepingRole);
-        }
-        // Add age range filtering
-        if (minAge != null) {
-            hql.append(" AND age >= :minAge");
-            logger.debug("Filtering by minimum age: {}", minAge);
-        }
-        if (maxAge != null) {
-            hql.append(" AND age <= :maxAge");
-            logger.debug("Filtering by maximum age: {}", maxAge);
+        private int calculateAge(LocalDate dob) {
+                return LocalDate.now().getYear() - dob.getYear();
         }
 
-        // Create the query from the dynamically built HQL
-        Query<ServiceProvider> query = session.createQuery(hql.toString(), ServiceProvider.class);
+        // @Override
+        // @Transactional
+        // public void saveServiceProviderDTO(ServiceProviderDTO serviceProviderDTO) {
+        // logger.info("Saving a new service provider: {}", serviceProviderDTO);
+        // // Automatically set the username as the emailId
+        // String email = serviceProviderDTO.getEmailId();
+        // if (email == null || email.isEmpty()) {
+        // throw new IllegalArgumentException("EmailId is required to save a service
+        // provider.");
+        // }
 
-        // Set parameters if they are not null
-        if (language != null) {
-            query.setParameter("language", language);
+        // // Check if service provider already exists by email or mobile number
+        // if
+        // (serviceProviderRepository.existsByEmailId(serviceProviderDTO.getEmailId()))
+        // {
+        // throw new IllegalArgumentException("Service provider with this email already
+        // exists.");
+        // }
+        // if
+        // (serviceProviderRepository.existsByMobileNo(serviceProviderDTO.getMobileNo()))
+        // {
+        // throw new IllegalArgumentException("Service provider with this mobile number
+        // already exists.");
+        // }
+        // serviceProviderDTO.setUsername(email);
+
+        // // Step 1: Calculate age from DOB and set it
+        // LocalDate dob = serviceProviderDTO.getDOB();
+        // if (dob != null) {
+        // int calculatedAge = calculateAge(dob);
+        // if (calculatedAge < 18) {
+        // throw new IllegalArgumentException("You must be at least 18 years old to
+        // proceed.");
+        // }
+        // serviceProviderDTO.setAge(calculatedAge);
+        // logger.info("Calculated age: {}", calculatedAge);
+        // } else {
+        // throw new IllegalArgumentException("Date of Birth (DOB) is required to
+        // calculate age.");
+        // }
+
+        // // Step 2: Calculate available time slots from the timeslot field
+        // String timeslot = serviceProviderDTO.getTimeslot();
+        // if (timeslot == null || timeslot.isEmpty()) {
+        // throw new IllegalArgumentException("Timeslot is required to save a
+        // serviceprovider.");
+        // }
+
+        // List<String> availableTimes = calculateAvailableTimes(timeslot);
+        // if (availableTimes.isEmpty()) {
+        // throw new IllegalArgumentException("Invalid timeslot format or no available
+        // times calculated.");
+        // }
+        // serviceProviderDTO.setAvailableTimeSlots(availableTimes); // Ensure this step
+        // is correctly executed.
+        // logger.info("Calculated available time slots: {}", availableTimes);
+
+        // // Step 4: Register user credentials
+        // UserCredentialsDTO userDTO = new UserCredentialsDTO(
+        // serviceProviderDTO.getUsername(),
+        // serviceProviderDTO.getPassword(),
+        // true, 0, null, false,
+        // serviceProviderDTO.getMobileNo().toString(),
+        // null,
+        // UserRole.SERVICE_PROVIDER.getValue());
+        // String registrationResponse =
+        // userCredentialsService.saveUserCredentials(userDTO);
+        // if (!"Registration successful!".equalsIgnoreCase(registrationResponse)) {
+        // throw new RuntimeException("User registration failed: " +
+        // registrationResponse);
+        // }
+
+        // // Step 5: Save the service provider
+        // ServiceProvider serviceProvider =
+        // serviceProviderMapper.dtoToServiceProvider(serviceProviderDTO);
+        // serviceProvider.setActive(true);
+        // serviceProviderRepository.save(serviceProvider);
+        // logger.debug("Service provider saved successfully: {}", serviceProvider);
+        // }
+
+        // private int calculateAge(LocalDate dob) {
+        // return LocalDate.now().getYear() - dob.getYear();
+        // }
+
+        // private List<String> calculateAvailableTimes(String busyTimeRange) {
+        // List<String> availableTimes = new ArrayList<>();
+        // try {
+        // // Validate input
+        // if (busyTimeRange == null || busyTimeRange.isEmpty()) {
+        // throw new IllegalArgumentException(
+        // "Timeslot is required to calculate available times.");
+        // }
+
+        // // Parse busy range (e.g., "08:00-09:00")
+        // String[] range = busyTimeRange.split("-");
+        // if (range.length != 2) {
+        // throw new IllegalArgumentException(
+        // "Invalid timeslot format. Expected format: 'HH:mm-HH:mm'.");
+        // }
+
+        // int startHour = parseHour(range[0]);
+        // int endHour = parseHour(range[1]);
+
+        // // Validate range
+        // if (startHour >= endHour || startHour < 0 || endHour > 24) {
+        // throw new IllegalArgumentException(
+        // "Invalid time range: must be within 0-24 and start < end.");
+        // }
+
+        // // Calculate available hours
+        // for (int hour = 0; hour < 24; hour++) {
+        // if (hour < startHour || hour >= endHour) {
+        // availableTimes.add(String.format("%02d:00", hour));
+        // }
+        // }
+        // } catch (IllegalArgumentException e) {
+        // throw new IllegalArgumentException(
+        // "Invalid timeslot input. Ensure it's in 'HH:mm-HH:mm' format.", e);
+        // }
+        // return availableTimes;
+        // }
+
+        // private int parseHour(String time) {
+        // // Extract the hour part from "HH:mm"
+        // try {
+        // String[] parts = time.split(":");
+        // if (parts.length != 2) {
+        // throw new IllegalArgumentException("Invalid time format. Expected 'HH:mm'.");
+        // }
+        // return Integer.parseInt(parts[0]); // Return the hour as an integer
+        // } catch (NumberFormatException e) {
+        // throw new IllegalArgumentException("Time contains non-numeric values.", e);
+        // }
+        // }
+
+        @Override
+        @Transactional
+        public String updateServiceProviderDTO(ServiceProviderDTO serviceProviderDTO) {
+                logger.info("Updating service provider with ID: {}", serviceProviderDTO.getServiceproviderId());
+
+                // Check if the service provider exists
+                if (serviceProviderRepository.existsById(serviceProviderDTO.getServiceproviderId())) {
+
+                        // Map DTO to entity and update
+                        ServiceProvider existingServiceProvider = serviceProviderMapper
+                                        .dtoToServiceProvider(serviceProviderDTO);
+
+                        // Save the updated service provider
+                        serviceProviderRepository.save(existingServiceProvider);
+
+                        logger.info("Service provider updated with ID: {}", serviceProviderDTO.getServiceproviderId());
+                        return ServiceProviderConstants.UPDATE_DESC;
+                } else {
+                        logger.error("Service provider not found for update with ID: {}",
+                                        serviceProviderDTO.getServiceproviderId());
+                        return ServiceProviderConstants.SERVICE_PROVIDER_NOT_FOUND;
+                }
         }
-        if (rating != null) {
-            query.setParameter("rating", rating);
-        }
-        if (gender != null) {
-            query.setParameter("gender", gender);
-        }
-        if (speciality != null) {
-            query.setParameter("speciality", speciality);
-        }
-        if (housekeepingRole != null) {
-            query.setParameter("housekeepingRole", housekeepingRole);
-        }
-        if (minAge != null) {
-            query.setParameter("minAge", minAge);
-        }
-        if (maxAge != null) {
-            query.setParameter("maxAge", maxAge);
-        }
 
-        // Execute the query and get the results
-        List<ServiceProvider> serviceProviders = query.getResultList();
-        logger.debug("Found {} service providers matching the criteria", serviceProviders.size());
+        @Override
+        @Transactional
+        public String deleteServiceProviderDTO(Long id) {
+                logger.info("Deactivating service provider with ID: {}", id);
 
-        // Convert the list of ServiceProvider entities to a list of ServiceProviderDTOs
-        return serviceProviders.stream()
-                .map(serviceProviderMapper::serviceProviderToDTO)
-                .collect(Collectors.toList());
-    }
-
-    @Override
-    @Transactional
-    public List<ServiceProviderDTO> getServiceProvidersByFilter(Integer pincode, String street, String locality) {
-        logger.info("Fetching service providers with filter - Pincode: {}, Street: {}, Locality: {}", pincode, street,
-                locality);
-
-        Session session = sessionFactory.getCurrentSession();
-        StringBuilder hql = new StringBuilder("FROM ServiceProvider WHERE ");
-
-        // Dynamically build query based on provided parameter
-        if (pincode != null) {
-            hql.append("pincode = :pincode");
-            logger.debug("Filtering by pincode: {}", pincode);
-        } else if (street != null) {
-            hql.append("street LIKE :street");
-            logger.debug("Filtering by street: {}", street);
-        } else if (locality != null) {
-            hql.append("locality LIKE :locality");
-            logger.debug("Filtering by locality: {}", locality);
-        } else {
-            logger.warn("No filter parameters provided. Returning all service providers.");
-            hql.append("1=1"); // Return all service providers if no filters are applied
+                return serviceProviderRepository.findById(id)
+                                .map(serviceProvider -> {
+                                        // Deactivate the service provider
+                                        serviceProvider.deactivate(); // Assuming deactivate() s
+                                        serviceProviderRepository.save(serviceProvider);
+                                        logger.info("Service provider with ID {} deactivated", id);
+                                        return ServiceProviderConstants.DELETE_DESC;
+                                })
+                                .orElseGet(() -> {
+                                        logger.error("Service provider not found for deletion with ID: {}", id);
+                                        return ServiceProviderConstants.SERVICE_PROVIDER_NOT_FOUND;
+                                });
         }
 
-        Query<ServiceProvider> query = session.createQuery(hql.toString(), ServiceProvider.class);
+        @Override
+        @Transactional
+        public List<ServiceProviderDTO> getfilters(LanguageKnown language, Double rating, Gender gender,
+                        Speciality speciality, HousekeepingRole housekeepingRole, Integer minAge, Integer maxAge,
+                        String timeslot, Habit diet) {
 
-        // Set query parameters
-        if (pincode != null) {
-            query.setParameter("pincode", pincode);
-        } else if (street != null) {
-            query.setParameter("street", "%" + street + "%");
-        } else if (locality != null) {
-            query.setParameter("locality", "%" + locality + "%");
+                logger.info("Filtering service providers with specified criteria");
+
+                // Build the Specification dynamically based on non-null parameters
+                Specification<ServiceProvider> spec = Specification.where(null);
+
+                if (language != null) {
+                        spec = spec.and((root, query, criteriaBuilder) -> criteriaBuilder
+                                        .equal(root.get("languageKnown"), language));
+                        logger.debug("Filtering by language: {}", language);
+                }
+                if (rating != null) {
+                        spec = spec.and((root, query, criteriaBuilder) -> criteriaBuilder.equal(root.get("rating"),
+                                        rating));
+                        logger.debug("Filtering by rating: {}", rating);
+                }
+                if (gender != null) {
+                        spec = spec.and((root, query, criteriaBuilder) -> criteriaBuilder.equal(root.get("gender"),
+                                        gender));
+                        logger.debug("Filtering by gender: {}", gender);
+                }
+                if (speciality != null) {
+                        spec = spec.and((root, query, criteriaBuilder) -> criteriaBuilder.equal(root.get("speciality"),
+                                        speciality));
+                        logger.debug("Filtering by speciality: {}", speciality);
+                }
+                if (housekeepingRole != null) {
+                        spec = spec.and((root, query, criteriaBuilder) -> criteriaBuilder
+                                        .equal(root.get("housekeepingRole"), housekeepingRole));
+                        logger.debug("Filtering by housekeeping role: {}", housekeepingRole);
+                }
+                if (minAge != null) {
+                        spec = spec.and((root, query, criteriaBuilder) -> criteriaBuilder
+                                        .greaterThanOrEqualTo(root.get("age"), minAge));
+                        logger.debug("Filtering by minimum age: {}", minAge);
+                }
+                if (maxAge != null) {
+                        spec = spec.and((root, query, criteriaBuilder) -> criteriaBuilder
+                                        .lessThanOrEqualTo(root.get("age"), maxAge));
+                        logger.debug("Filtering by maximum age: {}", maxAge);
+                }
+                if (timeslot != null && !timeslot.isEmpty()) {
+                        spec = spec.and((root, query, criteriaBuilder) -> criteriaBuilder.like(
+                                        criteriaBuilder.lower(root.get("timeslot")),
+                                        "%" + timeslot.toLowerCase() + "%"));
+                        logger.debug("Filtering by timeslot: {}", timeslot);
+                }
+                if (diet != null) {
+                        spec = spec.and((root, query, criteriaBuilder) -> criteriaBuilder.equal(root.get("diet"),
+                                        diet));
+                        logger.debug("Filtering by diet: {}", diet);
+                }
+
+                // Execute the query using the Specification
+                List<ServiceProvider> serviceProviders = serviceProviderRepository.findAll(spec);
+                logger.debug("Found {} service providers matching the criteria", serviceProviders.size());
+
+                // Convert the list of ServiceProvider entities to a list of ServiceProviderDTOs
+                return serviceProviders.stream()
+                                .map(serviceProviderMapper::serviceProviderToDTO)
+                                .collect(Collectors.toList());
         }
 
-        List<ServiceProvider> serviceProviders = query.getResultList();
+        @Override
+        @Transactional
+        public List<ServiceProviderDTO> getServiceProvidersByFilter(Integer pincode, String street, String locality) {
+                logger.info("Fetching service providers with the given filter parameters - Pincode: {}, Street: {}, Locality: {}",
+                                pincode, street, locality);
 
-        logger.debug("Found {} service provider(s) matching the criteria.", serviceProviders.size());
+                // Start building the specification for dynamic filtering
+                Specification<ServiceProvider> spec = Specification.where(null);
 
-        return serviceProviders.stream()
-                .map(serviceProviderMapper::serviceProviderToDTO)
-                .collect(Collectors.toList());
-    }
+                if (pincode != null) {
+                        spec = spec.and((root, query, criteriaBuilder) -> criteriaBuilder.equal(root.get("pincode"),
+                                        pincode));
+                        logger.debug("Filtering by pincode: {}", pincode);
+                }
+                if (street != null) {
+                        spec = spec.and((root, query, criteriaBuilder) -> criteriaBuilder.equal(root.get("street"),
+                                        street));
+                        logger.debug("Filtering by street: {}", street);
+                }
+                if (locality != null) {
+                        spec = spec.and((root, query, criteriaBuilder) -> criteriaBuilder.equal(root.get("locality"),
+                                        locality));
+                        logger.debug("Filtering by locality: {}", locality);
+                }
 
-    @Override
-    @Transactional
-    public List<ServiceProviderDTO> getServiceProvidersByOrFilter(Integer pincode, String street, String locality) {
-        logger.info("Fetching service providers with OR filter - Pincode: {}, Street: {}, Locality: {}", pincode,
-                street, locality);
+                // Execute the query using the Specification
+                List<ServiceProvider> serviceProviders = serviceProviderRepository.findAll(spec);
+                logger.debug("Number of service providers found: {}", serviceProviders.size());
 
-        Session session = sessionFactory.getCurrentSession();
-        StringBuilder hql = new StringBuilder("FROM ServiceProvider WHERE ");
-
-        // Dynamically build query based on provided parameter using OR
-        boolean hasCondition = false;
-        if (pincode != null) {
-            hql.append("pincode = :pincode");
-            hasCondition = true;
-            logger.debug("Filtering by pincode: {}", pincode);
-        }
-        if (street != null) {
-            if (hasCondition) {
-                hql.append(" OR ");
-            }
-            hql.append("street LIKE :street");
-            hasCondition = true;
-            logger.debug("Filtering by street: {}", street);
-        }
-        if (locality != null) {
-            if (hasCondition) {
-                hql.append(" OR ");
-            }
-            hql.append("locality LIKE :locality");
-            logger.debug("Filtering by locality: {}", locality);
-        }
-        if (!hasCondition) {
-            logger.warn("No filter parameters provided. Returning all service providers.");
-            hql.append("1=1"); // Return all service providers if no filters are applied
+                // Convert the list of ServiceProvider entities to a list of ServiceProviderDTOs
+                return serviceProviders.stream()
+                                .map(serviceProviderMapper::serviceProviderToDTO)
+                                .collect(Collectors.toList());
         }
 
-        Query<ServiceProvider> query = session.createQuery(hql.toString(), ServiceProvider.class);
+        @Override
+        @Transactional
+        public List<ServiceProviderDTO> getServiceProvidersByOrFilter(Integer pincode, String street, String locality) {
+                logger.info("Fetching service providers with OR filter - Pincode: {}, Street: {}, Locality: {}",
+                                pincode, street, locality);
 
-        // Set query parameters
-        if (pincode != null) {
-            query.setParameter("pincode", pincode);
+                // Initialize specification for OR conditions
+                Specification<ServiceProvider> spec = Specification.where(null);
+
+                if (pincode != null) {
+                        spec = spec.or((root, query, criteriaBuilder) -> criteriaBuilder.equal(root.get("pincode"),
+                                        pincode));
+                        logger.debug("Adding OR condition for pincode: {}", pincode);
+                }
+                if (street != null) {
+                        spec = spec.or((root, query, criteriaBuilder) -> criteriaBuilder.equal(root.get("street"),
+                                        street));
+                        logger.debug("Adding OR condition for street: {}", street);
+                }
+                if (locality != null) {
+                        spec = spec.or((root, query, criteriaBuilder) -> criteriaBuilder.equal(root.get("locality"),
+                                        locality));
+                        logger.debug("Adding OR condition for locality: {}", locality);
+                }
+
+                // Fetch results using the built specification
+                List<ServiceProvider> serviceProviders = serviceProviderRepository.findAll(spec);
+                logger.debug("Number of service providers found: {}", serviceProviders.size());
+
+                // Map entities to DTOs
+                return serviceProviders.stream()
+                                .map(serviceProviderMapper::serviceProviderToDTO)
+                                .collect(Collectors.toList());
         }
-        if (street != null) {
-            query.setParameter("street", "%" + street + "%");
+
+        @Override
+        public Map<String, Object> calculateExpectedSalary(Long serviceProviderId) {
+                logger.info("Calculating expected salary for service provider ID: {}", serviceProviderId);
+
+                Map<String, Object> response = new HashMap<>();
+                try {
+                        // Fetch all engagements and filter for the given service provider ID
+                        List<ServiceProviderEngagement> engagements = engagementRepository.findAll();
+                        List<ServiceProviderEngagement> filteredEngagements = new ArrayList<>();
+
+                        for (ServiceProviderEngagement engagement : engagements) {
+                                if (engagement.getServiceProvider().getServiceproviderId().equals(serviceProviderId)) {
+                                        filteredEngagements.add(engagement);
+                                }
+                        }
+
+                        if (filteredEngagements.isEmpty()) {
+                                logger.warn("No engagements found for service provider ID: {}", serviceProviderId);
+                                response.put("error", "No engagements found");
+                                return response;
+                        }
+
+                        double totalSalary = 0.0;
+
+                        for (ServiceProviderEngagement engagement : filteredEngagements) {
+                                LocalDate startDate = engagement.getStartDate();
+                                LocalDate endDate = (engagement.getEndDate() != null)
+                                                ? engagement.getEndDate()
+                                                : LocalDate.now().withDayOfMonth(LocalDate.now().lengthOfMonth());
+
+                                long noOfDays = (ChronoUnit.DAYS.between(startDate, endDate)) + 1;
+                                int monthlyAmount = (int) engagement.getMonthlyAmount();
+                                int daysInMonth = endDate.lengthOfMonth();
+                                double calculatedAmount = (double) monthlyAmount / daysInMonth * noOfDays;
+
+                                // Round the calculated amount to 2 decimal places
+                                BigDecimal roundedAmount = new BigDecimal(calculatedAmount).setScale(2,
+                                                RoundingMode.HALF_UP);
+                                totalSalary += roundedAmount.doubleValue();
+                        }
+
+                        // Add service provider ID and expected salary to the response
+                        response.put("serviceProviderId", serviceProviderId);
+                        response.put("expectedSalary", totalSalary);
+
+                        logger.info("Calculated expected salary for service provider ID: {} is {}", serviceProviderId,
+                                        totalSalary);
+
+                        return response;
+
+                } catch (Exception e) {
+                        logger.error("Error calculating expected salary for service provider ID: {}", serviceProviderId,
+                                        e);
+                        response.put("error", "Error calculating salary");
+                        return response;
+                }
+
         }
-        if (locality != null) {
-            query.setParameter("locality", "%" + locality + "%");
+
+        @Override
+        @Transactional
+        public List<ServiceProviderDTO> getServiceProvidersByRole(HousekeepingRole role) {
+                logger.info("Fetching service providers with role: {}", role);
+
+                // Check if the role is provided
+                if (role == null) {
+                        logger.warn("Role cannot be null");
+                        throw new IllegalArgumentException("Role must be provided to fetch service providers.");
+                }
+
+                // Filter service providers by the specified housekeeping role
+                Specification<ServiceProvider> spec = (root, query, criteriaBuilder) -> criteriaBuilder
+                                .equal(root.get("housekeepingRole"), role);
+
+                List<ServiceProvider> serviceProviders = serviceProviderRepository.findAll(spec);
+                logger.debug("Number of service providers found for role {}: {}", role, serviceProviders.size());
+
+                // Map entities to DTOs
+                return serviceProviders.stream()
+                                .map(serviceProviderMapper::serviceProviderToDTO)
+                                .collect(Collectors.toList());
         }
 
-        List<ServiceProvider> serviceProviders = query.getResultList();
+        @Override
+        @Transactional
+        public String uploadExcelRecords(String filename) {
+                // Read the Excel file and retrieve the list of ServiceProviders
+                List<ServiceProvider> serviceProviders = excelSheetHandler.readExcelFile(filename);
 
-        logger.debug("Found {} service provider(s) matching the criteria.", serviceProviders.size());
-
-        return serviceProviders.stream()
-                .map(serviceProviderMapper::serviceProviderToDTO)
-                .collect(Collectors.toList());
-    }
+                if (serviceProviders != null && !serviceProviders.isEmpty()) {
+                        // Save each ServiceProvider to the database
+                        serviceProviderRepository.saveAll(serviceProviders);
+                }
+                return "successfull";
+        }
 
 }

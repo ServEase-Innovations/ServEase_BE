@@ -4,7 +4,7 @@ import com.springboot.app.dto.CustomerConcernDTO;
 import java.util.List;
 
 public interface CustomerConcernService {
-    List<CustomerConcernDTO> getAllConcerns();
+    List<CustomerConcernDTO> getAllConcerns(int page, int size);
 
     CustomerConcernDTO getConcernById(Long id);
 

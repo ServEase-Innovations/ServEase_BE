@@ -1,22 +1,23 @@
 package com.springboot.app.service;
 
-import java.util.List;
-import java.util.stream.Collectors;
-
-import org.hibernate.Session;
-import org.hibernate.SessionFactory;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
-import com.springboot.app.config.PaginationHelper;
 import com.springboot.app.constant.ServiceProviderConstants;
 import com.springboot.app.dto.ServiceProviderRequestDTO;
 import com.springboot.app.entity.ServiceProviderRequest;
 import com.springboot.app.mapper.ServiceProviderRequestMapper;
+import com.springboot.app.repository.ServiceProviderRequestRepository;
 
-import jakarta.transaction.Transactional;
+import java.util.List;
+import java.util.stream.Collectors;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Page;
 
 @Service
 public class ServiceProviderRequestServiceImpl implements ServiceProviderRequestService {
@@ -24,7 +25,7 @@ public class ServiceProviderRequestServiceImpl implements ServiceProviderRequest
     private static final Logger logger = LoggerFactory.getLogger(ServiceProviderRequestServiceImpl.class);
 
     @Autowired
-    private SessionFactory sessionFactory;
+    private ServiceProviderRequestRepository serviceProviderRequestRepository; // Use JPA repository
 
     @Autowired
     private ServiceProviderRequestMapper serviceProviderRequestMapper; // Inject request mapper
@@ -33,19 +34,13 @@ public class ServiceProviderRequestServiceImpl implements ServiceProviderRequest
     @Transactional
     public List<ServiceProviderRequestDTO> getAllServiceProviderRequestDTOs(int page, int size) {
         logger.info("Fetching service provider requests with pagination - page: {}, size: {}", page, size);
-        Session session = sessionFactory.getCurrentSession();
 
-        // Using PaginationHelper to get paginated results
-        List<ServiceProviderRequest> requests = PaginationHelper.getPaginatedResults(
-                session,
-                "FROM ServiceProviderRequest", // Use uppercase for consistency with HQL
-                page,
-                size,
-                ServiceProviderRequest.class);
+        // Using pagination directly with Spring Data JPA
+        Page<ServiceProviderRequest> requestsPage = serviceProviderRequestRepository
+                .findAll(PageRequest.of(page, size));
+        logger.debug("Fetched {} request(s) from the database.", requestsPage.getSize());
 
-        logger.debug("Fetched {} request(s) from the database.", requests.size());
-
-        return requests.stream()
+        return requestsPage.stream()
                 .map(serviceProviderRequestMapper::serviceProviderRequestToDTO)
                 .collect(Collectors.toList());
     }
@@ -54,13 +49,10 @@ public class ServiceProviderRequestServiceImpl implements ServiceProviderRequest
     @Transactional
     public ServiceProviderRequestDTO getServiceProviderRequestDTOById(Long id) {
         logger.info("Fetching service provider request with ID: {}", id);
-        Session session = sessionFactory.getCurrentSession();
-        ServiceProviderRequest request = session.get(ServiceProviderRequest.class, id);
 
-        if (request == null) {
-            logger.warn("Service provider request with ID {} not found", id);
-            throw new RuntimeException(ServiceProviderConstants.SERVICE_PROVIDER_REQUEST_NOT_FOUND + id);
-        }
+        ServiceProviderRequest request = serviceProviderRequestRepository.findById(id)
+                .orElseThrow(
+                        () -> new RuntimeException(ServiceProviderConstants.SERVICE_PROVIDER_REQUEST_NOT_FOUND + id));
 
         logger.debug("Found service provider request: {}", request);
         return serviceProviderRequestMapper.serviceProviderRequestToDTO(request);
@@ -70,10 +62,11 @@ public class ServiceProviderRequestServiceImpl implements ServiceProviderRequest
     @Transactional
     public void saveServiceProviderRequestDTO(ServiceProviderRequestDTO serviceProviderRequestDTO) {
         logger.info("Saving a new service provider request");
-        Session session = sessionFactory.getCurrentSession();
+
+        // Map the DTO to Entity and save it using JPA
         ServiceProviderRequest request = serviceProviderRequestMapper
                 .dtoToServiceProviderRequest(serviceProviderRequestDTO);
-        session.persist(request);
+        serviceProviderRequestRepository.save(request); // Save with JPA repository
         logger.debug("Service provider request saved: {}", request);
     }
 
@@ -81,36 +74,33 @@ public class ServiceProviderRequestServiceImpl implements ServiceProviderRequest
     @Transactional
     public void updateServiceProviderRequestDTO(ServiceProviderRequestDTO serviceProviderRequestDTO) {
         logger.info("Updating service provider request with ID: {}", serviceProviderRequestDTO.getRequestId());
-        Session session = sessionFactory.getCurrentSession();
-        ServiceProviderRequest existingRequest = session.get(ServiceProviderRequest.class,
-                serviceProviderRequestDTO.getRequestId());
 
-        if (existingRequest == null) {
-            logger.warn("Service provider request with ID {} not found for update",
-                    serviceProviderRequestDTO.getRequestId());
-            throw new RuntimeException(ServiceProviderConstants.SERVICE_PROVIDER_REQUEST_NOT_FOUND
-                    + serviceProviderRequestDTO.getRequestId());
-        }
+        // Fetch the existing request from JPA
+        ServiceProviderRequest existingRequest = serviceProviderRequestRepository
+                .findById(serviceProviderRequestDTO.getRequestId())
+                .orElseThrow(() -> new RuntimeException(ServiceProviderConstants.SERVICE_PROVIDER_REQUEST_NOT_FOUND
+                        + serviceProviderRequestDTO.getRequestId()));
 
-        existingRequest = serviceProviderRequestMapper.dtoToServiceProviderRequest(serviceProviderRequestDTO);
-        session.merge(existingRequest);
-        logger.debug("Service provider request updated: {}", existingRequest);
+        // Map the DTO to Entity and update it using JPA
+        ServiceProviderRequest updatedRequest = serviceProviderRequestMapper
+                .dtoToServiceProviderRequest(serviceProviderRequestDTO);
+        updatedRequest.setRequestId(existingRequest.getRequestId()); // Preserve the original ID
+        serviceProviderRequestRepository.save(updatedRequest); // Save the updated entity
+        logger.debug("Service provider request updated: {}", updatedRequest);
     }
 
     @Override
     @Transactional
     public void deleteServiceProviderRequestDTO(Long id) {
         logger.info("Deleting (resolving) service provider request with ID: {}", id);
-        Session session = sessionFactory.getCurrentSession();
-        ServiceProviderRequest request = session.get(ServiceProviderRequest.class, id);
 
-        if (request != null) {
-            request.setIsResolved(ServiceProviderConstants.REQUEST_RESOLVED);
-            session.merge(request);
-            logger.debug("Service provider request with ID {} marked as resolved", id);
-        } else {
-            logger.warn("Service provider request with ID {} not found for deletion", id);
-            throw new RuntimeException(ServiceProviderConstants.SERVICE_PROVIDER_REQUEST_NOT_FOUND + id);
-        }
+        ServiceProviderRequest request = serviceProviderRequestRepository.findById(id)
+                .orElseThrow(
+                        () -> new RuntimeException(ServiceProviderConstants.SERVICE_PROVIDER_REQUEST_NOT_FOUND + id));
+
+        // Mark the request as resolved and save the update
+        request.setIsResolved(ServiceProviderConstants.REQUEST_RESOLVED);
+        serviceProviderRequestRepository.save(request); // Save the updated entity
+        logger.debug("Service provider request with ID {} marked as resolved", id);
     }
 }

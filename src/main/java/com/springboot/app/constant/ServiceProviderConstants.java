@@ -16,6 +16,10 @@ public class ServiceProviderConstants {
     public static final String ADD_NEW_DESC = "Add a new customer";
     public static final String UPDATE_DESC = "Update an existing customer";
     public static final String DELETE_DESC = "Delete a customer by ID";
+    public static final String SERVICE_PROVIDER_ALREADY_EXISTS = "Service provider with this email or mobile number already exists.";
+    public static final String SERVICE_PROVIDER_ERROR = "An error occurred while processing the service provider request.";
+    public static final String NO_SERVICE_PROVIDERS_FOUND_FOR_VENDOR = "No service providers found for vendor ID: ";
+    public static final String GET_BY_VENDOR_ID_DESC = "Retrieve all service providers by Vendor ID";
 
     // Constants for service provider Request
     public static final String DESC_RETRIEVE_ALL_SERVICE_PROVIDER_REQUESTS = "Retrieve all service provider requests";
@@ -58,13 +62,55 @@ public class ServiceProviderConstants {
     public static final String COMMENT_UPDATED_SUCCESS = "Comment updated successfully for the service provider request.";
     public static final String COMMENT_DELETED_SUCCESS = "Comment deleted successfully for the service provider request.";
 
+    // Attendance Constants
+    public static final String ATTENDANCE_ADDED = "Attendance record added successfully";
+    public static final String ATTENDANCE_UPDATED = "Attendance record updated successfully";
+    public static final String ATTENDANCE_DELETED = "Attendance record marked as deleted successfully";
+
     // Error messages
     public static final String SERVICE_PROVIDER_NOT_FOUND = "ServiceProvider not found with id: ";
     public static final String SERVICE_PROVIDER_REQUEST_NOT_FOUND = "ServiceProviderRequest not found with id: ";
     public static final String FEEDBACK_NOT_FOUND = "ServiceProviderFeedback not found with id: ";
 
+    // Error messages for customer not found
+    public static final String CUSTOMER_NOT_FOUND = "Customer not found with ID: ";
+
     // Status messages
     public static final String REQUEST_RESOLVED = "YES";
+
+    // Eng
+    public static final String RETRIEVE_ALL_ENGAGEMENT_DESC = "Retrieve all service provider engagements ";
+    public static final String GET_BY_ID_ENGAGEMENT_DESC = "Retrieve service provider engagement by ID";
+    public static final String ADD_NEW_ENGAGEMENT_DESC = "Add a new service provider engagement";
+    public static final String UPDATE_ENGAGEMENT_DESC = "Update an existing service provider engagement";
+    public static final String DEACTIVATE_ENGAGEMENT_DESC = "Deactivate a service provider engagement";
+    public static final String ENGAGEMENT_ALREADY_EXISTS = "Service provider engagement already exists.";
+    public static final String ENGAGEMENT_NOT_FOUND = "Service provider engagement not found.";
+    public static final String ENGAGEMENT_ERROR = "Error occurred while processing the service provider engagement.";
+    public static final String GET_BY_SERVICE_PROVIDER_ID_DESC = "Get all engagements for a given ServiceProvider ID.";
+
+    public static final String ENGAGEMENT_ADDED = "Service Provider Engagement added successfully.";
+    public static final String ENGAGEMENT_UPDATED = "Service Provider Engagement updated successfully.";
+    public static final String ENGAGEMENT_DELETED = "Service Provider Engagement deactivated successfully.";
+
+    public static final String PASSWORD_UPDATED = "Password updated successfully.";
+    public static final String ACCOUNT_DEACTIVATED = "Account deactivated successfully.";
+    public static final String USER_NOT_FOUND = "User not found.";
+
+    public static final String VENDOR_SAVED = "Vendor saved successfully.";
+    public static final String VENDOR_UPDATED = "Vendor updated successfully.";
+    public static final String VENDOR_DELETED = "Vendor deactivated successfully.";
+    public static final String VENDOR_NOT_FOUND = "Vendor not found.";
+    public static final String RETRIEVE_ALL_VENDOR_DESC = "Retrieve all vendors";
+    public static final int DEFAULT_PAGE_SIZE = 10;
+    public static final String GET_VENDOR_BY_ID_DESC = "Get a vendor by ID";
+    public static final String ADD_NEW_VENDOR_DESC = "Add a new vendor";
+    public static final String VENDOR_ADDED = "Vendor has been added successfully.";
+    public static final String VENDOR_ALREADY_EXISTS = "Vendor already exists.";
+    public static final String VENDOR_ERROR = "An error occurred while adding the vendor.";
+    public static final String UPDATE_VENDOR_DESC = "Update vendor details";
+
+    public static final String DELETE_VENDOR_DESC = "Delete a vendor (deactivate)";
 
     // Prevent instantiation
     private ServiceProviderConstants() {

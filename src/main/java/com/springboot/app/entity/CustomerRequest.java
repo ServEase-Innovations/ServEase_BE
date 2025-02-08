@@ -5,8 +5,10 @@ import java.time.LocalDateTime;
 import com.springboot.app.enums.Gender;
 import com.springboot.app.enums.Habit;
 import com.springboot.app.enums.LanguageKnown;
+import com.springboot.app.enums.Status;
 import com.springboot.app.enums.HousekeepingRole;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
+//import com.fasterxml.jackson.annotation.JsonProperty;
 
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
@@ -33,7 +35,7 @@ import java.util.ArrayList;
 public class CustomerRequest {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY) // Ensures unique ID generation for CustomerRequest
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long requestId;
 
     private Long customerId;
@@ -50,6 +52,18 @@ public class CustomerRequest {
 
     @Column
     private String ageRange;
+
+    @Column
+    private String area;
+
+    @Column
+    private String locality;
+
+    @Column
+    private String apartment_name;
+
+    @Column(nullable = false, length = 6)
+    private Integer pincode;
 
     @Enumerated(EnumType.STRING)
     private Habit cookingHabit;
@@ -72,6 +86,9 @@ public class CustomerRequest {
     @Enumerated(EnumType.STRING)
     private LanguageKnown languageKnown;
 
+    @Enumerated(EnumType.STRING)
+    private Status status = Status.NEW;
+
     @Column(nullable = false)
     private String isResolved = "NO";
 
@@ -83,6 +100,21 @@ public class CustomerRequest {
 
     @Column
     private Long modifiedBy;
+
+    @Column
+    private Timestamp startDate;
+
+    @Column
+    private Timestamp endDate;
+
+    @Column
+    private String noOfResources;
+
+    @Column
+    private String days;
+
+    @Column
+    private double amount;
 
     @OneToMany(mappedBy = "customerRequest", cascade = CascadeType.ALL, orphanRemoval = true)
     @JsonManagedReference

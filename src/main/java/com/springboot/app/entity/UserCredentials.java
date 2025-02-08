@@ -8,6 +8,8 @@ import lombok.Setter;
 import java.sql.Timestamp;
 import java.text.SimpleDateFormat;
 
+import com.springboot.app.enums.UserRole;
+
 @Entity
 @Table(name = "user_credentials")
 @Getter
@@ -34,11 +36,15 @@ public class UserCredentials {
     @Column(name = "is_temp_locked", nullable = false)
     private boolean isTempLocked; // True if account is temporarily locked
 
-    @Column(name = "phone_number", length = 15)
+    @Column(name = "phone_number", length = 10, unique = true)
     private String phoneNumber; // Stores phone number as VARCHAR
 
     @Column(name = "last_login")
     private Timestamp lastLogin; // Timestamp of the last login
+
+    @Column(name = "user_role")
+    @Enumerated(EnumType.STRING)
+    private UserRole role;
 
     // Automatically set default values before persisting
     @PrePersist
@@ -58,10 +64,10 @@ public class UserCredentials {
         this.lastLogin = Timestamp.valueOf(formattedDate);
     }
 
-    // public void deactivate() {
-    // this.isActive = false;
-    // this.lastLogin = new Timestamp(System.currentTimeMillis());
-    // }
+    @Transient
+    public int getRoleAsNumber() {
+        return role.getValue();
+    }
 
     public void lock() {
         this.isTempLocked = true;

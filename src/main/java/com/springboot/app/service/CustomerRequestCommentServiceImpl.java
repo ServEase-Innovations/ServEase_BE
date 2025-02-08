@@ -1,47 +1,63 @@
 package com.springboot.app.service;
 
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import com.springboot.app.constant.CustomerConstants;
 import com.springboot.app.dto.CustomerRequestCommentDTO;
 import com.springboot.app.entity.CustomerRequest;
 import com.springboot.app.entity.CustomerRequestComment;
 import com.springboot.app.mapper.CustomerRequestCommentMapper;
-import org.hibernate.Session;
-import org.hibernate.SessionFactory;
-
+import com.springboot.app.repository.CustomerRequestCommentRepository;
+import com.springboot.app.repository.CustomerRequestRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 public class CustomerRequestCommentServiceImpl implements CustomerRequestCommentService {
 
-    @Autowired
-    private SessionFactory sessionFactory;
+    private static final Logger logger = LoggerFactory.getLogger(CustomerRequestCommentServiceImpl.class);
 
     @Autowired
     private CustomerRequestCommentMapper customerRequestCommentMapper;
 
+    @Autowired
+    private CustomerRequestCommentRepository customerRequestCommentRepository;
+
+    @Autowired
+    private CustomerRequestRepository customerRequestRepository; // Add the repository for CustomerRequest
+
     // To get all customer request comments
     @Override
     @Transactional(readOnly = true)
-    public List<CustomerRequestCommentDTO> getAllComments() {
-        Session session = sessionFactory.getCurrentSession();
-        List<CustomerRequestComment> comments = session
-                .createQuery("FROM CustomerRequestComment", CustomerRequestComment.class)
-                .getResultList();
-        return comments.stream()
+    public List<CustomerRequestCommentDTO> getAllComments(int page, int size) {
+        logger.info("Fetching all customer request comments with pagination - page: {}, size: {}", page, size);
+
+        Pageable pageable = PageRequest.of(page, size);
+        List<CustomerRequestComment> commentsList = customerRequestCommentRepository.findAll(pageable).getContent();
+
+        logger.debug("Fetched {} customer request comments from the database.", commentsList.size());
+
+        return commentsList.stream()
                 .map(customerRequestCommentMapper::customerRequestCommentToDTO)
-                .toList();
+                .collect(Collectors.toList());
     }
 
     // To get a customer request comment by ID
     @Override
     @Transactional(readOnly = true)
     public CustomerRequestCommentDTO getCommentById(Long id) {
-        Session session = sessionFactory.getCurrentSession();
-        CustomerRequestComment comment = session.get(CustomerRequestComment.class, id);
+        logger.info("Fetching customer request comment by ID: {}", id);
+        CustomerRequestComment comment = customerRequestCommentRepository.findById(id).orElse(null);
+        if (comment != null) {
+            logger.debug("Comment found with ID: {}", id);
+        } else {
+            logger.error("Comment not found with ID: {}", id);
+        }
         return customerRequestCommentMapper.customerRequestCommentToDTO(comment);
     }
 
@@ -49,20 +65,23 @@ public class CustomerRequestCommentServiceImpl implements CustomerRequestComment
     @Override
     @Transactional
     public String addComment(CustomerRequestCommentDTO commentDTO) {
-        Session session = sessionFactory.getCurrentSession();
+        logger.info("Adding new comment for customer request ID: {}", commentDTO.getRequestId());
+
         if (commentDTO.getRequestId() == null) {
+            logger.warn("CustomerRequestId is required to add a comment.");
             throw new IllegalArgumentException("CustomerRequestId is required.");
         }
-        CustomerRequest customerRequest = session.get(CustomerRequest.class, commentDTO.getRequestId());
 
-        if (customerRequest == null) {
-            throw new IllegalArgumentException(
-                    "CustomerRequest with ID " + commentDTO.getRequestId() + " does not exist.");
-        }
+        CustomerRequest customerRequest = customerRequestRepository.findById(commentDTO.getRequestId())
+                .orElseThrow(() -> new IllegalArgumentException(
+                        "CustomerRequest with ID " + commentDTO.getRequestId() + " does not exist."));
+
         CustomerRequestComment comment = customerRequestCommentMapper.dtoToCustomerRequestComment(commentDTO);
         customerRequest.getComments().add(comment);
         comment.setCustomerRequest(customerRequest);
-        session.persist(comment);
+        customerRequestCommentRepository.save(comment);
+
+        logger.info("Comment added with ID: {}", comment.getId());
         return CustomerConstants.ADDED;
     }
 
@@ -70,25 +89,37 @@ public class CustomerRequestCommentServiceImpl implements CustomerRequestComment
     @Override
     @Transactional
     public String updateComment(Long id, CustomerRequestCommentDTO commentDTO) {
-        Session session = sessionFactory.getCurrentSession();
-        CustomerRequestComment existingComment = session.get(CustomerRequestComment.class, id);
-        CustomerRequestComment updatedComment = customerRequestCommentMapper.dtoToCustomerRequestComment(commentDTO);
+        logger.info("Updating comment with ID: {}", id);
+
+        CustomerRequestComment existingComment = customerRequestCommentRepository.findById(id).orElse(null);
         if (existingComment != null) {
+            CustomerRequestComment updatedComment = customerRequestCommentMapper
+                    .dtoToCustomerRequestComment(commentDTO);
             updatedComment.setId(existingComment.getId());
-            session.merge(updatedComment);
+            customerRequestCommentRepository.save(updatedComment);
+
+            logger.info("Comment updated successfully with ID: {}", id);
+            return CustomerConstants.UPDATED;
+        } else {
+            logger.error("Comment not found for update with ID: {}", id);
+            return CustomerConstants.NOT_FOUND;
         }
-        return CustomerConstants.UPDATED;
     }
 
     // To delete a customer request comment
     @Override
     @Transactional
     public String deleteComment(Long id) {
-        Session session = sessionFactory.getCurrentSession();
-        CustomerRequestComment existingComment = session.get(CustomerRequestComment.class, id);
+        logger.info("Deleting comment with ID: {}", id);
+
+        CustomerRequestComment existingComment = customerRequestCommentRepository.findById(id).orElse(null);
         if (existingComment != null) {
-            session.remove(existingComment);
+            customerRequestCommentRepository.delete(existingComment);
+            logger.info("Comment deleted with ID: {}", id);
+            return CustomerConstants.DELETED;
+        } else {
+            logger.error("Comment not found for deletion with ID: {}", id);
+            return CustomerConstants.NOT_FOUND;
         }
-        return CustomerConstants.DELETED;
     }
 }

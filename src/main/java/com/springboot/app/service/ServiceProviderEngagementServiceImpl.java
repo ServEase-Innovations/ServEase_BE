@@ -1,21 +1,29 @@
 package com.springboot.app.service;
 
-import com.springboot.app.config.PaginationHelper;
+import com.springboot.app.constant.ServiceProviderConstants;
 import com.springboot.app.dto.ServiceProviderEngagementDTO;
 import com.springboot.app.entity.Customer;
 import com.springboot.app.entity.ServiceProvider;
 import com.springboot.app.entity.ServiceProviderEngagement;
 import com.springboot.app.mapper.ServiceProviderEngagementMapper;
-import org.hibernate.Session;
-import org.hibernate.SessionFactory;
+import com.springboot.app.repository.CustomerRepository;
+import com.springboot.app.repository.ServiceProviderEngagementRepository;
+import com.springboot.app.repository.ServiceProviderRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+//import com.springboot.app.util.ResponsibilityParser;
 
+import java.time.LocalDate;
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
+//import java.util.Map;
 import java.util.stream.Collectors;
+import org.springframework.data.domain.Pageable;
 
 @Service
 public class ServiceProviderEngagementServiceImpl implements ServiceProviderEngagementService {
@@ -23,29 +31,37 @@ public class ServiceProviderEngagementServiceImpl implements ServiceProviderEnga
     private static final Logger logger = LoggerFactory.getLogger(ServiceProviderEngagementServiceImpl.class);
 
     @Autowired
-    private SessionFactory sessionFactory;
+    private ServiceProviderEngagementRepository engagementRepository;
 
     @Autowired
-    private ServiceProviderEngagementMapper serviceProviderEngagementMapper;
+    private ServiceProviderRepository serviceProviderRepository;
+
+    @Autowired
+    private CustomerRepository customerRepository;
+
+    @Autowired
+    private ServiceProviderEngagementMapper engagementMapper;
 
     @Override
-    @Transactional(readOnly = true)
+    @Transactional
     public List<ServiceProviderEngagementDTO> getAllServiceProviderEngagements(int page, int size) {
-        logger.info("Fetching service provider engagements with pagination - page: {}, size: {}", page, size);
-        Session session = sessionFactory.getCurrentSession();
+        logger.info("Fetching service provider engagements with page: {} and size: {}", page, size);
 
-        // Assuming `PaginationHelper.getPaginatedResults` 
-        List<ServiceProviderEngagement> engagements = PaginationHelper.getPaginatedResults(
-                session,
-                "from ServiceProviderEngagement",
-                page,
-                size,
-                ServiceProviderEngagement.class);
+        // Fetch paginated results using Spring Data JPA
+        Pageable pageable = PageRequest.of(page, size);
+        List<ServiceProviderEngagement> engagements = engagementRepository.findAll(pageable).getContent();
 
-        logger.debug("Fetched {} service provider engagements from the database.", engagements.size());
+        logger.debug("Number of service provider engagements fetched: {}", engagements.size());
 
+        // Check if no engagements are found and log a warning
+        if (engagements.isEmpty()) {
+            logger.warn("No service provider engagements found on the requested page.");
+            return new ArrayList<>(); // Return empty list if no engagements found
+        }
+
+        // Map entities to DTOs
         return engagements.stream()
-                .map(serviceProviderEngagementMapper::serviceProviderEngagementToDTO)
+                .map(engagement -> engagementMapper.serviceProviderEngagementToDTO(engagement))
                 .collect(Collectors.toList());
     }
 
@@ -53,97 +69,222 @@ public class ServiceProviderEngagementServiceImpl implements ServiceProviderEnga
     @Transactional(readOnly = true)
     public ServiceProviderEngagementDTO getServiceProviderEngagementById(Long id) {
         logger.info("Fetching service provider engagement by ID: {}", id);
-        Session session = sessionFactory.getCurrentSession();
-        ServiceProviderEngagement engagement = session.get(ServiceProviderEngagement.class, id);
 
-        if (engagement != null) {
-            logger.debug("Found service provider engagement with ID: {}", id);
-        } else {
-            logger.error("No service provider engagement found with ID: {}", id);
-        }
-        return serviceProviderEngagementMapper.serviceProviderEngagementToDTO(engagement);
+        return engagementRepository.findById(id)
+                .map(engagementMapper::serviceProviderEngagementToDTO)
+                .orElseThrow(() -> {
+                    logger.error("No service provider engagement found with ID: {}", id);
+                    return new RuntimeException("Service Provider Engagement not found.");
+                });
     }
 
     @Override
     @Transactional
-    public String addServiceProviderEngagement(ServiceProviderEngagementDTO serviceProviderEngagementDTO) {
+    public String addServiceProviderEngagement(ServiceProviderEngagementDTO dto) {
         logger.info("Adding new service provider engagement");
-        Session session = sessionFactory.getCurrentSession();
 
-        Long serviceProviderId = serviceProviderEngagementDTO.getServiceProviderId();
-        if (serviceProviderId == null) {
-            logger.error("Service Provider ID must not be null.");
-            return "Service Provider ID must not be null.";
+        ServiceProvider serviceProvider = null;
+
+        // Check if ServiceProviderId is provided
+        if (dto.getServiceProviderId() != null) {
+            serviceProvider = serviceProviderRepository.findById(dto.getServiceProviderId())
+                    .orElseThrow(() -> {
+                        logger.error("ServiceProvider with ID {} not found.", dto.getServiceProviderId());
+                        return new RuntimeException("Service Provider not found.");
+                    });
+        } else {
+            logger.warn("No ServiceProvider ID provided. Skipping ServiceProvider association.");
         }
 
-        Long customerId = serviceProviderEngagementDTO.getCustomerId();
-        if (customerId == null) {
-            logger.error("Customer ID must not be null.");
-            return "Customer ID must not be null.";
+        // Fetch the Customer
+        Customer customer = customerRepository.findById(dto.getCustomerId())
+                .orElseThrow(() -> {
+                    logger.error("Customer with ID {} not found.", dto.getCustomerId());
+                    return new RuntimeException("Customer not found.");
+                });
+
+        // Map DTO to entity and set relationships
+        ServiceProviderEngagement engagement = engagementMapper.dtoToServiceProviderEngagement(dto);
+
+        // Set relationships if ServiceProvider exists
+        if (serviceProvider != null) {
+            engagement.setServiceProvider(serviceProvider);
         }
+        engagement.setCustomer(customer);
 
-        // Fetch the existing ServiceProvider using its ID
-        ServiceProvider serviceProvider = session.get(ServiceProvider.class, serviceProviderId);
-        if (serviceProvider == null) {
-            logger.error("ServiceProvider with ID {} not found.", serviceProviderId);
-            return "Service Provider not found.";
-        }
-
-        // Fetch the existing Customer using its ID
-        Customer customer = session.get(Customer.class, customerId);
-        if (customer == null) {
-            logger.error("Customer with ID {} not found.", customerId);
-            return "Customer not found.";
-        }
-
-        // Create the engagement and associate it with the fetched ServiceProvider and
-        // Customer
-        ServiceProviderEngagement engagement = serviceProviderEngagementMapper
-                .dtoToServiceProviderEngagement(serviceProviderEngagementDTO);
-        engagement.setServiceProvider(serviceProvider); // Set the fetched ServiceProvider
-        engagement.setCustomer(customer); // Set the fetched Customer
-
-        session.persist(engagement);
+        engagementRepository.save(engagement);
         logger.debug("Persisted new service provider engagement with ID: {}", engagement.getId());
         return "Service Provider Engagement added successfully.";
     }
 
+    // @Override
+    // @Transactional
+    // public String addServiceProviderEngagement(ServiceProviderEngagementDTO dto)
+    // {
+    // logger.info("Adding new service provider engagement");
+
+    // // Fetch the ServiceProvider
+    // ServiceProvider serviceProvider =
+    // serviceProviderRepository.findById(dto.getServiceProviderId())
+    // .orElseThrow(() -> {
+    // logger.error("ServiceProvider with ID {} not found.",
+    // dto.getServiceProviderId());
+    // return new RuntimeException("Service Provider not found.");
+    // });
+
+    // // Fetch the Customer
+    // Customer customer = customerRepository.findById(dto.getCustomerId())
+    // .orElseThrow(() -> {
+    // logger.error("Customer with ID {} not found.", dto.getCustomerId());
+    // return new RuntimeException("Customer not found.");
+    // });
+
+    // // Map DTO to entity and set relationships
+    // ServiceProviderEngagement engagement =
+    // engagementMapper.dtoToServiceProviderEngagement(dto);
+    // engagement.setServiceProvider(serviceProvider);
+    // engagement.setCustomer(customer);
+
+    // engagementRepository.save(engagement);
+    // logger.debug("Persisted new service provider engagement with ID: {}",
+    // engagement.getId());
+    // return "Service Provider Engagement added successfully.";
+    // }
+
     @Override
     @Transactional
-    public String updateServiceProviderEngagement(ServiceProviderEngagementDTO serviceProviderEngagementDTO) {
-        logger.info("Updating service provider engagement with ID: {}", serviceProviderEngagementDTO.getId());
-        Session session = sessionFactory.getCurrentSession();
+    public String updateServiceProviderEngagement(ServiceProviderEngagementDTO dto) {
+        logger.info("Updating service provider engagement with ID: {}", dto.getId());
 
-        ServiceProviderEngagement existingEngagement = session.get(ServiceProviderEngagement.class,
-                serviceProviderEngagementDTO.getId());
-        if (existingEngagement == null) {
-            logger.warn("Service provider engagement not found with ID: {}", serviceProviderEngagementDTO.getId());
-            return "Service Provider Engagement not found.";
+        // Check if the service provider engagement exists
+        if (engagementRepository.existsById(dto.getId())) {
+
+            // Map DTO to entity and update
+            ServiceProviderEngagement existingEngagement = engagementMapper.dtoToServiceProviderEngagement(dto);
+
+            // Save the updated service provider engagement
+            engagementRepository.save(existingEngagement);
+
+            logger.info("Service provider engagement updated with ID: {}", dto.getId());
+            return ServiceProviderConstants.ENGAGEMENT_UPDATED;
+        } else {
+            logger.error("Service provider engagement not found for update with ID: {}", dto.getId());
+            return ServiceProviderConstants.ENGAGEMENT_NOT_FOUND;
         }
-        ServiceProviderEngagement updatedEngagement = serviceProviderEngagementMapper
-                .dtoToServiceProviderEngagement(serviceProviderEngagementDTO);
-        updatedEngagement.setId(existingEngagement.getId());
-        session.merge(updatedEngagement);
-        logger.debug("Updated service provider engagement with ID: {}", serviceProviderEngagementDTO.getId());
-        return "Service Provider Engagement updated successfully.";
     }
 
     @Override
     @Transactional
     public String deleteServiceProviderEngagement(Long id) {
         logger.info("Deactivating service provider engagement with ID: {}", id);
-        Session session = sessionFactory.getCurrentSession();
-        ServiceProviderEngagement existingEngagement = session.get(ServiceProviderEngagement.class, id);
 
-        if (existingEngagement != null) {
-            existingEngagement.completeEngagement(); // Mark as completed, which sets isActive to false
-            session.merge(existingEngagement); // Update the engagement in the session
-            logger.debug("Service provider engagement with ID {} deactivated", id);
-            return "Service Provider Engagement deactivated successfully.";
+        // Check if the service provider engagement exists
+        if (engagementRepository.existsById(id)) {
+
+            // Fetch the engagement from the repository
+            ServiceProviderEngagement engagement = engagementRepository.findById(id)
+                    .orElseThrow(() -> {
+                        logger.error("Service provider engagement not found with ID: {}", id);
+                        return new RuntimeException("Service Provider Engagement not found.");
+                    });
+
+            // Mark engagement as completed (e.g., set `isActive` to false or similar)
+            engagement.completeEngagement(); // Example method to deactivate engagement
+            engagementRepository.save(engagement); // Save the updated engagement
+
+            logger.info("Service provider engagement with ID {} deactivated", id);
+            return ServiceProviderConstants.ENGAGEMENT_DELETED;
         } else {
-            logger.error("Service provider engagement not found with ID: {}", id);
-            throw new RuntimeException("Service Provider Engagement not found with ID: " + id);
+            logger.error("Service provider engagement not found for deactivation with ID: {}", id);
+            return ServiceProviderConstants.ENGAGEMENT_NOT_FOUND;
         }
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public List<ServiceProviderEngagementDTO> getServiceProviderEngagementsByServiceProviderId(Long serviceProviderId) {
+        logger.info("Fetching service provider engagements by ServiceProvider ID: {}", serviceProviderId);
+
+        // Fetch all engagements and filter by serviceProviderId
+        List<ServiceProviderEngagement> engagements = engagementRepository.findAll();
+        List<ServiceProviderEngagement> filteredEngagements = engagements.stream()
+                .filter(e -> e.getServiceProvider() != null
+                        && e.getServiceProvider().getServiceproviderId().equals(serviceProviderId))
+                .collect(Collectors.toList());
+
+        // Check if no engagements found
+        if (filteredEngagements.isEmpty()) {
+            throw new RuntimeException("No data found for ServiceProvider ID: " + serviceProviderId);
+        }
+
+        // Convert to DTO
+        return filteredEngagements.stream()
+                .map(engagementMapper::serviceProviderEngagementToDTO)
+                .collect(Collectors.toList());
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public List<ServiceProviderEngagementDTO> getServiceProviderEngagementsByCustomerId(Long customerId) {
+        logger.info("Fetching service provider engagements by Customer ID: {}", customerId);
+
+        // Fetch all engagements and filter by customerId
+        List<ServiceProviderEngagement> engagements = engagementRepository.findAll();
+        List<ServiceProviderEngagement> filteredEngagements = engagements.stream()
+                .filter(e -> e.getCustomer() != null
+                        && e.getCustomer().getCustomerId().equals(customerId))
+                .collect(Collectors.toList());
+
+        // Check if no engagements found
+        if (filteredEngagements.isEmpty()) {
+            throw new RuntimeException("No data found for Customer ID: " + customerId);
+        }
+
+        // Convert to DTO
+        return filteredEngagements.stream()
+                .map(engagementMapper::serviceProviderEngagementToDTO)
+                .collect(Collectors.toList());
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public Map<String, List<ServiceProviderEngagementDTO>> getServiceProviderBookingHistory(int page, int size) {
+        logger.info("Fetching and categorizing service provider engagements with pagination - page: {}, size: {}", page,
+                size);
+
+        Pageable pageable = PageRequest.of(page, size);
+        List<ServiceProviderEngagement> engagements = engagementRepository.findAll(pageable).getContent();
+
+        if (engagements.isEmpty()) {
+            return null;
+        }
+        // Get current date
+        LocalDate currentDate = LocalDate.now();
+        // Categorize engagements
+        Map<String, List<ServiceProviderEngagementDTO>> categorizedEngagements = engagements.stream()
+                .map(engagementMapper::serviceProviderEngagementToDTO)
+                .collect(Collectors.groupingBy(engagement -> {
+                    LocalDate startDate = engagement.getStartDate();
+                    LocalDate endDate = engagement.getEndDate();
+
+                    if (endDate == null) {
+                        if (startDate != null && (startDate.isBefore(currentDate) || startDate.isEqual(currentDate))) {
+                            return "current";
+                        } else {
+                            return "future";
+                        }
+                    } else {
+                        if (endDate.isBefore(currentDate)) {
+                            return "past";
+                        } else if (startDate != null && startDate.isAfter(currentDate)) {
+                            return "future";
+                        } else {
+                            return "current";
+                        }
+                    }
+                }));
+
+        return categorizedEngagements;
     }
 
 }

@@ -1,204 +1,251 @@
 package com.springboot.app.service;
 
 import com.springboot.app.config.LockSettingsConfig;
+
 import com.springboot.app.dto.UserCredentialsDTO;
+
 import com.springboot.app.entity.UserCredentials;
+import com.springboot.app.enums.UserRole;
+import com.springboot.app.mapper.CustomerMapper;
+import com.springboot.app.mapper.ServiceProviderMapper;
 import com.springboot.app.mapper.UserCredentialsMapper;
-import org.hibernate.Session;
-import org.hibernate.SessionFactory;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import com.springboot.app.mapper.VendorMapper;
+import com.springboot.app.repository.CustomerRepository;
+import com.springboot.app.repository.ServiceProviderRepository;
+import com.springboot.app.repository.UserCredentialsRepository;
+import com.springboot.app.repository.VendorRepository;
+
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
-import jakarta.transaction.Transactional;
 import java.sql.Timestamp;
+import java.util.HashMap;
+import java.util.Map;
+
 import java.util.Optional;
-import org.springframework.beans.factory.annotation.Value;
 
 @Service
 public class UserCredentialsServiceImpl implements UserCredentialsService {
 
-    @Value("${user.account.locking.enabled}")
-    private boolean accountLockingEnabled;
-
-    private static final Logger logger = LoggerFactory.getLogger(UserCredentialsServiceImpl.class);
-
-    // BCryptPasswordEncoder instance for password hashing and verification
-    private BCryptPasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
-
-    @Autowired
-    private final SessionFactory sessionFactory;
-
-    @Autowired
+    private final UserCredentialsRepository userCredentialsRepository;
     private final UserCredentialsMapper userCredentialsMapper;
-
-    @Autowired
     private final LockSettingsConfig lockSettingsConfig;
+    private final BCryptPasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
+    @Autowired
+    private CustomerRepository customerRepository;
 
     @Autowired
-    public UserCredentialsServiceImpl(SessionFactory sessionFactory, UserCredentialsMapper userCredentialsMapper,
+    private ServiceProviderRepository serviceProviderRepository;
+
+    @Autowired
+    private CustomerMapper customerMapper;
+
+    @Autowired
+    private ServiceProviderMapper serviceProviderMapper;
+
+    @Autowired
+    private VendorRepository vendorRepository;
+
+    @Autowired
+    private VendorMapper vendorMapper;
+
+    public UserCredentialsServiceImpl(UserCredentialsRepository userCredentialsRepository,
+            UserCredentialsMapper userCredentialsMapper,
             LockSettingsConfig lockSettingsConfig) {
-        this.sessionFactory = sessionFactory;
+        this.userCredentialsRepository = userCredentialsRepository;
         this.userCredentialsMapper = userCredentialsMapper;
         this.lockSettingsConfig = lockSettingsConfig;
     }
 
     @Override
     @Transactional
-    public String checkLoginAttempts(String username, String password) {
-        Session session = sessionFactory.getCurrentSession();
+    public ResponseEntity<Map<String, Object>> checkLoginAttempts(String username, String password) {
 
-        logger.info("Attempting to log in user: {}", username);
+        try {
+            // Attempt to retrieve user credentials, throws "User not registered" if not
+            // found
+            UserCredentials user = getUserCredentials(username);
 
-        // Fetch user credentials by username
-        UserCredentials userCredentials = session.get(UserCredentials.class, username);
-
-        if (userCredentials == null) {
-            logger.warn("User not found: {}", username);
-            return "User not found. Please register.";
-        }
-
-        // If account locking is disabled, skip lock checks and attempt login
-        if (!accountLockingEnabled) {
-            // Verify the password using BCrypt
-            if (passwordEncoder.matches(password, userCredentials.getPassword())) {
-                logger.info("User {} logged in successfully.", username);
-                userCredentials.setNoOfTries(0); // Reset login attempts
-                userCredentials.setLastLogin(new Timestamp(System.currentTimeMillis()));
-                session.merge(userCredentials); // Update last login timestamp
-                return "Login successful!";
-            } else {
-                logger.warn("Incorrect password for user: {}", username);
-                return "Login failed! Incorrect credentials.";
-            }
-        }
-
-        // Account locking logic follows (only applies if accountLockingEnabled is true)
-        if (userCredentials.getDisableTill() != null &&
-                userCredentials.getDisableTill().after(new Timestamp(System.currentTimeMillis()))) {
-            logger.warn("Account is temporarily locked for user: {} until {}", username,
-                    userCredentials.getDisableTill());
-            return "Account is temporarily locked. Please try again after: " + userCredentials.getDisableTill();
-        }
-
-        if (passwordEncoder.matches(password, userCredentials.getPassword())) {
-            logger.info("User {} logged in successfully.", username);
-            userCredentials.setNoOfTries(0); // Reset login attempts
-            userCredentials.setLastLogin(new Timestamp(System.currentTimeMillis()));
-            session.merge(userCredentials); // Update last login timestamp
-            return "Login successful!";
-        } else {
-            int attempts = userCredentials.getNoOfTries() + 1;
-            userCredentials.setNoOfTries(attempts);
-            logger.warn("Incorrect password for user: {}. Attempts: {}/3", username, attempts);
-
-            if (attempts >= 3) {
-                Timestamp lockTime = new Timestamp(System.currentTimeMillis() + lockSettingsConfig.getLocktime());
-                userCredentials.setDisableTill(lockTime);
-                userCredentials.lock();
-                logger.error("User account locked due to multiple failed attempts. User: {}", username);
+            // Check if the account is locked
+            if (isAccountLocked(user)) {
+                Map<String, Object> response = new HashMap<>();
+                response.put("message",
+                        "Account is temporarily locked. Please try again after: " + user.getDisableTill());
+                return ResponseEntity.status(HttpStatus.LOCKED).body(response);
             }
 
-            session.merge(userCredentials);
-            return "Login failed! You have " + (3 - attempts) + " attempts remaining.";
+            // Check if the password is correct
+            if (passwordEncoder.matches(password, user.getPassword())) {
+                user.setNoOfTries(0);
+                user.setLastLogin(new Timestamp(System.currentTimeMillis()));
+                userCredentialsRepository.save(user);
+
+                // Create the response for successful login
+                Map<String, Object> response = createSuccessResponse(user);
+                return ResponseEntity.ok(response);
+            }
+
+            // Handle failed login attempt
+            Map<String, Object> response = handleFailedLogin(user);
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(response);
+
+        } catch (RuntimeException e) {
+            // Handle specific exception for user not registered
+            Map<String, Object> response = new HashMap<>();
+            response.put("message", e.getMessage()); // Will show "User not registered"
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
+        } catch (Exception e) {
+            // Handle any other unexpected errors
+            Map<String, Object> response = new HashMap<>();
+            response.put("message", "An error occurred");
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(response);
         }
+    }
+
+    private boolean isAccountLocked(UserCredentials user) {
+        return user.getDisableTill() != null && user.getDisableTill().after(new Timestamp(System.currentTimeMillis()));
+    }
+
+    private UserCredentials getUserCredentials(String username) {
+        return userCredentialsRepository.findById(username)
+                .orElseThrow(() -> new RuntimeException("User not registered"));
+    }
+
+    private Map<String, Object> createSuccessResponse(UserCredentials user) {
+        Map<String, Object> response = new HashMap<>();
+        response.put("role", user.getRole().name());
+
+        if (user.getRole() == UserRole.CUSTOMER) {
+            customerRepository.findAll().stream()
+                    .filter(customer -> customer.getEmailId().equals(user.getUsername()))
+                    .findFirst()
+                    .map(customerMapper::customerToDTO)
+                    .ifPresent(dto -> response.put("customerDetails", dto));
+        } else if (user.getRole() == UserRole.SERVICE_PROVIDER) {
+            serviceProviderRepository.findAll().stream()
+                    .filter(provider -> provider.getEmailId().equals(user.getUsername()))
+                    .findFirst()
+                    .map(serviceProviderMapper::serviceProviderToDTO)
+                    .ifPresent(dto -> response.put("serviceProviderDetails", dto));
+        } else if (user.getRole() == UserRole.VENDOR) {
+            vendorRepository.findAll().stream()
+                    .filter(vendor -> vendor.getEmailId().equals(user.getUsername()))
+                    .findFirst()
+                    .map(vendorMapper::vendorToDTO)
+                    .ifPresent(dto -> response.put("vendorDetails", dto));
+        }
+
+        return response;
+    }
+
+    private Map<String, Object> handleFailedLogin(UserCredentials user) {
+        int attempts = user.getNoOfTries() + 1;
+        user.setNoOfTries(attempts);
+
+        if (attempts >= 3) {
+            long lockDuration = lockSettingsConfig.getLocktime();
+            user.setDisableTill(new Timestamp(System.currentTimeMillis() + lockDuration));
+            user.lock();
+        }
+
+        userCredentialsRepository.save(user);
+
+        Map<String, Object> response = new HashMap<>();
+        response.put("message",
+                "Login failed! Please check your credentials. You have " + (3 - attempts) + " attempts remaining.");
+        return response;
     }
 
     @Override
     @Transactional
-    public String deactivateUser(String username) {
-        Session session = sessionFactory.getCurrentSession();
-        UserCredentials userCredentials = session.get(UserCredentials.class, username);
+    public boolean deactivateUser(String username) {
+        Optional<UserCredentials> optionalUser = userCredentialsRepository.findById(username);
 
-        if (userCredentials != null) {
-            userCredentials.deactivate(); // Deactivate the account
-            session.merge(userCredentials);
-            return "Account deactivated successfully.";
-        } else {
-            return "User not found. Unable to deactivate account.";
+        if (optionalUser.isEmpty()) {
+            return false; // Indicating the user was not found
         }
+
+        UserCredentials user = optionalUser.get();
+        user.deactivate();
+        userCredentialsRepository.save(user);
+        return true; // Indicating the account was successfully deactivated
     }
+
+    // @Override
+    // @Transactional
+    // public String deactivateUser(String username) {
+    // Optional<UserCredentials> optionalUser =
+    // userCredentialsRepository.findById(username);
+
+    // if (optionalUser.isEmpty()) {
+    // return "User not found. Unable to deactivate account.";
+    // }
+
+    // UserCredentials user = optionalUser.get();
+    // user.deactivate();
+    // userCredentialsRepository.save(user);
+    // return "Account deactivated successfully.";
+    // }
 
     @Override
     @Transactional
     public String saveUserCredentials(UserCredentialsDTO userCredentialsDTO) {
-        Session session = sessionFactory.getCurrentSession();
-
-        // Check if the user already exists by username (email)
-        UserCredentials existingUserByUsername = session.get(UserCredentials.class, userCredentialsDTO.username());
-
-        if (existingUserByUsername != null) {
+        if (userCredentialsRepository.existsByUsername(userCredentialsDTO.username())) {
             return "User already exists with this email. Please log in.";
         }
 
-        // Check if the user already exists by phone number
-        String phoneQuery = "FROM UserCredentials WHERE phoneNumber = :phoneNumber";
-        UserCredentials existingUserByPhone = session.createQuery(phoneQuery, UserCredentials.class)
-                .setParameter("phoneNumber", userCredentialsDTO.phoneNumber())
-                .uniqueResult();
-
-        if (existingUserByPhone != null) {
-            return "User already registered with this phone number. Please log in.";
-        }
-
-        // Encrypt the password using BCrypt before saving
         String encryptedPassword = passwordEncoder.encode(userCredentialsDTO.password());
-
-        // Set the encrypted password in the DTO
-        UserCredentialsDTO updatedUserDTO = new UserCredentialsDTO(
+        UserCredentialsDTO updatedDTO = new UserCredentialsDTO(
                 userCredentialsDTO.username(),
-                encryptedPassword, // Store encrypted password
+                encryptedPassword,
                 userCredentialsDTO.isActive(),
                 userCredentialsDTO.noOfTries(),
                 userCredentialsDTO.disableTill(),
                 userCredentialsDTO.isTempLocked(),
                 userCredentialsDTO.phoneNumber(),
-                userCredentialsDTO.lastLogin());
+                userCredentialsDTO.lastLogin(),
+                userCredentialsDTO.role());
 
-        // Map the DTO to entity
-        UserCredentials userCredentials = userCredentialsMapper.dtoToUserCredentials(updatedUserDTO);
-
-        // Persist the new user credentials
-        session.persist(userCredentials);
-
+        UserCredentials userCredentials = userCredentialsMapper.dtoToUserCredentials(updatedDTO);
+        userCredentialsRepository.save(userCredentials);
         return "Registration successful!";
     }
 
     @Override
-    @Transactional
+    @Transactional(readOnly = true)
     public Optional<UserCredentialsDTO> getUserCredentialsByUsername(String username) {
-        Session session = sessionFactory.getCurrentSession();
-        UserCredentials userCredentials = session.get(UserCredentials.class, username);
-        return Optional.ofNullable(userCredentials).map(userCredentialsMapper::userCredentialsToDTO);
+        return userCredentialsRepository.findById(username)
+                .map(userCredentialsMapper::userCredentialsToDTO);
     }
 
     @Override
     @Transactional
     public void updateUserCredentials(UserCredentialsDTO userCredentialsDTO) {
-        Session session = sessionFactory.getCurrentSession();
+        if (userCredentialsDTO.username() == null || userCredentialsDTO.password() == null) {
+            throw new IllegalArgumentException("Username and password are required for updating credentials.");
+        }
 
-        // Fetch the existing user by username
-        UserCredentials existingUser = session.get(UserCredentials.class, userCredentialsDTO.username());
-        if (existingUser == null) {
+        // Fetch the user by username
+        Optional<UserCredentials> optionalUser = userCredentialsRepository.findById(userCredentialsDTO.username());
+
+        if (optionalUser.isEmpty()) {
             throw new IllegalArgumentException("User not found with username: " + userCredentialsDTO.username());
         }
 
-        // Check if the password in the DTO is different from the existing user's
-        // password
-        String newPassword = userCredentialsDTO.password();
-        if (!passwordEncoder.matches(newPassword, existingUser.getPassword())) {
-            // Encrypt the new password before updating
-            String encryptedPassword = passwordEncoder.encode(newPassword);
-            existingUser.setPassword(encryptedPassword);
+        UserCredentials user = optionalUser.get();
+
+        // Update the password if it has changed
+        if (!passwordEncoder.matches(userCredentialsDTO.password(), user.getPassword())) {
+            user.setPassword(passwordEncoder.encode(userCredentialsDTO.password()));
         }
 
-        // Update other fields (if applicable)
-        userCredentialsMapper.updateEntityFromDTO(userCredentialsDTO, existingUser);
-
-        // Persist the updated user credentials
-        session.merge(existingUser);
+        // Save the updated entity
+        userCredentialsRepository.save(user);
     }
 
 }

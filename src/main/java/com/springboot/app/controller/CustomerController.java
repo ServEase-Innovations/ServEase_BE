@@ -1,15 +1,23 @@
 package com.springboot.app.controller;
 
 import java.util.List;
+import java.util.Map;
+
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-
+import org.springframework.web.multipart.MultipartFile;
 import com.springboot.app.constant.CustomerConstants;
 import com.springboot.app.dto.CustomerConcernDTO;
 import com.springboot.app.dto.CustomerDTO;
 import com.springboot.app.dto.CustomerRequestDTO;
+import com.springboot.app.dto.KYCCommentsDTO;
+import com.springboot.app.dto.KYCDTO;
+import com.springboot.app.enums.Gender;
+import com.springboot.app.enums.HousekeepingRole;
+import com.springboot.app.enums.Status;
 import com.springboot.app.dto.CustomerFeedbackDTO;
 import com.springboot.app.dto.CustomerRequestCommentDTO;
 import com.springboot.app.service.CustomerConcernService;
@@ -17,10 +25,12 @@ import com.springboot.app.service.CustomerFeedbackService;
 import com.springboot.app.service.CustomerRequestCommentService;
 import com.springboot.app.service.CustomerRequestService;
 import com.springboot.app.service.CustomerService;
-
+import com.springboot.app.service.KYCCommentsService;
+import com.springboot.app.service.KYCService;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
+import java.io.*;
 
 @RestController
 @RequestMapping("/api/customer")
@@ -42,17 +52,35 @@ public class CustomerController {
     @Autowired
     private CustomerRequestCommentService customerRequestCommentService;
 
+    @Autowired
+    private KYCService kycService;
+
+    @Autowired
+    private KYCCommentsService kycCommentsService;
+
+    @Value("${app.pagination.default-page-size:10}")
+    private int defaultPageSize;
+
     // --------------------------API's FOR CUSTOMER
     // ENTITY----------------------------------------
     // API to get all customers
+    // API to get all customers with pagination
     @GetMapping("/get-all-customers")
     @ApiOperation(value = CustomerConstants.RETRIEVE_ALL_DESC, response = List.class)
-    public ResponseEntity<List<CustomerDTO>> getAllCustomers() {
-        List<CustomerDTO> customers = customerService.getAllCustomers();
+    public ResponseEntity<List<CustomerDTO>> getAllCustomers(
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(required = false) Integer size) {
+        if (size == null) {
+            size = defaultPageSize;
+        }
+        List<CustomerDTO> customers = customerService.getAllCustomers(page, size);
+        if (customers.isEmpty() && page > 0) {
+            return getAllCustomers(0, size);
+        }
         return ResponseEntity.ok(customers);
     }
 
-    // API to get customer by ID
+    // API to get customer by id
     @GetMapping("/get-customer-by-id/{id}")
     @ApiOperation(value = CustomerConstants.GET_BY_ID_DESC, response = CustomerDTO.class)
     public ResponseEntity<CustomerDTO> getCustomerById(
@@ -64,8 +92,7 @@ public class CustomerController {
     // API to add a customer
     @PostMapping("/add-customer")
     @ApiOperation(value = CustomerConstants.ADD_NEW_DESC)
-    public ResponseEntity<String> addCustomer(
-            @ApiParam(value = "Customer data to add", required = true) @RequestBody CustomerDTO customerDTO) {
+    public ResponseEntity<String> addCustomer(@RequestBody CustomerDTO customerDTO) {
         customerService.saveCustomer(customerDTO);
         return ResponseEntity.status(HttpStatus.CREATED).body(CustomerConstants.ADDED);
     }
@@ -75,8 +102,12 @@ public class CustomerController {
     @ApiOperation(value = CustomerConstants.UPDATE_DESC)
     public ResponseEntity<String> updateCustomer(
             @ApiParam(value = "ID of the customer to update", required = true) @PathVariable Long id,
-            @ApiParam(value = "Updated customer object", required = true) @RequestBody CustomerDTO customerDTO) {
+            @ApiParam(value = "Updated customer object", required = true) @ModelAttribute CustomerDTO customerDTO,
+            @ApiParam(value = "Updated profile picture of the customer") @RequestParam(value = "profilePic", required = false) MultipartFile profilePic)
+            throws IOException {
+
         customerDTO.setCustomerId(id);
+        // customerDTO.setProfilePic(profilePic); // Set profile picture if provided
         customerService.updateCustomer(customerDTO);
         return ResponseEntity.ok(CustomerConstants.UPDATED);
     }
@@ -92,12 +123,38 @@ public class CustomerController {
 
     // ----------------------API's FOR CUSTOMER REQUEST
     // ENTITY---------------------------------
-    // API to get all customer requests
+    // API to retrieve all customer requests with pagination
     @GetMapping("/get-all-customer-requests")
     @ApiOperation(value = "Retrieve all customer requests", response = List.class)
-    public ResponseEntity<List<CustomerRequestDTO>> getAllCustomerRequests() {
-        List<CustomerRequestDTO> requests = customerRequestService.getAll();
+    public ResponseEntity<List<CustomerRequestDTO>> getAllCustomerRequests(
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(required = false) Integer size) {
+        if (size == null) {
+            size = defaultPageSize;
+        }
+        List<CustomerRequestDTO> requests = customerRequestService.getAll(page, size);
+        if (requests.isEmpty() && page > 0) {
+            return getAllCustomerRequests(0, size);
+        }
         return ResponseEntity.ok(requests);
+    }
+
+    // API to retrieve categorized customer requests
+    @GetMapping("/get-booking-history")
+    @ApiOperation(value = "Retrieve categorized customer requests", response = Map.class)
+    public ResponseEntity<?> getCategorizedCustomerRequests(
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(required = false) Integer size) {
+        if (size == null) {
+            size = defaultPageSize;
+        }
+
+        Map<String, List<CustomerRequestDTO>> categorizedRequests = customerRequestService.getBookingHistory(page,
+                size);
+        if (categorizedRequests == null || categorizedRequests.isEmpty()) {
+            return ResponseEntity.status(HttpStatus.NO_CONTENT).body("No Data Found");
+        }
+        return ResponseEntity.ok(categorizedRequests);
     }
 
     // API to get customer request by ID
@@ -108,19 +165,35 @@ public class CustomerController {
         return ResponseEntity.ok(requestDTO);
     }
 
-    // API to get all open requests
+    // API to retrieve all open requests with pagination
     @GetMapping("/get-open-requests")
     @ApiOperation(value = "Retrieve all open requests", response = List.class)
-    public ResponseEntity<List<CustomerRequestDTO>> getAllOpenRequests() {
-        List<CustomerRequestDTO> openRequests = customerRequestService.getAllOpenRequests();
+    public ResponseEntity<List<CustomerRequestDTO>> getAllOpenRequests(
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(required = false) Integer size) {
+        if (size == null) {
+            size = defaultPageSize;
+        }
+        List<CustomerRequestDTO> openRequests = customerRequestService.getAllOpenRequests(page, size);
+        if (openRequests.isEmpty() && page > 0) {
+            return getAllOpenRequests(0, size);
+        }
         return ResponseEntity.ok(openRequests);
     }
 
-    // API to get all potential customers
+    // API to retrieve all potential customers with pagination
     @GetMapping("/get-potential-customers")
     @ApiOperation(value = "Retrieve all potential customers", response = List.class)
-    public ResponseEntity<List<CustomerRequestDTO>> getAllPotentialCustomers() {
-        List<CustomerRequestDTO> potentialCustomers = customerRequestService.findAllPotentialCustomers();
+    public ResponseEntity<List<CustomerRequestDTO>> getAllPotentialCustomers(
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(required = false) Integer size) {
+        if (size == null) {
+            size = defaultPageSize;
+        }
+        List<CustomerRequestDTO> potentialCustomers = customerRequestService.findAllPotentialCustomers(page, size);
+        if (potentialCustomers.isEmpty() && page > 0) {
+            return getAllPotentialCustomers(0, size);
+        }
         return ResponseEntity.ok(potentialCustomers);
     }
 
@@ -142,13 +215,77 @@ public class CustomerController {
         return ResponseEntity.ok(CustomerConstants.UPDATED);
     }
 
+    // API to filter customer requests with pagination
+    @GetMapping("/filter-customer-request")
+    @ApiOperation(value = "Filter customer requests", response = List.class)
+    public ResponseEntity<List<CustomerRequestDTO>> getRequestFilters(
+            @RequestParam(required = false) HousekeepingRole housekeepingRole,
+            @RequestParam(required = false) Gender gender,
+            @RequestParam(required = false) String area,
+            @RequestParam(required = false) Integer pincode,
+            @RequestParam(required = false) String locality,
+            @RequestParam(required = false) String apartment_name,
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(required = false) Integer size) {
+        if (size == null) {
+            size = defaultPageSize;
+        }
+        List<CustomerRequestDTO> filteredRequests = customerRequestService.getRequestFilters(
+                housekeepingRole, gender, area, pincode, locality, apartment_name, page, size);
+        if (filteredRequests.isEmpty() && page > 0) {
+            return getRequestFilters(housekeepingRole, gender, area, pincode, locality, apartment_name, 0, size);
+        }
+        return ResponseEntity.ok(filteredRequests);
+    }
+
+    // API to update the status of a customer request
+    @PatchMapping("/{requestId}/status")
+    @ApiOperation(value = "Update the status of a customer request")
+    public ResponseEntity<String> updateStatus(
+            @PathVariable Long requestId,
+            @RequestBody Map<String, String> requestBody) {
+
+        // Extract status from the request body
+        String status = requestBody.get("status");
+
+        if (status == null || status.isEmpty()) {
+            return ResponseEntity.badRequest().body("Status value is required");
+        }
+
+        try {
+            customerRequestService.updateStatus(requestId, Status.valueOf(status.toUpperCase()));
+            return ResponseEntity.ok("Status updated successfully");
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.badRequest().body("Invalid status value: " + e.getMessage());
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("An unexpected error occurred.");
+        }
+    }
+
+    // EXAMPLE URL
+    /*
+     * http://localhost:9090/api/customer/filter-customer-request?serviceType=
+     * YOUR_SERVICE_TYPE&gender=
+     * YOUR_GENDER&ageRangeStart=MIN_AGE&ageRangeEnd=MAX_AGE&area=YOUR_AREA&pincode=
+     * YOUR_PINCODE&locality=YOUR_LOCALITY&apartmentName=YOUR_APARTMENT_NAME
+     * 
+     */
+
     // --------------------------API's FOR CUSTOMER CONCERN
     // ENTITY-------------------------------
-    // API to get all customer concerns
+    // API to get all customer concerns with pagination
     @GetMapping("/get-all-customer-concerns")
     @ApiOperation(value = "Retrieve all customer concerns", response = List.class)
-    public ResponseEntity<List<CustomerConcernDTO>> getAllConcerns() {
-        List<CustomerConcernDTO> concerns = customerConcernService.getAllConcerns();
+    public ResponseEntity<List<CustomerConcernDTO>> getAllConcerns(
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(required = false) Integer size) {
+        if (size == null) {
+            size = defaultPageSize;
+        }
+        List<CustomerConcernDTO> concerns = customerConcernService.getAllConcerns(page, size);
+        if (concerns.isEmpty() && page > 0) {
+            return getAllConcerns(0, size);
+        }
         return ResponseEntity.ok(concerns);
     }
 
@@ -188,11 +325,19 @@ public class CustomerController {
 
     // --------------------------API's FOR CUSTOMER FEEDBACK
     // ENTITY--------------------------------
-    // API to get all customer feedback
+    // API to get all customer feedback with pagination
     @GetMapping("/get-all-feedback")
     @ApiOperation(value = "Retrieve all customer feedback", response = List.class)
-    public ResponseEntity<List<CustomerFeedbackDTO>> getAllFeedback() {
-        List<CustomerFeedbackDTO> feedbackList = customerFeedbackService.getAllFeedback();
+    public ResponseEntity<List<CustomerFeedbackDTO>> getAllFeedback(
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(required = false) Integer size) {
+        if (size == null) {
+            size = defaultPageSize;
+        }
+        List<CustomerFeedbackDTO> feedbackList = customerFeedbackService.getAllFeedback(page, size);
+        if (feedbackList.isEmpty() && page > 0) {
+            return getAllFeedback(0, size);
+        }
         return ResponseEntity.ok(feedbackList);
     }
 
@@ -209,8 +354,6 @@ public class CustomerController {
     @ApiOperation(value = "Add a new customer feedback", response = String.class)
     public ResponseEntity<String> addFeedback(@RequestBody CustomerFeedbackDTO customerFeedbackDTO) {
         customerFeedbackService.addFeedback(customerFeedbackDTO);
-        // Update the average rating after adding feedback
-
         return ResponseEntity.status(HttpStatus.CREATED).body(CustomerConstants.ADDED);
     }
 
@@ -225,15 +368,23 @@ public class CustomerController {
     // -----------------API's FOR CUSTOMER REQUEST COMMENT
     // ENTITY---------------------------------
     // API to get all customer request comments
-    @GetMapping("/get-all-comments")
+    @GetMapping("/get-all-cr-comments")
     @ApiOperation(value = "Retrieve all customer request comments", response = List.class)
-    public ResponseEntity<List<CustomerRequestCommentDTO>> getAllComments() {
-        List<CustomerRequestCommentDTO> commentsList = customerRequestCommentService.getAllComments();
+    public ResponseEntity<List<CustomerRequestCommentDTO>> getAllComments(
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(required = false) Integer size) {
+        if (size == null) {
+            size = defaultPageSize;
+        }
+        List<CustomerRequestCommentDTO> commentsList = customerRequestCommentService.getAllComments(page, size);
+        if (commentsList.isEmpty() && page > 0) {
+            return getAllComments(0, size);
+        }
         return ResponseEntity.ok(commentsList);
     }
 
     // API to get comment by ID
-    @GetMapping("/get-comment-by-id/{id}")
+    @GetMapping("/get-cr-comment-by-id/{id}")
     @ApiOperation(value = "Retrieve customer request comment by ID", response = CustomerRequestCommentDTO.class)
     public ResponseEntity<CustomerRequestCommentDTO> getCommentById(@PathVariable Long id) {
         CustomerRequestCommentDTO commentDTO = customerRequestCommentService.getCommentById(id);
@@ -241,7 +392,7 @@ public class CustomerController {
     }
 
     // API to add a new customer request comment
-    @PostMapping("/add-comment")
+    @PostMapping("/add-cr-comment")
     @ApiOperation(value = "Add a new customer request comment", response = String.class)
     public ResponseEntity<String> addComment(@RequestBody CustomerRequestCommentDTO customerRequestCommentDTO) {
         customerRequestCommentService.addComment(customerRequestCommentDTO);
@@ -249,7 +400,7 @@ public class CustomerController {
     }
 
     // API to update a comment by ID
-    @PutMapping("/update-comment/{id}")
+    @PutMapping("/update-cr-comment/{id}")
     @ApiOperation(value = "Update a comment by ID", response = String.class)
     public ResponseEntity<String> updateComment(@PathVariable Long id,
             @RequestBody CustomerRequestCommentDTO customerRequestCommentDTO) {
@@ -258,11 +409,113 @@ public class CustomerController {
     }
 
     // API to delete customer request comment by ID
-    @DeleteMapping("/delete-comment/{id}")
+    @DeleteMapping("/delete-cr-comment/{id}")
     @ApiOperation(value = "Delete customer request comment by ID", response = String.class)
     public ResponseEntity<String> deleteComment(@PathVariable Long id) {
         customerRequestCommentService.deleteComment(id);
         return ResponseEntity.ok(CustomerConstants.DELETED);
     }
 
+    // --------------------------------API's FOR KYC
+    // ENTITY-----------------------------------------------
+
+    // API to get all KYC records with pagination
+    @GetMapping("/get-all-kyc")
+    @ApiOperation(value = "Retrieve all KYC records", response = List.class)
+    public ResponseEntity<List<KYCDTO>> getAllKYC(
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(required = false) Integer size) {
+        if (size == null) {
+            size = defaultPageSize;
+        }
+        List<KYCDTO> kycs = kycService.getAllKYC(page, size);
+        if (kycs.isEmpty() && page > 0) {
+            return getAllKYC(0, size);
+        }
+        return ResponseEntity.ok(kycs);
+    }
+
+    // API to get KYC by ID
+    @GetMapping("/get-kyc-by-id/{id}")
+    @ApiOperation(value = "Get KYC record by ID", response = KYCDTO.class)
+    public ResponseEntity<KYCDTO> getKYCbyId(
+            @ApiParam(value = "ID of the KYC record to retrieve", required = true) @PathVariable Long id) {
+        KYCDTO kycDTO = kycService.getKYCById(id);
+        if (kycDTO != null) {
+            return ResponseEntity.ok(kycDTO);
+        } else {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(null);
+        }
+    }
+
+    // API to add a new KYC record
+    @PostMapping("/add-kyc")
+    @ApiOperation(value = "Add a new KYC record")
+    public ResponseEntity<String> addKYC(
+            @ApiParam(value = "KYC data to add", required = true) @RequestBody KYCDTO kycDTO) {
+        String response = kycService.addKYC(kycDTO);
+        return ResponseEntity.status(HttpStatus.CREATED).body(response);
+    }
+
+    // API to update KYC
+    @PutMapping("/update-kyc/{id}")
+    @ApiOperation(value = "Update an existing KYC")
+    public ResponseEntity<String> updateKYC(
+            @ApiParam(value = "ID of the KYC to update", required = true) @PathVariable Long id,
+            @ApiParam(value = "Updated KYC data", required = true) @RequestBody KYCDTO kycDTO) {
+        kycDTO.setKyc_id(id);
+        String result = kycService.updateKYC(kycDTO);
+        return ResponseEntity.ok(result);
+    }
+
+    // ----------------------------API's FOR KYC COMMENTS
+    // ENTITY--------------------------------------
+
+    // API to get all KYC comments with pagination
+    @GetMapping("/get-all-kyc-comments")
+    @ApiOperation(value = "Retrieve all KYC comments", response = List.class)
+    public ResponseEntity<List<KYCCommentsDTO>> getAllKycComments(
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(required = false) Integer size) {
+        if (size == null) {
+            size = defaultPageSize;
+        }
+        List<KYCCommentsDTO> commentsList = kycCommentsService.getAllKycComments(page, size);
+        if (commentsList.isEmpty() && page > 0) {
+            return getAllKycComments(0, size);
+        }
+        return ResponseEntity.ok(commentsList);
+    }
+
+    // API to get a KYC comment by ID
+    @GetMapping("/get-kyc-comment-by-id/{id}")
+    @ApiOperation(value = "Retrieve KYC comment by ID", response = KYCCommentsDTO.class)
+    public ResponseEntity<KYCCommentsDTO> getKycCommentById(@PathVariable Long id) {
+        KYCCommentsDTO commentDTO = kycCommentsService.getKycCommentById(id);
+        return ResponseEntity.ok(commentDTO);
+    }
+
+    // API to add a new KYC comment
+    @PostMapping("/add-kyc-comment")
+    @ApiOperation(value = "Add a new KYC comment", response = String.class)
+    public ResponseEntity<String> addKycComment(@RequestBody KYCCommentsDTO commentDTO) {
+        kycCommentsService.addKycComment(commentDTO);
+        return ResponseEntity.status(HttpStatus.CREATED).body(CustomerConstants.ADDED);
+    }
+
+    // API to update a KYC comment by ID
+    @PutMapping("/update-kyc-comment/{id}")
+    @ApiOperation(value = "Update a KYC comment by ID", response = String.class)
+    public ResponseEntity<String> updateKycComment(@PathVariable Long id, @RequestBody KYCCommentsDTO commentDTO) {
+        String response = kycCommentsService.updateKycComment(id, commentDTO);
+        return ResponseEntity.ok(response);
+    }
+
+    // API to delete a KYC comment by ID
+    @DeleteMapping("/delete-kyc-comment/{id}")
+    @ApiOperation(value = "Delete a KYC comment by ID", response = String.class)
+    public ResponseEntity<String> deleteKycComment(@PathVariable Long id) {
+        kycCommentsService.deleteKycComment(id);
+        return ResponseEntity.ok(CustomerConstants.DELETED);
+    }
 }

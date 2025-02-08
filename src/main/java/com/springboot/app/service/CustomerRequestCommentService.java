@@ -4,7 +4,7 @@ import com.springboot.app.dto.CustomerRequestCommentDTO;
 import java.util.List;
 
 public interface CustomerRequestCommentService {
-    List<CustomerRequestCommentDTO> getAllComments();
+    List<CustomerRequestCommentDTO> getAllComments(int page, int size);
 
     CustomerRequestCommentDTO getCommentById(Long id);
 

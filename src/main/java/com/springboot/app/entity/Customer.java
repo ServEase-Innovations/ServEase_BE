@@ -1,13 +1,10 @@
 package com.springboot.app.entity;
 
 import java.sql.Timestamp;
-
-import com.springboot.app.enums.Gender;
-
 import com.springboot.app.enums.DocumentType;
-
+import com.springboot.app.enums.Gender;
 import com.springboot.app.enums.LanguageKnown;
-
+import com.springboot.app.enums.Speciality;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
@@ -15,7 +12,7 @@ import jakarta.persistence.Enumerated;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
-import jakarta.persistence.Lob;
+//import jakarta.persistence.Lob;
 import jakarta.persistence.PrePersist;
 import jakarta.persistence.Table;
 import lombok.AllArgsConstructor;
@@ -41,13 +38,13 @@ public class Customer {
     @Column(nullable = false)
     private String lastName;
 
-    @Column(nullable = false, length = 10)
+    @Column(nullable = false, length = 10, unique = true)
     private Long mobileNo;
 
     @Column(length = 10)
     private Long alternateNo;
 
-    @Column(nullable = false)
+    @Column(nullable = false, unique = true)
     private String emailId;
 
     @Enumerated(EnumType.STRING)
@@ -73,18 +70,23 @@ public class Customer {
     @Enumerated(EnumType.STRING)
     private LanguageKnown languageKnown;
 
-    private Double rating;
-
-    @Lob
-    private byte[] profilePic;
+    // @Lob
+    // private byte[] profilePic;
+    @Column
+    private String profilePic;
 
     @Enumerated(EnumType.STRING)
     private DocumentType KYC;
 
     private String idNo;
 
+    private double rating;
+
     @Column(nullable = false)
     private boolean isActive;
+
+    @Enumerated(EnumType.STRING)
+    private Speciality speciality;
 
     @PrePersist
     public void prePersist() {
