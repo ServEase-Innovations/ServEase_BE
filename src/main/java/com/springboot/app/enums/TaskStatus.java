@@ -4,6 +4,7 @@ public enum TaskStatus {
     NOT_STARTED,
     STARTED,
     IN_PROGRESS,
+    CANCELLED,
     COMPLETED;
 
     // Default value method (optional, for convenience)

@@ -6,8 +6,8 @@ import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Map;
 
-import com.springboot.app.enums.EngagementStatus;
 import com.springboot.app.enums.PaymentMode;
+import com.springboot.app.enums.TaskStatus;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -41,6 +41,6 @@ public class ServiceProviderEngagementDTO {
     private String serviceeType;
     private String customerName;
     private String serviceProviderName;
-    private EngagementStatus engagementStatus;
+    private TaskStatus taskStatus = TaskStatus.NOT_STARTED;
     private List<String> availableTimeSlots;
 }
