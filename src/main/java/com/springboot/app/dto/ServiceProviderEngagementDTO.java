@@ -6,6 +6,7 @@ import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Map;
 
+import com.springboot.app.enums.EngagementStatus;
 import com.springboot.app.enums.PaymentMode;
 
 import lombok.AllArgsConstructor;
@@ -38,5 +39,8 @@ public class ServiceProviderEngagementDTO {
     private String experience;
     private String childAge;
     private String serviceeType;
+    private String customerName;
+    private String serviceProviderName;
+    private EngagementStatus engagementStatus;
     private List<String> availableTimeSlots;
 }

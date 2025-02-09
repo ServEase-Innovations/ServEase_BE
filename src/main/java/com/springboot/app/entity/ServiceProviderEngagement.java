@@ -3,6 +3,7 @@ package com.springboot.app.entity;
 import java.time.LocalDate;
 import java.time.LocalDateTime; // Import LocalDateTime
 
+import com.springboot.app.enums.EngagementStatus;
 import com.springboot.app.enums.PaymentMode;
 
 import jakarta.persistence.Column;
@@ -93,6 +94,16 @@ public class ServiceProviderEngagement {
 
     @Column(length = 255)
     private String serviceeType;
+
+    @Column(length = 255)
+    private String customerName;
+
+    @Column(length = 255)
+    private String serviceProviderName;
+
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false)
+    private EngagementStatus engagementStatus;
 
     // Automatically set isActive field on creation
     @PrePersist
