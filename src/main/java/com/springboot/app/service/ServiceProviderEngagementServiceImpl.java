@@ -156,22 +156,54 @@ public class ServiceProviderEngagementServiceImpl implements ServiceProviderEnga
     public String updateServiceProviderEngagement(ServiceProviderEngagementDTO dto) {
         logger.info("Updating service provider engagement with ID: {}", dto.getId());
 
-        // Check if the service provider engagement exists
-        if (engagementRepository.existsById(dto.getId())) {
+        return engagementRepository.findById(dto.getId())
+                .map(existingEngagement -> {
+                    // Fetch related entities from DB
+                    Customer customer = customerRepository.findById(dto.getCustomerId())
+                            .orElseThrow(
+                                    () -> new RuntimeException("Customer not found with ID: " + dto.getCustomerId()));
 
-            // Map DTO to entity and update
-            ServiceProviderEngagement existingEngagement = engagementMapper.dtoToServiceProviderEngagement(dto);
+                    ServiceProvider serviceProvider = serviceProviderRepository.findById(dto.getServiceProviderId())
+                            .orElseThrow(() -> new RuntimeException(
+                                    "Service Provider not found with ID: " + dto.getServiceProviderId()));
 
-            // Save the updated service provider engagement
-            engagementRepository.save(existingEngagement);
+                    // Update fields from DTO
+                    engagementMapper.updateEntityFromDTO(dto, existingEngagement);
+                    existingEngagement.setCustomer(customer);
+                    existingEngagement.setServiceProvider(serviceProvider);
 
-            logger.info("Service provider engagement updated with ID: {}", dto.getId());
-            return ServiceProviderConstants.ENGAGEMENT_UPDATED;
-        } else {
-            logger.error("Service provider engagement not found for update with ID: {}", dto.getId());
-            return ServiceProviderConstants.ENGAGEMENT_NOT_FOUND;
-        }
+                    // Save updated entity
+                    engagementRepository.save(existingEngagement);
+                    logger.info("Service provider engagement updated successfully with ID: {}", dto.getId());
+                    return ServiceProviderConstants.ENGAGEMENT_UPDATED;
+                })
+                .orElse(ServiceProviderConstants.ENGAGEMENT_NOT_FOUND);
     }
+
+    // @Override
+    // @Transactional
+    // public String updateServiceProviderEngagement(ServiceProviderEngagementDTO
+    // dto) {
+    // logger.info("Updating service provider engagement with ID: {}", dto.getId());
+
+    // // Check if the service provider engagement exists
+    // if (engagementRepository.existsById(dto.getId())) {
+
+    // // Map DTO to entity and update
+    // ServiceProviderEngagement existingEngagement =
+    // engagementMapper.dtoToServiceProviderEngagement(dto);
+
+    // // Save the updated service provider engagement
+    // engagementRepository.save(existingEngagement);
+
+    // logger.info("Service provider engagement updated with ID: {}", dto.getId());
+    // return ServiceProviderConstants.ENGAGEMENT_UPDATED;
+    // } else {
+    // logger.error("Service provider engagement not found for update with ID: {}",
+    // dto.getId());
+    // return ServiceProviderConstants.ENGAGEMENT_NOT_FOUND;
+    // }
+    // }
 
     @Override
     @Transactional

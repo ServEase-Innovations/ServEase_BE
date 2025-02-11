@@ -41,6 +41,7 @@ public class ServiceProviderEngagementDTO {
     private String serviceeType;
     private String customerName;
     private String serviceProviderName;
+    private String address;
     private TaskStatus taskStatus = TaskStatus.NOT_STARTED;
     private List<String> availableTimeSlots;
 }
