@@ -4,6 +4,7 @@ import java.time.LocalDate;
 import java.time.LocalDateTime; // Import LocalDateTime
 
 import com.springboot.app.enums.PaymentMode;
+import com.springboot.app.enums.TaskStatus;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -93,6 +94,19 @@ public class ServiceProviderEngagement {
 
     @Column(length = 255)
     private String serviceeType;
+
+    @Column(length = 255)
+    private String customerName;
+
+    @Column(length = 255)
+    private String serviceProviderName;
+
+    @Column(length = 255)
+    private String address;
+
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false)
+    private TaskStatus taskStatus = TaskStatus.NOT_STARTED;
 
     // Automatically set isActive field on creation
     @PrePersist
