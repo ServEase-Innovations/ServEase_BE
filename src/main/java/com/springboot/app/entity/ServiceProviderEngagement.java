@@ -5,6 +5,7 @@ import java.time.LocalDateTime; // Import LocalDateTime
 
 import com.springboot.app.enums.PaymentMode;
 import com.springboot.app.enums.TaskStatus;
+import com.springboot.app.enums.UserRole;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -58,6 +59,10 @@ public class ServiceProviderEngagement {
 
     @Column(length = 255)
     private String engagements;
+
+    @Column(name = "user_role")
+    @Enumerated(EnumType.STRING)
+    private UserRole role;
 
     @Column(length = 50)
     private String timeslot;
