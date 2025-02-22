@@ -24,9 +24,9 @@ public class JpaConfig {
     public DataSource dataSource() {
         HikariDataSource dataSource = new HikariDataSource();
         dataSource.setDriverClassName("org.postgresql.Driver");
-        dataSource.setJdbcUrl("jdbc:postgresql://servease.c1ccc8a0u3nt.ap-south-1.rds.amazonaws.com:5432/provider");
+        dataSource.setJdbcUrl("jdbc:postgresql://serveaso.cxekoeyy644h.ap-south-1.rds.amazonaws.com/serveaso");
         dataSource.setUsername("postgres");
-        dataSource.setPassword("servease");
+        dataSource.setPassword("serveaso");
         dataSource.setMaximumPoolSize(15);
         return dataSource;
     }
