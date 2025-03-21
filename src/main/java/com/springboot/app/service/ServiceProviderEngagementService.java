@@ -1,5 +1,6 @@
 package com.springboot.app.service;
 
+import java.time.LocalDate;
 import java.util.List;
 import java.util.Map;
 
@@ -29,4 +30,8 @@ public interface ServiceProviderEngagementService {
     List<ServiceProviderEngagementDTO> getServiceProviderEngagementsByCustomerId(Long customerId);
 
     public Map<String, List<ServiceProviderEngagementDTO>> getServiceProviderBookingHistory(int page, int size);
+
+    List<ServiceProviderEngagementDTO> getEngagementsByExactDateAndTimeslot(
+            LocalDate startDate, LocalDate endDate, String timeslot);
+
 }

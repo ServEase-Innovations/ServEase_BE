@@ -19,9 +19,11 @@ import com.springboot.app.enums.Gender;
 import com.springboot.app.enums.HousekeepingRole;
 import com.springboot.app.enums.Status;
 import com.springboot.app.dto.CustomerFeedbackDTO;
+import com.springboot.app.dto.CustomerHolidaysDTO;
 import com.springboot.app.dto.CustomerRequestCommentDTO;
 import com.springboot.app.service.CustomerConcernService;
 import com.springboot.app.service.CustomerFeedbackService;
+import com.springboot.app.service.CustomerHolidaysService;
 import com.springboot.app.service.CustomerRequestCommentService;
 import com.springboot.app.service.CustomerRequestService;
 import com.springboot.app.service.CustomerService;
@@ -30,33 +32,41 @@ import com.springboot.app.service.KYCService;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
-import java.io.*;
+import jakarta.persistence.EntityNotFoundException;
 
 @RestController
 @RequestMapping("/api/customer")
 @Api(value = "Customer operations API", tags = "Customer")
 public class CustomerController {
 
-    @Autowired
-    private CustomerService customerService;
+    private final CustomerService customerService;
+    private final CustomerRequestService customerRequestService;
+    private final CustomerConcernService customerConcernService;
+    private final CustomerFeedbackService customerFeedbackService;
+    private final CustomerRequestCommentService customerRequestCommentService;
+    private final KYCService kycService;
+    private final KYCCommentsService kycCommentsService;
+    private final CustomerHolidaysService customerHolidaysService;
 
+    // Constructor-based injection
     @Autowired
-    private CustomerRequestService customerRequestService;
-
-    @Autowired
-    private CustomerConcernService customerConcernService;
-
-    @Autowired
-    private CustomerFeedbackService customerFeedbackService;
-
-    @Autowired
-    private CustomerRequestCommentService customerRequestCommentService;
-
-    @Autowired
-    private KYCService kycService;
-
-    @Autowired
-    private KYCCommentsService kycCommentsService;
+    public CustomerController(CustomerService customerService,
+            CustomerRequestService customerRequestService,
+            CustomerConcernService customerConcernService,
+            CustomerFeedbackService customerFeedbackService,
+            CustomerRequestCommentService customerRequestCommentService,
+            KYCService kycService,
+            KYCCommentsService kycCommentsService,
+            CustomerHolidaysService customerHolidaysService) {
+        this.customerService = customerService;
+        this.customerRequestService = customerRequestService;
+        this.customerConcernService = customerConcernService;
+        this.customerFeedbackService = customerFeedbackService;
+        this.customerRequestCommentService = customerRequestCommentService;
+        this.kycService = kycService;
+        this.kycCommentsService = kycCommentsService;
+        this.customerHolidaysService = customerHolidaysService;
+    }
 
     @Value("${app.pagination.default-page-size:10}")
     private int defaultPageSize;
@@ -103,8 +113,7 @@ public class CustomerController {
     public ResponseEntity<String> updateCustomer(
             @ApiParam(value = "ID of the customer to update", required = true) @PathVariable Long id,
             @ApiParam(value = "Updated customer object", required = true) @ModelAttribute CustomerDTO customerDTO,
-            @ApiParam(value = "Updated profile picture of the customer") @RequestParam(value = "profilePic", required = false) MultipartFile profilePic)
-            throws IOException {
+            @ApiParam(value = "Updated profile picture of the customer") @RequestParam(value = "profilePic", required = false) MultipartFile profilePic) {
 
         customerDTO.setCustomerId(id);
         // customerDTO.setProfilePic(profilePic); // Set profile picture if provided
@@ -142,18 +151,21 @@ public class CustomerController {
     // API to retrieve categorized customer requests
     @GetMapping("/get-booking-history")
     @ApiOperation(value = "Retrieve categorized customer requests", response = Map.class)
-    public ResponseEntity<?> getCategorizedCustomerRequests(
+    public ResponseEntity<Object> getCategorizedCustomerRequests(
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(required = false) Integer size) {
+
         if (size == null) {
             size = defaultPageSize;
         }
 
         Map<String, List<CustomerRequestDTO>> categorizedRequests = customerRequestService.getBookingHistory(page,
                 size);
+
         if (categorizedRequests == null || categorizedRequests.isEmpty()) {
             return ResponseEntity.status(HttpStatus.NO_CONTENT).body("No Data Found");
         }
+
         return ResponseEntity.ok(categorizedRequests);
     }
 
@@ -518,4 +530,56 @@ public class CustomerController {
         kycCommentsService.deleteKycComment(id);
         return ResponseEntity.ok(CustomerConstants.DELETED);
     }
+
+    // ----------------------API's FOR CUSTOMER Holidays---------------------------
+
+    @GetMapping("/get-all-customer-holidays")
+    @ApiOperation(value = "Retrieve all customer holidays", response = List.class)
+    public ResponseEntity<List<CustomerHolidaysDTO>> getAllHolidays(
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(required = false) Integer size) {
+        if (size == null) {
+            size = defaultPageSize;
+        }
+        List<CustomerHolidaysDTO> holidays = customerHolidaysService.getAllHolidays(page, size);
+        if (holidays.isEmpty() && page > 0) {
+            return getAllHolidays(0, size);
+        }
+        return ResponseEntity.ok(holidays);
+    }
+
+    @GetMapping("/get-customer-holiday-by-id/{id}")
+    @ApiOperation(value = "Retrieve a customer holiday by ID", response = CustomerHolidaysDTO.class)
+    public ResponseEntity<CustomerHolidaysDTO> getHolidayById(@PathVariable Long id) {
+        CustomerHolidaysDTO holidayDTO = customerHolidaysService.getHolidayById(id);
+        return ResponseEntity.ok(holidayDTO);
+    }
+
+    @PostMapping("/add-customer-holiday")
+    @ApiOperation(value = "Add a new customer holiday", response = String.class)
+    public ResponseEntity<String> addNewHoliday(@RequestBody CustomerHolidaysDTO customerHolidaysDTO) {
+        try {
+            String result = customerHolidaysService.addNewHoliday(customerHolidaysDTO);
+            return ResponseEntity.status(HttpStatus.CREATED).body(result);
+        } catch (EntityNotFoundException ex) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(ex.getMessage());
+        }
+    }
+
+    @PutMapping("/modify-customer-holiday/{id}")
+    @ApiOperation(value = "Update an existing customer holiday")
+    public ResponseEntity<String> modifyHoliday(@PathVariable Long id,
+            @RequestBody CustomerHolidaysDTO customerHolidaysDTO) {
+        customerHolidaysDTO.setId(id);
+        customerHolidaysService.modifyHoliday(customerHolidaysDTO);
+        return ResponseEntity.ok(CustomerConstants.UPDATED);
+    }
+
+    @PatchMapping("/deactivate-customer-holiday/{id}")
+    @ApiOperation(value = "Deactivate a customer holiday by ID", response = String.class)
+    public ResponseEntity<String> deactivateHoliday(@PathVariable Long id) {
+        String response = customerHolidaysService.deactivateHoliday(id);
+        return ResponseEntity.ok(response);
+    }
+
 }

@@ -8,6 +8,7 @@ import java.util.Map;
 
 import com.springboot.app.enums.PaymentMode;
 import com.springboot.app.enums.TaskStatus;
+import com.springboot.app.enums.UserRole;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -27,7 +28,7 @@ public class ServiceProviderEngagementDTO {
     private LocalDate endDate;
     private String engagements;
     private String timeslot;
-    private boolean isActive;
+    private boolean isActive = true;
     private double monthlyAmount;
     private PaymentMode paymentMode;
     private String bookingType;
@@ -43,5 +44,6 @@ public class ServiceProviderEngagementDTO {
     private String serviceProviderName;
     private String address;
     private TaskStatus taskStatus = TaskStatus.NOT_STARTED;
+    private UserRole role;
     private List<String> availableTimeSlots;
 }

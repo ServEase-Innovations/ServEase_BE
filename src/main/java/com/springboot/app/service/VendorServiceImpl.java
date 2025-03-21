@@ -5,6 +5,7 @@ import com.springboot.app.dto.UserCredentialsDTO;
 import com.springboot.app.dto.VendorDTO;
 import com.springboot.app.entity.Vendor;
 import com.springboot.app.enums.UserRole;
+import com.springboot.app.exception.VendorRegistrationException;
 import com.springboot.app.mapper.VendorMapper;
 import com.springboot.app.repository.VendorRepository;
 
@@ -19,21 +20,24 @@ import org.springframework.transaction.annotation.Transactional;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
-import java.util.stream.Collectors;
 
 @Service
 public class VendorServiceImpl implements VendorService {
 
     private static final Logger logger = LoggerFactory.getLogger(VendorServiceImpl.class);
 
-    @Autowired
-    private VendorRepository vendorRepository;
+    private final VendorRepository vendorRepository;
+    private final VendorMapper vendorMapper;
+    private final UserCredentialsService userCredentialsService;
 
     @Autowired
-    private VendorMapper vendorMapper;
-
-    @Autowired
-    private UserCredentialsService userCredentialsService;
+    public VendorServiceImpl(VendorRepository vendorRepository,
+            VendorMapper vendorMapper,
+            UserCredentialsService userCredentialsService) {
+        this.vendorRepository = vendorRepository;
+        this.vendorMapper = vendorMapper;
+        this.userCredentialsService = userCredentialsService;
+    }
 
     @Override
     @Transactional(readOnly = true)
@@ -55,7 +59,7 @@ public class VendorServiceImpl implements VendorService {
         // Map entities to DTOs
         return vendors.stream()
                 .map(vendorMapper::vendorToDTO)
-                .collect(Collectors.toList());
+                .toList();
     }
 
     @Override
@@ -127,7 +131,7 @@ public class VendorServiceImpl implements VendorService {
         String registrationResponse = userCredentialsService.saveUserCredentials(userDTO);
 
         if (!"Registration successful!".equalsIgnoreCase(registrationResponse)) {
-            throw new RuntimeException("Vendor registration failed: " + registrationResponse);
+            throw new VendorRegistrationException("Vendor registration failed: " + registrationResponse);
         }
 
         // Step 4: Map VendorDTO to Vendor entity and save it
@@ -143,14 +147,6 @@ public class VendorServiceImpl implements VendorService {
         // Return the vendor's ID
         return vendorId;
 
-        // Vendor vendor = vendorMapper.dtoToVendor(vendorDTO);
-        // vendor.setActive(true); // Set the vendor as active by default when saving
-        // vendorRepository.save(vendor);
-        // // vendorRepository.save(vendor);
-
-        // logger.info("Vendor saved with ID: {}", vendor.getVendorId());
-
-        // return ServiceProviderConstants.VENDOR_SAVED;
     }
 
     @Override

@@ -1,3 +1,4 @@
+
 package com.springboot.app.repository;
 
 import org.springframework.data.jpa.repository.JpaRepository;

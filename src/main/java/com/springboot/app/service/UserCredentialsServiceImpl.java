@@ -1,7 +1,7 @@
 package com.springboot.app.service;
 
 import com.springboot.app.config.LockSettingsConfig;
-
+import com.springboot.app.constant.ServiceProviderConstants;
 import com.springboot.app.dto.UserCredentialsDTO;
 
 import com.springboot.app.entity.UserCredentials;
@@ -36,30 +36,32 @@ public class UserCredentialsServiceImpl implements UserCredentialsService {
     private final UserCredentialsMapper userCredentialsMapper;
     private final LockSettingsConfig lockSettingsConfig;
     private final BCryptPasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
-    @Autowired
-    private CustomerRepository customerRepository;
+    private final CustomerRepository customerRepository;
+    private final ServiceProviderRepository serviceProviderRepository;
+    private final CustomerMapper customerMapper;
+    private final ServiceProviderMapper serviceProviderMapper;
+    private final VendorRepository vendorRepository;
+    private final VendorMapper vendorMapper;
 
     @Autowired
-    private ServiceProviderRepository serviceProviderRepository;
-
-    @Autowired
-    private CustomerMapper customerMapper;
-
-    @Autowired
-    private ServiceProviderMapper serviceProviderMapper;
-
-    @Autowired
-    private VendorRepository vendorRepository;
-
-    @Autowired
-    private VendorMapper vendorMapper;
-
     public UserCredentialsServiceImpl(UserCredentialsRepository userCredentialsRepository,
             UserCredentialsMapper userCredentialsMapper,
-            LockSettingsConfig lockSettingsConfig) {
+            LockSettingsConfig lockSettingsConfig,
+            CustomerRepository customerRepository,
+            ServiceProviderRepository serviceProviderRepository,
+            CustomerMapper customerMapper,
+            ServiceProviderMapper serviceProviderMapper,
+            VendorRepository vendorRepository,
+            VendorMapper vendorMapper) {
         this.userCredentialsRepository = userCredentialsRepository;
         this.userCredentialsMapper = userCredentialsMapper;
         this.lockSettingsConfig = lockSettingsConfig;
+        this.customerRepository = customerRepository;
+        this.serviceProviderRepository = serviceProviderRepository;
+        this.customerMapper = customerMapper;
+        this.serviceProviderMapper = serviceProviderMapper;
+        this.vendorRepository = vendorRepository;
+        this.vendorMapper = vendorMapper;
     }
 
     @Override
@@ -74,7 +76,7 @@ public class UserCredentialsServiceImpl implements UserCredentialsService {
             // Check if the account is locked
             if (isAccountLocked(user)) {
                 Map<String, Object> response = new HashMap<>();
-                response.put("message",
+                response.put(ServiceProviderConstants.RESPONSE_MESSAGE_KEY,
                         "Account is temporarily locked. Please try again after: " + user.getDisableTill());
                 return ResponseEntity.status(HttpStatus.LOCKED).body(response);
             }
@@ -97,7 +99,8 @@ public class UserCredentialsServiceImpl implements UserCredentialsService {
         } catch (RuntimeException e) {
             // Handle specific exception for user not registered
             Map<String, Object> response = new HashMap<>();
-            response.put("message", e.getMessage()); // Will show "User not registered"
+            response.put(ServiceProviderConstants.RESPONSE_MESSAGE_KEY, e.getMessage()); // Will show "User not
+                                                                                         // registered"
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
         } catch (Exception e) {
             // Handle any other unexpected errors
@@ -175,22 +178,6 @@ public class UserCredentialsServiceImpl implements UserCredentialsService {
         userCredentialsRepository.save(user);
         return true; // Indicating the account was successfully deactivated
     }
-
-    // @Override
-    // @Transactional
-    // public String deactivateUser(String username) {
-    // Optional<UserCredentials> optionalUser =
-    // userCredentialsRepository.findById(username);
-
-    // if (optionalUser.isEmpty()) {
-    // return "User not found. Unable to deactivate account.";
-    // }
-
-    // UserCredentials user = optionalUser.get();
-    // user.deactivate();
-    // userCredentialsRepository.save(user);
-    // return "Account deactivated successfully.";
-    // }
 
     @Override
     @Transactional

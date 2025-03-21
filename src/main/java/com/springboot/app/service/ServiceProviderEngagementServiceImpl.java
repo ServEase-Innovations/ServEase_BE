@@ -5,6 +5,7 @@ import com.springboot.app.dto.ServiceProviderEngagementDTO;
 import com.springboot.app.entity.Customer;
 import com.springboot.app.entity.ServiceProvider;
 import com.springboot.app.entity.ServiceProviderEngagement;
+import com.springboot.app.exception.ServiceProviderEngagementNotFoundException;
 import com.springboot.app.mapper.ServiceProviderEngagementMapper;
 import com.springboot.app.repository.CustomerRepository;
 import com.springboot.app.repository.ServiceProviderEngagementRepository;
@@ -12,35 +13,42 @@ import com.springboot.app.repository.ServiceProviderRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-//import com.springboot.app.util.ResponsibilityParser;
 
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
-//import java.util.Map;
+
 import java.util.stream.Collectors;
+
 import org.springframework.data.domain.Pageable;
+
+import java.util.Collections;
 
 @Service
 public class ServiceProviderEngagementServiceImpl implements ServiceProviderEngagementService {
 
     private static final Logger logger = LoggerFactory.getLogger(ServiceProviderEngagementServiceImpl.class);
 
-    @Autowired
-    private ServiceProviderEngagementRepository engagementRepository;
+    private final ServiceProviderEngagementRepository engagementRepository;
+    private final ServiceProviderRepository serviceProviderRepository;
+    private final CustomerRepository customerRepository;
+    private final ServiceProviderEngagementMapper engagementMapper;
 
     @Autowired
-    private ServiceProviderRepository serviceProviderRepository;
-
-    @Autowired
-    private CustomerRepository customerRepository;
-
-    @Autowired
-    private ServiceProviderEngagementMapper engagementMapper;
+    public ServiceProviderEngagementServiceImpl(ServiceProviderEngagementRepository engagementRepository,
+            ServiceProviderRepository serviceProviderRepository,
+            CustomerRepository customerRepository,
+            ServiceProviderEngagementMapper engagementMapper) {
+        this.engagementRepository = engagementRepository;
+        this.serviceProviderRepository = serviceProviderRepository;
+        this.customerRepository = customerRepository;
+        this.engagementMapper = engagementMapper;
+    }
 
     @Override
     @Transactional
@@ -60,9 +68,10 @@ public class ServiceProviderEngagementServiceImpl implements ServiceProviderEnga
         }
 
         // Map entities to DTOs
+        // Map entities to DTOs
         return engagements.stream()
-                .map(engagement -> engagementMapper.serviceProviderEngagementToDTO(engagement))
-                .collect(Collectors.toList());
+                .map(engagementMapper::serviceProviderEngagementToDTO)
+                .toList();
     }
 
     @Override
@@ -111,45 +120,14 @@ public class ServiceProviderEngagementServiceImpl implements ServiceProviderEnga
             engagement.setServiceProvider(serviceProvider);
         }
         engagement.setCustomer(customer);
+        if (dto.getEndDate() != null && dto.getEndDate().isBefore(LocalDate.now())) {
+            engagement.setTimeslot("00:00-00:00");
+        }
 
         engagementRepository.save(engagement);
         logger.debug("Persisted new service provider engagement with ID: {}", engagement.getId());
         return "Service Provider Engagement added successfully.";
     }
-
-    // @Override
-    // @Transactional
-    // public String addServiceProviderEngagement(ServiceProviderEngagementDTO dto)
-    // {
-    // logger.info("Adding new service provider engagement");
-
-    // // Fetch the ServiceProvider
-    // ServiceProvider serviceProvider =
-    // serviceProviderRepository.findById(dto.getServiceProviderId())
-    // .orElseThrow(() -> {
-    // logger.error("ServiceProvider with ID {} not found.",
-    // dto.getServiceProviderId());
-    // return new RuntimeException("Service Provider not found.");
-    // });
-
-    // // Fetch the Customer
-    // Customer customer = customerRepository.findById(dto.getCustomerId())
-    // .orElseThrow(() -> {
-    // logger.error("Customer with ID {} not found.", dto.getCustomerId());
-    // return new RuntimeException("Customer not found.");
-    // });
-
-    // // Map DTO to entity and set relationships
-    // ServiceProviderEngagement engagement =
-    // engagementMapper.dtoToServiceProviderEngagement(dto);
-    // engagement.setServiceProvider(serviceProvider);
-    // engagement.setCustomer(customer);
-
-    // engagementRepository.save(engagement);
-    // logger.debug("Persisted new service provider engagement with ID: {}",
-    // engagement.getId());
-    // return "Service Provider Engagement added successfully.";
-    // }
 
     @Override
     @Transactional
@@ -179,31 +157,6 @@ public class ServiceProviderEngagementServiceImpl implements ServiceProviderEnga
                 })
                 .orElse(ServiceProviderConstants.ENGAGEMENT_NOT_FOUND);
     }
-
-    // @Override
-    // @Transactional
-    // public String updateServiceProviderEngagement(ServiceProviderEngagementDTO
-    // dto) {
-    // logger.info("Updating service provider engagement with ID: {}", dto.getId());
-
-    // // Check if the service provider engagement exists
-    // if (engagementRepository.existsById(dto.getId())) {
-
-    // // Map DTO to entity and update
-    // ServiceProviderEngagement existingEngagement =
-    // engagementMapper.dtoToServiceProviderEngagement(dto);
-
-    // // Save the updated service provider engagement
-    // engagementRepository.save(existingEngagement);
-
-    // logger.info("Service provider engagement updated with ID: {}", dto.getId());
-    // return ServiceProviderConstants.ENGAGEMENT_UPDATED;
-    // } else {
-    // logger.error("Service provider engagement not found for update with ID: {}",
-    // dto.getId());
-    // return ServiceProviderConstants.ENGAGEMENT_NOT_FOUND;
-    // }
-    // }
 
     @Override
     @Transactional
@@ -240,19 +193,20 @@ public class ServiceProviderEngagementServiceImpl implements ServiceProviderEnga
         // Fetch all engagements and filter by serviceProviderId
         List<ServiceProviderEngagement> engagements = engagementRepository.findAll();
         List<ServiceProviderEngagement> filteredEngagements = engagements.stream()
-                .filter(e -> e.getServiceProvider() != null
-                        && e.getServiceProvider().getServiceproviderId().equals(serviceProviderId))
-                .collect(Collectors.toList());
+                .filter(e -> e.getServiceProvider() != null &&
+                        e.getServiceProvider().getServiceproviderId().equals(serviceProviderId))
+                .toList();
 
-        // Check if no engagements found
+        // Check if no engagements found and throw a dedicated exception
         if (filteredEngagements.isEmpty()) {
-            throw new RuntimeException("No data found for ServiceProvider ID: " + serviceProviderId);
+            throw new ServiceProviderEngagementNotFoundException(
+                    "No data found for ServiceProvider ID: " + serviceProviderId);
         }
 
-        // Convert to DTO
+        // Convert to DTO and return an unmodifiable list
         return filteredEngagements.stream()
                 .map(engagementMapper::serviceProviderEngagementToDTO)
-                .collect(Collectors.toList());
+                .toList();
     }
 
     @Override
@@ -260,22 +214,17 @@ public class ServiceProviderEngagementServiceImpl implements ServiceProviderEnga
     public List<ServiceProviderEngagementDTO> getServiceProviderEngagementsByCustomerId(Long customerId) {
         logger.info("Fetching service provider engagements by Customer ID: {}", customerId);
 
-        // Fetch all engagements and filter by customerId
-        List<ServiceProviderEngagement> engagements = engagementRepository.findAll();
-        List<ServiceProviderEngagement> filteredEngagements = engagements.stream()
-                .filter(e -> e.getCustomer() != null
-                        && e.getCustomer().getCustomerId().equals(customerId))
-                .collect(Collectors.toList());
+        List<ServiceProviderEngagement> filteredEngagements = engagementRepository.findAll().stream()
+                .filter(e -> e.getCustomer() != null && e.getCustomer().getCustomerId().equals(customerId))
+                .toList();
 
-        // Check if no engagements found
         if (filteredEngagements.isEmpty()) {
-            throw new RuntimeException("No data found for Customer ID: " + customerId);
+            throw new ServiceProviderEngagementNotFoundException("No data found for Customer ID: " + customerId);
         }
 
-        // Convert to DTO
         return filteredEngagements.stream()
                 .map(engagementMapper::serviceProviderEngagementToDTO)
-                .collect(Collectors.toList());
+                .toList();
     }
 
     @Override
@@ -288,12 +237,14 @@ public class ServiceProviderEngagementServiceImpl implements ServiceProviderEnga
         List<ServiceProviderEngagement> engagements = engagementRepository.findAll(pageable).getContent();
 
         if (engagements.isEmpty()) {
-            return null;
+            return Collections.emptyMap();
         }
+
         // Get current date
         LocalDate currentDate = LocalDate.now();
-        // Categorize engagements
-        Map<String, List<ServiceProviderEngagementDTO>> categorizedEngagements = engagements.stream()
+
+        // Categorize engagements and return directly
+        return engagements.stream()
                 .map(engagementMapper::serviceProviderEngagementToDTO)
                 .collect(Collectors.groupingBy(engagement -> {
                     LocalDate startDate = engagement.getStartDate();
@@ -315,8 +266,26 @@ public class ServiceProviderEngagementServiceImpl implements ServiceProviderEnga
                         }
                     }
                 }));
+    }
 
-        return categorizedEngagements;
+    @Override
+    @Transactional(readOnly = true)
+    public List<ServiceProviderEngagementDTO> getEngagementsByExactDateAndTimeslot(
+            LocalDate startDate, LocalDate endDate, String timeslot) {
+
+        logger.info("Fetching engagements for startDate: {}, endDate: {}, timeslot: {}", startDate, endDate, timeslot);
+
+        List<ServiceProviderEngagement> engagements = engagementRepository.findByExactDateAndTimeslot(startDate,
+                endDate, timeslot);
+
+        if (engagements.isEmpty()) {
+            logger.warn("No engagements found for the given filters.");
+            return Collections.emptyList();
+        }
+
+        return engagements.stream()
+                .map(engagementMapper::serviceProviderEngagementToDTO)
+                .toList();
     }
 
 }

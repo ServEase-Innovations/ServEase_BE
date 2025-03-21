@@ -18,7 +18,6 @@ public class CustomerFeedback {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    // private Long customerId;
     @ManyToOne
     @JoinColumn(name = "customerId", nullable = false)
     private Customer customer;

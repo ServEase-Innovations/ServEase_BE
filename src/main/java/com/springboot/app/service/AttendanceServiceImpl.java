@@ -1,10 +1,12 @@
 package com.springboot.app.service;
 
+import com.springboot.app.constant.ServiceProviderConstants;
 import com.springboot.app.dto.AttendanceDTO;
 import com.springboot.app.entity.Attendance;
 import com.springboot.app.entity.Customer;
 import com.springboot.app.entity.ServiceProvider;
 import com.springboot.app.enums.TaskStatus;
+import com.springboot.app.exception.AttendanceNotFoundException;
 import com.springboot.app.mapper.AttendanceMapper;
 import com.springboot.app.repository.AttendanceRepository;
 import com.springboot.app.repository.CustomerRepository;
@@ -12,7 +14,7 @@ import com.springboot.app.repository.ServiceProviderRepository;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
+
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.jpa.domain.Specification;
@@ -21,24 +23,26 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
 import java.util.List;
-import java.util.stream.Collectors;
 
 @Service
 public class AttendanceServiceImpl implements AttendanceService {
 
         private static final Logger logger = LoggerFactory.getLogger(AttendanceServiceImpl.class);
 
-        @Autowired
-        private AttendanceRepository attendanceRepository;
+        private final AttendanceRepository attendanceRepository;
+        private final AttendanceMapper attendanceMapper;
+        private final ServiceProviderRepository serviceProviderRepository;
+        private final CustomerRepository customerRepository;
 
-        @Autowired
-        private AttendanceMapper attendanceMapper;
-
-        @Autowired
-        private ServiceProviderRepository serviceProviderRepository;
-
-        @Autowired
-        private CustomerRepository customerRepository;
+        public AttendanceServiceImpl(AttendanceRepository attendanceRepository,
+                        AttendanceMapper attendanceMapper,
+                        ServiceProviderRepository serviceProviderRepository,
+                        CustomerRepository customerRepository) {
+                this.attendanceRepository = attendanceRepository;
+                this.attendanceMapper = attendanceMapper;
+                this.serviceProviderRepository = serviceProviderRepository;
+                this.customerRepository = customerRepository;
+        }
 
         @Override
         @Transactional(readOnly = true)
@@ -50,7 +54,8 @@ public class AttendanceServiceImpl implements AttendanceService {
 
                 return attendancePage.stream()
                                 .map(attendanceMapper::attendanceToDTO)
-                                .collect(Collectors.toList());
+                                .toList();
+
         }
 
         @Override
@@ -59,7 +64,8 @@ public class AttendanceServiceImpl implements AttendanceService {
                 logger.info("Fetching attendance record with ID: {}", id);
 
                 Attendance attendance = attendanceRepository.findById(id)
-                                .orElseThrow(() -> new RuntimeException("Attendance record not found with ID: " + id));
+                                .orElseThrow(() -> new RuntimeException(
+                                                ServiceProviderConstants.ATTENDANCE_NOT_FOUND_MSG + id));
 
                 logger.debug("Found attendance record: {}", attendance);
                 return attendanceMapper.attendanceToDTO(attendance);
@@ -76,7 +82,8 @@ public class AttendanceServiceImpl implements AttendanceService {
                 List<Attendance> attendanceList = attendanceRepository.findAll(spec);
 
                 if (attendanceList.isEmpty()) {
-                        throw new RuntimeException("No attendance records found for customer ID: " + customerId);
+                        throw new AttendanceNotFoundException(
+                                        "No attendance records found for customer ID: " + customerId);
                 }
 
                 return attendanceList.stream()
@@ -95,7 +102,7 @@ public class AttendanceServiceImpl implements AttendanceService {
                 List<Attendance> attendanceList = attendanceRepository.findAll(spec);
 
                 if (attendanceList.isEmpty()) {
-                        throw new RuntimeException(
+                        throw new AttendanceNotFoundException(
                                         "No attendance records found for service provider ID: " + serviceProviderId);
                 }
 
@@ -173,22 +180,35 @@ public class AttendanceServiceImpl implements AttendanceService {
         @Override
         @Transactional(readOnly = true)
         public List<AttendanceDTO> getAllNotifications() {
-                logger.info("Fetching attendance records with conflicts between isAttended and isCustomerAgreed");
+                logger.info("Fetching attendance records with conflicts between {} and {}",
+                                ServiceProviderConstants.ATTENDANCE_FIELD_IS_ATTENDED,
+                                ServiceProviderConstants.ATTENDANCE_FIELD_IS_CUSTOMER_AGREED);
 
-                // Specification for conflicting conditions
+                // Specification for conflicting conditions using constants
                 Specification<Attendance> spec = (root, query, criteriaBuilder) -> criteriaBuilder.or(
                                 criteriaBuilder.and(
-                                                criteriaBuilder.equal(root.get("isAttended"), true),
-                                                criteriaBuilder.equal(root.get("isCustomerAgreed"), false)),
+                                                criteriaBuilder.equal(root.get(
+                                                                ServiceProviderConstants.ATTENDANCE_FIELD_IS_ATTENDED),
+                                                                true),
+                                                criteriaBuilder.equal(root.get(
+                                                                ServiceProviderConstants.ATTENDANCE_FIELD_IS_CUSTOMER_AGREED),
+                                                                false)),
                                 criteriaBuilder.and(
-                                                criteriaBuilder.equal(root.get("isAttended"), false),
-                                                criteriaBuilder.equal(root.get("isCustomerAgreed"), true)));
+                                                criteriaBuilder.equal(root.get(
+                                                                ServiceProviderConstants.ATTENDANCE_FIELD_IS_ATTENDED),
+                                                                false),
+                                                criteriaBuilder.equal(root.get(
+                                                                ServiceProviderConstants.ATTENDANCE_FIELD_IS_CUSTOMER_AGREED),
+                                                                true)));
 
                 List<Attendance> attendanceList = attendanceRepository.findAll(spec);
 
                 if (attendanceList.isEmpty()) {
-                        throw new RuntimeException(
-                                        "No attendance records found with conflicts between isAttended and isCustomerAgreed");
+                        throw new AttendanceNotFoundException(
+                                        "No attendance records found with conflicts between " +
+                                                        ServiceProviderConstants.ATTENDANCE_FIELD_IS_ATTENDED + " and "
+                                                        +
+                                                        ServiceProviderConstants.ATTENDANCE_FIELD_IS_CUSTOMER_AGREED);
                 }
 
                 return attendanceList.stream()
@@ -196,31 +216,39 @@ public class AttendanceServiceImpl implements AttendanceService {
                                 .toList();
         }
 
-        // Conflict for today
+        @Override
         @Transactional(readOnly = true)
         public List<AttendanceDTO> getTodayConflicts() {
                 logger.info("Fetching attendance records with conflicts for today");
 
                 LocalDate today = LocalDate.now();
+                // Define start and end of day boundaries as needed
                 LocalDate startOfDay = today.atStartOfDay().toLocalDate();
                 LocalDate endOfDay = today.plusDays(1).atStartOfDay().toLocalDate();
 
                 Specification<Attendance> spec = (root, query, criteriaBuilder) -> criteriaBuilder.and(
                                 criteriaBuilder.or(
                                                 criteriaBuilder.and(
-                                                                criteriaBuilder.equal(root.get("isAttended"), true),
-                                                                criteriaBuilder.equal(root.get("isCustomerAgreed"),
+                                                                criteriaBuilder.equal(root.get(
+                                                                                ServiceProviderConstants.ATTENDANCE_FIELD_IS_ATTENDED),
+                                                                                true),
+                                                                criteriaBuilder.equal(root.get(
+                                                                                ServiceProviderConstants.ATTENDANCE_FIELD_IS_CUSTOMER_AGREED),
                                                                                 false)),
                                                 criteriaBuilder.and(
-                                                                criteriaBuilder.equal(root.get("isAttended"), false),
-                                                                criteriaBuilder.equal(root.get("isCustomerAgreed"),
+                                                                criteriaBuilder.equal(root.get(
+                                                                                ServiceProviderConstants.ATTENDANCE_FIELD_IS_ATTENDED),
+                                                                                false),
+                                                                criteriaBuilder.equal(root.get(
+                                                                                ServiceProviderConstants.ATTENDANCE_FIELD_IS_CUSTOMER_AGREED),
                                                                                 true))),
-                                criteriaBuilder.between(root.get("attendanceStatus"), startOfDay, endOfDay));
+                                criteriaBuilder.between(root.get(ServiceProviderConstants.ATTENDANCE_FIELD_STATUS),
+                                                startOfDay, endOfDay));
 
                 List<Attendance> attendanceList = attendanceRepository.findAll(spec);
 
                 if (attendanceList.isEmpty()) {
-                        throw new RuntimeException("No attendance records found with conflicts for today");
+                        throw new AttendanceNotFoundException("No attendance records found with conflicts for today");
                 }
 
                 return attendanceList.stream()
@@ -228,7 +256,6 @@ public class AttendanceServiceImpl implements AttendanceService {
                                 .toList();
         }
 
-        // Conflict for one week
         @Transactional(readOnly = true)
         public List<AttendanceDTO> getOneWeekConflicts() {
                 logger.info("Fetching attendance records with conflicts for the past one week");
@@ -239,19 +266,27 @@ public class AttendanceServiceImpl implements AttendanceService {
                 Specification<Attendance> spec = (root, query, criteriaBuilder) -> criteriaBuilder.and(
                                 criteriaBuilder.or(
                                                 criteriaBuilder.and(
-                                                                criteriaBuilder.equal(root.get("isAttended"), true),
-                                                                criteriaBuilder.equal(root.get("isCustomerAgreed"),
+                                                                criteriaBuilder.equal(root.get(
+                                                                                ServiceProviderConstants.ATTENDANCE_FIELD_IS_ATTENDED),
+                                                                                true),
+                                                                criteriaBuilder.equal(root.get(
+                                                                                ServiceProviderConstants.ATTENDANCE_FIELD_IS_CUSTOMER_AGREED),
                                                                                 false)),
                                                 criteriaBuilder.and(
-                                                                criteriaBuilder.equal(root.get("isAttended"), false),
-                                                                criteriaBuilder.equal(root.get("isCustomerAgreed"),
+                                                                criteriaBuilder.equal(root.get(
+                                                                                ServiceProviderConstants.ATTENDANCE_FIELD_IS_ATTENDED),
+                                                                                false),
+                                                                criteriaBuilder.equal(root.get(
+                                                                                ServiceProviderConstants.ATTENDANCE_FIELD_IS_CUSTOMER_AGREED),
                                                                                 true))),
-                                criteriaBuilder.between(root.get("attendanceStatus"), oneWeekAgo, today));
+                                criteriaBuilder.between(root.get(ServiceProviderConstants.ATTENDANCE_FIELD_STATUS),
+                                                oneWeekAgo, today));
 
                 List<Attendance> attendanceList = attendanceRepository.findAll(spec);
 
                 if (attendanceList.isEmpty()) {
-                        throw new RuntimeException("No attendance records found with conflicts for the past one week");
+                        throw new AttendanceNotFoundException(
+                                        "No attendance records found with conflicts for the past one week");
                 }
 
                 return attendanceList.stream()
@@ -259,7 +294,6 @@ public class AttendanceServiceImpl implements AttendanceService {
                                 .toList();
         }
 
-        // Conflict for two weeks
         @Transactional(readOnly = true)
         public List<AttendanceDTO> getTwoWeeksConflicts() {
                 logger.info("Fetching attendance records with conflicts for the past two weeks");
@@ -270,19 +304,27 @@ public class AttendanceServiceImpl implements AttendanceService {
                 Specification<Attendance> spec = (root, query, criteriaBuilder) -> criteriaBuilder.and(
                                 criteriaBuilder.or(
                                                 criteriaBuilder.and(
-                                                                criteriaBuilder.equal(root.get("isAttended"), true),
-                                                                criteriaBuilder.equal(root.get("isCustomerAgreed"),
+                                                                criteriaBuilder.equal(root.get(
+                                                                                ServiceProviderConstants.ATTENDANCE_FIELD_IS_ATTENDED),
+                                                                                true),
+                                                                criteriaBuilder.equal(root.get(
+                                                                                ServiceProviderConstants.ATTENDANCE_FIELD_IS_CUSTOMER_AGREED),
                                                                                 false)),
                                                 criteriaBuilder.and(
-                                                                criteriaBuilder.equal(root.get("isAttended"), false),
-                                                                criteriaBuilder.equal(root.get("isCustomerAgreed"),
+                                                                criteriaBuilder.equal(root.get(
+                                                                                ServiceProviderConstants.ATTENDANCE_FIELD_IS_ATTENDED),
+                                                                                false),
+                                                                criteriaBuilder.equal(root.get(
+                                                                                ServiceProviderConstants.ATTENDANCE_FIELD_IS_CUSTOMER_AGREED),
                                                                                 true))),
-                                criteriaBuilder.between(root.get("attendanceStatus"), twoWeeksAgo, today));
+                                criteriaBuilder.between(root.get(ServiceProviderConstants.ATTENDANCE_FIELD_STATUS),
+                                                twoWeeksAgo, today));
 
                 List<Attendance> attendanceList = attendanceRepository.findAll(spec);
 
                 if (attendanceList.isEmpty()) {
-                        throw new RuntimeException("No attendance records found with conflicts for the past two weeks");
+                        throw new AttendanceNotFoundException(
+                                        "No attendance records found with conflicts for the past two weeks");
                 }
 
                 return attendanceList.stream()
@@ -301,19 +343,27 @@ public class AttendanceServiceImpl implements AttendanceService {
                 Specification<Attendance> spec = (root, query, criteriaBuilder) -> criteriaBuilder.and(
                                 criteriaBuilder.or(
                                                 criteriaBuilder.and(
-                                                                criteriaBuilder.equal(root.get("isAttended"), true),
-                                                                criteriaBuilder.equal(root.get("isCustomerAgreed"),
+                                                                criteriaBuilder.equal(root.get(
+                                                                                ServiceProviderConstants.ATTENDANCE_FIELD_IS_ATTENDED),
+                                                                                true),
+                                                                criteriaBuilder.equal(root.get(
+                                                                                ServiceProviderConstants.ATTENDANCE_FIELD_IS_CUSTOMER_AGREED),
                                                                                 false)),
                                                 criteriaBuilder.and(
-                                                                criteriaBuilder.equal(root.get("isAttended"), false),
-                                                                criteriaBuilder.equal(root.get("isCustomerAgreed"),
+                                                                criteriaBuilder.equal(root.get(
+                                                                                ServiceProviderConstants.ATTENDANCE_FIELD_IS_ATTENDED),
+                                                                                false),
+                                                                criteriaBuilder.equal(root.get(
+                                                                                ServiceProviderConstants.ATTENDANCE_FIELD_IS_CUSTOMER_AGREED),
                                                                                 true))),
-                                criteriaBuilder.between(root.get("attendanceStatus"), oneMonthAgo, today));
+                                criteriaBuilder.between(root.get(ServiceProviderConstants.ATTENDANCE_FIELD_STATUS),
+                                                oneMonthAgo, today));
 
                 List<Attendance> attendanceList = attendanceRepository.findAll(spec);
 
                 if (attendanceList.isEmpty()) {
-                        throw new RuntimeException("No attendance records found with conflicts for the past one month");
+                        throw new AttendanceNotFoundException(
+                                        "No attendance records found with conflicts for the past one month");
                 }
 
                 return attendanceList.stream()
@@ -321,283 +371,298 @@ public class AttendanceServiceImpl implements AttendanceService {
                                 .toList();
         }
 
-        // Customer is not agreed
         @Override
         @Transactional(readOnly = true)
         public List<AttendanceDTO> getAllCustomerNotAgreedAttendance() {
-                logger.info("Fetching attendance records where isCustomerAgreed is false");
+                logger.info("Fetching attendance records where {} is false",
+                                ServiceProviderConstants.ATTENDANCE_FIELD_IS_CUSTOMER_AGREED);
 
-                // Specification for filtering by isCustomerAgreed = false
                 Specification<Attendance> spec = (root, query, criteriaBuilder) -> criteriaBuilder
-                                .equal(root.get("isCustomerAgreed"), false); // Only filter by isCustomerAgreed being
-                                                                             // false
+                                .equal(root.get(ServiceProviderConstants.ATTENDANCE_FIELD_IS_CUSTOMER_AGREED), false);
 
                 List<Attendance> attendanceList = attendanceRepository.findAll(spec);
 
                 if (attendanceList.isEmpty()) {
-                        throw new RuntimeException("No attendance records found where isCustomerAgreed is false.");
+                        throw new AttendanceNotFoundException(
+                                        ServiceProviderConstants.NO_ATTENDANCE_FOUND_PREFIX +
+                                                        ServiceProviderConstants.ATTENDANCE_FIELD_IS_CUSTOMER_AGREED
+                                                        + " is false.");
                 }
 
-                // Mapping the list of Attendance entities to DTOs
                 return attendanceList.stream()
                                 .map(attendanceMapper::attendanceToDTO)
-                                .collect(Collectors.toList());
+                                .toList();
         }
 
-        // customer not agreed for today
-
+        // Customer not agreed for today
         @Transactional(readOnly = true)
         public List<AttendanceDTO> getTodayCustomerNotAgreed() {
-                logger.info("Fetching attendance records where isCustomerAgreed is false for today");
-
-                LocalDate today = LocalDate.now();
-                LocalDate startOfDay = today.atStartOfDay().toLocalDate(); // Start of the day (midnight)
-                LocalDate endOfDay = today.plusDays(1).atStartOfDay().toLocalDate(); // End of the day (just before
-                                                                                     // midnight of next day)
-
-                // Specification for filtering by isCustomerAgreed = false and today's date
-                Specification<Attendance> spec = (root, query, criteriaBuilder) -> criteriaBuilder.and(
-                                criteriaBuilder.equal(root.get("isCustomerAgreed"), false), // Filter by
-                                // isCustomerAgreed being
-                                // false
-                                criteriaBuilder.between(root.get("attendanceStatus"), startOfDay, endOfDay) // Filter
-                                                                                                            // for
-                                                                                                            // today’s
-                                                                                                            // attendance
-                );
-
-                List<Attendance> attendanceList = attendanceRepository.findAll(spec);
-
-                if (attendanceList.isEmpty()) {
-                        throw new RuntimeException(
-                                        "No attendance records found where isCustomerAgreed is false for today.");
-                }
-
-                // Mapping the list of Attendance entities to DTOs
-                return attendanceList.stream()
-                                .map(attendanceMapper::attendanceToDTO)
-                                .collect(Collectors.toList());
-        }
-
-        // for one week
-        @Transactional(readOnly = true)
-        public List<AttendanceDTO> getLastWeekCustomerNotAgreed() {
-                logger.info("Fetching attendance records where isCustomerAgreed is false for the past week");
-
-                LocalDate today = LocalDate.now();
-                LocalDate startOfWeek = today.minusWeeks(1); // One week ago
-                LocalDate endOfDay = today.atStartOfDay().toLocalDate(); // Today (end of the range)
-
-                // Specification for filtering by isCustomerAgreed = false and the past week’s
-                // attendance
-                Specification<Attendance> spec = (root, query, criteriaBuilder) -> criteriaBuilder.and(
-                                criteriaBuilder.equal(root.get("isCustomerAgreed"), false), // Filter by
-                                // isCustomerAgreed being
-                                // false
-                                criteriaBuilder.between(root.get("attendanceStatus"), startOfWeek, endOfDay) // Filter
-                                                                                                             // for past
-                                                                                                             // week
-                );
-
-                List<Attendance> attendanceList = attendanceRepository.findAll(spec);
-
-                if (attendanceList.isEmpty()) {
-                        throw new RuntimeException(
-                                        "No attendance records found where isCustomerAgreed is false for the past week.");
-                }
-
-                // Mapping the list of Attendance entities to DTOs
-                return attendanceList.stream()
-                                .map(attendanceMapper::attendanceToDTO)
-
-                                .collect(Collectors.toList());
-        }
-
-        // for two week
-        @Transactional(readOnly = true)
-        public List<AttendanceDTO> getLastTwoWeeksCustomerNotAgreed() {
-                logger.info("Fetching attendance records where isCustomerAgreed is false for the past two weeks");
-
-                LocalDate today = LocalDate.now();
-                LocalDate startOfTwoWeeks = today.minusWeeks(2); // Two weeks ago
-                LocalDate endOfDay = today.atStartOfDay().toLocalDate(); // Today (end of the range)
-
-                Specification<Attendance> spec = (root, query, criteriaBuilder) -> criteriaBuilder.and(
-                                criteriaBuilder.equal(root.get("isCustomerAgreed"), false),
-
-                                criteriaBuilder.between(root.get("attendanceStatus"), startOfTwoWeeks, endOfDay) // Filter
-
-                );
-
-                List<Attendance> attendanceList = attendanceRepository.findAll(spec);
-
-                if (attendanceList.isEmpty()) {
-                        throw new RuntimeException(
-                                        "No attendance records found where isCustomerAgreed is false for the past two weeks.");
-                }
-
-                // Mapping the list of Attendance entities to DTOs
-                return attendanceList.stream()
-                                .map(attendanceMapper::attendanceToDTO)
-                                .collect(Collectors.toList());
-        }
-
-        // for one month
-        @Transactional(readOnly = true)
-        public List<AttendanceDTO> getLastMonthCustomerNotAgreed() {
-                logger.info("Fetching attendance records where isCustomerAgreed is false for the past week");
-
-                LocalDate today = LocalDate.now();
-                LocalDate startOfWeek = today.minusWeeks(1); // One week ago
-                LocalDate endOfDay = today.atStartOfDay().toLocalDate(); // Today (end of the range)
-
-                // Specification for filtering by isCustomerAgreed = false and the past week’s
-                // attendance
-                Specification<Attendance> spec = (root, query, criteriaBuilder) -> criteriaBuilder.and(
-                                criteriaBuilder.equal(root.get("isCustomerAgreed"), false), // Filter by
-                                // isCustomerAgreed being
-                                // false
-                                criteriaBuilder.between(root.get("attendanceStatus"), startOfWeek, endOfDay) // Filter
-                                                                                                             // for past
-                                                                                                             // week
-                );
-
-                List<Attendance> attendanceList = attendanceRepository.findAll(spec);
-
-                if (attendanceList.isEmpty()) {
-                        throw new RuntimeException(
-                                        "No attendance records found where isCustomerAgreed is false for the past week.");
-                }
-
-                // Mapping the list of Attendance entities to DTOs
-                return attendanceList.stream()
-                                .map(attendanceMapper::attendanceToDTO)
-                                .collect(Collectors.toList());
-        }
-
-        // serviceprovider not agreed
-        @Override
-        @Transactional(readOnly = true)
-        public List<AttendanceDTO> getAllNotAttendedRecords() {
-                logger.info("Fetching attendance records where isAttended is false");
-
-                // Specification for filtering by isAttended = false
-                Specification<Attendance> spec = (root, query, criteriaBuilder) -> criteriaBuilder
-                                .equal(root.get("isAttended"), false); // Only filter by isAttended being false
-
-                List<Attendance> attendanceList = attendanceRepository.findAll(spec);
-
-                if (attendanceList.isEmpty()) {
-                        throw new RuntimeException("No attendance records found where isAttended is false.");
-                }
-
-                // Mapping the list of Attendance entities to DTOs
-                return attendanceList.stream()
-                                .map(attendanceMapper::attendanceToDTO)
-                                .collect(Collectors.toList());
-        }
-
-        // serviceprovider not agreed for today
-        @Override
-        @Transactional(readOnly = true)
-        public List<AttendanceDTO> getTodayNotAttendedRecords() {
-                logger.info("Fetching attendance records where isAttended is false for today");
+                logger.info("Fetching attendance records where {} is false for today",
+                                ServiceProviderConstants.ATTENDANCE_FIELD_IS_CUSTOMER_AGREED);
 
                 LocalDate today = LocalDate.now();
                 LocalDate startOfDay = today.atStartOfDay().toLocalDate();
                 LocalDate endOfDay = today.plusDays(1).atStartOfDay().toLocalDate();
 
                 Specification<Attendance> spec = (root, query, criteriaBuilder) -> criteriaBuilder.and(
-                                criteriaBuilder.equal(root.get("isAttended"), false),
-                                criteriaBuilder.between(root.get("attendanceStatus"), startOfDay, endOfDay));
+                                criteriaBuilder.equal(
+                                                root.get(ServiceProviderConstants.ATTENDANCE_FIELD_IS_CUSTOMER_AGREED),
+                                                false),
+                                criteriaBuilder.between(root.get(ServiceProviderConstants.ATTENDANCE_FIELD_STATUS),
+                                                startOfDay, endOfDay));
 
                 List<Attendance> attendanceList = attendanceRepository.findAll(spec);
 
                 if (attendanceList.isEmpty()) {
-                        throw new RuntimeException("No attendance records found where isAttended is false for today.");
+                        throw new AttendanceNotFoundException("No attendance records found where " +
+                                        ServiceProviderConstants.ATTENDANCE_FIELD_IS_CUSTOMER_AGREED
+                                        + " is false for today.");
                 }
 
                 return attendanceList.stream()
                                 .map(attendanceMapper::attendanceToDTO)
-                                .collect(Collectors.toList());
+                                .toList();
+        }
+
+        // Customer not agreed for one week
+        @Transactional(readOnly = true)
+        public List<AttendanceDTO> getLastWeekCustomerNotAgreed() {
+                logger.info("Fetching attendance records where {} is false for the past week",
+                                ServiceProviderConstants.ATTENDANCE_FIELD_IS_CUSTOMER_AGREED);
+
+                LocalDate today = LocalDate.now();
+                LocalDate startOfWeek = today.minusWeeks(1);
+                LocalDate endOfDay = today.atStartOfDay().toLocalDate();
+
+                Specification<Attendance> spec = (root, query, criteriaBuilder) -> criteriaBuilder.and(
+                                criteriaBuilder.equal(
+                                                root.get(ServiceProviderConstants.ATTENDANCE_FIELD_IS_CUSTOMER_AGREED),
+                                                false),
+                                criteriaBuilder.between(root.get(ServiceProviderConstants.ATTENDANCE_FIELD_STATUS),
+                                                startOfWeek, endOfDay));
+
+                List<Attendance> attendanceList = attendanceRepository.findAll(spec);
+
+                if (attendanceList.isEmpty()) {
+                        throw new AttendanceNotFoundException("No attendance records found where " +
+                                        ServiceProviderConstants.ATTENDANCE_FIELD_IS_CUSTOMER_AGREED
+                                        + " is false for the past week.");
+                }
+
+                return attendanceList.stream()
+                                .map(attendanceMapper::attendanceToDTO)
+                                .toList();
+        }
+
+        // For two weeks customer not agreed
+        @Transactional(readOnly = true)
+        public List<AttendanceDTO> getLastTwoWeeksCustomerNotAgreed() {
+                logger.info("Fetching attendance records where {} is false for the past two weeks",
+                                ServiceProviderConstants.ATTENDANCE_FIELD_IS_CUSTOMER_AGREED);
+
+                LocalDate today = LocalDate.now();
+                LocalDate startOfTwoWeeks = today.minusWeeks(2); // Two weeks ago
+                LocalDate endOfDay = today.atStartOfDay().toLocalDate(); // Today (end of the range)
+
+                Specification<Attendance> spec = (root, query, criteriaBuilder) -> criteriaBuilder.and(
+                                criteriaBuilder.equal(
+                                                root.get(ServiceProviderConstants.ATTENDANCE_FIELD_IS_CUSTOMER_AGREED),
+                                                false),
+                                criteriaBuilder.between(root.get(ServiceProviderConstants.ATTENDANCE_FIELD_STATUS),
+                                                startOfTwoWeeks, endOfDay));
+
+                List<Attendance> attendanceList = attendanceRepository.findAll(spec);
+
+                if (attendanceList.isEmpty()) {
+                        throw new AttendanceNotFoundException(
+                                        ServiceProviderConstants.NO_ATTENDANCE_RECORDS_FOUND +
+                                                        ServiceProviderConstants.ATTENDANCE_FIELD_IS_CUSTOMER_AGREED
+                                                        + " is false for the past two weeks.");
+                }
+
+                return attendanceList.stream()
+                                .map(attendanceMapper::attendanceToDTO)
+                                .toList();
+        }
+
+        // For one month customer not agreed
+        @Transactional(readOnly = true)
+        public List<AttendanceDTO> getLastMonthCustomerNotAgreed() {
+                logger.info("Fetching attendance records where {} is false for the past month",
+                                ServiceProviderConstants.ATTENDANCE_FIELD_IS_CUSTOMER_AGREED);
+
+                LocalDate today = LocalDate.now();
+                // Here, using one month ago as the start date.
+                LocalDate startOfMonth = today.minusMonths(1);
+                LocalDate endOfDay = today.atStartOfDay().toLocalDate(); // Today (end of the range)
+
+                Specification<Attendance> spec = (root, query, criteriaBuilder) -> criteriaBuilder.and(
+                                criteriaBuilder.equal(
+                                                root.get(ServiceProviderConstants.ATTENDANCE_FIELD_IS_CUSTOMER_AGREED),
+                                                false),
+                                criteriaBuilder.between(root.get(ServiceProviderConstants.ATTENDANCE_FIELD_STATUS),
+                                                startOfMonth, endOfDay));
+
+                List<Attendance> attendanceList = attendanceRepository.findAll(spec);
+
+                if (attendanceList.isEmpty()) {
+                        throw new AttendanceNotFoundException(
+                                        ServiceProviderConstants.NO_ATTENDANCE_RECORDS_FOUND +
+                                                        ServiceProviderConstants.ATTENDANCE_FIELD_IS_CUSTOMER_AGREED
+                                                        + " is false for the past month.");
+                }
+
+                return attendanceList.stream()
+                                .map(attendanceMapper::attendanceToDTO)
+                                .toList();
+        }
+
+        // For service provider not agreed (i.e. not attended records)
+        @Override
+        @Transactional(readOnly = true)
+        public List<AttendanceDTO> getAllNotAttendedRecords() {
+                logger.info("Fetching attendance records where {} is false",
+                                ServiceProviderConstants.ATTENDANCE_FIELD_IS_ATTENDED);
+
+                Specification<Attendance> spec = (root, query, criteriaBuilder) -> criteriaBuilder
+                                .equal(root.get(ServiceProviderConstants.ATTENDANCE_FIELD_IS_ATTENDED), false);
+
+                List<Attendance> attendanceList = attendanceRepository.findAll(spec);
+
+                if (attendanceList.isEmpty()) {
+                        throw new AttendanceNotFoundException(
+                                        ServiceProviderConstants.NO_ATTENDANCE_RECORDS_FOUND +
+                                                        ServiceProviderConstants.ATTENDANCE_FIELD_IS_ATTENDED
+                                                        + " is false.");
+                }
+
+                return attendanceList.stream()
+                                .map(attendanceMapper::attendanceToDTO)
+                                .toList();
+        }
+
+        // serviceprovider not agreed for today
+        @Override
+        @Transactional(readOnly = true)
+        public List<AttendanceDTO> getTodayNotAttendedRecords() {
+                logger.info("Fetching attendance records where {} is false for today",
+                                ServiceProviderConstants.ATTENDANCE_FIELD_IS_ATTENDED);
+
+                LocalDate today = LocalDate.now();
+                LocalDate startOfDay = today.atStartOfDay().toLocalDate();
+                LocalDate endOfDay = today.plusDays(1).atStartOfDay().toLocalDate();
+
+                Specification<Attendance> spec = (root, query, criteriaBuilder) -> criteriaBuilder.and(
+                                criteriaBuilder.equal(root.get(ServiceProviderConstants.ATTENDANCE_FIELD_IS_ATTENDED),
+                                                false),
+                                criteriaBuilder.between(root.get(ServiceProviderConstants.ATTENDANCE_FIELD_STATUS),
+                                                startOfDay, endOfDay));
+
+                List<Attendance> attendanceList = attendanceRepository.findAll(spec);
+
+                if (attendanceList.isEmpty()) {
+                        throw new AttendanceNotFoundException(
+                                        ServiceProviderConstants.NO_ATTENDANCE_RECORDS_FOUND +
+                                                        ServiceProviderConstants.ATTENDANCE_FIELD_IS_ATTENDED
+                                                        + " is false for today.");
+                }
+
+                return attendanceList.stream()
+                                .map(attendanceMapper::attendanceToDTO)
+                                .toList();
         }
 
         // for one week
         @Override
         @Transactional(readOnly = true)
         public List<AttendanceDTO> getOneWeekNotAttendedRecords() {
-                logger.info("Fetching attendance records where isAttended is false for the past week");
+                logger.info("Fetching attendance records where {} is false for the past week",
+                                ServiceProviderConstants.ATTENDANCE_FIELD_IS_ATTENDED);
 
                 LocalDate today = LocalDate.now();
                 LocalDate startOfWeek = today.minusWeeks(1).atStartOfDay().toLocalDate();
                 LocalDate endOfWeek = today.plusDays(1).atStartOfDay().toLocalDate();
 
                 Specification<Attendance> spec = (root, query, criteriaBuilder) -> criteriaBuilder.and(
-                                criteriaBuilder.equal(root.get("isAttended"), false),
-                                criteriaBuilder.between(root.get("attendanceStatus"), startOfWeek, endOfWeek));
+                                criteriaBuilder.equal(root.get(ServiceProviderConstants.ATTENDANCE_FIELD_IS_ATTENDED),
+                                                false),
+                                criteriaBuilder.between(root.get(ServiceProviderConstants.ATTENDANCE_FIELD_STATUS),
+                                                startOfWeek, endOfWeek));
 
                 List<Attendance> attendanceList = attendanceRepository.findAll(spec);
 
                 if (attendanceList.isEmpty()) {
-                        throw new RuntimeException(
-                                        "No attendance records found where isAttended is false for the past week.");
+                        throw new AttendanceNotFoundException(
+                                        ServiceProviderConstants.NO_ATTENDANCE_RECORDS_FOUND +
+                                                        ServiceProviderConstants.ATTENDANCE_FIELD_IS_ATTENDED
+                                                        + " is false for the past week.");
                 }
 
                 return attendanceList.stream()
                                 .map(attendanceMapper::attendanceToDTO)
-                                .collect(Collectors.toList());
+                                .toList();
         }
 
-        // for two week
+        // for two weeks
         @Override
         @Transactional(readOnly = true)
         public List<AttendanceDTO> getTwoWeeksNotAttendedRecords() {
-                logger.info("Fetching attendance records where isAttended is false for the past two weeks");
+                logger.info("Fetching attendance records where {} is false for the past two weeks",
+                                ServiceProviderConstants.ATTENDANCE_FIELD_IS_ATTENDED);
 
                 LocalDate today = LocalDate.now();
                 LocalDate startOfTwoWeeks = today.minusWeeks(2).atStartOfDay().toLocalDate();
                 LocalDate endOfTwoWeeks = today.plusDays(1).atStartOfDay().toLocalDate();
 
                 Specification<Attendance> spec = (root, query, criteriaBuilder) -> criteriaBuilder.and(
-                                criteriaBuilder.equal(root.get("isAttended"), false),
-                                criteriaBuilder.between(root.get("attendanceStatus"), startOfTwoWeeks, endOfTwoWeeks));
+                                criteriaBuilder.equal(root.get(ServiceProviderConstants.ATTENDANCE_FIELD_IS_ATTENDED),
+                                                false),
+                                criteriaBuilder.between(root.get(ServiceProviderConstants.ATTENDANCE_FIELD_STATUS),
+                                                startOfTwoWeeks, endOfTwoWeeks));
 
                 List<Attendance> attendanceList = attendanceRepository.findAll(spec);
 
                 if (attendanceList.isEmpty()) {
-                        throw new RuntimeException(
-                                        "No attendance records found where isAttended is false for the past two weeks.");
+                        throw new AttendanceNotFoundException(
+                                        ServiceProviderConstants.NO_ATTENDANCE_RECORDS_FOUND +
+                                                        ServiceProviderConstants.ATTENDANCE_FIELD_IS_ATTENDED
+                                                        + " is false for the past two weeks.");
                 }
 
                 return attendanceList.stream()
                                 .map(attendanceMapper::attendanceToDTO)
-                                .collect(Collectors.toList());
+                                .toList();
         }
 
         // for one month
         @Override
         @Transactional(readOnly = true)
         public List<AttendanceDTO> getOneMonthNotAttendedRecords() {
-                logger.info("Fetching attendance records where isAttended is false for the past month");
+                logger.info("Fetching attendance records where {} is false for the past month",
+                                ServiceProviderConstants.ATTENDANCE_FIELD_IS_ATTENDED);
 
                 LocalDate today = LocalDate.now();
                 LocalDate startOfMonth = today.minusMonths(1).atStartOfDay().toLocalDate();
                 LocalDate endOfMonth = today.plusDays(1).atStartOfDay().toLocalDate();
 
                 Specification<Attendance> spec = (root, query, criteriaBuilder) -> criteriaBuilder.and(
-                                criteriaBuilder.equal(root.get("isAttended"), false),
-                                criteriaBuilder.between(root.get("attendanceStatus"), startOfMonth, endOfMonth));
+                                criteriaBuilder.equal(root.get(ServiceProviderConstants.ATTENDANCE_FIELD_IS_ATTENDED),
+                                                false),
+                                criteriaBuilder.between(root.get(ServiceProviderConstants.ATTENDANCE_FIELD_STATUS),
+                                                startOfMonth, endOfMonth));
 
                 List<Attendance> attendanceList = attendanceRepository.findAll(spec);
 
                 if (attendanceList.isEmpty()) {
-                        throw new RuntimeException(
-                                        "No attendance records found where isAttended is false for the past month.");
+                        throw new AttendanceNotFoundException(
+                                        ServiceProviderConstants.NO_ATTENDANCE_RECORDS_FOUND +
+                                                        ServiceProviderConstants.ATTENDANCE_FIELD_IS_ATTENDED
+                                                        + " is false for the past month.");
                 }
 
                 return attendanceList.stream()
                                 .map(attendanceMapper::attendanceToDTO)
-                                .collect(Collectors.toList());
+                                .toList();
         }
 
 }

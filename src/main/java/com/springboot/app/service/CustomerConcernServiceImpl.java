@@ -7,25 +7,28 @@ import com.springboot.app.mapper.CustomerConcernMapper;
 import com.springboot.app.repository.CustomerConcernRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
+
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import java.util.List;
 import java.util.Optional;
-import java.util.stream.Collectors;
 
 @Service
 public class CustomerConcernServiceImpl implements CustomerConcernService {
 
     private static final Logger logger = LoggerFactory.getLogger(CustomerConcernServiceImpl.class);
 
-    @Autowired
-    private CustomerConcernMapper customerConcernMapper;
+    private final CustomerConcernMapper customerConcernMapper;
+    private final CustomerConcernRepository customerConcernRepository;
 
-    @Autowired
-    private CustomerConcernRepository customerConcernRepository;
+    // Constructor injection
+    public CustomerConcernServiceImpl(CustomerConcernMapper customerConcernMapper,
+            CustomerConcernRepository customerConcernRepository) {
+        this.customerConcernMapper = customerConcernMapper;
+        this.customerConcernRepository = customerConcernRepository;
+    }
 
     @Override
     @Transactional(readOnly = true)
@@ -39,7 +42,7 @@ public class CustomerConcernServiceImpl implements CustomerConcernService {
 
         return concerns.stream()
                 .map(customerConcernMapper::customerConcernToDTO)
-                .collect(Collectors.toList());
+                .toList();
     }
 
     @Override

@@ -2,13 +2,12 @@ package com.springboot.app.controller;
 
 import com.springboot.app.constant.ServiceProviderConstants;
 import com.springboot.app.dto.UserCredentialsDTO;
-//import com.springboot.app.entity.UserCredentials;
+
 import com.springboot.app.service.UserCredentialsService;
 
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -20,26 +19,20 @@ import java.util.Optional;
 @RequestMapping("/api/user")
 public class UserCredentialsController {
 
-    @Autowired
-    private UserCredentialsService userCredentialsService;
-    // private final UserCredentialsService userCredentialsService;
+    private final UserCredentialsService userCredentialsService;
 
     public UserCredentialsController(UserCredentialsService userCredentialsService) {
         this.userCredentialsService = userCredentialsService;
     }
 
     @PostMapping("/login")
-    public ResponseEntity<?> login(@RequestBody UserCredentialsDTO loginRequest) {
+    public ResponseEntity<Map<String, Object>> login(@RequestBody UserCredentialsDTO loginRequest) {
         String username = loginRequest.username();
         String password = loginRequest.password();
 
         try {
-            // Call the service method to check login attempts
-            ResponseEntity<Map<String, Object>> response = userCredentialsService.checkLoginAttempts(username,
-                    password);
-
-            // Return the response directly, which contains the proper JSON data
-            return response;
+            // Directly return the response from the service method
+            return userCredentialsService.checkLoginAttempts(username, password);
         } catch (RuntimeException e) {
             // Return a 401 Unauthorized response with the exception message
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(Map.of("message", e.getMessage()));
@@ -90,13 +83,6 @@ public class UserCredentialsController {
         return ResponseEntity.ok(ServiceProviderConstants.ACCOUNT_DEACTIVATED);
     }
 
-    // // Endpoint to deactivate a user account
-    // @PatchMapping("/deactivate/{username}")
-    // public ResponseEntity<String> deactivateUser(@PathVariable String username) {
-    // userCredentialsService.deactivateUser(username);
-    // return ResponseEntity.ok("Account deactivated successfully.");
-    // }
-
     // API to update user credentials
     @PutMapping("/update")
     @ApiOperation(value = "Update user credentials")
@@ -111,11 +97,4 @@ public class UserCredentialsController {
         }
     }
 
-    // Endpoint to update user credentials
-    // @PutMapping("/update")
-    // public ResponseEntity<String> updateUserCredentials(@RequestBody
-    // UserCredentialsDTO userCredentialsDTO) {
-    // userCredentialsService.updateUserCredentials(userCredentialsDTO);
-    // return ResponseEntity.ok("Password updated successfully.");
-    // }
 }

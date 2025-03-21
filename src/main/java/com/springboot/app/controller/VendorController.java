@@ -34,8 +34,12 @@ public class VendorController {
     @Value("${app.pagination.default-page-size:10}")
     private int defaultPageSize;
 
+    private final VendorService vendorService;
+
     @Autowired
-    private VendorService vendorService;
+    public VendorController(VendorService vendorService) {
+        this.vendorService = vendorService;
+    }
 
     // API to retrieve all vendors
     @GetMapping("/all")
@@ -80,20 +84,10 @@ public class VendorController {
         }
     }
 
-    // // API to add a new vendor
-    // @PostMapping("/vendor/add")
-    // @ApiOperation(value = ServiceProviderConstants.ADD_NEW_VENDOR_DESC)
-    // public ResponseEntity<String> addVendor(
-    // @ApiParam(value = "Vendor DTO", required = true) @RequestBody VendorDTO
-    // vendorDTO) {
-    // vendorService.saveVendorDTO(vendorDTO);
-    // return ResponseEntity.ok(ServiceProviderConstants.VENDOR_ADDED);
-    // }
-
     // API to add a new vendor
     @PostMapping("/add")
     @ApiOperation(value = ServiceProviderConstants.ADD_NEW_VENDOR_DESC)
-    public ResponseEntity<?> addVendor(@RequestBody VendorDTO vendorDTO) {
+    public ResponseEntity<String> addVendor(@RequestBody VendorDTO vendorDTO) {
         try {
             // Save the vendor and retrieve the ID
             Long vendorId = vendorService.saveVendorDTO(vendorDTO);
@@ -111,23 +105,6 @@ public class VendorController {
                     .body(ServiceProviderConstants.VENDOR_ERROR);
         }
     }
-
-    // @PostMapping("/add")
-    // @ApiOperation(value = ServiceProviderConstants.ADD_NEW_VENDOR_DESC)
-    // public ResponseEntity<String> addVendor(
-    // @RequestBody VendorDTO vendorDTO) {
-    // try {
-    // vendorService.saveVendorDTO(vendorDTO);
-    // return ResponseEntity.status(HttpStatus.CREATED)
-    // .body(ServiceProviderConstants.VENDOR_ADDED);
-    // } catch (IllegalArgumentException ex) {
-    // return ResponseEntity.status(HttpStatus.CONFLICT)
-    // .body(ServiceProviderConstants.VENDOR_ALREADY_EXISTS);
-    // } catch (Exception ex) {
-    // return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-    // .body(ServiceProviderConstants.VENDOR_ERROR);
-    // }
-    // }
 
     // API to update vendor
     @PutMapping("/update/{id}")

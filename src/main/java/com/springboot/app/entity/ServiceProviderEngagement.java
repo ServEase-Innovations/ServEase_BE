@@ -5,6 +5,7 @@ import java.time.LocalDateTime; // Import LocalDateTime
 
 import com.springboot.app.enums.PaymentMode;
 import com.springboot.app.enums.TaskStatus;
+import com.springboot.app.enums.UserRole;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -38,10 +39,6 @@ public class ServiceProviderEngagement {
     @JoinColumn(name = "serviceProviderId", nullable = true)
     private ServiceProvider serviceProvider;
 
-    // @ManyToOne
-    // @JoinColumn(name = "serviceproviderId", nullable = true)
-    // private ServiceProvider serviceProvider;
-
     @ManyToOne
     @JoinColumn(name = "customerId", nullable = false)
     private Customer customer;
@@ -54,7 +51,6 @@ public class ServiceProviderEngagement {
 
     @Column // Optional: Adding @Column for consistency
     private LocalDate endDate;
-    // private LocalDateTime endDate;
 
     @Column(length = 255)
     private String engagements;
@@ -63,7 +59,7 @@ public class ServiceProviderEngagement {
     private String timeslot;
 
     @Column(nullable = false)
-    private boolean isActive;
+    private boolean isActive = true;
 
     @Column
     private double monthlyAmount;
@@ -107,6 +103,10 @@ public class ServiceProviderEngagement {
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
     private TaskStatus taskStatus = TaskStatus.NOT_STARTED;
+
+    @Column(name = "user_role")
+    @Enumerated(EnumType.STRING)
+    private UserRole role;
 
     // Automatically set isActive field on creation
     @PrePersist

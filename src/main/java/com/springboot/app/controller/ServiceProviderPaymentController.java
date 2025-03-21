@@ -18,8 +18,13 @@ import com.springboot.app.constant.ServiceProviderConstants;
 @Api(value = ServiceProviderConstants.API_VALUE, tags = ServiceProviderConstants.TAG_SERVICEPROVIDERS)
 public class ServiceProviderPaymentController {
 
+    private final ServiceProviderPaymentService serviceProviderPaymentService;
+
+    // Constructor injection
     @Autowired
-    private ServiceProviderPaymentService serviceProviderPaymentService;
+    public ServiceProviderPaymentController(ServiceProviderPaymentService serviceProviderPaymentService) {
+        this.serviceProviderPaymentService = serviceProviderPaymentService;
+    }
 
     @Value("${app.pagination.default-page-size:10}")
     private int defaultPageSize;

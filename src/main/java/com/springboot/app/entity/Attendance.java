@@ -1,8 +1,7 @@
 package com.springboot.app.entity;
 
-//import java.time.LocalDate;
 import java.time.LocalDateTime;
-//import java.time.LocalTime;
+
 import com.springboot.app.enums.TaskStatus;
 
 import jakarta.persistence.Column;
@@ -42,12 +41,6 @@ public class Attendance {
     @ManyToOne
     @JoinColumn(name = "customerId", nullable = false)
     private Customer customer;
-
-    // @Column(name = "attendance_date", nullable = false)
-    // private LocalDate date;
-
-    // @Column(name = "attendance_time", nullable = false)
-    // private LocalTime time;
 
     @Column(name = "attendance_status", nullable = false)
     private LocalDateTime attendanceStatus;

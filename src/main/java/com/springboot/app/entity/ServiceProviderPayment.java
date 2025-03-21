@@ -62,17 +62,4 @@ public class ServiceProviderPayment {
     @Column(nullable = false)
     private int monthlyAmount;
 
-    // @PrePersist
-    // public void calculateFields() {
-    // // Calculate noOfDays based on endDate - startDate
-    // this.noOfDays = ChronoUnit.DAYS.between(startDate.toLocalDate(),
-    // endDate.toLocalDate());
-
-    // // Get the number of days in the month of the endDate
-    // int daysInMonth =
-    // endDate.toLocalDate().getMonth().length(endDate.toLocalDate().isLeapYear());
-
-    // //Calculate amount
-    // this.amount = (int) ((double) monthlyAmount / daysInMonth * this.noOfDays);
-    // }
 }

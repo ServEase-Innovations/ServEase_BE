@@ -19,6 +19,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.springboot.app.constant.ServiceProviderConstants;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.format.annotation.DateTimeFormat;
 
 import com.springboot.app.dto.AttendanceDTO;
 import com.springboot.app.dto.LeaveBalanceDTO;
@@ -26,8 +27,7 @@ import com.springboot.app.dto.ServiceProviderDTO;
 import com.springboot.app.dto.ServiceProviderEngagementDTO;
 import com.springboot.app.dto.ServiceProviderFeedbackDTO;
 import com.springboot.app.dto.ServiceProviderLeaveDTO;
-//import com.springboot.app.dto.ServiceProviderLeaveDTO;
-//import com.springboot.app.dto.ServiceProviderFeedbackDTO;
+
 import com.springboot.app.dto.ServiceProviderRequestCommentDTO;
 import com.springboot.app.dto.ServiceProviderRequestDTO;
 import com.springboot.app.dto.ShortListedServiceProviderDTO;
@@ -43,7 +43,7 @@ import com.springboot.app.service.LeaveBalanceService;
 import com.springboot.app.service.ServiceProviderEngagementService;
 import com.springboot.app.service.ServiceProviderFeedbackService;
 import com.springboot.app.service.ServiceProviderLeaveService;
-//import com.springboot.app.service.ServiceProviderLeaveService;
+
 import com.springboot.app.service.ServiceProviderRequestCommentService;
 import com.springboot.app.service.ServiceProviderService;
 import com.springboot.app.service.ShortListedServiceProviderService;
@@ -52,41 +52,46 @@ import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
 
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.Collections;
-//import java.util.HashMap;
 
 @RestController
 @RequestMapping(ServiceProviderConstants.BASE_API_PATH)
 @Api(value = ServiceProviderConstants.API_VALUE, tags = ServiceProviderConstants.TAG_SERVICEPROVIDERS)
 public class ServiceProviderController {
 
-    @Autowired
-    private ServiceProviderService serviceProviderService;
+    private final ServiceProviderService serviceProviderService;
+    private final ServiceProviderRequestService serviceProviderRequestService;
+    private final ServiceProviderFeedbackService serviceProviderFeedbackService;
+    private final ServiceProviderRequestCommentService serviceProviderRequestCommentService;
+    private final ServiceProviderEngagementService serviceProviderEngagementService;
+    private final ShortListedServiceProviderService shortListedServiceProviderService;
+    private final AttendanceService attendanceService;
+    private final ServiceProviderLeaveService serviceProviderLeaveService;
+    private final LeaveBalanceService leaveBalanceService;
 
     @Autowired
-    private ServiceProviderRequestService serviceProviderRequestService;
-
-    @Autowired
-    private ServiceProviderFeedbackService serviceProviderFeedbackService;
-
-    @Autowired
-    private ServiceProviderRequestCommentService serviceProviderRequestCommentService;
-
-    @Autowired
-    private ServiceProviderEngagementService serviceProviderEngagementService;
-
-    @Autowired
-    private ShortListedServiceProviderService shortListedServiceProviderService;
-
-    @Autowired
-    private AttendanceService attendanceService;
-
-    @Autowired
-    private ServiceProviderLeaveService serviceProviderLeaveService;
-
-    @Autowired
-    private LeaveBalanceService leaveBalanceService;
+    public ServiceProviderController(
+            ServiceProviderService serviceProviderService,
+            ServiceProviderRequestService serviceProviderRequestService,
+            ServiceProviderFeedbackService serviceProviderFeedbackService,
+            ServiceProviderRequestCommentService serviceProviderRequestCommentService,
+            ServiceProviderEngagementService serviceProviderEngagementService,
+            ShortListedServiceProviderService shortListedServiceProviderService,
+            AttendanceService attendanceService,
+            ServiceProviderLeaveService serviceProviderLeaveService,
+            LeaveBalanceService leaveBalanceService) {
+        this.serviceProviderService = serviceProviderService;
+        this.serviceProviderRequestService = serviceProviderRequestService;
+        this.serviceProviderFeedbackService = serviceProviderFeedbackService;
+        this.serviceProviderRequestCommentService = serviceProviderRequestCommentService;
+        this.serviceProviderEngagementService = serviceProviderEngagementService;
+        this.shortListedServiceProviderService = shortListedServiceProviderService;
+        this.attendanceService = attendanceService;
+        this.serviceProviderLeaveService = serviceProviderLeaveService;
+        this.leaveBalanceService = leaveBalanceService;
+    }
 
     @Value("${app.pagination.default-page-size:10}")
     private int defaultPageSize;
@@ -114,13 +119,13 @@ public class ServiceProviderController {
         List<ServiceProviderDTO> serviceProviders = serviceProviderService.getAllServiceProviderDTOs(page, size,
                 location);
 
-        // Ensure availableTimeSlots are calculated before returning the response
+        // Ensure occupiedTimeSlots are calculated before returning the response
         serviceProviders.forEach(serviceProviderDTO -> {
             if (serviceProviderDTO.getTimeslot() != null &&
                     !serviceProviderDTO.getTimeslot().isEmpty()) {
-                serviceProviderDTO.setAvailableTimeSlots(calculateAvailableTimes(serviceProviderDTO.getTimeslot()));
+                serviceProviderDTO.setOccupiedTimeSlots(calculateOccupiedTimes(serviceProviderDTO.getTimeslot()));
             } else {
-                serviceProviderDTO.setAvailableTimeSlots(Collections.emptyList());
+                serviceProviderDTO.setOccupiedTimeSlots(Collections.emptyList());
             }
         });
 
@@ -128,6 +133,41 @@ public class ServiceProviderController {
         return serviceProviders.isEmpty()
                 ? ResponseEntity.status(HttpStatus.NOT_FOUND).body(Collections.emptyList())
                 : ResponseEntity.ok(serviceProviders);
+    }
+
+    /**
+     * Method to calculate occupied time slots based on the given busy timeslots.
+     */
+    private List<String> calculateOccupiedTimes(String timeslot) {
+        List<String> occupiedTimes = new ArrayList<>();
+
+        try {
+            // Validate input
+            if (timeslot == null || timeslot.isEmpty()) {
+                return occupiedTimes;
+            }
+
+            // Parse multiple busy timeslots (comma-separated)
+            String[] timeRanges = timeslot.split(",");
+            for (String range : timeRanges) {
+                String[] hours = range.trim().split("-");
+                if (hours.length != 2) {
+                    continue; // Skip invalid format
+                }
+
+                int startHour = parseHour(hours[0]);
+                int endHour = parseHour(hours[1]);
+
+                // Add busy hours to the list
+                for (int i = startHour; i < endHour; i++) {
+                    occupiedTimes.add(String.format("%02d:00", i));
+                }
+            }
+
+        } catch (Exception e) {
+            throw new IllegalArgumentException("Invalid timeslot input. Ensure it's in 'HH:mm-HH:mm' format.", e);
+        }
+        return occupiedTimes;
     }
 
     /**
@@ -192,80 +232,6 @@ public class ServiceProviderController {
         }
     }
 
-    // @GetMapping("/serviceproviders/all")
-    // @ApiOperation(value = ServiceProviderConstants.RETRIEVE_ALL_DESC, response =
-    // List.class)
-    // public ResponseEntity<List<ServiceProviderDTO>> getAllServiceProviders(
-    // @RequestParam(defaultValue = "0") int page,
-    // @RequestParam(required = false) Integer size,
-    // @RequestParam(required = false) String location) {
-
-    // // Validate page and size
-    // if (page < 0) {
-    // return ResponseEntity.badRequest().body(Collections.emptyList());
-    // }
-
-    // if (size == null || size <= 0) {
-    // size = defaultPageSize; // Default page size if not provided or invalid
-    // }
-
-    // // Get service providers, filtered by location if provided
-    // List<ServiceProviderDTO> serviceProviders =
-    // serviceProviderService.getAllServiceProviderDTOs(page, size,
-    // location);
-
-    // // Return response with service providers (empty list if no results found)
-    // return serviceProviders.isEmpty()
-    // ? ResponseEntity.status(HttpStatus.NOT_FOUND).body(Collections.emptyList())
-    // : ResponseEntity.ok(serviceProviders);
-    // }
-
-    // @GetMapping("/serviceproviders/all")
-    // @ApiOperation(value = ServiceProviderConstants.RETRIEVE_ALL_DESC, response =
-    // List.class)
-    // public ResponseEntity<List<ServiceProviderDTO>> getAllServiceProviders(
-    // @RequestParam(defaultValue = "0") int page,
-    // @RequestParam(required = false) Integer size,
-    // @RequestParam(required = false) String location) {
-
-    // if (size == null) {
-    // size = defaultPageSize; // Default page size if not provided
-    // }
-
-    // // Get service providers, filter by location if provided
-    // List<ServiceProviderDTO> serviceProviders =
-    // serviceProviderService.getAllServiceProviderDTOs(page, size,
-    // location);
-
-    // // If no data found, return NOT_FOUND status with an empty list
-    // if (serviceProviders.isEmpty()) {
-    // return
-    // ResponseEntity.status(HttpStatus.NOT_FOUND).body(Collections.emptyList());
-    // }
-
-    // return ResponseEntity.ok(serviceProviders);
-    // }
-
-    // // API to get all service providers
-    // @GetMapping("/serviceproviders/all")
-    // @ApiOperation(value = ServiceProviderConstants.RETRIEVE_ALL_DESC, response =
-    // List.class)
-    // public ResponseEntity<List<ServiceProviderDTO>> getAllServiceProviders(
-    // @RequestParam(defaultValue = "0") int page,
-    // @RequestParam(required = false) Integer size) {
-    // if (size == null) {
-    // size = defaultPageSize; // Default page size if not provided
-    // }
-    // List<ServiceProviderDTO> serviceProviders =
-    // serviceProviderService.getAllServiceProviderDTOs(page, size);
-    // if (serviceProviders.isEmpty()) {
-    // return ResponseEntity.status(HttpStatus.NOT_FOUND)
-    // .body(Collections.singletonList(new ServiceProviderDTO()));
-    // }
-    // return ResponseEntity.ok(serviceProviders);
-    // }
-
-    // API to get service provider by id
     // API to get service provider by id
     @GetMapping("/get/serviceprovider/{id}")
     @ApiOperation(value = ServiceProviderConstants.GET_BY_ID_DESC, response = ServiceProviderDTO.class)
@@ -278,27 +244,12 @@ public class ServiceProviderController {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body(null); // Service provider not found
         }
 
-        // Calculate available times before returning response
-        List<String> availableTimes = calculateAvailableTimes(serviceProviderDTO.getTimeslot());
-        serviceProviderDTO.setAvailableTimeSlots(availableTimes);
+        // Calculate occupied times before returning response
+        List<String> occupiedTimes = calculateOccupiedTimes(serviceProviderDTO.getTimeslot());
+        serviceProviderDTO.setOccupiedTimeSlots(occupiedTimes);
 
         return ResponseEntity.ok(serviceProviderDTO);
     }
-
-    // @GetMapping("/get/serviceprovider/{id}")
-    // @ApiOperation(value = ServiceProviderConstants.GET_BY_ID_DESC, response =
-    // ServiceProviderDTO.class)
-    // public ResponseEntity<ServiceProviderDTO> getServiceProviderById(
-    // @ApiParam(value = "ID of the service provider to retrieve", required = true)
-    // @PathVariable Long id) {
-    // ServiceProviderDTO serviceProviderDTO =
-    // serviceProviderService.getServiceProviderDTOById(id);
-    // if (serviceProviderDTO == null) {
-    // return ResponseEntity.status(HttpStatus.NOT_FOUND).body(null); // Service
-    // provider not found
-    // }
-    // return ResponseEntity.ok(serviceProviderDTO);
-    // }
 
     // API to get service providers by vendor ID
     @GetMapping("/get/serviceproviders/vendor/{vendorId}")
@@ -322,24 +273,6 @@ public class ServiceProviderController {
         serviceProviderService.saveServiceProviderDTO(serviceProviderDTO);
         return ResponseEntity.ok(ServiceProviderConstants.SERVICE_PROVIDER_ADDED);
     }
-
-    // // API to add a service provider
-    // @PostMapping("/serviceprovider/add")
-    // @ApiOperation(value = ServiceProviderConstants.ADD_NEW_DESC)
-    // public ResponseEntity<String> addServiceProvider(@RequestBody
-    // ServiceProviderDTO serviceProviderDTO) {
-    // try {
-    // serviceProviderService.saveServiceProviderDTO(serviceProviderDTO);
-    // return
-    // ResponseEntity.status(HttpStatus.CREATED).body(ServiceProviderConstants.SERVICE_PROVIDER_ADDED);
-    // } catch (IllegalArgumentException ex) {
-    // return ResponseEntity.status(HttpStatus.CONFLICT)
-    // .body(ServiceProviderConstants.SERVICE_PROVIDER_ALREADY_EXISTS);
-    // } catch (Exception ex) {
-    // return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-    // .body(ServiceProviderConstants.SERVICE_PROVIDER_ERROR);
-    // }
-    // }
 
     // API to update a service provider
     @PutMapping("/update/serviceprovider/{id}")
@@ -391,12 +324,11 @@ public class ServiceProviderController {
 
     // Endpoint to filter by only one parameter at a time
     @GetMapping("/filter")
-    public ResponseEntity<?> getServiceProvidersBySingleFilter(
+    public ResponseEntity<List<ServiceProviderDTO>> getServiceProvidersBySingleFilter(
             @RequestParam(required = false) Integer pincode,
             @RequestParam(required = false) String street,
             @RequestParam(required = false) String locality) {
 
-        // Count the number of parameters provided
         int paramCount = 0;
         if (pincode != null)
             paramCount++;
@@ -405,13 +337,11 @@ public class ServiceProviderController {
         if (locality != null)
             paramCount++;
 
-        // Check if more than one parameter is provided
         if (paramCount != 1) {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
-                    .body("Please provide only one filter parameter: pincode, street, or locality.");
+            return ResponseEntity.badRequest()
+                    .body(Collections.emptyList()); // Return an empty list instead of a wildcard response
         }
 
-        // Call the service method to get results based on the single provided parameter
         List<ServiceProviderDTO> results;
         if (pincode != null) {
             results = serviceProviderService.getServiceProvidersByFilter(pincode, null, null);
@@ -652,26 +582,6 @@ public class ServiceProviderController {
         return ResponseEntity.ok(engagements);
     }
 
-    // @GetMapping("/engagements/all")
-    // @ApiOperation(value = ServiceProviderConstants.RETRIEVE_ALL_ENGAGEMENT_DESC,
-    // response = List.class)
-    // public ResponseEntity<List<ServiceProviderEngagementDTO>>
-    // getAllServiceProviderEngagements(
-    // @RequestParam(defaultValue = "0") int page,
-    // @RequestParam(required = false) Integer size) {
-    // if (size == null) {
-    // size = defaultPageSize; // Default page size if not provided
-    // }
-    // List<ServiceProviderEngagementDTO> engagements =
-    // serviceProviderEngagementService
-    // .getAllServiceProviderEngagements(page, size);
-    // if (engagements.isEmpty()) {
-    // return ResponseEntity.status(HttpStatus.NOT_FOUND)
-    // .body(Collections.singletonList(new ServiceProviderEngagementDTO()));
-    // }
-    // return ResponseEntity.ok(engagements);
-    // }
-
     // API to get service provider engagement by id
     @GetMapping("/get/engagement/{id}")
     @ApiOperation(value = ServiceProviderConstants.GET_BY_ID_ENGAGEMENT_DESC, response = ServiceProviderEngagementDTO.class)
@@ -691,22 +601,6 @@ public class ServiceProviderController {
 
         return ResponseEntity.ok(engagementDTO);
     }
-
-    // @GetMapping("/get/engagement/{id}")
-    // @ApiOperation(value = ServiceProviderConstants.GET_BY_ID_ENGAGEMENT_DESC,
-    // response = ServiceProviderEngagementDTO.class)
-    // public ResponseEntity<ServiceProviderEngagementDTO>
-    // getServiceProviderEngagementById(
-    // @ApiParam(value = "ID of the service provider engagement to retrieve",
-    // required = true) @PathVariable Long id) {
-    // ServiceProviderEngagementDTO engagementDTO = serviceProviderEngagementService
-    // .getServiceProviderEngagementById(id);
-    // if (engagementDTO == null) {
-    // return ResponseEntity.status(HttpStatus.NOT_FOUND).body(null); // Engagement
-    // not found
-    // }
-    // return ResponseEntity.ok(engagementDTO);
-    // }
 
     // API to add a service provider engagement
     @PostMapping("/engagement/add")
@@ -773,26 +667,6 @@ public class ServiceProviderController {
         return ResponseEntity.ok(engagements);
     }
 
-    // @GetMapping("/get/engagement/by/{serviceProviderId}")
-    // @ApiOperation(value = "Retrieve service provider engagements by
-    // ServiceProvider ID", response = List.class)
-    // public ResponseEntity<List<ServiceProviderEngagementDTO>>
-    // getServiceProviderEngagementsByServiceProviderId(
-    // @ApiParam(value = "ServiceProvider ID to retrieve engagements for", required
-    // = true) @PathVariable Long serviceProviderId) {
-    // List<ServiceProviderEngagementDTO> engagements =
-    // serviceProviderEngagementService
-    // .getServiceProviderEngagementsByServiceProviderId(serviceProviderId);
-    // // Calculate available times for each engagement before returning response
-    // engagements.forEach(engagement -> {
-    // List<String> availableTimes =
-    // calculateAvailableTimes(engagement.getTimeslot());
-    // engagement.setAvailableTimeSlots(availableTimes);
-    // });
-
-    // return ResponseEntity.ok(engagements);
-    // }
-
     // API to get service provider engagements by Customer ID
     @GetMapping("/get/engagement/by/customer/{customerId}")
     @ApiOperation(value = "Retrieve service provider engagements by Customer ID", response = List.class)
@@ -809,20 +683,41 @@ public class ServiceProviderController {
         return ResponseEntity.ok(engagements);
     }
 
+    // API to get booking history
     @GetMapping("/get-sp-booking-history")
     @ApiOperation(value = "Retrieve categorized service provider engagements", response = Map.class)
-    public ResponseEntity<?> getCategorizedServiceProviderEngagements(
+    public ResponseEntity<Map<String, List<ServiceProviderEngagementDTO>>> getCategorizedServiceProviderEngagements(
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(required = false) Integer size) {
+
         if (size == null) {
             size = defaultPageSize;
         }
+
         Map<String, List<ServiceProviderEngagementDTO>> categorizedEngagements = serviceProviderEngagementService
                 .getServiceProviderBookingHistory(page, size);
+
         if (categorizedEngagements == null || categorizedEngagements.isEmpty()) {
-            return ResponseEntity.status(HttpStatus.NO_CONTENT).body("No Data Found");
+            return ResponseEntity.status(HttpStatus.NO_CONTENT).body(Collections.emptyMap());
         }
+
         return ResponseEntity.ok(categorizedEngagements);
+    }
+
+    @GetMapping("/search")
+    public ResponseEntity<List<ServiceProviderEngagementDTO>> searchEngagements(
+            @RequestParam LocalDate startDate,
+            @RequestParam LocalDate endDate,
+            @RequestParam String timeslot) {
+
+        List<ServiceProviderEngagementDTO> engagements = serviceProviderEngagementService
+                .getEngagementsByExactDateAndTimeslot(startDate, endDate, timeslot);
+
+        if (engagements.isEmpty()) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(engagements);
+        }
+
+        return ResponseEntity.ok(engagements);
     }
 
     // ------API's FOR SHORTLISTED SERVICEPROVIDER------------------
@@ -1073,50 +968,53 @@ public class ServiceProviderController {
 
     // --------------API's FOR SERVICE PROVIDER
     // LEAVE-----------------------------------------------
-    // API to get all service provider leave records
     @GetMapping("/get-all-leaves")
     @ApiOperation(value = "Retrieve all service provider leave records", response = List.class)
-    public ResponseEntity<?> getAllServiceProviderLeaves() {
+    public ResponseEntity<List<ServiceProviderLeaveDTO>> getAllServiceProviderLeaves() {
         List<ServiceProviderLeaveDTO> leaves = serviceProviderLeaveService.getAllLeaves();
+
         if (leaves == null || leaves.isEmpty()) {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("No Data Found");
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(Collections.emptyList());
         }
+
         return ResponseEntity.ok(leaves);
     }
 
-    // API to get service provider leave by ID
     @GetMapping("/get-leave-by-id/{id}")
     @ApiOperation(value = "Retrieve service provider leave by ID", response = ServiceProviderLeaveDTO.class)
-    public ResponseEntity<?> getServiceProviderLeaveById(
+    public ResponseEntity<ServiceProviderLeaveDTO> getServiceProviderLeaveById(
             @ApiParam(value = "ID of the service provider leave", required = true) @PathVariable Long id) {
+
         ServiceProviderLeaveDTO serviceProviderLeaveDTO = serviceProviderLeaveService.getLeaveById(id);
+
         if (serviceProviderLeaveDTO == null) {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Data not found with this ID");
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(null);
         }
+
         return ResponseEntity.ok(serviceProviderLeaveDTO);
     }
 
-    // API to get service provider leaves by service provider ID
     @GetMapping("/get-leave-by-sp-id/{serviceProviderId}")
     @ApiOperation(value = "Retrieve service provider leaves by service provider ID", response = List.class)
-    public ResponseEntity<?> getServiceProviderLeavesByServiceProviderId(
+    public ResponseEntity<List<ServiceProviderLeaveDTO>> getServiceProviderLeavesByServiceProviderId(
             @ApiParam(value = "Service provider ID", required = true) @PathVariable Long serviceProviderId) {
         List<ServiceProviderLeaveDTO> leaves = serviceProviderLeaveService
                 .getLeaveByServiceProviderId(serviceProviderId);
         if (leaves == null || leaves.isEmpty()) {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("No Data Found");
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(Collections.emptyList());
         }
         return ResponseEntity.ok(leaves);
     }
 
-    // API to add a new service provider leave record
+    // API to add leave
     @PostMapping("/add-leave")
     @ApiOperation(value = "Add a new service provider leave record")
     public ResponseEntity<String> addServiceProviderLeave(
             @ApiParam(value = "Service provider leave DTO", required = true) @RequestBody ServiceProviderLeaveDTO leaveDTO) {
         String response = serviceProviderLeaveService.addLeave(leaveDTO);
-        if ("Failed".equals(response)) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Failed");
+        if (ServiceProviderConstants.FAILED_RESPONSE.equals(response)) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body(ServiceProviderConstants.FAILED_RESPONSE);
         }
         return ResponseEntity.ok(response);
     }
@@ -1128,8 +1026,8 @@ public class ServiceProviderController {
             @ApiParam(value = "ID of the service provider leave to update", required = true) @PathVariable Long id,
             @ApiParam(value = "Updated service provider leave DTO", required = true) @RequestBody ServiceProviderLeaveDTO leaveDTO) {
         String response = serviceProviderLeaveService.updateLeave(id, leaveDTO);
-        if ("Data not found with this ID".equals(response)) {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(response);
+        if (ServiceProviderConstants.DATA_NOT_FOUND.equals(response)) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(ServiceProviderConstants.DATA_NOT_FOUND);
         }
         return ResponseEntity.ok(response);
     }
@@ -1140,8 +1038,8 @@ public class ServiceProviderController {
     public ResponseEntity<String> deleteServiceProviderLeave(
             @ApiParam(value = "ID of the service provider leave to delete", required = true) @PathVariable Long id) {
         String response = serviceProviderLeaveService.deleteLeave(id);
-        if ("Data not found with this ID".equals(response)) {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(response);
+        if (ServiceProviderConstants.DATA_NOT_FOUND.equals(response)) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(ServiceProviderConstants.DATA_NOT_FOUND);
         }
         return ResponseEntity.ok(response);
     }
@@ -1149,21 +1047,26 @@ public class ServiceProviderController {
     // API to get service providers on leave today
     @GetMapping("/on-leave-today")
     @ApiOperation(value = "Retrieve service provider leaves on today", response = List.class)
-    public ResponseEntity<?> getServiceProvidersOnLeaveToday() {
+    public ResponseEntity<Object> getServiceProvidersOnLeaveToday() {
         List<ServiceProviderLeaveDTO> leaves = serviceProviderLeaveService.getServiceProvidersOnLeaveToday();
+
         if (leaves == null || leaves.isEmpty()) {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("No Data Found");
+            // Returning a String when no data is found
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(ServiceProviderConstants.NO_DATA_FOUND);
         }
+
+        // Returning a List of ServiceProviderLeaveDTO when data is found
         return ResponseEntity.ok(leaves);
     }
 
     // API to get service providers on leave next week
     @GetMapping("/on-leave-next-week")
     @ApiOperation(value = "Retrieve service provider leaves next week", response = List.class)
-    public ResponseEntity<?> getServiceProvidersOnLeaveNextWeek() {
+    public ResponseEntity<Object> getServiceProvidersOnLeaveNextWeek() {
         List<ServiceProviderLeaveDTO> leaves = serviceProviderLeaveService.getServiceProvidersOnLeaveNextWeek();
         if (leaves == null || leaves.isEmpty()) {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("No Data Found");
+            // Using constant instead of the literal string
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(ServiceProviderConstants.NO_DATA_FOUND);
         }
         return ResponseEntity.ok(leaves);
     }
@@ -1171,10 +1074,11 @@ public class ServiceProviderController {
     // API to get approved service provider leaves
     @GetMapping("/get-approved-leaves")
     @ApiOperation(value = "Retrieve approved service provider leaves", response = List.class)
-    public ResponseEntity<?> getApprovedServiceProviderLeaves() {
+    public ResponseEntity<Object> getApprovedServiceProviderLeaves() {
         List<ServiceProviderLeaveDTO> leaves = serviceProviderLeaveService.getApprovedLeaves();
         if (leaves == null || leaves.isEmpty()) {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("No Data Found");
+            // Using constant instead of the literal string
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(ServiceProviderConstants.NO_DATA_FOUND);
         }
         return ResponseEntity.ok(leaves);
     }
@@ -1182,10 +1086,11 @@ public class ServiceProviderController {
     // API to get unapproved service provider leaves
     @GetMapping("/get-unapproved-leaves")
     @ApiOperation(value = "Retrieve unapproved service provider leaves", response = List.class)
-    public ResponseEntity<?> getUnapprovedServiceProviderLeaves() {
+    public ResponseEntity<Object> getUnapprovedServiceProviderLeaves() {
         List<ServiceProviderLeaveDTO> leaves = serviceProviderLeaveService.getUnapprovedLeaves();
         if (leaves == null || leaves.isEmpty()) {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("No Data Found");
+            // Using constant instead of the literal string
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(ServiceProviderConstants.NO_DATA_FOUND);
         }
         return ResponseEntity.ok(leaves);
     }
@@ -1193,12 +1098,13 @@ public class ServiceProviderController {
     // ----------------API's FOR LEAVE
     // BALANCE------------------------------------------------------
     // API to get all leave balance records
+    // API to get all leave balances
     @GetMapping("/get-all-leave-balances")
     @ApiOperation(value = "Retrieve all leave balance records", response = List.class)
-    public ResponseEntity<?> getAllLeaveBalances() {
+    public ResponseEntity<Object> getAllLeaveBalances() {
         List<LeaveBalanceDTO> leaveBalances = leaveBalanceService.getAllLeaveBalances();
         if (leaveBalances == null || leaveBalances.isEmpty()) {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("No Data Found");
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(ServiceProviderConstants.NO_DATA_FOUND);
         }
         return ResponseEntity.ok(leaveBalances);
     }
@@ -1206,11 +1112,11 @@ public class ServiceProviderController {
     // API to get leave balance by ID
     @GetMapping("/get-balance-by-id/{id}")
     @ApiOperation(value = "Retrieve leave balance by ID", response = LeaveBalanceDTO.class)
-    public ResponseEntity<?> getLeaveBalanceById(
+    public ResponseEntity<Object> getLeaveBalanceById(
             @ApiParam(value = "ID of the leave balance", required = true) @PathVariable Long id) {
         LeaveBalanceDTO leaveBalanceDTO = leaveBalanceService.getLeaveBalanceById(id);
         if (leaveBalanceDTO == null) {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Data not found with this ID");
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(ServiceProviderConstants.DATA_NOT_FOUND);
         }
         return ResponseEntity.ok(leaveBalanceDTO);
     }
@@ -1218,11 +1124,11 @@ public class ServiceProviderController {
     // API to add a new leave balance record
     @PostMapping("/add-leavebalance")
     @ApiOperation(value = "Add a new leave balance record")
-    public ResponseEntity<?> addLeaveBalance(
+    public ResponseEntity<Object> addLeaveBalance(
             @ApiParam(value = "Leave balance DTO", required = true) @RequestBody LeaveBalanceDTO leaveBalanceDTO) {
         String response = leaveBalanceService.addLeaveBalance(leaveBalanceDTO);
         if ("Failed".equals(response)) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Failed to add data");
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(ServiceProviderConstants.FAILED_TO_ADD);
         }
         return ResponseEntity.ok(response);
     }
@@ -1230,11 +1136,11 @@ public class ServiceProviderController {
     // API to update a leave balance record by ID
     @PutMapping("/update-balance/{id}")
     @ApiOperation(value = "Update leave balance record by ID")
-    public ResponseEntity<?> updateLeaveBalance(
+    public ResponseEntity<Object> updateLeaveBalance(
             @ApiParam(value = "ID of the leave balance to update", required = true) @PathVariable Long id,
             @ApiParam(value = "Updated leave balance DTO", required = true) @RequestBody LeaveBalanceDTO leaveBalanceDTO) {
         String response = leaveBalanceService.updateLeaveBalance(id, leaveBalanceDTO);
-        if ("Data not found with this ID".equals(response)) {
+        if (ServiceProviderConstants.DATA_NOT_FOUND.equals(response)) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body(response);
         }
         return ResponseEntity.ok(response);
@@ -1243,10 +1149,10 @@ public class ServiceProviderController {
     // API to delete a leave balance record by ID
     @DeleteMapping("/delete-balance/{id}")
     @ApiOperation(value = "Delete leave balance record by ID")
-    public ResponseEntity<?> deleteLeaveBalance(
+    public ResponseEntity<Object> deleteLeaveBalance(
             @ApiParam(value = "ID of the leave balance to delete", required = true) @PathVariable Long id) {
         String response = leaveBalanceService.deleteLeaveBalance(id);
-        if ("Data not found with this ID".equals(response)) {
+        if (ServiceProviderConstants.DATA_NOT_FOUND.equals(response)) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body(response);
         }
         return ResponseEntity.ok(response);

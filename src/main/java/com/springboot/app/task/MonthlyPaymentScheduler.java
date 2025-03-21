@@ -6,7 +6,7 @@ import jakarta.persistence.TypedQuery;
 import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
+
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 import com.springboot.app.entity.ServiceProviderEngagement;
@@ -26,10 +26,8 @@ public class MonthlyPaymentScheduler {
 
     private static final Logger logger = LoggerFactory.getLogger(MonthlyPaymentScheduler.class);
 
-    @Autowired
     private ServiceProviderEngagementRepository engagementRepository;
 
-    @Autowired
     private ServiceProviderPaymentRepository paymentRepository;
 
     @PersistenceContext
@@ -46,6 +44,7 @@ public class MonthlyPaymentScheduler {
             List<ServiceProviderEngagement> engagements = engagementRepository.findAll();
 
             for (ServiceProviderEngagement engagement : engagements) {
+
                 try {
                     // Get the last payment date if exists
                     ServiceProviderPayment lastPayment = getLastPayment(engagement);
