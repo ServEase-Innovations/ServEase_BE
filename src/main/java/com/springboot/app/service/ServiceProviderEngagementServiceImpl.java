@@ -5,6 +5,8 @@ import com.springboot.app.dto.ServiceProviderEngagementDTO;
 import com.springboot.app.entity.Customer;
 import com.springboot.app.entity.ServiceProvider;
 import com.springboot.app.entity.ServiceProviderEngagement;
+import com.springboot.app.enums.HousekeepingRole;
+import com.springboot.app.enums.UserRole;
 import com.springboot.app.exception.ServiceProviderEngagementNotFoundException;
 import com.springboot.app.mapper.ServiceProviderEngagementMapper;
 import com.springboot.app.repository.CustomerRepository;
@@ -270,13 +272,14 @@ public class ServiceProviderEngagementServiceImpl implements ServiceProviderEnga
 
     @Override
     @Transactional(readOnly = true)
-    public List<ServiceProviderEngagementDTO> getEngagementsByExactDateAndTimeslot(
-            LocalDate startDate, LocalDate endDate, String timeslot) {
+    public List<ServiceProviderEngagementDTO> getEngagementsByExactDateTimeslotAndHousekeepingRole(
+            LocalDate startDate, LocalDate endDate, String timeslot, HousekeepingRole housekeepingRole) {
 
-        logger.info("Fetching engagements for startDate: {}, endDate: {}, timeslot: {}", startDate, endDate, timeslot);
+        logger.info("Fetching engagements for startDate: {}, endDate: {}, timeslot: {}, housekeepingRole: {}",
+                startDate, endDate, timeslot, housekeepingRole);
 
-        List<ServiceProviderEngagement> engagements = engagementRepository.findByExactDateAndTimeslot(startDate,
-                endDate, timeslot);
+        List<ServiceProviderEngagement> engagements = engagementRepository
+                .findByExactDateTimeslotAndHousekeepingRole(startDate, endDate, timeslot, housekeepingRole);
 
         if (engagements.isEmpty()) {
             logger.warn("No engagements found for the given filters.");

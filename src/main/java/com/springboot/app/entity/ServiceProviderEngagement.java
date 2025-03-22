@@ -3,6 +3,7 @@ package com.springboot.app.entity;
 import java.time.LocalDate;
 import java.time.LocalDateTime; // Import LocalDateTime
 
+import com.springboot.app.enums.HousekeepingRole;
 import com.springboot.app.enums.PaymentMode;
 import com.springboot.app.enums.TaskStatus;
 import com.springboot.app.enums.UserRole;
@@ -73,8 +74,9 @@ public class ServiceProviderEngagement {
     @Column(columnDefinition = "TEXT") // Store as a JSON string
     private String responsibilities;
 
+    @Enumerated(EnumType.STRING)
     @Column(length = 255)
-    private String serviceType; // The type of service provided
+    private HousekeepingRole housekeepingRole; // The type of service provided
 
     @Column(length = 255)
     private String mealType; // The meal type (e.g., vegetarian, non-vegetarian, etc.)
@@ -87,9 +89,6 @@ public class ServiceProviderEngagement {
 
     @Column(length = 255)
     private String childAge;
-
-    @Column(length = 255)
-    private String serviceeType;
 
     @Column(length = 255)
     private String customerName;

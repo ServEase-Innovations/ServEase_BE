@@ -10,6 +10,9 @@ import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
 import com.springboot.app.entity.ServiceProviderEngagement;
+import com.springboot.app.enums.HousekeepingRole;
+import com.springboot.app.enums.UserRole;
+
 import org.springframework.transaction.annotation.Transactional;
 
 @Repository
@@ -29,10 +32,12 @@ public interface ServiceProviderEngagementRepository extends JpaRepository<Servi
        @Query("SELECT e FROM ServiceProviderEngagement e " +
                      "WHERE e.startDate = :startDate " +
                      "AND e.endDate = :endDate " +
-                     "AND LOWER(e.timeslot) = LOWER(:timeslot)")
-       List<ServiceProviderEngagement> findByExactDateAndTimeslot(
+                     "AND LOWER(e.timeslot) = LOWER(:timeslot) " +
+                     "AND e.housekeepingRole = :housekeepingRole")
+       List<ServiceProviderEngagement> findByExactDateTimeslotAndHousekeepingRole(
                      @Param("startDate") LocalDate startDate,
                      @Param("endDate") LocalDate endDate,
-                     @Param("timeslot") String timeslot);
+                     @Param("timeslot") String timeslot,
+                     @Param("housekeepingRole") HousekeepingRole housekeepingRole);
 
 }

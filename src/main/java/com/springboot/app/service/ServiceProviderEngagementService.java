@@ -5,6 +5,8 @@ import java.util.List;
 import java.util.Map;
 
 import com.springboot.app.dto.ServiceProviderEngagementDTO;
+import com.springboot.app.enums.HousekeepingRole;
+import com.springboot.app.enums.UserRole;
 
 public interface ServiceProviderEngagementService {
 
@@ -31,7 +33,7 @@ public interface ServiceProviderEngagementService {
 
     public Map<String, List<ServiceProviderEngagementDTO>> getServiceProviderBookingHistory(int page, int size);
 
-    List<ServiceProviderEngagementDTO> getEngagementsByExactDateAndTimeslot(
-            LocalDate startDate, LocalDate endDate, String timeslot);
+    List<ServiceProviderEngagementDTO> getEngagementsByExactDateTimeslotAndHousekeepingRole(
+            LocalDate startDate, LocalDate endDate, String timeslot, HousekeepingRole housekeepingRole);
 
 }

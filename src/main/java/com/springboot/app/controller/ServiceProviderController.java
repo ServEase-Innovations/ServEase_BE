@@ -36,7 +36,7 @@ import com.springboot.app.enums.Habit;
 import com.springboot.app.enums.HousekeepingRole;
 import com.springboot.app.enums.LanguageKnown;
 import com.springboot.app.enums.Speciality;
-
+import com.springboot.app.enums.UserRole;
 import com.springboot.app.service.ServiceProviderRequestService;
 import com.springboot.app.service.AttendanceService;
 import com.springboot.app.service.LeaveBalanceService;
@@ -708,10 +708,11 @@ public class ServiceProviderController {
     public ResponseEntity<List<ServiceProviderEngagementDTO>> searchEngagements(
             @RequestParam LocalDate startDate,
             @RequestParam LocalDate endDate,
-            @RequestParam String timeslot) {
+            @RequestParam String timeslot,
+            @RequestParam HousekeepingRole housekeepingRole) {
 
         List<ServiceProviderEngagementDTO> engagements = serviceProviderEngagementService
-                .getEngagementsByExactDateAndTimeslot(startDate, endDate, timeslot);
+                .getEngagementsByExactDateTimeslotAndHousekeepingRole(startDate, endDate, timeslot, housekeepingRole);
 
         if (engagements.isEmpty()) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body(engagements);
