@@ -46,4 +46,6 @@ public interface ServiceProviderService {
 
   // List<String> calculateAvailableTimes(String timeslot);
 
+  List<ServiceProviderDTO> findNearbyProviders(double latitude, double longitude, int precision);
+
 }

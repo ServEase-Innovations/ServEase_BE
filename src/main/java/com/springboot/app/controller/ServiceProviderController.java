@@ -92,7 +92,17 @@ public class ServiceProviderController {
     private int defaultPageSize;
 
     // --------API's FOR SERVICE PROVIDER ENTITY--------------------
-    // // API to get all service providers
+
+    //get nearby service providers
+    @GetMapping("/nearby")
+    public ResponseEntity<List<ServiceProviderDTO>> getNearbyProviders(
+            @RequestParam double latitude,
+            @RequestParam double longitude,
+            @RequestParam(required = false, defaultValue = "5") int precision) {
+
+        List<ServiceProviderDTO> providers = serviceProviderService.findNearbyProviders(latitude, longitude, precision);
+        return ResponseEntity.ok(providers);
+    }
 
     @GetMapping("/serviceproviders/all")
     @ApiOperation(value = ServiceProviderConstants.RETRIEVE_ALL_DESC, response = List.class)

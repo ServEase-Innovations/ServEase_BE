@@ -26,5 +26,11 @@ public interface ServiceProviderRepository
         // boolean existsByEmailIdOrMobileNo(String normalizedEmail, Long mobileNo);
 
         List<ServiceProvider> findByVendorId(Long vendorId);
+        
+        List<ServiceProvider> findByGeoHash5In(List<String> geoHashes);
+
+        List<ServiceProvider> findByGeoHash6In(List<String> geoHashes);
+
+        List<ServiceProvider> findByGeoHash7In(List<String> geoHashes);
 
 }

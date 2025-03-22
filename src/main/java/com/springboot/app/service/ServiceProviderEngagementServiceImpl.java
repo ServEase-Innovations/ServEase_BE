@@ -24,6 +24,7 @@ import java.util.Map;
 //import java.util.Map;
 import java.util.stream.Collectors;
 import org.springframework.data.domain.Pageable;
+import org.springframework.scheduling.annotation.Scheduled;
 
 @Service
 public class ServiceProviderEngagementServiceImpl implements ServiceProviderEngagementService {
@@ -317,6 +318,23 @@ public class ServiceProviderEngagementServiceImpl implements ServiceProviderEnga
                 }));
 
         return categorizedEngagements;
+    }
+
+    //@Scheduled(cron = "0 0 1 * * ?") // Runs every day at 1 AM
+    @Scheduled(fixedDelay = 60000) //runs every minute
+    @Transactional
+    public void updateServiceProviderTimeslots() {
+        List<ServiceProviderEngagement> endedEngagements = engagementRepository.findByEndDateBeforeAndIsActive(LocalDate.now(), true);
+
+        for (ServiceProviderEngagement engagement : endedEngagements) {
+            ServiceProvider serviceProvider = engagement.getServiceProvider();
+            if (serviceProvider != null) {
+                serviceProvider.setTimeslot("Available"); // Update timeslot
+                serviceProviderRepository.save(serviceProvider);
+            }
+            engagement.setActive(false); // Mark engagement as inactive
+            engagementRepository.save(engagement);
+        }
     }
 
 }

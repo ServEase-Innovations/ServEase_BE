@@ -29,4 +29,6 @@ public interface ServiceProviderEngagementService {
     List<ServiceProviderEngagementDTO> getServiceProviderEngagementsByCustomerId(Long customerId);
 
     public Map<String, List<ServiceProviderEngagementDTO>> getServiceProviderBookingHistory(int page, int size);
+
+    public void updateServiceProviderTimeslots();
 }

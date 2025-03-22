@@ -55,6 +55,9 @@ public class ServiceProviderServiceImpl implements ServiceProviderService {
         private UserCredentialsService userCredentialsService;
 
         @Autowired
+        private GeoHashService geoHashService;
+
+        @Autowired
         private ServiceProviderEngagementRepository engagementRepository;
 
         @PersistenceContext
@@ -862,6 +865,22 @@ public class ServiceProviderServiceImpl implements ServiceProviderService {
                         serviceProviderRepository.saveAll(serviceProviders);
                 }
                 return "successfull";
+        }
+
+        @Transactional
+        public List<ServiceProviderDTO> findNearbyProviders(double latitude, double longitude, int precision) {
+                List<String> nearbyGeoHashes = geoHashService.getNearbyGeoHashes(latitude, longitude, precision);
+
+                List<ServiceProvider> providers;
+                if (precision == 5) {
+                        providers = serviceProviderRepository.findByGeoHash5In(nearbyGeoHashes);
+                } else if (precision == 6) {
+                        providers = serviceProviderRepository.findByGeoHash6In(nearbyGeoHashes);
+                } else {
+                        providers = serviceProviderRepository.findByGeoHash7In(nearbyGeoHashes);
+                }
+
+                return providers.stream().map(serviceProviderMapper::serviceProviderToDTO).collect(Collectors.toList());
         }
 
 }
