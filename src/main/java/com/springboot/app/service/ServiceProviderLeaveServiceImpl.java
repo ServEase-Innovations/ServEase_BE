@@ -3,6 +3,7 @@ package com.springboot.app.service;
 import com.springboot.app.constant.CustomerConstants;
 import com.springboot.app.dto.ServiceProviderLeaveDTO;
 import com.springboot.app.entity.ServiceProviderLeave;
+import com.springboot.app.exception.ServiceProviderLeaveException;
 import com.springboot.app.mapper.ServiceProviderLeaveMapper;
 import com.springboot.app.repository.ServiceProviderLeaveRepository;
 import org.slf4j.Logger;
@@ -13,7 +14,8 @@ import org.springframework.transaction.annotation.Transactional;
 import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
-import java.util.stream.Collectors;
+
+import java.util.Collections;
 
 @Service
 public class ServiceProviderLeaveServiceImpl implements
@@ -21,11 +23,15 @@ public class ServiceProviderLeaveServiceImpl implements
 
     private static final Logger logger = LoggerFactory.getLogger(ServiceProviderLeaveServiceImpl.class);
 
-    @Autowired
-    private ServiceProviderLeaveRepository leaveRepository;
+    private final ServiceProviderLeaveRepository leaveRepository;
+    private final ServiceProviderLeaveMapper leaveMapper;
 
     @Autowired
-    private ServiceProviderLeaveMapper leaveMapper;
+    public ServiceProviderLeaveServiceImpl(ServiceProviderLeaveRepository leaveRepository,
+            ServiceProviderLeaveMapper leaveMapper) {
+        this.leaveRepository = leaveRepository;
+        this.leaveMapper = leaveMapper;
+    }
 
     @Override
     @Transactional(readOnly = true)
@@ -33,46 +39,34 @@ public class ServiceProviderLeaveServiceImpl implements
         logger.info("Fetching all service provider leave records.");
         List<ServiceProviderLeave> leaves = leaveRepository.findAll();
         if (leaves.isEmpty()) {
-            return null; // If no data found
+            return Collections.emptyList();
         }
         return leaves.stream()
                 .map(leaveMapper::serviceProviderLeaveToDTO)
-                .collect(Collectors.toList());
+                .toList();
     }
 
     @Override
     @Transactional(readOnly = true)
     public ServiceProviderLeaveDTO getLeaveById(Long id) {
         logger.info("Fetching service provider leave record by ID: {}", id);
-        Optional<ServiceProviderLeave> leaveOptional = leaveRepository.findById(id);
-        return leaveOptional.map(leave -> leaveMapper.serviceProviderLeaveToDTO(leave)).orElse(null);
+        return leaveRepository.findById(id)
+                .map(leaveMapper::serviceProviderLeaveToDTO)
+                .orElse(null);
     }
 
     @Override
     @Transactional(readOnly = true)
     public List<ServiceProviderLeaveDTO> getLeaveByServiceProviderId(Long serviceProviderId) {
-        logger.info("Fetching leave records for service provider ID: {}",
-                serviceProviderId);
+        logger.info("Fetching leave records for service provider ID: {}", serviceProviderId);
         List<ServiceProviderLeave> leaves = leaveRepository.findAll().stream()
                 .filter(leave -> leave.getServiceProvider().getServiceproviderId().equals(serviceProviderId))
-                .collect(Collectors.toList());
-        return leaves.isEmpty() ? null
+                .toList();
+        return leaves.isEmpty()
+                ? Collections.emptyList()
                 : leaves.stream()
                         .map(leaveMapper::serviceProviderLeaveToDTO)
-                        .collect(Collectors.toList());
-    }
-
-    @Override
-    @Transactional
-    public String addLeave(ServiceProviderLeaveDTO leaveDTO) {
-        ServiceProviderLeave leave = leaveMapper.dtoToServiceProviderLeave(leaveDTO);
-        try {
-            leaveRepository.save(leave);
-            return CustomerConstants.ADDED;
-        } catch (Exception e) {
-            e.printStackTrace(); // Logging for debugging
-            throw new RuntimeException("Error while adding leave record", e); // Ensures rollback
-        }
+                        .toList();
     }
 
     @Override
@@ -122,11 +116,12 @@ public class ServiceProviderLeaveServiceImpl implements
         List<ServiceProviderLeave> leaves = leaveRepository.findAll().stream()
                 .filter(leave -> !leave.getFromDate().isAfter(today) &&
                         !leave.getToDate().isBefore(today))
-                .collect(Collectors.toList());
-        return leaves.isEmpty() ? null
+                .toList();
+        return leaves.isEmpty()
+                ? null
                 : leaves.stream()
                         .map(leaveMapper::serviceProviderLeaveToDTO)
-                        .collect(Collectors.toList());
+                        .toList();
     }
 
     @Override
@@ -134,8 +129,7 @@ public class ServiceProviderLeaveServiceImpl implements
     public List<ServiceProviderLeaveDTO> getServiceProvidersOnLeaveNextWeek() {
         logger.info("Fetching service providers on leave next week.");
         LocalDate today = LocalDate.now();
-        LocalDate startOfNextWeek = today.plusDays(7 -
-                today.getDayOfWeek().getValue());
+        LocalDate startOfNextWeek = today.plusDays(7L - today.getDayOfWeek().getValue());
         LocalDate endOfNextWeek = startOfNextWeek.plusDays(6);
 
         List<ServiceProviderLeave> leaves = leaveRepository.findAll().stream()
@@ -143,11 +137,26 @@ public class ServiceProviderLeaveServiceImpl implements
                         && leave.getFromDate().isBefore(endOfNextWeek.plusDays(1)))
                         || (leave.getToDate().isAfter(startOfNextWeek.minusDays(1))
                                 && leave.getToDate().isBefore(endOfNextWeek.plusDays(1))))
-                .collect(Collectors.toList());
-        return leaves.isEmpty() ? null
+                .toList();
+
+        return leaves.isEmpty()
+                ? null
                 : leaves.stream()
                         .map(leaveMapper::serviceProviderLeaveToDTO)
-                        .collect(Collectors.toList());
+                        .toList();
+    }
+
+    @Override
+    @Transactional
+    public String addLeave(ServiceProviderLeaveDTO leaveDTO) {
+        ServiceProviderLeave leave = leaveMapper.dtoToServiceProviderLeave(leaveDTO);
+        try {
+            leaveRepository.save(leave);
+            return CustomerConstants.ADDED;
+        } catch (Exception e) {
+            logger.error("Error while adding leave record for leave: {}", leave, e);
+            throw new ServiceProviderLeaveException("Error while adding leave record for leave: " + leave, e);
+        }
     }
 
     @Override
@@ -156,11 +165,11 @@ public class ServiceProviderLeaveServiceImpl implements
         logger.info("Fetching approved service provider leave records.");
         List<ServiceProviderLeave> leaves = leaveRepository.findAll().stream()
                 .filter(ServiceProviderLeave::isApproved)
-                .collect(Collectors.toList());
+                .toList();
         return leaves.isEmpty() ? null
                 : leaves.stream()
                         .map(leaveMapper::serviceProviderLeaveToDTO)
-                        .collect(Collectors.toList());
+                        .toList();
     }
 
     @Override
@@ -169,10 +178,11 @@ public class ServiceProviderLeaveServiceImpl implements
         logger.info("Fetching unapproved service provider leave records.");
         List<ServiceProviderLeave> leaves = leaveRepository.findAll().stream()
                 .filter(leave -> !leave.isApproved())
-                .collect(Collectors.toList());
+                .toList();
         return leaves.isEmpty() ? null
                 : leaves.stream()
                         .map(leaveMapper::serviceProviderLeaveToDTO)
-                        .collect(Collectors.toList());
+                        .toList();
     }
+
 }

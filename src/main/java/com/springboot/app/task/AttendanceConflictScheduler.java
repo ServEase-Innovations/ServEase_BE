@@ -1,6 +1,5 @@
 package com.springboot.app.task;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
@@ -24,7 +23,6 @@ import java.util.List;
 public class AttendanceConflictScheduler {
         private static final Logger logger = LoggerFactory.getLogger(AttendanceConflictScheduler.class);
 
-        @Autowired
         private final AttendanceRepository attendanceRepository;
 
         @PersistenceContext

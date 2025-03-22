@@ -2,8 +2,6 @@ package com.springboot.app.dto;
 
 import java.sql.Timestamp;
 
-//import org.springframework.web.multipart.MultipartFile;
-
 import com.springboot.app.enums.DocumentType;
 import com.springboot.app.enums.Gender;
 import com.springboot.app.enums.LanguageKnown;
@@ -32,7 +30,7 @@ public class CustomerDTO {
     private String locality;
     private String street;
     private Integer pincode;
-    // private MultipartFile profilePic;
+
     private String profilePic;
     private String currentLocation;
     private DocumentType KYC;
@@ -40,7 +38,7 @@ public class CustomerDTO {
     private boolean isActive;
     private Timestamp enrolledDate;
     private Speciality speciality;
-    // private String profilePicUrl;
+
     private double rating;
     private String username;
     private String password;

@@ -1,6 +1,12 @@
 package com.springboot.app.constant;
 
 public class CustomerConstants {
+
+    // Private constructor to prevent instantiation
+    private CustomerConstants() {
+        throw new UnsupportedOperationException("This is a constants class and cannot be instantiated");
+    }
+
     // API Operation Descriptions
     public static final String RETRIEVE_ALL_DESC = "Retrieve all customers";
     public static final String GET_BY_ID_DESC = "Get a customer by ID";

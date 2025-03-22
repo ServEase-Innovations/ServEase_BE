@@ -88,10 +88,12 @@ public class ServiceProviderConstants {
     public static final String ENGAGEMENT_NOT_FOUND = "Service provider engagement not found.";
     public static final String ENGAGEMENT_ERROR = "Error occurred while processing the service provider engagement.";
     public static final String GET_BY_SERVICE_PROVIDER_ID_DESC = "Get all engagements for a given ServiceProvider ID.";
+    public static final String GET_BY_DATE_TIME_ENGAGEMENT_DESC = "Retrieve service provider engagements based on start date, end date, and available time slots.";
 
     public static final String ENGAGEMENT_ADDED = "Service Provider Engagement added successfully.";
     public static final String ENGAGEMENT_UPDATED = "Service Provider Engagement updated successfully.";
     public static final String ENGAGEMENT_DELETED = "Service Provider Engagement deactivated successfully.";
+    public static final String INACTIVE_TIMESLOT = "00:00-00:00";
 
     public static final String PASSWORD_UPDATED = "Password updated successfully.";
     public static final String ACCOUNT_DEACTIVATED = "Account deactivated successfully.";
@@ -111,6 +113,27 @@ public class ServiceProviderConstants {
     public static final String UPDATE_VENDOR_DESC = "Update vendor details";
 
     public static final String DELETE_VENDOR_DESC = "Delete a vendor (deactivate)";
+
+    public static final String FAILED_RESPONSE = "Failed";
+    public static final String DATA_NOT_FOUND = "Data not found with this ID";
+    public static final String NO_DATA_FOUND = "No Data Found";
+
+    public static final String FAILED_TO_ADD = "Failed to add data";
+
+    // Attendance related constants
+    public static final String ATTENDANCE_NOT_FOUND_MSG = "Attendance record not found with ID: ";
+    // Attendance Field Constants
+    public static final String ATTENDANCE_FIELD_IS_ATTENDED = "isAttended";
+    public static final String ATTENDANCE_FIELD_IS_CUSTOMER_AGREED = "isCustomerAgreed";
+    public static final String ATTENDANCE_FIELD_STATUS = "attendanceStatus";
+    public static final String NO_ATTENDANCE_RECORDS_FOUND = "No attendance records found where ";
+    public static final String NO_ATTENDANCE_FOUND_PREFIX = "No attendance records found where ";
+
+    public static final String PAYMENT_NOT_FOUND_MSG = "Service provider payment not found with ID: {}";
+
+    public static final String COMMENT_NOT_FOUND_MSG = "Request comment not found with ID: ";
+
+    public static final String RESPONSE_MESSAGE_KEY = "message";
 
     // Prevent instantiation
     private ServiceProviderConstants() {

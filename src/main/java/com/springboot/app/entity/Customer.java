@@ -14,7 +14,7 @@ import jakarta.persistence.Enumerated;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
-//import jakarta.persistence.Lob;
+
 import jakarta.persistence.PrePersist;
 import jakarta.persistence.Table;
 import lombok.AllArgsConstructor;
@@ -72,8 +72,6 @@ public class Customer {
     @Enumerated(EnumType.STRING)
     private LanguageKnown languageKnown;
 
-    // @Lob
-    // private byte[] profilePic;
     @Column
     private String profilePic;
 

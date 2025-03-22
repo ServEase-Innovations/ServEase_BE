@@ -3,14 +3,13 @@ package com.springboot.app.service;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.time.LocalDate;
-//import java.time.Period;
+
 import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
-//import java.util.Arrays;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-//import java.util.Set;
 import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -34,6 +33,8 @@ import com.springboot.app.enums.HousekeepingRole;
 import com.springboot.app.enums.LanguageKnown;
 import com.springboot.app.enums.Speciality;
 import com.springboot.app.enums.UserRole;
+import com.springboot.app.exception.ServiceProviderNotFoundException;
+import com.springboot.app.exception.ServiceProviderRegistrationException;
 import com.springboot.app.mapper.ServiceProviderMapper;
 import com.springboot.app.repository.ServiceProviderEngagementRepository;
 import com.springboot.app.repository.ServiceProviderRepository;
@@ -44,54 +45,30 @@ import org.springframework.data.domain.Pageable;
 public class ServiceProviderServiceImpl implements ServiceProviderService {
 
         private static final Logger logger = LoggerFactory.getLogger(ServiceProviderServiceImpl.class);
-
-        @Autowired
-        private ServiceProviderRepository serviceProviderRepository;
-
-        @Autowired
-        private ServiceProviderMapper serviceProviderMapper;
-
-        @Autowired
-        private UserCredentialsService userCredentialsService;
+        private final ServiceProviderRepository serviceProviderRepository;
+        private final ServiceProviderMapper serviceProviderMapper;
+        private final UserCredentialsService userCredentialsService;
+        private final ServiceProviderEngagementRepository engagementRepository;
+        private final ExcelSheetHandler excelSheetHandler;
 
         @Autowired
         private GeoHashService geoHashService;
 
         @Autowired
-        private ServiceProviderEngagementRepository engagementRepository;
+        public ServiceProviderServiceImpl(ServiceProviderRepository serviceProviderRepository,
+                        ServiceProviderMapper serviceProviderMapper,
+                        UserCredentialsService userCredentialsService,
+                        ServiceProviderEngagementRepository engagementRepository, ExcelSheetHandler excelSheetHandler) {
+                this.serviceProviderRepository = serviceProviderRepository;
+                this.serviceProviderMapper = serviceProviderMapper;
+                this.userCredentialsService = userCredentialsService;
+                this.engagementRepository = engagementRepository;
+                this.excelSheetHandler = excelSheetHandler;
+        }
 
         @PersistenceContext
         private EntityManager entityManager;
 
-        @Autowired
-        private ExcelSheetHandler excelSheetHandler;
-
-        // @Override
-        // @Transactional
-        // public List<ServiceProviderDTO> getAllServiceProviderDTOs(int page, int size)
-        // {
-        // logger.info("Fetching service providers with page: {} and size: {}", page,
-        // size);
-
-        // // Fetch paginated results using Spring Data JPA
-        // Pageable pageable = PageRequest.of(page, size);
-        // List<ServiceProvider> serviceProviders =
-        // serviceProviderRepository.findAll(pageable).getContent();
-
-        // logger.debug("Number of service providers fetched: {}",
-        // serviceProviders.size());
-
-        // if (serviceProviders.isEmpty()) {
-        // logger.warn("No service providers found on the requested page.");
-        // return new ArrayList<>(); // Return empty list if no service providers found
-        // }
-
-        // // Map entities to DTOs
-        // return serviceProviders.stream()
-        // .map(serviceProvider ->
-        // serviceProviderMapper.serviceProviderToDTO(serviceProvider))
-        // .collect(Collectors.toList());
-        // }
         @Transactional
         public List<ServiceProviderDTO> getAllServiceProviderDTOs(int page, int size, String location) {
                 logger.info("Fetching service providers with page: {}, size: {}, and location: {}", page, size,
@@ -121,7 +98,7 @@ public class ServiceProviderServiceImpl implements ServiceProviderService {
                 // Map entities to DTOs
                 return serviceProviders.stream()
                                 .map(serviceProviderMapper::serviceProviderToDTO)
-                                .collect(Collectors.toList());
+                                .toList();
         }
 
         @Override
@@ -148,255 +125,12 @@ public class ServiceProviderServiceImpl implements ServiceProviderService {
 
                 if (serviceProviders.isEmpty()) {
                         logger.warn("No service providers found for vendor ID {}", vendorId);
-                        throw new RuntimeException(
+                        throw new ServiceProviderNotFoundException(
                                         ServiceProviderConstants.NO_SERVICE_PROVIDERS_FOUND_FOR_VENDOR + vendorId);
                 }
 
                 return serviceProviderMapper.serviceProvidersToDTOs(serviceProviders);
         }
-
-        // @Override
-        // @Transactional
-        // public void saveServiceProviderDTO(ServiceProviderDTO serviceProviderDTO) {
-        // logger.info("Saving a new service provider: {}", serviceProviderDTO);
-
-        // // Automatically set the username as the emailId
-        // String email = serviceProviderDTO.getEmailId();
-        // if (email == null || email.isEmpty()) {
-        // throw new IllegalArgumentException("EmailId is required to save a service
-        // provider.");
-        // }
-
-        // // Check if service provider already exists by email or mobile number
-        // if
-        // (serviceProviderRepository.existsByEmailId(serviceProviderDTO.getEmailId()))
-        // {
-        // throw new IllegalArgumentException("Service provider with this email already
-        // exists.");
-        // }
-        // if
-        // (serviceProviderRepository.existsByMobileNo(serviceProviderDTO.getMobileNo()))
-        // {
-        // throw new IllegalArgumentException("Service provider with this mobile number
-        // already exists.");
-        // }
-        // serviceProviderDTO.setUsername(email);
-
-        // // Step 1: Calculate age from DOB and set it
-        // LocalDate dob = serviceProviderDTO.getDOB();
-        // if (dob != null) {
-        // int calculatedAge = calculateAge(dob);
-        // if (calculatedAge < 18) {
-        // throw new IllegalArgumentException("You must be at least 18 years old to
-        // proceed.");
-        // }
-        // serviceProviderDTO.setAge(calculatedAge);
-        // logger.info("Calculated age: {}", calculatedAge);
-        // } else {
-        // throw new IllegalArgumentException("Date of Birth (DOB) is required to
-        // calculate age.");
-        // }
-
-        // // Step 2: Calculate available time slots from the timeslot field
-        // String timeslot = serviceProviderDTO.getTimeslot();
-        // if (timeslot == null || timeslot.isEmpty()) {
-        // throw new IllegalArgumentException("Timeslot is required to save a service
-        // provider.");
-        // }
-
-        // List<String> availableTimes = calculateAvailableTimes(timeslot);
-        // if (availableTimes.isEmpty()) {
-        // throw new IllegalArgumentException("Invalid timeslot format or no available
-        // times calculated.");
-        // }
-        // serviceProviderDTO.setAvailableTimeSlots(availableTimes);
-        // logger.info("Calculated available time slots: {}", availableTimes);
-
-        // // Step 3: Register user credentials
-        // UserCredentialsDTO userDTO = new UserCredentialsDTO(
-        // serviceProviderDTO.getUsername(),
-        // serviceProviderDTO.getPassword(),
-        // true, 0, null, false,
-        // serviceProviderDTO.getMobileNo().toString(),
-        // null,
-        // UserRole.SERVICE_PROVIDER.getValue());
-        // String registrationResponse =
-        // userCredentialsService.saveUserCredentials(userDTO);
-        // if (!"Registration successful!".equalsIgnoreCase(registrationResponse)) {
-        // throw new RuntimeException("User registration failed: " +
-        // registrationResponse);
-        // }
-
-        // // Step 4: Save the service provider
-        // ServiceProvider serviceProvider =
-        // serviceProviderMapper.dtoToServiceProvider(serviceProviderDTO);
-        // serviceProvider.setActive(true);
-        // serviceProviderRepository.save(serviceProvider);
-        // logger.debug("Service provider saved successfully: {}", serviceProvider);
-        // }
-
-        // private List<String> calculateAvailableTimes(String timeslot) {
-        // List<String> availableTimes = new ArrayList<>();
-        // try {
-        // String[] times = timeslot.split("-");
-        // if (times.length != 2) {
-        // throw new IllegalArgumentException(
-        // "Invalid timeslot format. Expected format: 'start-end'");
-        // }
-
-        // int startHour = Integer.parseInt(times[0]);
-        // int endHour = Integer.parseInt(times[1]);
-
-        // if (startHour >= endHour || startHour < 0 || endHour > 24) {
-        // throw new IllegalArgumentException(
-        // "Invalid timeslot hours: must be within 0-24 and start < end.");
-        // }
-
-        // for (int hour = startHour; hour < endHour; hour++) {
-        // availableTimes.add(String.format("%02d:00", hour));
-        // }
-        // } catch (NumberFormatException e) {
-        // throw new IllegalArgumentException("Timeslot contains non-numeric values.",
-        // e);
-        // }
-        // return availableTimes;
-        // }
-
-        // @Override
-        // @Transactional
-        // public void saveServiceProviderDTO(ServiceProviderDTO serviceProviderDTO) {
-        // logger.info("Saving a new service provider: {}", serviceProviderDTO);
-        // // Automatically set the username as the emailId
-        // String email = serviceProviderDTO.getEmailId();
-        // if (email == null || email.isEmpty()) {
-        // throw new IllegalArgumentException("EmailId is required to save a service
-        // provider.");
-        // }
-
-        // // Check if service provider already exists by email or mobile number
-        // if
-        // (serviceProviderRepository.existsByEmailId(serviceProviderDTO.getEmailId()))
-        // {
-        // throw new IllegalArgumentException("Service provider with this email already
-        // exists.");
-        // }
-        // if
-        // (serviceProviderRepository.existsByMobileNo(serviceProviderDTO.getMobileNo()))
-        // {
-        // throw new IllegalArgumentException("Service provider with this mobile number
-        // already exists.");
-        // }
-        // serviceProviderDTO.setUsername(email);
-
-        // // Step 1: Calculate age from DOB and set it
-        // LocalDate dob = serviceProviderDTO.getDOB();
-        // if (dob != null) {
-        // int calculatedAge = calculateAge(dob);
-        // // Add the age validation check
-        // if (calculatedAge < 18) {
-        // throw new IllegalArgumentException("You must be at least 18 years old to
-        // proceed.");
-        // }
-        // serviceProviderDTO.setAge(calculatedAge);
-        // logger.info("Calculated age: {}", calculatedAge);
-        // } else {
-        // throw new IllegalArgumentException("Date of Birth (DOB) is required to
-        // calculate age.");
-        // }
-
-        // // Step 2: Calculate available time slots
-        // String busyTimeRange = serviceProviderDTO.getTimeslot();
-        // if (busyTimeRange == null || busyTimeRange.isEmpty()) {
-        // throw new IllegalArgumentException("Timeslot is required to save a service
-        // provider.");
-        // }
-
-        // List<String> availableTimes = calculateAvailableTimes(busyTimeRange);
-        // if (availableTimes.isEmpty()) {
-        // throw new IllegalArgumentException("Invalid timeslot format or no available
-        // times calculated.");
-        // }
-        // serviceProviderDTO.setAvailableTimeSlots(availableTimes);
-        // logger.info("Calculated available time slots: {}", availableTimes);
-
-        // // Step 4: Register user credentials
-        // UserCredentialsDTO userDTO = new UserCredentialsDTO(
-        // serviceProviderDTO.getUsername(),
-        // serviceProviderDTO.getPassword(),
-        // true, 0, null, false,
-        // serviceProviderDTO.getMobileNo().toString(),
-        // null,
-        // UserRole.SERVICE_PROVIDER.getValue()
-
-        // );
-        // String registrationResponse =
-        // userCredentialsService.saveUserCredentials(userDTO);
-        // if (!"Registration successful!".equalsIgnoreCase(registrationResponse)) {
-        // throw new RuntimeException("User registration failed: " +
-        // registrationResponse);
-        // }
-
-        // // Step 5: Save the service provider
-        // ServiceProvider serviceProvider =
-        // serviceProviderMapper.dtoToServiceProvider(serviceProviderDTO);
-        // serviceProvider.setActive(true);
-        // serviceProviderRepository.save(serviceProvider);
-        // logger.debug("Service provider saved successfully: {}", serviceProvider);
-        // }
-
-        // private int calculateAge(LocalDate dob) {
-        // return LocalDate.now().getYear() - dob.getYear();
-        // }
-
-        // private List<String> calculateAvailableTimes(String busyTimeRange) {
-        // List<String> availableTimes = new ArrayList<>();
-        // try {
-        // // Validate input
-        // if (busyTimeRange == null || busyTimeRange.isEmpty()) {
-        // throw new IllegalArgumentException(
-        // "Timeslot is required to calculate available times.");
-        // }
-
-        // // Parse busy range (e.g., "08:00-09:00")
-        // String[] range = busyTimeRange.split("-");
-        // if (range.length != 2) {
-        // throw new IllegalArgumentException(
-        // "Invalid timeslot format. Expected format: 'HH:mm-HH:mm'.");
-        // }
-
-        // int startHour = parseHour(range[0]);
-        // int endHour = parseHour(range[1]);
-
-        // // Validate range
-        // if (startHour >= endHour || startHour < 0 || endHour > 24) {
-        // throw new IllegalArgumentException(
-        // "Invalid time range: must be within 0-24 and start < end.");
-        // }
-
-        // // Calculate available hours
-        // for (int hour = 0; hour < 24; hour++) {
-        // if (hour < startHour || hour >= endHour) {
-        // availableTimes.add(String.format("%02d:00", hour));
-        // }
-        // }
-        // } catch (IllegalArgumentException e) {
-        // throw new IllegalArgumentException(
-        // "Invalid timeslot input. Ensure it's in 'HH:mm-HH:mm' format.", e);
-        // }
-        // return availableTimes;
-        // }
-
-        // private int parseHour(String time) {
-        // try {
-        // String[] parts = time.split(":");
-        // if (parts.length != 2) {
-        // throw new IllegalArgumentException("Invalid time format. Expected 'HH:mm'.");
-        // }
-        // return Integer.parseInt(parts[0]);
-        // } catch (NumberFormatException e) {
-        // throw new IllegalArgumentException("Time contains non-numeric values.", e);
-        // }
-        // }
 
         @Override
         @Transactional
@@ -442,7 +176,8 @@ public class ServiceProviderServiceImpl implements ServiceProviderService {
                                 UserRole.SERVICE_PROVIDER.getValue());
                 String registrationResponse = userCredentialsService.saveUserCredentials(userDTO);
                 if (!"Registration successful!".equalsIgnoreCase(registrationResponse)) {
-                        throw new RuntimeException("User registration failed: " + registrationResponse);
+                        throw new ServiceProviderRegistrationException(
+                                        "User registration failed: " + registrationResponse);
                 }
 
                 ServiceProvider serviceProvider = serviceProviderMapper.dtoToServiceProvider(serviceProviderDTO);
@@ -454,141 +189,6 @@ public class ServiceProviderServiceImpl implements ServiceProviderService {
         private int calculateAge(LocalDate dob) {
                 return LocalDate.now().getYear() - dob.getYear();
         }
-
-        // @Override
-        // @Transactional
-        // public void saveServiceProviderDTO(ServiceProviderDTO serviceProviderDTO) {
-        // logger.info("Saving a new service provider: {}", serviceProviderDTO);
-        // // Automatically set the username as the emailId
-        // String email = serviceProviderDTO.getEmailId();
-        // if (email == null || email.isEmpty()) {
-        // throw new IllegalArgumentException("EmailId is required to save a service
-        // provider.");
-        // }
-
-        // // Check if service provider already exists by email or mobile number
-        // if
-        // (serviceProviderRepository.existsByEmailId(serviceProviderDTO.getEmailId()))
-        // {
-        // throw new IllegalArgumentException("Service provider with this email already
-        // exists.");
-        // }
-        // if
-        // (serviceProviderRepository.existsByMobileNo(serviceProviderDTO.getMobileNo()))
-        // {
-        // throw new IllegalArgumentException("Service provider with this mobile number
-        // already exists.");
-        // }
-        // serviceProviderDTO.setUsername(email);
-
-        // // Step 1: Calculate age from DOB and set it
-        // LocalDate dob = serviceProviderDTO.getDOB();
-        // if (dob != null) {
-        // int calculatedAge = calculateAge(dob);
-        // if (calculatedAge < 18) {
-        // throw new IllegalArgumentException("You must be at least 18 years old to
-        // proceed.");
-        // }
-        // serviceProviderDTO.setAge(calculatedAge);
-        // logger.info("Calculated age: {}", calculatedAge);
-        // } else {
-        // throw new IllegalArgumentException("Date of Birth (DOB) is required to
-        // calculate age.");
-        // }
-
-        // // Step 2: Calculate available time slots from the timeslot field
-        // String timeslot = serviceProviderDTO.getTimeslot();
-        // if (timeslot == null || timeslot.isEmpty()) {
-        // throw new IllegalArgumentException("Timeslot is required to save a
-        // serviceprovider.");
-        // }
-
-        // List<String> availableTimes = calculateAvailableTimes(timeslot);
-        // if (availableTimes.isEmpty()) {
-        // throw new IllegalArgumentException("Invalid timeslot format or no available
-        // times calculated.");
-        // }
-        // serviceProviderDTO.setAvailableTimeSlots(availableTimes); // Ensure this step
-        // is correctly executed.
-        // logger.info("Calculated available time slots: {}", availableTimes);
-
-        // // Step 4: Register user credentials
-        // UserCredentialsDTO userDTO = new UserCredentialsDTO(
-        // serviceProviderDTO.getUsername(),
-        // serviceProviderDTO.getPassword(),
-        // true, 0, null, false,
-        // serviceProviderDTO.getMobileNo().toString(),
-        // null,
-        // UserRole.SERVICE_PROVIDER.getValue());
-        // String registrationResponse =
-        // userCredentialsService.saveUserCredentials(userDTO);
-        // if (!"Registration successful!".equalsIgnoreCase(registrationResponse)) {
-        // throw new RuntimeException("User registration failed: " +
-        // registrationResponse);
-        // }
-
-        // // Step 5: Save the service provider
-        // ServiceProvider serviceProvider =
-        // serviceProviderMapper.dtoToServiceProvider(serviceProviderDTO);
-        // serviceProvider.setActive(true);
-        // serviceProviderRepository.save(serviceProvider);
-        // logger.debug("Service provider saved successfully: {}", serviceProvider);
-        // }
-
-        // private int calculateAge(LocalDate dob) {
-        // return LocalDate.now().getYear() - dob.getYear();
-        // }
-
-        // private List<String> calculateAvailableTimes(String busyTimeRange) {
-        // List<String> availableTimes = new ArrayList<>();
-        // try {
-        // // Validate input
-        // if (busyTimeRange == null || busyTimeRange.isEmpty()) {
-        // throw new IllegalArgumentException(
-        // "Timeslot is required to calculate available times.");
-        // }
-
-        // // Parse busy range (e.g., "08:00-09:00")
-        // String[] range = busyTimeRange.split("-");
-        // if (range.length != 2) {
-        // throw new IllegalArgumentException(
-        // "Invalid timeslot format. Expected format: 'HH:mm-HH:mm'.");
-        // }
-
-        // int startHour = parseHour(range[0]);
-        // int endHour = parseHour(range[1]);
-
-        // // Validate range
-        // if (startHour >= endHour || startHour < 0 || endHour > 24) {
-        // throw new IllegalArgumentException(
-        // "Invalid time range: must be within 0-24 and start < end.");
-        // }
-
-        // // Calculate available hours
-        // for (int hour = 0; hour < 24; hour++) {
-        // if (hour < startHour || hour >= endHour) {
-        // availableTimes.add(String.format("%02d:00", hour));
-        // }
-        // }
-        // } catch (IllegalArgumentException e) {
-        // throw new IllegalArgumentException(
-        // "Invalid timeslot input. Ensure it's in 'HH:mm-HH:mm' format.", e);
-        // }
-        // return availableTimes;
-        // }
-
-        // private int parseHour(String time) {
-        // // Extract the hour part from "HH:mm"
-        // try {
-        // String[] parts = time.split(":");
-        // if (parts.length != 2) {
-        // throw new IllegalArgumentException("Invalid time format. Expected 'HH:mm'.");
-        // }
-        // return Integer.parseInt(parts[0]); // Return the hour as an integer
-        // } catch (NumberFormatException e) {
-        // throw new IllegalArgumentException("Time contains non-numeric values.", e);
-        // }
-        // }
 
         @Override
         @Transactional
@@ -698,7 +298,7 @@ public class ServiceProviderServiceImpl implements ServiceProviderService {
                 // Convert the list of ServiceProvider entities to a list of ServiceProviderDTOs
                 return serviceProviders.stream()
                                 .map(serviceProviderMapper::serviceProviderToDTO)
-                                .collect(Collectors.toList());
+                                .toList();
         }
 
         @Override
@@ -733,7 +333,7 @@ public class ServiceProviderServiceImpl implements ServiceProviderService {
                 // Convert the list of ServiceProvider entities to a list of ServiceProviderDTOs
                 return serviceProviders.stream()
                                 .map(serviceProviderMapper::serviceProviderToDTO)
-                                .collect(Collectors.toList());
+                                .toList();
         }
 
         @Override
@@ -768,7 +368,7 @@ public class ServiceProviderServiceImpl implements ServiceProviderService {
                 // Map entities to DTOs
                 return serviceProviders.stream()
                                 .map(serviceProviderMapper::serviceProviderToDTO)
-                                .collect(Collectors.toList());
+                                .toList();
         }
 
         @Override
@@ -807,8 +407,9 @@ public class ServiceProviderServiceImpl implements ServiceProviderService {
                                 double calculatedAmount = (double) monthlyAmount / daysInMonth * noOfDays;
 
                                 // Round the calculated amount to 2 decimal places
-                                BigDecimal roundedAmount = new BigDecimal(calculatedAmount).setScale(2,
+                                BigDecimal roundedAmount = BigDecimal.valueOf(calculatedAmount).setScale(2,
                                                 RoundingMode.HALF_UP);
+
                                 totalSalary += roundedAmount.doubleValue();
                         }
 
@@ -851,7 +452,7 @@ public class ServiceProviderServiceImpl implements ServiceProviderService {
                 // Map entities to DTOs
                 return serviceProviders.stream()
                                 .map(serviceProviderMapper::serviceProviderToDTO)
-                                .collect(Collectors.toList());
+                                .toList();
         }
 
         @Override
@@ -881,6 +482,7 @@ public class ServiceProviderServiceImpl implements ServiceProviderService {
                 }
 
                 return providers.stream().map(serviceProviderMapper::serviceProviderToDTO).collect(Collectors.toList());
+
         }
 
 }

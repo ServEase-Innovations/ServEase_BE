@@ -5,9 +5,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
-//import java.time.LocalDate;
 import java.time.LocalDateTime;
-//import java.time.LocalTime;
 
 import com.springboot.app.enums.TaskStatus;
 
@@ -23,9 +21,6 @@ public class AttendanceDTO {
 
     private Long customerId; // Reference to Customer
 
-    // private LocalDate date;
-
-    // private LocalTime time;
     private LocalDateTime attendanceStatus;
 
     private boolean isAttended = false;

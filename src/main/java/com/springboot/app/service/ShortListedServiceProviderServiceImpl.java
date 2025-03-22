@@ -11,19 +11,23 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import java.util.*;
-import java.util.stream.Collectors;
 
 @Service
 public class ShortListedServiceProviderServiceImpl implements ShortListedServiceProviderService {
 
-    @Autowired
-    private ShortListedServiceProviderRepository shortListedServiceProviderRepository;
+    private final ShortListedServiceProviderRepository shortListedServiceProviderRepository;
+    private final CustomerRepository customerRepository;
+    private final ShortListedServiceProviderMapper shortListedServiceProviderMapper;
 
     @Autowired
-    private CustomerRepository customerRepository;
-
-    @Autowired
-    private ShortListedServiceProviderMapper shortListedServiceProviderMapper;
+    public ShortListedServiceProviderServiceImpl(
+            ShortListedServiceProviderRepository shortListedServiceProviderRepository,
+            CustomerRepository customerRepository,
+            ShortListedServiceProviderMapper shortListedServiceProviderMapper) {
+        this.shortListedServiceProviderRepository = shortListedServiceProviderRepository;
+        this.customerRepository = customerRepository;
+        this.shortListedServiceProviderMapper = shortListedServiceProviderMapper;
+    }
 
     @Override
     @Transactional(readOnly = true)
@@ -33,7 +37,7 @@ public class ShortListedServiceProviderServiceImpl implements ShortListedService
                 .getContent()
                 .stream()
                 .map(shortListedServiceProviderMapper::shortListedServiceProviderToDTO)
-                .collect(Collectors.toList());
+                .toList();
     }
 
     @Override

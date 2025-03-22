@@ -11,26 +11,29 @@ import com.springboot.app.repository.CustomerFeedbackRepository;
 import com.springboot.app.repository.ServiceProviderRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
+
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
-import java.util.stream.Collectors;
 
 @Service
 public class CustomerFeedbackServiceImpl implements CustomerFeedbackService {
 
     private static final Logger logger = LoggerFactory.getLogger(CustomerFeedbackServiceImpl.class);
 
-    @Autowired
-    private CustomerFeedbackRepository customerFeedbackRepository;
+    private final CustomerFeedbackRepository customerFeedbackRepository;
+    private final CustomerFeedbackMapper customerFeedbackMapper;
+    private final ServiceProviderRepository serviceProviderRepository;
 
-    @Autowired
-    private CustomerFeedbackMapper customerFeedbackMapper;
-
-    @Autowired
-    private ServiceProviderRepository serviceProviderRepository;
+    // Constructor injection
+    public CustomerFeedbackServiceImpl(CustomerFeedbackRepository customerFeedbackRepository,
+            CustomerFeedbackMapper customerFeedbackMapper,
+            ServiceProviderRepository serviceProviderRepository) {
+        this.customerFeedbackRepository = customerFeedbackRepository;
+        this.customerFeedbackMapper = customerFeedbackMapper;
+        this.serviceProviderRepository = serviceProviderRepository;
+    }
 
     @Override
     @Transactional(readOnly = true)
@@ -44,7 +47,7 @@ public class CustomerFeedbackServiceImpl implements CustomerFeedbackService {
 
         return feedbackList.stream()
                 .map(customerFeedbackMapper::customerFeedbackToDTO)
-                .collect(Collectors.toList());
+                .toList();
     }
 
     @Override
@@ -86,7 +89,6 @@ public class CustomerFeedbackServiceImpl implements CustomerFeedbackService {
 
         // Fetch all feedbacks for the ServiceProvider
         // List<CustomerFeedback> providerFeedbacks = customerFeedbackRepository
-        // .findByServiceProviderId(customerFeedbackDTO.getServiceProviderId());
 
         // Calculate the average rating
         double totalRating = providerFeedbacks.stream()

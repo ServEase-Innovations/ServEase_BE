@@ -7,15 +7,13 @@ import java.util.Optional;
 
 import org.springframework.http.ResponseEntity;
 
-//import org.springframework.http.ResponseEntity;
-
 public interface UserCredentialsService {
 
     // Method to check login attempts
     public ResponseEntity<Map<String, Object>> checkLoginAttempts(String username, String password);
 
     // Method to deactivate user
-    // String deactivateUser(String username);
+
     public boolean deactivateUser(String username);
 
     // Method to register a new user

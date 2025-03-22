@@ -1,5 +1,6 @@
 package com.springboot.app.service;
 
+import com.springboot.app.constant.ServiceProviderConstants;
 import com.springboot.app.dto.ServiceProviderPaymentDTO;
 import com.springboot.app.entity.ServiceProviderPayment;
 import com.springboot.app.mapper.ServiceProviderPaymentMapper;
@@ -12,18 +13,21 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
-import java.util.stream.Collectors;
 
 @Service
 public class ServiceProviderPaymentServiceImpl implements ServiceProviderPaymentService {
 
     private static final Logger logger = LoggerFactory.getLogger(ServiceProviderPaymentServiceImpl.class);
 
-    @Autowired
-    private ServiceProviderPaymentRepository serviceProviderPaymentRepository;
+    private final ServiceProviderPaymentRepository serviceProviderPaymentRepository;
+    private final ServiceProviderPaymentMapper serviceProviderPaymentMapper;
 
     @Autowired
-    private ServiceProviderPaymentMapper serviceProviderPaymentMapper;
+    public ServiceProviderPaymentServiceImpl(ServiceProviderPaymentRepository serviceProviderPaymentRepository,
+            ServiceProviderPaymentMapper serviceProviderPaymentMapper) {
+        this.serviceProviderPaymentRepository = serviceProviderPaymentRepository;
+        this.serviceProviderPaymentMapper = serviceProviderPaymentMapper;
+    }
 
     @Override
     @Transactional(readOnly = true)
@@ -37,7 +41,7 @@ public class ServiceProviderPaymentServiceImpl implements ServiceProviderPayment
         logger.debug("Fetched {} service provider payments from the database.", payments.size());
         return payments.stream()
                 .map(serviceProviderPaymentMapper::serviceProviderPaymentToDTO)
-                .collect(Collectors.toList());
+                .toList();
     }
 
     @Override
@@ -48,7 +52,7 @@ public class ServiceProviderPaymentServiceImpl implements ServiceProviderPayment
         ServiceProviderPayment payment = serviceProviderPaymentRepository
                 .findById(id)
                 .orElseThrow(() -> {
-                    logger.warn("Service provider payment not found with ID: {}", id);
+                    logger.warn(ServiceProviderConstants.PAYMENT_NOT_FOUND_MSG, id);
                     return new RuntimeException("Service Provider Payment not found with ID: " + id);
                 });
 

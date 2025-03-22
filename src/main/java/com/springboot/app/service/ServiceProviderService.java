@@ -10,7 +10,6 @@ import com.springboot.app.enums.Habit;
 import com.springboot.app.enums.HousekeepingRole;
 import com.springboot.app.enums.LanguageKnown;
 import com.springboot.app.enums.Speciality;
-//import org.springframework.lang.Nullable;
 
 public interface ServiceProviderService {
   // Retrieve all ServiceProviderDTOs

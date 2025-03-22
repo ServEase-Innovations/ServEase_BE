@@ -1,9 +1,12 @@
 package com.springboot.app.service;
 
+import java.time.LocalDate;
 import java.util.List;
 import java.util.Map;
 
 import com.springboot.app.dto.ServiceProviderEngagementDTO;
+import com.springboot.app.enums.HousekeepingRole;
+import com.springboot.app.enums.UserRole;
 
 public interface ServiceProviderEngagementService {
 
@@ -30,5 +33,8 @@ public interface ServiceProviderEngagementService {
 
     public Map<String, List<ServiceProviderEngagementDTO>> getServiceProviderBookingHistory(int page, int size);
 
-    public void updateServiceProviderTimeslots();
+    List<ServiceProviderEngagementDTO> getEngagementsByExactDateTimeslotAndHousekeepingRole(
+            LocalDate startDate, LocalDate endDate, String timeslot, HousekeepingRole housekeepingRole, double latitude,
+            double longitude, int precision);
+
 }
