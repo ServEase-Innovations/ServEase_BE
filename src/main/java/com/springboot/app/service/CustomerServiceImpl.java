@@ -2,7 +2,6 @@ package com.springboot.app.service;
 
 import java.util.List;
 
-import java.util.stream.Collectors;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -23,14 +22,18 @@ public class CustomerServiceImpl implements CustomerService {
 
     private static final Logger logger = LoggerFactory.getLogger(CustomerServiceImpl.class);
 
-    @Autowired
-    private CustomerRepository customerRepository;
+    private final CustomerRepository customerRepository;
+    private final CustomerMapper customerMapper;
+    private final UserCredentialsService userCredentialsService;
 
     @Autowired
-    private CustomerMapper customerMapper;
-
-    @Autowired
-    private UserCredentialsService userCredentialsService;
+    public CustomerServiceImpl(CustomerRepository customerRepository,
+            CustomerMapper customerMapper,
+            UserCredentialsService userCredentialsService) {
+        this.customerRepository = customerRepository;
+        this.customerMapper = customerMapper;
+        this.userCredentialsService = userCredentialsService;
+    }
 
     // Get all customers with pagination
     @Override
@@ -42,12 +45,9 @@ public class CustomerServiceImpl implements CustomerService {
         logger.debug("Number of customers fetched: {}", customers.size());
 
         return customers.stream()
-                .map(customer -> {
-                    CustomerDTO dto = customerMapper.customerToDTO(customer);
-                    // dto.setProfilePicUrl(customerMapper.mapToBase64(customer.getProfilePic()));
-                    return dto;
-                })
-                .collect(Collectors.toList());
+                .map(customerMapper::customerToDTO)
+                .toList();
+
     }
 
     @Override

@@ -15,21 +15,25 @@ import org.springframework.transaction.annotation.Transactional;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import java.util.List;
-import java.util.stream.Collectors;
 
 @Service
 public class CustomerRequestCommentServiceImpl implements CustomerRequestCommentService {
 
     private static final Logger logger = LoggerFactory.getLogger(CustomerRequestCommentServiceImpl.class);
 
-    @Autowired
-    private CustomerRequestCommentMapper customerRequestCommentMapper;
+    private final CustomerRequestCommentMapper customerRequestCommentMapper;
+    private final CustomerRequestCommentRepository customerRequestCommentRepository;
+    private final CustomerRequestRepository customerRequestRepository;
 
     @Autowired
-    private CustomerRequestCommentRepository customerRequestCommentRepository;
-
-    @Autowired
-    private CustomerRequestRepository customerRequestRepository; // Add the repository for CustomerRequest
+    public CustomerRequestCommentServiceImpl(
+            CustomerRequestCommentMapper customerRequestCommentMapper,
+            CustomerRequestCommentRepository customerRequestCommentRepository,
+            CustomerRequestRepository customerRequestRepository) {
+        this.customerRequestCommentMapper = customerRequestCommentMapper;
+        this.customerRequestCommentRepository = customerRequestCommentRepository;
+        this.customerRequestRepository = customerRequestRepository;
+    }
 
     // To get all customer request comments
     @Override
@@ -44,7 +48,7 @@ public class CustomerRequestCommentServiceImpl implements CustomerRequestComment
 
         return commentsList.stream()
                 .map(customerRequestCommentMapper::customerRequestCommentToDTO)
-                .collect(Collectors.toList());
+                .toList();
     }
 
     // To get a customer request comment by ID

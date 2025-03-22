@@ -8,7 +8,6 @@ import com.springboot.app.enums.LanguageKnown;
 import com.springboot.app.enums.Status;
 import com.springboot.app.enums.HousekeepingRole;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
-//import com.fasterxml.jackson.annotation.JsonProperty;
 
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;

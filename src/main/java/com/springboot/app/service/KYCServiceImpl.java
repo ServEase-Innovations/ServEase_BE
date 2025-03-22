@@ -15,17 +15,20 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
-import java.util.stream.Collectors;
 
 @Service
 public class KYCServiceImpl implements KYCService {
 
     private static final Logger logger = LoggerFactory.getLogger(KYCServiceImpl.class);
 
+    private final KYCRepository kycRepository;
+    private final KYCMapper kycMapper;
+
     @Autowired
-    private KYCRepository kycRepository;
-    @Autowired
-    private KYCMapper kycMapper;
+    public KYCServiceImpl(KYCRepository kycRepository, KYCMapper kycMapper) {
+        this.kycRepository = kycRepository;
+        this.kycMapper = kycMapper;
+    }
 
     // Get all KYC records
     @Override
@@ -40,7 +43,7 @@ public class KYCServiceImpl implements KYCService {
 
         return kycList.stream()
                 .map(kycMapper::kycToDTO)
-                .collect(Collectors.toList());
+                .toList();
     }
 
     // Get KYC by ID

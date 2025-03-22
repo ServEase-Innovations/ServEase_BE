@@ -12,18 +12,23 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import java.util.List;
 import java.util.Optional;
-import java.util.stream.Collectors;
+
+import java.util.Collections;
 
 @Service
 public class LeaveBalanceServiceImpl implements LeaveBalanceService {
 
     private static final Logger logger = LoggerFactory.getLogger(LeaveBalanceServiceImpl.class);
 
-    @Autowired
-    private LeaveBalanceRepository leaveBalanceRepository;
+    private final LeaveBalanceRepository leaveBalanceRepository;
+    private final LeaveBalanceMapper leaveBalanceMapper;
 
     @Autowired
-    private LeaveBalanceMapper leaveBalanceMapper;
+    public LeaveBalanceServiceImpl(LeaveBalanceRepository leaveBalanceRepository,
+            LeaveBalanceMapper leaveBalanceMapper) {
+        this.leaveBalanceRepository = leaveBalanceRepository;
+        this.leaveBalanceMapper = leaveBalanceMapper;
+    }
 
     // Get all LeaveBalance records
     @Override
@@ -33,11 +38,11 @@ public class LeaveBalanceServiceImpl implements LeaveBalanceService {
         List<LeaveBalance> leaveBalances = leaveBalanceRepository.findAll();
         if (leaveBalances.isEmpty()) {
             logger.error("No data found.");
-            return null; // Return null for no data found
+            return Collections.emptyList(); // Return an empty list instead of null
         }
         return leaveBalances.stream()
                 .map(leaveBalanceMapper::leaveBalanceToDTO)
-                .collect(Collectors.toList());
+                .toList(); // Returns an unmodifiable list
     }
 
     // Get LeaveBalance by ID
@@ -57,16 +62,19 @@ public class LeaveBalanceServiceImpl implements LeaveBalanceService {
     @Transactional(readOnly = true)
     public List<LeaveBalanceDTO> getLeaveBalancesByServiceProviderId(Long serviceProviderId) {
         logger.info("Fetching leave balance records for service provider ID: {}", serviceProviderId);
+
         List<LeaveBalance> leaveBalances = leaveBalanceRepository.findAll().stream()
                 .filter(lb -> lb.getServiceProvider().getServiceproviderId().equals(serviceProviderId))
-                .collect(Collectors.toList());
+                .toList();
+
         if (leaveBalances.isEmpty()) {
             logger.error("No data found for service provider ID: {}", serviceProviderId);
-            return null;
+            return Collections.emptyList(); // Return an empty list instead of null
         }
+
         return leaveBalances.stream()
                 .map(leaveBalanceMapper::leaveBalanceToDTO)
-                .collect(Collectors.toList());
+                .toList();
     }
 
     // Add a new LeaveBalance record

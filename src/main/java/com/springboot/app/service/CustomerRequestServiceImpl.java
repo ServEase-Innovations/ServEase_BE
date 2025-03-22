@@ -19,17 +19,22 @@ import com.springboot.app.enums.Status;
 import com.springboot.app.enums.HousekeepingRole;
 import com.springboot.app.mapper.CustomerRequestMapper;
 import com.springboot.app.repository.CustomerRequestRepository;
+import java.util.Collections;
 
 @Service
 public class CustomerRequestServiceImpl implements CustomerRequestService {
 
     private static final Logger logger = LoggerFactory.getLogger(CustomerRequestServiceImpl.class);
 
-    @Autowired
-    private CustomerRequestRepository customerRequestRepository;
+    private final CustomerRequestRepository customerRequestRepository;
+    private final CustomerRequestMapper customerRequestMapper;
 
     @Autowired
-    private CustomerRequestMapper customerRequestMapper;
+    public CustomerRequestServiceImpl(CustomerRequestRepository customerRequestRepository,
+            CustomerRequestMapper customerRequestMapper) {
+        this.customerRequestRepository = customerRequestRepository;
+        this.customerRequestMapper = customerRequestMapper;
+    }
 
     // To get all customer requests
     @Override
@@ -42,7 +47,7 @@ public class CustomerRequestServiceImpl implements CustomerRequestService {
 
         return requests.stream()
                 .map(customerRequestMapper::customerRequestToDTO)
-                .collect(Collectors.toList());
+                .toList();
     }
 
     // To get a customer request by ID
@@ -64,10 +69,10 @@ public class CustomerRequestServiceImpl implements CustomerRequestService {
                 .filter(cr -> "NO".equals(cr.getIsResolved())) // Assuming "NO" means open
                 .skip((long) page * size)
                 .limit(size)
-                .collect(Collectors.toList());
+                .toList();
         return openRequests.stream()
                 .map(customerRequestMapper::customerRequestToDTO)
-                .collect(Collectors.toList());
+                .toList();
     }
 
     @Override
@@ -79,10 +84,10 @@ public class CustomerRequestServiceImpl implements CustomerRequestService {
                 .filter(cr -> "YES".equals(cr.getIsPotential())) // Assuming "YES" means potential
                 .skip((long) page * size)
                 .limit(size)
-                .collect(Collectors.toList());
+                .toList();
         return potentialCustomers.stream()
                 .map(customerRequestMapper::customerRequestToDTO)
-                .collect(Collectors.toList());
+                .toList();
     }
 
     // To add a new customer request
@@ -124,11 +129,11 @@ public class CustomerRequestServiceImpl implements CustomerRequestService {
                         (apartment_name == null || cr.getApartment_name().equals(apartment_name)))
                 .skip((long) page * size)
                 .limit(size)
-                .collect(Collectors.toList());
+                .toList();
 
         return filteredRequests.stream()
                 .map(customerRequestMapper::customerRequestToDTO)
-                .collect(Collectors.toList());
+                .toList();
     }
 
     @Override
@@ -153,14 +158,13 @@ public class CustomerRequestServiceImpl implements CustomerRequestService {
         List<CustomerRequest> requests = customerRequestRepository.findAll(pageable).getContent();
 
         if (requests.isEmpty()) {
-            return null;
+            return Collections.emptyMap();
         }
 
         // Get current date
         LocalDate currentDate = LocalDate.now();
 
-        // Categorize requests
-        Map<String, List<CustomerRequestDTO>> categorizedRequests = requests.stream()
+        return requests.stream()
                 .map(customerRequestMapper::customerRequestToDTO)
                 .collect(Collectors.groupingBy(request -> {
                     LocalDate startDate = request.getStartDate().toLocalDateTime().toLocalDate();
@@ -176,7 +180,6 @@ public class CustomerRequestServiceImpl implements CustomerRequestService {
                         return "past";
                     }
                 }));
-
-        return categorizedRequests;
     }
+
 }

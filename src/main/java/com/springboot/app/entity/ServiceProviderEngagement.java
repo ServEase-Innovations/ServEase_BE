@@ -3,8 +3,10 @@ package com.springboot.app.entity;
 import java.time.LocalDate;
 import java.time.LocalDateTime; // Import LocalDateTime
 
+import com.springboot.app.enums.HousekeepingRole;
 import com.springboot.app.enums.PaymentMode;
 import com.springboot.app.enums.TaskStatus;
+import com.springboot.app.enums.UserRole;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -38,10 +40,6 @@ public class ServiceProviderEngagement {
     @JoinColumn(name = "serviceProviderId", nullable = true)
     private ServiceProvider serviceProvider;
 
-    // @ManyToOne
-    // @JoinColumn(name = "serviceproviderId", nullable = true)
-    // private ServiceProvider serviceProvider;
-
     @ManyToOne
     @JoinColumn(name = "customerId", nullable = false)
     private Customer customer;
@@ -54,7 +52,6 @@ public class ServiceProviderEngagement {
 
     @Column // Optional: Adding @Column for consistency
     private LocalDate endDate;
-    // private LocalDateTime endDate;
 
     @Column(length = 255)
     private String engagements;
@@ -63,7 +60,7 @@ public class ServiceProviderEngagement {
     private String timeslot;
 
     @Column(nullable = false)
-    private boolean isActive;
+    private boolean isActive = true;
 
     @Column
     private double monthlyAmount;
@@ -77,8 +74,9 @@ public class ServiceProviderEngagement {
     @Column(columnDefinition = "TEXT") // Store as a JSON string
     private String responsibilities;
 
+    @Enumerated(EnumType.STRING)
     @Column(length = 255)
-    private String serviceType; // The type of service provided
+    private HousekeepingRole housekeepingRole; // The type of service provided
 
     @Column(length = 255)
     private String mealType; // The meal type (e.g., vegetarian, non-vegetarian, etc.)
@@ -93,9 +91,6 @@ public class ServiceProviderEngagement {
     private String childAge;
 
     @Column(length = 255)
-    private String serviceeType;
-
-    @Column(length = 255)
     private String customerName;
 
     @Column(length = 255)
@@ -107,6 +102,10 @@ public class ServiceProviderEngagement {
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
     private TaskStatus taskStatus = TaskStatus.NOT_STARTED;
+
+    @Column(name = "user_role")
+    @Enumerated(EnumType.STRING)
+    private UserRole role;
 
     // Automatically set isActive field on creation
     @PrePersist

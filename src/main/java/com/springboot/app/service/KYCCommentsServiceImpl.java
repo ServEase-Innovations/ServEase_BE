@@ -16,21 +16,23 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
-import java.util.stream.Collectors;
 
 @Service
 public class KYCCommentsServiceImpl implements KYCCommentsService {
 
     private static final Logger logger = LoggerFactory.getLogger(KYCCommentsServiceImpl.class);
+    private final KYCCommentsRepository kycCommentsRepository;
+    private final KYCRepository kycRepository;
+    private final KYCCommentsMapper kycCommentsMapper;
 
     @Autowired
-    private KYCCommentsRepository kycCommentsRepository;
-
-    @Autowired
-    private KYCRepository kycRepository;
-
-    @Autowired
-    private KYCCommentsMapper kycCommentsMapper;
+    public KYCCommentsServiceImpl(KYCCommentsRepository kycCommentsRepository,
+            KYCRepository kycRepository,
+            KYCCommentsMapper kycCommentsMapper) {
+        this.kycCommentsRepository = kycCommentsRepository;
+        this.kycRepository = kycRepository;
+        this.kycCommentsMapper = kycCommentsMapper;
+    }
 
     // To get all KYC comments
     @Override
@@ -44,7 +46,7 @@ public class KYCCommentsServiceImpl implements KYCCommentsService {
 
         return comments.stream()
                 .map(kycCommentsMapper::kycCommentsToDTO)
-                .collect(Collectors.toList());
+                .toList();
     }
 
     // To get a KYC comment by ID

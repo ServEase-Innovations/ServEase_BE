@@ -6,14 +6,13 @@ import java.time.LocalDate;
 import java.util.List;
 
 import com.springboot.app.enums.DocumentType;
-//import com.springboot.app.enums.DocumentType;
+
 import com.springboot.app.enums.Gender;
 import com.springboot.app.enums.Habit;
 import com.springboot.app.enums.HousekeepingRole;
 import com.springboot.app.enums.LanguageKnown;
 import com.springboot.app.enums.Speciality;
 
-//import jakarta.persistence.Column;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -58,7 +57,6 @@ public class ServiceProviderDTO {
 
     private Timestamp enrolledDate;
 
-    // private byte[] profilePic;
     private String profilePic;
 
     private boolean isActive;
@@ -72,7 +70,7 @@ public class ServiceProviderDTO {
     private DocumentType KYC;
 
     private String idNo;
-    // private String profilePicUrl;
+
     private double rating;
     private LanguageKnown languageKnown;
     private Speciality speciality;
@@ -85,14 +83,24 @@ public class ServiceProviderDTO {
     private Long vendorId;
     private String username;
     private String password;
-    private List<String> availableTimeSlots;
+    // private List<String> availableTimeSlots;
+    private List<String> occupiedTimeSlots;
 
-    public List<String> getAvailableTimeSlots() {
-        return availableTimeSlots;
+    // Getter and Setter for occupiedTimeSlots
+    public List<String> getOccupiedTimeSlots() {
+        return occupiedTimeSlots;
     }
 
-    public void setAvailableTimeSlots(List<String> availableTimeSlots) {
-        this.availableTimeSlots = availableTimeSlots;
+    public void setOccupiedTimeSlots(List<String> occupiedTimeSlots) {
+        this.occupiedTimeSlots = occupiedTimeSlots;
     }
+
+    // public List<String> getAvailableTimeSlots() {
+    // return availableTimeSlots;
+    // }
+
+    // public void setAvailableTimeSlots(List<String> availableTimeSlots) {
+    // this.availableTimeSlots = availableTimeSlots;
+    // }
 
 }

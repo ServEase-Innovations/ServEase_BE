@@ -27,44 +27,4 @@ public class WebMvcConfiguration
         };
     }
 
-    /*
-     * @Override
-     * public void addCorsMappings(CorsRegistry registry) {
-     * 
-     * registry
-     * // Enable cross-origin request handling for the specified path pattern.
-     * // Exact path mapping URIs (such as "/admin") are supported as well as
-     * Ant-style path patterns (such as "/admin/**").
-     * //.addMapping("/*")
-     * //.allowedOrigins("*")
-     * // .allowedOriginPatterns("")
-     * //.allowCredentials(false)
-     * //.allowedHeaders("*")
-     * //.exposedHeaders("*")
-     * //.maxAge(60 *30)
-     * //.allowedMethods("*")
-     * .addMapping("/**")
-     * .allowedOriginPatterns("*")
-     * .allowCredentials(true)
-     * .allowedHeaders("*")
-     * .maxAge(60*30)
-     * .allowedMethods("GET","POST","PATCH","DELETE","PUT","OPTIONS");
-     * ;
-     * }
-     * 
-     * @Bean
-     * CorsConfigurationSource corsConfigurationSource() {
-     * CorsConfiguration configuration = new CorsConfiguration();
-     * configuration.setAllowCredentials(true);
-     * configuration.setAllowedOriginPatterns(Arrays.asList("*"));
-     * //configuration.setAllowedOrigins(Arrays.asList("*"));
-     * configuration.setAllowedMethods(Arrays.asList("*"));
-     * configuration.setAllowedHeaders(Arrays.asList("*"));
-     * UrlBasedCorsConfigurationSource source = new
-     * UrlBasedCorsConfigurationSource();
-     * source.registerCorsConfiguration("/**", configuration);
-     * return source;
-     * }
-     */
-
 }

@@ -8,7 +8,7 @@ import com.springboot.app.mapper.ServiceProviderFeedbackMapper;
 import com.springboot.app.repository.ServiceProviderFeedbackRepository;
 import com.springboot.app.repository.CustomerRepository;
 import com.springboot.app.repository.ServiceProviderRepository;
-//import com.springboot.app.constant.CustomerConstants;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -16,24 +16,27 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
-import java.util.stream.Collectors;
 
 @Service
 public class ServiceProviderFeedbackServiceImpl implements ServiceProviderFeedbackService {
 
     private static final Logger logger = LoggerFactory.getLogger(ServiceProviderFeedbackServiceImpl.class);
 
-    @Autowired
-    private ServiceProviderFeedbackRepository serviceProviderFeedbackRepository;
+    private final ServiceProviderFeedbackRepository serviceProviderFeedbackRepository;
+    private final ServiceProviderFeedbackMapper serviceProviderFeedbackMapper;
+    private final CustomerRepository customerRepository;
+    private final ServiceProviderRepository serviceProviderRepository;
 
     @Autowired
-    private ServiceProviderFeedbackMapper serviceProviderFeedbackMapper;
-
-    @Autowired
-    private CustomerRepository customerRepository;
-
-    @Autowired
-    private ServiceProviderRepository serviceProviderRepository;
+    public ServiceProviderFeedbackServiceImpl(ServiceProviderFeedbackRepository serviceProviderFeedbackRepository,
+            ServiceProviderFeedbackMapper serviceProviderFeedbackMapper,
+            CustomerRepository customerRepository,
+            ServiceProviderRepository serviceProviderRepository) {
+        this.serviceProviderFeedbackRepository = serviceProviderFeedbackRepository;
+        this.serviceProviderFeedbackMapper = serviceProviderFeedbackMapper;
+        this.customerRepository = customerRepository;
+        this.serviceProviderRepository = serviceProviderRepository;
+    }
 
     @Override
     @Transactional(readOnly = true)
@@ -43,7 +46,7 @@ public class ServiceProviderFeedbackServiceImpl implements ServiceProviderFeedba
         List<ServiceProviderFeedback> feedbackList = serviceProviderFeedbackRepository.findAll(); // Adjust as needed
         return feedbackList.stream()
                 .map(serviceProviderFeedbackMapper::serviceProviderFeedbackToDTO)
-                .collect(Collectors.toList());
+                .toList();
     }
 
     @Override

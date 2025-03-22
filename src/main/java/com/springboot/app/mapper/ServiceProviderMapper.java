@@ -21,7 +21,8 @@ public interface ServiceProviderMapper {
     // "java(mapToBase64(serviceProvider.getProfilePic()))")
     @Mapping(target = "username", ignore = true) // Explicitly ignore
     @Mapping(target = "password", ignore = true) // Explicitly ignore
-    @Mapping(target = "availableTimeSlots", expression = "java(calculateAvailableTimes(serviceProvider.getTimeslot()))")
+    // @Mapping(target = "occupiedTimeSlots", expression =
+    // "java(calculateOccupiedTimes(serviceProvider.getTimeslot()))")
     ServiceProviderDTO serviceProviderToDTO(ServiceProvider serviceProvider);
 
     // Map ServiceProviderDTO to ServiceProvider entity
@@ -66,3 +67,5 @@ public interface ServiceProviderMapper {
     }
 
 }
+// @Mapping(target = "availableTimeSlots", expression =
+// "java(calculateAvailableTimes(serviceProvider.getTimeslot()))")
