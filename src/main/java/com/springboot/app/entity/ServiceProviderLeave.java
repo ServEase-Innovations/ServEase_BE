@@ -55,7 +55,7 @@ public class ServiceProviderLeave {
     private int approvedBy;
 
     @ManyToOne
-    @JoinColumn(name = "backup_by_id", nullable = false)
+    @JoinColumn(name = "backup_by_id")
     private ServiceProvider backupBy;
 
     @Column

@@ -6,6 +6,11 @@ import java.time.LocalDate;
 
 import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -48,6 +53,9 @@ public class ServiceProviderServiceImpl implements ServiceProviderService {
         private final UserCredentialsService userCredentialsService;
         private final ServiceProviderEngagementRepository engagementRepository;
         private final ExcelSheetHandler excelSheetHandler;
+
+        @Autowired
+        private GeoHashService geoHashService;
 
         @Autowired
         public ServiceProviderServiceImpl(ServiceProviderRepository serviceProviderRepository,
@@ -461,6 +469,23 @@ public class ServiceProviderServiceImpl implements ServiceProviderService {
                         serviceProviderRepository.saveAll(serviceProviders);
                 }
                 return "successfull";
+        }
+
+        @Transactional
+        public List<ServiceProviderDTO> findNearbyProviders(double latitude, double longitude, int precision) {
+                List<String> nearbyGeoHashes = geoHashService.getNearbyGeoHashes(latitude, longitude, precision);
+
+                List<ServiceProvider> providers;
+                if (precision == 5) {
+                        providers = serviceProviderRepository.findByGeoHash5In(nearbyGeoHashes);
+                } else if (precision == 6) {
+                        providers = serviceProviderRepository.findByGeoHash6In(nearbyGeoHashes);
+                } else {
+                        providers = serviceProviderRepository.findByGeoHash7In(nearbyGeoHashes);
+                }
+
+                return providers.stream().map(serviceProviderMapper::serviceProviderToDTO).collect(Collectors.toList());
+
         }
 
 }

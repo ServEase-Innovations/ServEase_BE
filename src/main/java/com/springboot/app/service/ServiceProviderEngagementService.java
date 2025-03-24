@@ -34,6 +34,7 @@ public interface ServiceProviderEngagementService {
     public Map<String, List<ServiceProviderEngagementDTO>> getServiceProviderBookingHistory(int page, int size);
 
     List<ServiceProviderEngagementDTO> getEngagementsByExactDateTimeslotAndHousekeepingRole(
-            LocalDate startDate, LocalDate endDate, String timeslot, HousekeepingRole housekeepingRole);
+            LocalDate startDate, LocalDate endDate, String timeslot, HousekeepingRole housekeepingRole, double latitude,
+            double longitude, int precision);
 
 }

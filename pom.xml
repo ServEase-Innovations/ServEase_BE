@@ -32,6 +32,12 @@
             <version>5.0.0</version> 
         </dependency>
 
+        <dependency>
+            <groupId>ch.hsr</groupId>
+            <artifactId>geohash</artifactId>
+            <version>1.4.0</version>
+        </dependency>
+
         <!-- Spring Boot Actuator --> 
         <dependency> 
             <groupId>org.springframework.boot</groupId> 
@@ -97,7 +103,7 @@
             <groupId>org.springframework.security</groupId> 
             <artifactId>spring-security-core</artifactId> 
             <version>5.6.3</version> 
-        </dependency> 
+        </dependency>
         
         <!-- JWT Dependencies -->
         <dependency> 

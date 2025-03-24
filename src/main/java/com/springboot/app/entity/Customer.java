@@ -5,6 +5,8 @@ import com.springboot.app.enums.DocumentType;
 import com.springboot.app.enums.Gender;
 import com.springboot.app.enums.LanguageKnown;
 import com.springboot.app.enums.Speciality;
+
+import ch.hsr.geohash.GeoHash;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;

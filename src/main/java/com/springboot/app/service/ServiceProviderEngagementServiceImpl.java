@@ -28,6 +28,9 @@ import java.util.Map;
 import java.util.stream.Collectors;
 
 import org.springframework.data.domain.Pageable;
+import org.springframework.scheduling.annotation.Scheduled;
+
+import java.util.Collections;
 
 import java.util.Collections;
 
@@ -40,6 +43,9 @@ public class ServiceProviderEngagementServiceImpl implements ServiceProviderEnga
     private final ServiceProviderRepository serviceProviderRepository;
     private final CustomerRepository customerRepository;
     private final ServiceProviderEngagementMapper engagementMapper;
+
+    @Autowired
+    private GeoHashService geoHashService;
 
     @Autowired
     public ServiceProviderEngagementServiceImpl(ServiceProviderEngagementRepository engagementRepository,
@@ -273,7 +279,8 @@ public class ServiceProviderEngagementServiceImpl implements ServiceProviderEnga
     @Override
     @Transactional(readOnly = true)
     public List<ServiceProviderEngagementDTO> getEngagementsByExactDateTimeslotAndHousekeepingRole(
-            LocalDate startDate, LocalDate endDate, String timeslot, HousekeepingRole housekeepingRole) {
+            LocalDate startDate, LocalDate endDate, String timeslot, HousekeepingRole housekeepingRole, double latitude,
+            double longitude, int precision) {
 
         logger.info("Fetching engagements for startDate: {}, endDate: {}, timeslot: {}, housekeepingRole: {}",
                 startDate, endDate, timeslot, housekeepingRole);
@@ -286,9 +293,39 @@ public class ServiceProviderEngagementServiceImpl implements ServiceProviderEnga
             return Collections.emptyList();
         }
 
-        return engagements.stream()
+        List<String> nearbyGeoHashes = geoHashService.getNearbyGeoHashes(latitude, longitude, precision);
+
+        //filter sp based on nearby geohashes
+        List<ServiceProviderEngagement> filteredEngagements = engagements.stream()
+                .filter(e -> e.getServiceProvider() != null)
+                .filter(e -> {
+                    ServiceProvider provider = e.getServiceProvider();
+                    return (precision == 5 && nearbyGeoHashes.contains(provider.getGeoHash5())) ||
+                            (precision == 6 && nearbyGeoHashes.contains(provider.getGeoHash6())) ||
+                            (precision == 7 && nearbyGeoHashes.contains(provider.getGeoHash7()));
+                })
+                .collect(Collectors.toList());
+
+        return filteredEngagements.stream()
                 .map(engagementMapper::serviceProviderEngagementToDTO)
-                .toList();
+                .collect(Collectors.toList());
+    }
+
+    //@Scheduled(cron = "0 0 1 * * ?") // Runs every day at 1 AM
+    @Scheduled(fixedDelay = 60000) //runs every minute
+    @Transactional
+    public void updateServiceProviderTimeslots() {
+        List<ServiceProviderEngagement> endedEngagements = engagementRepository.findByEndDateBeforeAndIsActive(LocalDate.now(), true);
+
+        for (ServiceProviderEngagement engagement : endedEngagements) {
+            ServiceProvider serviceProvider = engagement.getServiceProvider();
+            if (serviceProvider != null) {
+                serviceProvider.setTimeslot("Available"); // Update timeslot
+                serviceProviderRepository.save(serviceProvider);
+            }
+            engagement.setActive(false); // Mark engagement as inactive
+            engagementRepository.save(engagement);
+        }
     }
 
 }

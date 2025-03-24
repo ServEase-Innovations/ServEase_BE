@@ -1,9 +1,7 @@
 package com.springboot.app.config;
 
 import java.util.Properties;
-
 import javax.sql.DataSource;
-
 import org.springframework.boot.autoconfigure.domain.EntityScan;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -31,6 +29,9 @@ public class JpaConfig {
         dataSource.setJdbcUrl("jdbc:postgresql://serveaso.cxekoeyy644h.ap-south-1.rds.amazonaws.com/serveaso");
         dataSource.setUsername("postgres");
         dataSource.setPassword("serveaso");
+        // dataSource.setJdbcUrl("jdbc:postgresql://localhost:5432/sample");
+        // dataSource.setUsername("postgres");
+        // dataSource.setPassword("1012");
         dataSource.setMaximumPoolSize(15);
         return dataSource;
     }
