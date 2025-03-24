@@ -1,9 +1,7 @@
 package com.springboot.app.config;
 
 import java.util.Properties;
-
 import javax.sql.DataSource;
-
 import org.springframework.boot.autoconfigure.domain.EntityScan;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;

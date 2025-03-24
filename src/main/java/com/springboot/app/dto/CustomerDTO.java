@@ -38,7 +38,6 @@ public class CustomerDTO {
     private boolean isActive;
     private Timestamp enrolledDate;
     private Speciality speciality;
-
     private double rating;
     private String username;
     private String password;
