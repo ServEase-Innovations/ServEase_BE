@@ -28,12 +28,12 @@ public class JpaConfig {
     public DataSource dataSource() {
         HikariDataSource dataSource = new HikariDataSource();
         dataSource.setDriverClassName("org.postgresql.Driver");
-        // dataSource.setJdbcUrl("jdbc:postgresql://serveaso.cxekoeyy644h.ap-south-1.rds.amazonaws.com/serveaso");
-        // dataSource.setUsername("postgres");
-        // dataSource.setPassword("serveaso");
-        dataSource.setJdbcUrl("jdbc:postgresql://localhost:5432/sample");
+        dataSource.setJdbcUrl("jdbc:postgresql://serveaso.cxekoeyy644h.ap-south-1.rds.amazonaws.com/serveaso");
         dataSource.setUsername("postgres");
-        dataSource.setPassword("1012");
+        dataSource.setPassword("serveaso");
+        // dataSource.setJdbcUrl("jdbc:postgresql://localhost:5432/sample");
+        // dataSource.setUsername("postgres");
+        // dataSource.setPassword("1012");
         dataSource.setMaximumPoolSize(15);
         return dataSource;
     }
