@@ -1,7 +1,10 @@
 package com.springboot.app.config;
 
 import java.util.Properties;
+
 import javax.sql.DataSource;
+
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.domain.EntityScan;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -22,18 +25,33 @@ import jakarta.persistence.EntityManagerFactory;
 @EnableJpaRepositories(basePackages = "com.springboot.app.repository")
 public class JpaConfig {
 
-    @Bean
-    public DataSource dataSource() {
-        HikariDataSource dataSource = new HikariDataSource();
-        dataSource.setDriverClassName("org.postgresql.Driver");
-        // dataSource.setJdbcUrl("jdbc:postgresql://serveaso.cxekoeyy644h.ap-south-1.rds.amazonaws.com/serveaso");
-        // dataSource.setUsername("postgres");
-        // dataSource.setPassword("serveaso");
-        dataSource.setJdbcUrl("jdbc:postgresql://localhost:5432/sample");
-        dataSource.setUsername("postgres");
-        dataSource.setPassword("1012");
-        dataSource.setMaximumPoolSize(15);
-        return dataSource;
+    public class DataSourceConfig {
+
+        @Value("${spring.datasource.url}")
+        private String jdbcUrl;
+    
+        @Value("${spring.datasource.username}")
+        private String username;
+    
+        @Value("${spring.datasource.password}")
+        private String password;
+    
+        @Value("${spring.datasource.driver-class-name}")
+        private String driverClassName;
+    
+        @Value("${spring.datasource.hikari.maximum-pool-size}")
+        private int maximumPoolSize;
+    
+        @Bean
+        public DataSource dataSource() {
+            HikariDataSource dataSource = new HikariDataSource();
+            dataSource.setDriverClassName(driverClassName);
+            dataSource.setJdbcUrl(jdbcUrl);
+            dataSource.setUsername(username);
+            dataSource.setPassword(password);
+            dataSource.setMaximumPoolSize(maximumPoolSize);
+            return dataSource;
+        }
     }
 
     @Bean
