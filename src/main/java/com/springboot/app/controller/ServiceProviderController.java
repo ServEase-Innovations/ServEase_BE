@@ -715,7 +715,7 @@ public class ServiceProviderController {
     }
 
     @GetMapping("/search")
-    public ResponseEntity<List<ServiceProviderEngagementDTO>> searchEngagements(
+    public ResponseEntity<List<Object>> searchEngagements(
             @RequestParam LocalDate startDate,
             @RequestParam LocalDate endDate,
             @RequestParam String timeslot,
@@ -724,11 +724,11 @@ public class ServiceProviderController {
             @RequestParam double longitude,
             @RequestParam(required = false, defaultValue = "5") int precision) {
 
-        List<ServiceProviderEngagementDTO> engagements = serviceProviderEngagementService
+        List<Object> engagements = serviceProviderEngagementService
                 .getEngagementsByExactDateTimeslotAndHousekeepingRole(startDate, endDate, timeslot, housekeepingRole, latitude, longitude, precision);
 
         if (engagements.isEmpty()) {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(engagements);
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(Collections.emptyList());
         }
         return ResponseEntity.ok(engagements);
     }

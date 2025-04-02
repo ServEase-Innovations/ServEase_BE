@@ -9,6 +9,7 @@ import com.springboot.app.enums.HousekeepingRole;
 import com.springboot.app.enums.UserRole;
 import com.springboot.app.exception.ServiceProviderEngagementNotFoundException;
 import com.springboot.app.mapper.ServiceProviderEngagementMapper;
+import com.springboot.app.mapper.ServiceProviderMapper;
 import com.springboot.app.repository.CustomerRepository;
 import com.springboot.app.repository.ServiceProviderEngagementRepository;
 import com.springboot.app.repository.ServiceProviderRepository;
@@ -21,17 +22,19 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
+import java.time.LocalTime;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
-
+import java.util.Set;
 import java.util.stream.Collectors;
 
 import org.springframework.data.domain.Pageable;
 import org.springframework.scheduling.annotation.Scheduled;
 
 import java.util.Collections;
-
+import java.util.HashSet;
 import java.util.Collections;
 
 @Service
@@ -43,6 +46,9 @@ public class ServiceProviderEngagementServiceImpl implements ServiceProviderEnga
     private final ServiceProviderRepository serviceProviderRepository;
     private final CustomerRepository customerRepository;
     private final ServiceProviderEngagementMapper engagementMapper;
+
+    @Autowired
+    private ServiceProviderMapper serviceProviderMapper;
 
     @Autowired
     private GeoHashService geoHashService;
@@ -276,46 +282,116 @@ public class ServiceProviderEngagementServiceImpl implements ServiceProviderEnga
                 }));
     }
 
+    //search api method
     @Override
     @Transactional(readOnly = true)
-    public List<ServiceProviderEngagementDTO> getEngagementsByExactDateTimeslotAndHousekeepingRole(
-            LocalDate startDate, LocalDate endDate, String timeslot, HousekeepingRole housekeepingRole, double latitude,
-            double longitude, int precision) {
+    public List<Object> getEngagementsByExactDateTimeslotAndHousekeepingRole(
+            LocalDate startDate, LocalDate endDate, String timeslot, HousekeepingRole housekeepingRole,
+            double latitude, double longitude, int precision) {
 
-        logger.info("Fetching engagements for startDate: {}, endDate: {}, timeslot: {}, housekeepingRole: {}",
-                startDate, endDate, timeslot, housekeepingRole);
+        logger.info("Fetching engagements for startDate: {}, endDate: {}, housekeepingRole: {}",
+                startDate, endDate, housekeepingRole);
 
+        // Fetch all engagements
         List<ServiceProviderEngagement> engagements = engagementRepository
-                .findByExactDateTimeslotAndHousekeepingRole(startDate, endDate, timeslot, housekeepingRole);
-
-        if (engagements.isEmpty()) {
-            logger.warn("No engagements found for the given filters.");
-            return Collections.emptyList();
-        }
+                .findByDateAndHousekeepingRole(startDate, endDate, housekeepingRole);
 
         List<String> nearbyGeoHashes = geoHashService.getNearbyGeoHashes(latitude, longitude, precision);
+        Set<Long> engagedProviderIds = new HashSet<>();
+        Set<Long> excludedProviderIds = new HashSet<>();
 
-        //filter sp based on nearby geohashes
-        List<ServiceProviderEngagement> filteredEngagements = engagements.stream()
+        //find engaged service providers
+        List<Object> engagementDetails = engagements.stream()
                 .filter(e -> e.getServiceProvider() != null)
                 .filter(e -> {
                     ServiceProvider provider = e.getServiceProvider();
-                    return (precision == 5 && nearbyGeoHashes.contains(provider.getGeoHash5())) ||
+                    boolean isNearby = (precision == 5 && nearbyGeoHashes.contains(provider.getGeoHash5())) ||
                             (precision == 6 && nearbyGeoHashes.contains(provider.getGeoHash6())) ||
                             (precision == 7 && nearbyGeoHashes.contains(provider.getGeoHash7()));
-                })
-                .collect(Collectors.toList());
 
-        return filteredEngagements.stream()
+                    // Exclude engagements that match or overlap the requested timeslot
+                    boolean isExcluded = timeslot != null && isTimeslotExcluded(e.getTimeslot(), timeslot);
+
+                    if (isExcluded) {
+                        excludedProviderIds.add(provider.getServiceproviderId());
+                    }
+
+                    if (isNearby && !isExcluded) {
+                        engagedProviderIds.add(provider.getServiceproviderId());
+                    }
+
+                    return isNearby && !isExcluded;
+                })
                 .map(engagementMapper::serviceProviderEngagementToDTO)
                 .collect(Collectors.toList());
+
+        //Fetch nearby providers 
+        List<ServiceProvider> nearbyProviders = serviceProviderRepository
+                .findByHousekeepingRoleAndGeoHash(housekeepingRole, nearbyGeoHashes);
+
+        List<ServiceProvider> unengagedProviders = nearbyProviders.stream()
+                .filter(sp -> !engagedProviderIds.contains(sp.getServiceproviderId()))
+                .filter(sp -> !excludedProviderIds.contains(sp.getServiceproviderId())) 
+                .filter(sp -> isProviderFreeInTimeslot(sp, startDate, endDate, timeslot))
+                .collect(Collectors.toList());
+
+        List<Object> result = new ArrayList<>();
+        result.addAll(engagementDetails);
+        result.addAll(unengagedProviders);
+
+        return result;
+    }
+
+    private boolean isProviderFreeInTimeslot(ServiceProvider provider, LocalDate startDate,
+            LocalDate endDate, String requestedTimeslot) {
+        List<ServiceProviderEngagement> providerEngagements = engagementRepository
+                .findByServiceProviderAndDateRange(provider.getServiceproviderId(), startDate, endDate);
+
+        for (ServiceProviderEngagement engagement : providerEngagements) {
+            if (isTimeslotExcluded(engagement.getTimeslot(), requestedTimeslot)) {
+                return false; 
+            }
+        }
+        return true; 
+    }
+
+    private boolean isTimeslotExcluded(String engagementTimeslot, String requestedTimeslot) {
+        List<LocalTime[]> engagementRanges = parseTimeslot(engagementTimeslot);
+        List<LocalTime[]> requestedRanges = parseTimeslot(requestedTimeslot);
+
+        // Check for any overlap between engagement and requested ranges
+        for (LocalTime[] engagementRange : engagementRanges) {
+            for (LocalTime[] requestedRange : requestedRanges) {
+                if (engagementRange[0].isBefore(requestedRange[1]) && engagementRange[1].isAfter(requestedRange[0])) {
+                    return true;
+                }
+            }
+        }
+        return false;
+    }
+
+    private List<LocalTime[]> parseTimeslot(String timeslot) {
+        List<LocalTime[]> ranges = new ArrayList<>();
+        String[] slots = timeslot.split(",");
+
+        for (String slot : slots) {
+            String[] parts = slot.trim().split("-");
+            if (parts.length == 2) {
+                ranges.add(new LocalTime[] {
+                        LocalTime.parse(parts[0], DateTimeFormatter.ofPattern("H:mm")),
+                        LocalTime.parse(parts[1], DateTimeFormatter.ofPattern("H:mm"))
+                });
+            }
+        }
+        return ranges;
     }
 
     //@Scheduled(cron = "0 0 1 * * ?") // Runs every day at 1 AM
     @Scheduled(fixedDelay = 60000) //runs every minute
     @Transactional
     public void updateServiceProviderTimeslots() {
-        List<ServiceProviderEngagement> endedEngagements = engagementRepository.findByEndDateBeforeAndIsActive(LocalDate.now(), true);
+        List<ServiceProviderEngagement> endedEngagements = engagementRepository
+                .findByEndDateBeforeAndIsActive(LocalDate.now(), true);
 
         for (ServiceProviderEngagement engagement : endedEngagements) {
             ServiceProvider serviceProvider = engagement.getServiceProvider();
