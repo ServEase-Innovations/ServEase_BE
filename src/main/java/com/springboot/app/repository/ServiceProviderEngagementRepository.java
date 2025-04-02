@@ -32,15 +32,33 @@ public interface ServiceProviderEngagementRepository extends JpaRepository<Servi
                      "WHERE e.endDate < :today")
        void bulkUpdateEndedEngagements(@Param("timeslot") String timeslot, @Param("today") LocalDate today);
 
+       // @Query("SELECT e FROM ServiceProviderEngagement e " +
+       //               "WHERE e.startDate = :startDate " +
+       //               "AND e.endDate = :endDate " +
+       //               "AND LOWER(e.timeslot) = LOWER(:timeslot) " +
+       //               "AND e.housekeepingRole = :housekeepingRole")
+       // List<ServiceProviderEngagement> findByExactDateTimeslotAndHousekeepingRole(
+       //               @Param("startDate") LocalDate startDate,
+       //               @Param("endDate") LocalDate endDate,
+       //               @Param("timeslot") String timeslot,
+       //               @Param("housekeepingRole") HousekeepingRole housekeepingRole);
+
        @Query("SELECT e FROM ServiceProviderEngagement e " +
                      "WHERE e.startDate = :startDate " +
                      "AND e.endDate = :endDate " +
-                     "AND LOWER(e.timeslot) = LOWER(:timeslot) " +
                      "AND e.housekeepingRole = :housekeepingRole")
-       List<ServiceProviderEngagement> findByExactDateTimeslotAndHousekeepingRole(
+       List<ServiceProviderEngagement> findByDateAndHousekeepingRole(
                      @Param("startDate") LocalDate startDate,
                      @Param("endDate") LocalDate endDate,
-                     @Param("timeslot") String timeslot,
                      @Param("housekeepingRole") HousekeepingRole housekeepingRole);
+
+
+       @Query("SELECT e FROM ServiceProviderEngagement e WHERE e.serviceProvider.serviceproviderId = :serviceProviderId "
+                     +
+                     "AND e.startDate <= :endDate AND (e.endDate IS NULL OR e.endDate >= :startDate)")
+       List<ServiceProviderEngagement> findByServiceProviderAndDateRange(
+                     @Param("serviceProviderId") Long serviceProviderId,
+                     @Param("startDate") LocalDate startDate,
+                     @Param("endDate") LocalDate endDate);
 
 }
