@@ -21,6 +21,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
+import java.time.LocalTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -278,17 +279,49 @@ public class ServiceProviderEngagementServiceImpl implements ServiceProviderEnga
         logger.info("Fetching engagements for startDate: {}, endDate: {}, timeslot: {}, housekeepingRole: {}",
                 startDate, endDate, timeslot, housekeepingRole);
 
-        List<ServiceProviderEngagement> engagements = engagementRepository
-                .findByExactDateTimeslotAndHousekeepingRole(startDate, endDate, timeslot, housekeepingRole);
+        // Fetch engagements matching the exact timeslot
+        List<ServiceProviderEngagement> matchingTimeslotEngagements = engagementRepository
+                .findByExactDateTimeslotAndHousekeepingRole(startDate, endDate, timeslot,
+                        housekeepingRole);
 
-        if (engagements.isEmpty()) {
-            logger.warn("No engagements found for the given filters.");
+        // If timeslot exists, return empty list
+        if (!matchingTimeslotEngagements.isEmpty()) {
+            logger.warn(ServiceProviderConstants.MATCHING_TIMESLOT_FOUND);
             return Collections.emptyList();
         }
 
-        return engagements.stream()
+        // Fetch engagements matching only startDate, endDate, and housekeepingRole
+        List<ServiceProviderEngagement> engagementsByDateAndRole = engagementRepository
+                .findByDateRangeAndHousekeepingRole(startDate, endDate, housekeepingRole);
+
+        return engagementsByDateAndRole.stream()
                 .map(engagementMapper::serviceProviderEngagementToDTO)
-                .toList();
+                .collect(Collectors.toList());
     }
+
+    // @Override
+    // @Transactional(readOnly = true)
+    // public List<ServiceProviderEngagementDTO>
+    // getEngagementsByExactDateTimeslotAndHousekeepingRole(
+    // LocalDate startDate, LocalDate endDate, String timeslot, HousekeepingRole
+    // housekeepingRole) {
+
+    // logger.info("Fetching engagements for startDate: {}, endDate: {},
+    // timeslot:{}, housekeepingRole: {}",
+    // startDate, endDate, timeslot, housekeepingRole);
+
+    // List<ServiceProviderEngagement> engagements = engagementRepository
+    // .findByExactDateTimeslotAndHousekeepingRole(startDate, endDate, timeslot,
+    // housekeepingRole);
+
+    // if (engagements.isEmpty()) {
+    // logger.warn("No engagements found for the given filters.");
+    // return Collections.emptyList();
+    // }
+
+    // return engagements.stream()
+    // .map(engagementMapper::serviceProviderEngagementToDTO)
+    // .toList();
+    // }
 
 }

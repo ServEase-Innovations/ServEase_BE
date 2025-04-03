@@ -718,6 +718,12 @@ public class ServiceProviderController {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body(engagements);
         }
 
+        // Calculate available times for each engagement
+        for (ServiceProviderEngagementDTO engagement : engagements) {
+            List<String> availableTimes = calculateAvailableTimes(engagement.getTimeslot());
+            engagement.setAvailableTimeSlots(availableTimes);
+        }
+
         return ResponseEntity.ok(engagements);
     }
 

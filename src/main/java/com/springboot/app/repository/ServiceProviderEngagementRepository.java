@@ -40,4 +40,13 @@ public interface ServiceProviderEngagementRepository extends JpaRepository<Servi
                      @Param("timeslot") String timeslot,
                      @Param("housekeepingRole") HousekeepingRole housekeepingRole);
 
+       @Query("SELECT e FROM ServiceProviderEngagement e " +
+                     "WHERE e.startDate >= :startDate " +
+                     "AND e.endDate <= :endDate " +
+                     "AND e.housekeepingRole = :housekeepingRole")
+       List<ServiceProviderEngagement> findByDateRangeAndHousekeepingRole(
+                     @Param("startDate") LocalDate startDate,
+                     @Param("endDate") LocalDate endDate,
+                     @Param("housekeepingRole") HousekeepingRole housekeepingRole);
+
 }
