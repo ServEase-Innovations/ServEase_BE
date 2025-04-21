@@ -2,7 +2,7 @@ package com.springboot.app.repository;
 
 import java.time.LocalDate;
 import java.util.List;
-
+import java.util.Set;
 import java.time.LocalDate;
 import java.util.List;
 
@@ -52,7 +52,6 @@ public interface ServiceProviderEngagementRepository extends JpaRepository<Servi
                      @Param("endDate") LocalDate endDate,
                      @Param("housekeepingRole") HousekeepingRole housekeepingRole);
 
-
        @Query("SELECT e FROM ServiceProviderEngagement e WHERE e.serviceProvider.serviceproviderId = :serviceProviderId "
                      +
                      "AND e.startDate <= :endDate AND (e.endDate IS NULL OR e.endDate >= :startDate)")
@@ -60,5 +59,14 @@ public interface ServiceProviderEngagementRepository extends JpaRepository<Servi
                      @Param("serviceProviderId") Long serviceProviderId,
                      @Param("startDate") LocalDate startDate,
                      @Param("endDate") LocalDate endDate);
+
+       @Query("SELECT e FROM ServiceProviderEngagement e " +
+                     "WHERE e.customer.customerId IN :customerIds AND " +
+                     "e.housekeepingRole = :role")
+       List<ServiceProviderEngagement> findEngagementsByCustomerIdsAndRole(
+                     @Param("customerIds") List<Long> customerIds,
+                     @Param("role") HousekeepingRole role);
+
+
 
 }

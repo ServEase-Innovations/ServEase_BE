@@ -1,8 +1,10 @@
 package com.springboot.app.service;
 
 import com.springboot.app.constant.ServiceProviderConstants;
+import com.springboot.app.dto.ServiceProviderDTO;
 import com.springboot.app.dto.ServiceProviderEngagementDTO;
 import com.springboot.app.entity.Customer;
+import com.springboot.app.entity.CustomerHolidays;
 import com.springboot.app.entity.ServiceProvider;
 import com.springboot.app.entity.ServiceProviderEngagement;
 import com.springboot.app.enums.HousekeepingRole;
@@ -10,6 +12,7 @@ import com.springboot.app.enums.UserRole;
 import com.springboot.app.exception.ServiceProviderEngagementNotFoundException;
 import com.springboot.app.mapper.ServiceProviderEngagementMapper;
 import com.springboot.app.mapper.ServiceProviderMapper;
+import com.springboot.app.repository.CustomerHolidaysRepository;
 import com.springboot.app.repository.CustomerRepository;
 import com.springboot.app.repository.ServiceProviderEngagementRepository;
 import com.springboot.app.repository.ServiceProviderRepository;
@@ -27,6 +30,7 @@ import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -52,6 +56,9 @@ public class ServiceProviderEngagementServiceImpl implements ServiceProviderEnga
 
     @Autowired
     private GeoHashService geoHashService;
+
+    @Autowired
+    private CustomerHolidaysRepository customerHolidayRepository;
 
     @Autowired
     public ServiceProviderEngagementServiceImpl(ServiceProviderEngagementRepository engagementRepository,
@@ -282,7 +289,7 @@ public class ServiceProviderEngagementServiceImpl implements ServiceProviderEnga
                 }));
     }
 
-    //search api method
+    // search api method
     @Override
     @Transactional(readOnly = true)
     public List<Object> getEngagementsByExactDateTimeslotAndHousekeepingRole(
@@ -300,7 +307,7 @@ public class ServiceProviderEngagementServiceImpl implements ServiceProviderEnga
         Set<Long> engagedProviderIds = new HashSet<>();
         Set<Long> excludedProviderIds = new HashSet<>();
 
-        //find engaged service providers
+        // find engaged service providers
         List<Object> engagementDetails = engagements.stream()
                 .filter(e -> e.getServiceProvider() != null)
                 .filter(e -> {
@@ -325,17 +332,59 @@ public class ServiceProviderEngagementServiceImpl implements ServiceProviderEnga
                 .map(engagementMapper::serviceProviderEngagementToDTO)
                 .collect(Collectors.toList());
 
-        //Fetch nearby providers 
+        // Fetch nearby providers
         List<ServiceProvider> nearbyProviders = serviceProviderRepository
                 .findByHousekeepingRoleAndGeoHash(housekeepingRole, nearbyGeoHashes);
 
         List<ServiceProvider> unengagedProviders = nearbyProviders.stream()
                 .filter(sp -> !engagedProviderIds.contains(sp.getServiceproviderId()))
-                .filter(sp -> !excludedProviderIds.contains(sp.getServiceproviderId())) 
+                .filter(sp -> !excludedProviderIds.contains(sp.getServiceproviderId()))
                 .filter(sp -> isProviderFreeInTimeslot(sp, startDate, endDate, timeslot))
                 .collect(Collectors.toList());
 
+        // Step 3: Holiday logic
+        List<Long> holidayCustomerIds = customerHolidayRepository
+                .findCustomerIdsOnHolidayBetween(startDate, endDate);
+
+        logger.info("Holiday customer IDs between {} and {}: {}", startDate, endDate, holidayCustomerIds);
+
+        List<Object> holidayEngagementsDTO = new ArrayList<>();
+
+        if (!holidayCustomerIds.isEmpty()) {
+            List<ServiceProviderEngagement> holidayEngagements = engagementRepository
+                    .findEngagementsByCustomerIdsAndRole(holidayCustomerIds, housekeepingRole);
+
+            logger.info("Found {} holiday engagements", holidayEngagements.size());
+
+            for (ServiceProviderEngagement engagement : holidayEngagements) {
+                ServiceProvider provider = engagement.getServiceProvider();
+                if (provider == null) {
+                    logger.warn("Engagement {} has null provider", engagement.getId());
+                    continue;
+                }
+
+                boolean isNearby = (precision == 5 && nearbyGeoHashes.contains(provider.getGeoHash5())) ||
+                        (precision == 6 && nearbyGeoHashes.contains(provider.getGeoHash6())) ||
+                        (precision == 7 && nearbyGeoHashes.contains(provider.getGeoHash7()));
+
+                boolean isDateMatching = !(engagement.getEndDate().isBefore(startDate)
+                        || engagement.getStartDate().isAfter(endDate));
+
+                boolean isTimeslotExcluded = timeslot != null && !isTimeslotExcluded(engagement.getTimeslot(), timeslot);
+
+                logger.info(
+                        "Holiday engagement ID {}: provider ID {}, isNearby: {}, isDateMatching: {}, timeslotExcluded: {}",
+                        engagement.getId(), provider.getServiceproviderId(), isNearby, isDateMatching,
+                        isTimeslotExcluded);
+
+                if (isNearby && isDateMatching && !isTimeslotExcluded) {
+                    holidayEngagementsDTO.add(engagementMapper.serviceProviderEngagementToDTO(engagement));
+                }
+            }
+        }
+
         List<Object> result = new ArrayList<>();
+        result.addAll(holidayEngagementsDTO);
         result.addAll(engagementDetails);
         result.addAll(unengagedProviders);
 
@@ -349,10 +398,10 @@ public class ServiceProviderEngagementServiceImpl implements ServiceProviderEnga
 
         for (ServiceProviderEngagement engagement : providerEngagements) {
             if (isTimeslotExcluded(engagement.getTimeslot(), requestedTimeslot)) {
-                return false; 
+                return false;
             }
         }
-        return true; 
+        return true;
     }
 
     private boolean isTimeslotExcluded(String engagementTimeslot, String requestedTimeslot) {
