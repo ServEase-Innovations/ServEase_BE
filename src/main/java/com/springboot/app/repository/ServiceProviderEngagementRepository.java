@@ -52,6 +52,41 @@ public interface ServiceProviderEngagementRepository extends JpaRepository<Servi
                      @Param("endDate") LocalDate endDate,
                      @Param("housekeepingRole") HousekeepingRole housekeepingRole);
 
+       // @Query("SELECT e FROM ServiceProviderEngagement e WHERE e.serviceProvider.serviceproviderId = :serviceProviderId "
+       //               +
+       //               "AND e.startDate <= :endDate AND (e.endDate IS NULL OR e.endDate >= :startDate)")
+       // List<ServiceProviderEngagement> findByServiceProviderAndDateRange(
+       //               @Param("serviceProviderId") Long serviceProviderId,
+       //               @Param("startDate") LocalDate startDate,
+       //               @Param("endDate") LocalDate endDate);
+
+       // @Query("SELECT e FROM ServiceProviderEngagement e " +
+       //               "WHERE e.customer.customerId IN :customerIds AND " +
+       //               "e.housekeepingRole = :role")
+       // List<ServiceProviderEngagement> findEngagementsByCustomerIdsAndRole(
+       //               @Param("customerIds") List<Long> customerIds,
+       //               @Param("role") HousekeepingRole role);
+
+
+       //NEWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWW
+       // FETCH engaged providers who are nearby, in date range and role
+       @Query("SELECT e FROM ServiceProviderEngagement e " +
+                     "JOIN e.serviceProvider sp " +
+                     "WHERE e.startDate = :startDate " +
+                     "AND e.endDate = :endDate " +
+                     "AND e.housekeepingRole = :housekeepingRole " +
+                     "AND (sp.geoHash5 IN :geoHashes OR sp.geoHash6 IN :geoHashes OR sp.geoHash7 IN :geoHashes)")
+       List<ServiceProviderEngagement> findEngagedProvidersNearby(
+                     @Param("startDate") LocalDate startDate,
+                     @Param("endDate") LocalDate endDate,
+                     @Param("housekeepingRole") HousekeepingRole housekeepingRole,
+                     @Param("geoHashes") List<String> geoHashes);
+
+       @Query("SELECT e FROM ServiceProviderEngagement e WHERE e.customer.customerId IN :customerIds AND e.housekeepingRole = :role")
+       List<ServiceProviderEngagement> findEngagementsByCustomerIdsAndRole(
+                     @Param("customerIds") List<Long> customerIds,
+                     @Param("role") HousekeepingRole role);
+
        @Query("SELECT e FROM ServiceProviderEngagement e WHERE e.serviceProvider.serviceproviderId = :serviceProviderId "
                      +
                      "AND e.startDate <= :endDate AND (e.endDate IS NULL OR e.endDate >= :startDate)")
@@ -59,13 +94,6 @@ public interface ServiceProviderEngagementRepository extends JpaRepository<Servi
                      @Param("serviceProviderId") Long serviceProviderId,
                      @Param("startDate") LocalDate startDate,
                      @Param("endDate") LocalDate endDate);
-
-       @Query("SELECT e FROM ServiceProviderEngagement e " +
-                     "WHERE e.customer.customerId IN :customerIds AND " +
-                     "e.housekeepingRole = :role")
-       List<ServiceProviderEngagement> findEngagementsByCustomerIdsAndRole(
-                     @Param("customerIds") List<Long> customerIds,
-                     @Param("role") HousekeepingRole role);
 
 
 

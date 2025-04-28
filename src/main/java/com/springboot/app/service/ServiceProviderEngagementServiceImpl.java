@@ -290,49 +290,144 @@ public class ServiceProviderEngagementServiceImpl implements ServiceProviderEnga
     }
 
     // search api method
+    // @Override
+    // @Transactional(readOnly = true)
+    // public List<Object> getEngagementsByExactDateTimeslotAndHousekeepingRole(
+    //         LocalDate startDate, LocalDate endDate, String timeslot, HousekeepingRole housekeepingRole,
+    //         double latitude, double longitude, int precision) {
+
+    //     logger.info("Fetching engagements for startDate: {}, endDate: {}, housekeepingRole: {}",
+    //             startDate, endDate, housekeepingRole);
+
+    //     // Fetch all engagements
+    //     List<ServiceProviderEngagement> engagements = engagementRepository
+    //             .findByDateAndHousekeepingRole(startDate, endDate, housekeepingRole);
+
+    //     List<String> nearbyGeoHashes = geoHashService.getNearbyGeoHashes(latitude, longitude, precision);
+    //     Set<Long> engagedProviderIds = new HashSet<>();
+    //     Set<Long> excludedProviderIds = new HashSet<>();
+
+    //     // find engaged service providers
+    //     List<Object> engagementDetails = engagements.stream()
+    //             .filter(e -> e.getServiceProvider() != null)
+    //             .filter(e -> {
+    //                 ServiceProvider provider = e.getServiceProvider();
+    //                 boolean isNearby = (precision == 5 && nearbyGeoHashes.contains(provider.getGeoHash5())) ||
+    //                         (precision == 6 && nearbyGeoHashes.contains(provider.getGeoHash6())) ||
+    //                         (precision == 7 && nearbyGeoHashes.contains(provider.getGeoHash7()));
+
+    //                 // Exclude engagements that match or overlap the requested timeslot
+    //                 boolean isExcluded = timeslot != null && isTimeslotExcluded(e.getTimeslot(), timeslot);
+
+    //                 if (isExcluded) {
+    //                     excludedProviderIds.add(provider.getServiceproviderId());
+    //                 }
+
+    //                 if (isNearby && !isExcluded) {
+    //                     engagedProviderIds.add(provider.getServiceproviderId());
+    //                 }
+
+    //                 return isNearby && !isExcluded;
+    //             })
+    //             .map(engagementMapper::serviceProviderEngagementToDTO)
+    //             .collect(Collectors.toList());
+
+    //     // Fetch nearby providers
+    //     List<ServiceProvider> nearbyProviders = serviceProviderRepository
+    //             .findByHousekeepingRoleAndGeoHash(housekeepingRole, nearbyGeoHashes);
+
+    //     List<ServiceProvider> unengagedProviders = nearbyProviders.stream()
+    //             .filter(sp -> !engagedProviderIds.contains(sp.getServiceproviderId()))
+    //             .filter(sp -> !excludedProviderIds.contains(sp.getServiceproviderId()))
+    //             .filter(sp -> isProviderFreeInTimeslot(sp, startDate, endDate, timeslot))
+    //             .collect(Collectors.toList());
+
+    //     // Step 3: Holiday logic
+    //     List<Long> holidayCustomerIds = customerHolidayRepository
+    //             .findCustomerIdsOnHolidayBetween(startDate, endDate);
+
+    //     logger.info("Holiday customer IDs between {} and {}: {}", startDate, endDate, holidayCustomerIds);
+
+    //     List<Object> holidayEngagementsDTO = new ArrayList<>();
+
+    //     if (!holidayCustomerIds.isEmpty()) {
+    //         List<ServiceProviderEngagement> holidayEngagements = engagementRepository
+    //                 .findEngagementsByCustomerIdsAndRole(holidayCustomerIds, housekeepingRole);
+
+    //         logger.info("Found {} holiday engagements", holidayEngagements.size());
+
+    //         for (ServiceProviderEngagement engagement : holidayEngagements) {
+    //             ServiceProvider provider = engagement.getServiceProvider();
+    //             if (provider == null) {
+    //                 logger.warn("Engagement {} has null provider", engagement.getId());
+    //                 continue;
+    //             }
+
+    //             boolean isNearby = (precision == 5 && nearbyGeoHashes.contains(provider.getGeoHash5())) ||
+    //                     (precision == 6 && nearbyGeoHashes.contains(provider.getGeoHash6())) ||
+    //                     (precision == 7 && nearbyGeoHashes.contains(provider.getGeoHash7()));
+
+    //             boolean isDateMatching = !(engagement.getEndDate().isBefore(startDate)
+    //                     || engagement.getStartDate().isAfter(endDate));
+
+    //             boolean isTimeslotExcluded = timeslot != null && !isTimeslotExcluded(engagement.getTimeslot(), timeslot);
+
+    //             logger.info(
+    //                     "Holiday engagement ID {}: provider ID {}, isNearby: {}, isDateMatching: {}, timeslotExcluded: {}",
+    //                     engagement.getId(), provider.getServiceproviderId(), isNearby, isDateMatching,
+    //                     isTimeslotExcluded);
+
+    //             if (isNearby && isDateMatching && !isTimeslotExcluded) {
+    //                 holidayEngagementsDTO.add(engagementMapper.serviceProviderEngagementToDTO(engagement));
+    //             }
+    //         }
+    //     }
+
+    //     List<Object> result = new ArrayList<>();
+    //     result.addAll(holidayEngagementsDTO);
+    //     result.addAll(engagementDetails);
+    //     result.addAll(unengagedProviders);
+
+    //     return result;
+    // }
+
     @Override
     @Transactional(readOnly = true)
     public List<Object> getEngagementsByExactDateTimeslotAndHousekeepingRole(
             LocalDate startDate, LocalDate endDate, String timeslot, HousekeepingRole housekeepingRole,
             double latitude, double longitude, int precision) {
 
-        logger.info("Fetching engagements for startDate: {}, endDate: {}, housekeepingRole: {}",
-                startDate, endDate, housekeepingRole);
-
-        // Fetch all engagements
-        List<ServiceProviderEngagement> engagements = engagementRepository
-                .findByDateAndHousekeepingRole(startDate, endDate, housekeepingRole);
+        logger.info("Fetching engagements for startDate: {}, endDate: {}, housekeepingRole: {}", startDate, endDate,
+                housekeepingRole);
 
         List<String> nearbyGeoHashes = geoHashService.getNearbyGeoHashes(latitude, longitude, precision);
+
+        // Step 1: Fetch engaged providers who are nearby
+        List<ServiceProviderEngagement> engagedEngagements = engagementRepository
+                .findEngagedProvidersNearby(startDate, endDate, housekeepingRole, nearbyGeoHashes);
+
         Set<Long> engagedProviderIds = new HashSet<>();
         Set<Long> excludedProviderIds = new HashSet<>();
 
-        // find engaged service providers
-        List<Object> engagementDetails = engagements.stream()
-                .filter(e -> e.getServiceProvider() != null)
-                .filter(e -> {
-                    ServiceProvider provider = e.getServiceProvider();
-                    boolean isNearby = (precision == 5 && nearbyGeoHashes.contains(provider.getGeoHash5())) ||
-                            (precision == 6 && nearbyGeoHashes.contains(provider.getGeoHash6())) ||
-                            (precision == 7 && nearbyGeoHashes.contains(provider.getGeoHash7()));
+        List<Object> engagementDetails = new ArrayList<>();
 
-                    // Exclude engagements that match or overlap the requested timeslot
-                    boolean isExcluded = timeslot != null && isTimeslotExcluded(e.getTimeslot(), timeslot);
+        for (ServiceProviderEngagement engagement : engagedEngagements) {
+            ServiceProvider provider = engagement.getServiceProvider();
 
-                    if (isExcluded) {
-                        excludedProviderIds.add(provider.getServiceproviderId());
-                    }
+            if (provider == null)
+                continue;
 
-                    if (isNearby && !isExcluded) {
-                        engagedProviderIds.add(provider.getServiceproviderId());
-                    }
+            boolean isExcluded = timeslot != null && isTimeslotExcluded(engagement.getTimeslot(), timeslot);
 
-                    return isNearby && !isExcluded;
-                })
-                .map(engagementMapper::serviceProviderEngagementToDTO)
-                .collect(Collectors.toList());
+            if (isExcluded) {
+                excludedProviderIds.add(provider.getServiceproviderId());
+            } else {
+                engagedProviderIds.add(provider.getServiceproviderId());
+                engagementDetails.add(engagementMapper.serviceProviderEngagementToDTO(engagement));
+            }
+        }
 
-        // Fetch nearby providers
+        // Step 2: Fetch nearby unengaged service providers
         List<ServiceProvider> nearbyProviders = serviceProviderRepository
                 .findByHousekeepingRoleAndGeoHash(housekeepingRole, nearbyGeoHashes);
 
@@ -342,26 +437,18 @@ public class ServiceProviderEngagementServiceImpl implements ServiceProviderEnga
                 .filter(sp -> isProviderFreeInTimeslot(sp, startDate, endDate, timeslot))
                 .collect(Collectors.toList());
 
-        // Step 3: Holiday logic
-        List<Long> holidayCustomerIds = customerHolidayRepository
-                .findCustomerIdsOnHolidayBetween(startDate, endDate);
-
-        logger.info("Holiday customer IDs between {} and {}: {}", startDate, endDate, holidayCustomerIds);
-
+        // Step 3: Holiday engagements
+        List<Long> holidayCustomerIds = customerHolidayRepository.findCustomerIdsOnHolidayBetween(startDate, endDate);
         List<Object> holidayEngagementsDTO = new ArrayList<>();
 
         if (!holidayCustomerIds.isEmpty()) {
             List<ServiceProviderEngagement> holidayEngagements = engagementRepository
                     .findEngagementsByCustomerIdsAndRole(holidayCustomerIds, housekeepingRole);
 
-            logger.info("Found {} holiday engagements", holidayEngagements.size());
-
             for (ServiceProviderEngagement engagement : holidayEngagements) {
                 ServiceProvider provider = engagement.getServiceProvider();
-                if (provider == null) {
-                    logger.warn("Engagement {} has null provider", engagement.getId());
+                if (provider == null)
                     continue;
-                }
 
                 boolean isNearby = (precision == 5 && nearbyGeoHashes.contains(provider.getGeoHash5())) ||
                         (precision == 6 && nearbyGeoHashes.contains(provider.getGeoHash6())) ||
@@ -370,12 +457,8 @@ public class ServiceProviderEngagementServiceImpl implements ServiceProviderEnga
                 boolean isDateMatching = !(engagement.getEndDate().isBefore(startDate)
                         || engagement.getStartDate().isAfter(endDate));
 
-                boolean isTimeslotExcluded = timeslot != null && !isTimeslotExcluded(engagement.getTimeslot(), timeslot);
-
-                logger.info(
-                        "Holiday engagement ID {}: provider ID {}, isNearby: {}, isDateMatching: {}, timeslotExcluded: {}",
-                        engagement.getId(), provider.getServiceproviderId(), isNearby, isDateMatching,
-                        isTimeslotExcluded);
+                boolean isTimeslotExcluded = timeslot != null
+                        && !isTimeslotExcluded(engagement.getTimeslot(), timeslot);
 
                 if (isNearby && isDateMatching && !isTimeslotExcluded) {
                     holidayEngagementsDTO.add(engagementMapper.serviceProviderEngagementToDTO(engagement));
@@ -383,6 +466,7 @@ public class ServiceProviderEngagementServiceImpl implements ServiceProviderEnga
             }
         }
 
+        // Final Result
         List<Object> result = new ArrayList<>();
         result.addAll(holidayEngagementsDTO);
         result.addAll(engagementDetails);
@@ -390,7 +474,9 @@ public class ServiceProviderEngagementServiceImpl implements ServiceProviderEnga
 
         return result;
     }
-
+    
+    
+    
     private boolean isProviderFreeInTimeslot(ServiceProvider provider, LocalDate startDate,
             LocalDate endDate, String requestedTimeslot) {
         List<ServiceProviderEngagement> providerEngagements = engagementRepository
