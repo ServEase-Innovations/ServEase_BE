@@ -32,52 +32,78 @@ public class ServiceProviderPaymentController {
     // API to get all service provider payments with pagination
     @GetMapping("/payments/all")
     @ApiOperation(value = "Retrieve all service provider payments", response = List.class)
-    public ResponseEntity<List<ServiceProviderPaymentDTO>> getAllServiceProviderPayments(
+    public ResponseEntity<?> getAllServiceProviderPayments(
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(required = false) Integer size) {
-        if (size == null) {
-            size = defaultPageSize;
+        try {
+            if (size == null) {
+                size = defaultPageSize;
+            }
+            List<ServiceProviderPaymentDTO> payments = serviceProviderPaymentService.getAllServiceProviderPayments(page,
+                    size);
+            return ResponseEntity.ok(payments);
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body("Failed to retrieve service provider payments: " + e.getMessage());
         }
-        List<ServiceProviderPaymentDTO> payments = serviceProviderPaymentService.getAllServiceProviderPayments(page,
-                size);
-        return ResponseEntity.ok(payments);
     }
 
     // API to get service provider payment by ID
     @GetMapping("/get/payment/{id}")
     @ApiOperation(value = "Retrieve service provider payment by ID", response = ServiceProviderPaymentDTO.class)
-    public ResponseEntity<ServiceProviderPaymentDTO> getServiceProviderPaymentById(
+    public ResponseEntity<?> getServiceProviderPaymentById(
             @ApiParam(value = "ID of the service provider payment to retrieve", required = true) @PathVariable Long id) {
-        ServiceProviderPaymentDTO paymentDTO = serviceProviderPaymentService.getServiceProviderPaymentById(id);
-        return ResponseEntity.ok(paymentDTO);
+        try {
+            ServiceProviderPaymentDTO paymentDTO = serviceProviderPaymentService.getServiceProviderPaymentById(id);
+            return ResponseEntity.ok(paymentDTO);
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body("Failed to retrieve service provider payment: " + e.getMessage());
+        }
     }
 
     // API to add a service provider payment
     @PostMapping("/payment/add")
     @ApiOperation(value = "Add a new service provider payment")
-    public ResponseEntity<String> addServiceProviderPayment(
+    public ResponseEntity<?> addServiceProviderPayment(
             @ApiParam(value = "Service provider payment data to add", required = true) @RequestBody ServiceProviderPaymentDTO serviceProviderPaymentDTO) {
-        String result = serviceProviderPaymentService.addServiceProviderPayment(serviceProviderPaymentDTO);
-        return ResponseEntity.status(HttpStatus.CREATED).body(result);
+        try {
+            String result = serviceProviderPaymentService.addServiceProviderPayment(serviceProviderPaymentDTO);
+            return ResponseEntity.status(HttpStatus.CREATED).body(result);
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body("Failed to add service provider payment: " + e.getMessage());
+        }
     }
 
     // API to update a service provider payment
     @PutMapping("/update/payment/{id}")
     @ApiOperation(value = "Update an existing service provider payment")
-    public ResponseEntity<String> updateServiceProviderPayment(
+    public ResponseEntity<?> updateServiceProviderPayment(
             @ApiParam(value = "ID of the service provider payment to update", required = true) @PathVariable Long id,
             @ApiParam(value = "Updated service provider payment object", required = true) @RequestBody ServiceProviderPaymentDTO serviceProviderPaymentDTO) {
-        serviceProviderPaymentDTO.setId(id);
-        String result = serviceProviderPaymentService.updateServiceProviderPayment(serviceProviderPaymentDTO);
-        return ResponseEntity.ok(result);
+        try {
+            serviceProviderPaymentDTO.setId(id);
+            String result = serviceProviderPaymentService.updateServiceProviderPayment(serviceProviderPaymentDTO);
+            return ResponseEntity.ok(result);
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body("Failed to update service provider payment: " + e.getMessage());
+        }
     }
 
     // API to delete a service provider payment
     @DeleteMapping("/delete/payment/{id}")
     @ApiOperation(value = "Delete a service provider payment")
-    public ResponseEntity<String> deleteServiceProviderPayment(
+    public ResponseEntity<?> deleteServiceProviderPayment(
             @ApiParam(value = "ID of the service provider payment to delete", required = true) @PathVariable Long id) {
-        String result = serviceProviderPaymentService.deleteServiceProviderPayment(id);
-        return ResponseEntity.ok(result);
+        try {
+            String result = serviceProviderPaymentService.deleteServiceProviderPayment(id);
+            return ResponseEntity.ok(result);
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body("Failed to delete service provider payment: " + e.getMessage());
+        }
     }
+
 }
