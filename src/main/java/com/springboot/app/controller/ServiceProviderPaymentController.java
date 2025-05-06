@@ -83,6 +83,10 @@ public class ServiceProviderPaymentController {
             @ApiParam(value = "ID of the service provider payment to update", required = true) @PathVariable Long id,
             @ApiParam(value = "Updated service provider payment object", required = true) @RequestBody ServiceProviderPaymentDTO serviceProviderPaymentDTO) {
         try {
+            if (serviceProviderPaymentService.getServiceProviderPaymentById(id) == null) {
+                return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                        .body(" Service provider payment with ID " + id + " not found");
+            }
             serviceProviderPaymentDTO.setId(id);
             String result = serviceProviderPaymentService.updateServiceProviderPayment(serviceProviderPaymentDTO);
             return ResponseEntity.ok(result);
@@ -98,6 +102,10 @@ public class ServiceProviderPaymentController {
     public ResponseEntity<?> deleteServiceProviderPayment(
             @ApiParam(value = "ID of the service provider payment to delete", required = true) @PathVariable Long id) {
         try {
+            if (serviceProviderPaymentService.getServiceProviderPaymentById(id) == null) {
+                return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                        .body(" Service provider payment with ID " + id + " not found");
+            }
             String result = serviceProviderPaymentService.deleteServiceProviderPayment(id);
             return ResponseEntity.ok(result);
         } catch (Exception e) {
