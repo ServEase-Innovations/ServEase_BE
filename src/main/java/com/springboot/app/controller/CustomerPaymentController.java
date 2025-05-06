@@ -30,16 +30,11 @@ public class CustomerPaymentController {
      * Get all payments for a customer.
      */
     @GetMapping("/{customerId}")
-public ResponseEntity<?> getPaymentsByCustomerId(@PathVariable Long customerId) {
-    logger.info("Fetching payments for customer ID: {}", customerId);
-    List<CustomerPaymentDTO> payments = customerPaymentService.getPaymentsByCustomerId(customerId);
-    
-    if (payments.isEmpty()) {
-        return ResponseEntity.status(HttpStatus.NOT_FOUND)
-                .body("No payments found for customer with ID: " + customerId);
-    }
-    
-    return ResponseEntity.ok(payments);
+    public ResponseEntity<?> getPaymentsByCustomerId(@PathVariable Long customerId) {
+        logger.info("Fetching payments for customer ID: {}", customerId);
+        List<CustomerPaymentDTO> payments = customerPaymentService.getPaymentsByCustomerId(customerId);
+        
+        return ResponseEntity.ok(payments);
 }
 
 
@@ -56,7 +51,7 @@ public ResponseEntity<?> getPaymentsByCustomerId(@PathVariable Long customerId) 
 
         Optional<CustomerPaymentDTO> payment = customerPaymentService.getPaymentByCustomerIdAndMonth(customerId,
                 paymentMonth);
-        return payment.map(ResponseEntity::ok).orElseGet(() -> ResponseEntity.notFound().build());
+        return ResponseEntity.ok(payment.orElse(null));
     }
 
     /**
@@ -72,21 +67,21 @@ public ResponseEntity<?> getPaymentsByCustomerId(@PathVariable Long customerId) 
     // }
 
     @PostMapping("/calculate-payment")
-public ResponseEntity<?> calculatePayment(@RequestParam Long customerId, @RequestParam double baseAmount) {
-    try {
-        CustomerPaymentDTO paymentDTO = customerPaymentService.calculateAndSavePayment(customerId, baseAmount);
-        if (paymentDTO == null) {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
-                    .body("Failed to calculate payment for customer with ID: " + customerId);
+    public ResponseEntity<?> calculatePayment(@RequestParam Long customerId, @RequestParam double baseAmount) {
+        try {
+            CustomerPaymentDTO paymentDTO = customerPaymentService.calculateAndSavePayment(customerId, baseAmount);
+            if (paymentDTO == null) {
+                return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                        .body("Failed to calculate payment for customer with ID: " + customerId);
+            }
+            return ResponseEntity.status(HttpStatus.CREATED).body(paymentDTO);
+        } catch (EntityNotFoundException ex) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                    .body("Customer with ID " + customerId + " not found.");
+        } catch (Exception ex) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body("An error occurred while calculating the payment: " + ex.getMessage());
         }
-        return ResponseEntity.status(HttpStatus.CREATED).body(paymentDTO);
-    } catch (EntityNotFoundException ex) {
-        return ResponseEntity.status(HttpStatus.NOT_FOUND)
-                .body("Customer with ID " + customerId + " not found.");
-    } catch (Exception ex) {
-        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                .body("An error occurred while calculating the payment: " + ex.getMessage());
     }
-}
 
 }

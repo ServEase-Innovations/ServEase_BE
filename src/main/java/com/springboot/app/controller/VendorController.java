@@ -51,10 +51,10 @@ public class VendorController {
             size = ServiceProviderConstants.DEFAULT_PAGE_SIZE; // Default page size if not provided
         }
         List<VendorDTO> vendors = vendorService.getAllVendorDTOs(page, size);
-        if (vendors.isEmpty()) {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND)
-                    .body(Collections.singletonList(new VendorDTO())); // Empty response if no vendors found
-        }
+        // if (vendors.isEmpty()) {
+        //     return ResponseEntity.status(HttpStatus.NOT_FOUND)
+        //             .body(Collections.singletonList(new VendorDTO())); // Empty response if no vendors found
+        // }
         return ResponseEntity.ok(vendors);
     }
 
