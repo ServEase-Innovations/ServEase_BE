@@ -4,7 +4,6 @@ import java.sql.Date;
 import java.sql.Timestamp;
 import com.springboot.app.enums.Currency;
 import com.springboot.app.enums.PaymentMode;
-
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -36,6 +35,12 @@ public class ServiceProviderPayment {
     @Column(nullable = false)
     private Date endDate;
 
+    @Column(nullable = false)
+    private Date paymentOn;
+
+    @Column(nullable = false)
+    private String transactionId;
+
     private Timestamp settledOn;
 
     @Enumerated(EnumType.STRING)
@@ -53,10 +58,10 @@ public class ServiceProviderPayment {
 
     private String UpiId;
 
-    @Column(nullable = false)
+    @Column
     private int month;
 
-    @Column(nullable = false)
+    @Column
     private int year;
 
     @Column(nullable = false)
