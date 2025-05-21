@@ -85,7 +85,7 @@ public class CustomerController {
                 size = defaultPageSize;
             List<CustomerDTO> customers = customerService.getAllCustomers(page, size);
             if (customers.isEmpty() && page > 0) {
-                return getAllCustomers(0, size); // retry with page 0
+                return getAllCustomers(0, size); 
             }
             return ResponseEntity.ok(customers);
         } catch (Exception e) {
@@ -101,7 +101,12 @@ public class CustomerController {
             @ApiParam(value = "ID of the customer to retrieve", required = true) @PathVariable Long id) {
         try {
             CustomerDTO customerDTO = customerService.getCustomerById(id);
-            return ResponseEntity.ok(customerDTO != null ? customerDTO : new CustomerDTO());
+            if (customerDTO != null) {
+                return ResponseEntity.ok(customerDTO);
+            } else {
+                return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                        .body("Customer not found with ID: " + id);
+            }
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
                     .body("Failed to retrieve customer: " + e.getMessage());
@@ -129,6 +134,9 @@ public class CustomerController {
             @ApiParam(value = "Updated customer object", required = true) @ModelAttribute CustomerDTO customerDTO,
             @ApiParam(value = "Updated profile picture of the customer") @RequestParam(value = "profilePic", required = false) MultipartFile profilePic) {
         try {
+            if (customerService.getCustomerById(id) == null) {
+                return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Customer with ID " + id + " not found");
+            }
             customerDTO.setCustomerId(id);
             customerService.updateCustomer(customerDTO);
             return ResponseEntity.ok(CustomerConstants.UPDATED);
@@ -144,6 +152,9 @@ public class CustomerController {
     public ResponseEntity<?> deleteCustomer(
             @ApiParam(value = "ID of the customer to delete", required = true) @PathVariable Long id) {
         try {
+            if (customerService.getCustomerById(id) == null) {
+                return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Customer with ID " + id + " not found");
+            }
             customerService.deleteCustomer(id);
             return ResponseEntity.ok(CustomerConstants.DELETED);
         } catch (Exception e) {
@@ -185,9 +196,9 @@ public class CustomerController {
                 size = defaultPageSize;
             Map<String, List<CustomerRequestDTO>> categorizedRequests = customerRequestService.getBookingHistory(page,
                     size);
-            if (categorizedRequests == null || categorizedRequests.isEmpty()) {
-                return ResponseEntity.status(HttpStatus.NO_CONTENT).body("No Data Found");
-            }
+            // if (categorizedRequests == null || categorizedRequests.isEmpty()) {
+            //     return ResponseEntity.status(HttpStatus.NO_CONTENT).body("No Data Found");
+            // }
             return ResponseEntity.ok(categorizedRequests);
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
@@ -201,7 +212,11 @@ public class CustomerController {
     public ResponseEntity<?> getCustomerRequestById(@PathVariable Long requestId) {
         try {
             CustomerRequestDTO requestDTO = customerRequestService.getByRequestId(requestId);
-            return ResponseEntity.ok(requestDTO != null ? requestDTO : new CustomerRequestDTO());
+            if (requestDTO != null) {
+                return ResponseEntity.ok(requestDTO);
+            } else {
+                return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Customer Request not found with ID: " + requestId);
+            }
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
                     .body("Failed to retrieve customer request: " + e.getMessage());
@@ -267,6 +282,10 @@ public class CustomerController {
     public ResponseEntity<?> updateCustomerRequest(@PathVariable Long requestId,
             @RequestBody CustomerRequestDTO customerRequestDTO) {
         try {
+            if (customerRequestService.getByRequestId(requestId) == null) {
+                return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                        .body("Customer request with ID " + requestId + " not found");
+            }
             customerRequestDTO.setRequestId(requestId);
             customerRequestService.update(customerRequestDTO);
             return ResponseEntity.ok(CustomerConstants.UPDATED);
@@ -365,7 +384,11 @@ public class CustomerController {
     public ResponseEntity<?> getConcernById(@PathVariable Long id) {
         try {
             CustomerConcernDTO concernDTO = customerConcernService.getConcernById(id);
-            return ResponseEntity.ok(concernDTO);
+            if (concernDTO != null) {
+                return ResponseEntity.ok(concernDTO);
+            } else {
+                return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Concern not found with ID: " + id);
+            }
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
                     .body("Failed to retrieve concern: " + e.getMessage());
@@ -391,6 +414,10 @@ public class CustomerController {
     public ResponseEntity<?> modifyConcern(@PathVariable Long id,
             @RequestBody CustomerConcernDTO customerConcernDTO) {
         try {
+            if (customerConcernService.getConcernById(id) == null) {
+                return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                        .body("Customer concern with ID " + id + " not found");
+            }
             customerConcernDTO.setId(id);
             customerConcernService.modifyConcern(customerConcernDTO);
             return ResponseEntity.ok(CustomerConstants.UPDATED);
@@ -405,6 +432,10 @@ public class CustomerController {
     @ApiOperation(value = "Delete a customer concern by ID", response = String.class)
     public ResponseEntity<?> deleteConcern(@PathVariable Long id) {
         try {
+            if (customerConcernService.getConcernById(id) == null) {
+                return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                        .body("Customer concern with ID " + id + " not found");
+            }
             customerConcernService.deleteConcern(id);
             return ResponseEntity.ok(CustomerConstants.DELETED);
         } catch (Exception e) {
@@ -441,7 +472,11 @@ public class CustomerController {
     public ResponseEntity<?> getFeedbackById(@PathVariable Long id) {
         try {
             CustomerFeedbackDTO feedbackDTO = customerFeedbackService.getFeedbackById(id);
-            return ResponseEntity.ok(feedbackDTO);
+            if (feedbackDTO != null) {
+                return ResponseEntity.ok(feedbackDTO);
+            } else {
+                return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Feedback not found with ID: " + id);
+            }
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
                     .body("Failed to retrieve feedback: " + e.getMessage());
@@ -466,6 +501,10 @@ public class CustomerController {
     @ApiOperation(value = "Delete customer feedback by ID", response = String.class)
     public ResponseEntity<?> deleteFeedback(@PathVariable Long id) {
         try {
+            if (customerFeedbackService.getFeedbackById(id) == null) {
+                return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                        .body("Customer feedback with ID " + id + " not found");
+            }
             customerFeedbackService.deleteFeedback(id);
             return ResponseEntity.ok(CustomerConstants.DELETED);
         } catch (Exception e) {
@@ -502,7 +541,11 @@ public class CustomerController {
     public ResponseEntity<?> getCommentById(@PathVariable Long id) {
         try {
             CustomerRequestCommentDTO commentDTO = customerRequestCommentService.getCommentById(id);
-            return ResponseEntity.ok(commentDTO);
+            if (commentDTO != null) {
+                return ResponseEntity.ok(commentDTO);
+            } else {
+                return ResponseEntity.status(HttpStatus.NOT_FOUND).body("comment not found with ID: " + id);
+            }
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
                     .body("Failed to retrieve customer request comment: " + e.getMessage());
@@ -528,6 +571,10 @@ public class CustomerController {
     public ResponseEntity<?> updateComment(@PathVariable Long id,
             @RequestBody CustomerRequestCommentDTO customerRequestCommentDTO) {
         try {
+            if (customerRequestCommentService.getCommentById(id) == null) {
+                return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                        .body("Customer req comment with ID " + id + " not found");
+            }
             String response = customerRequestCommentService.updateComment(id, customerRequestCommentDTO);
             return ResponseEntity.ok(response);
         } catch (Exception e) {
@@ -541,6 +588,10 @@ public class CustomerController {
     @ApiOperation(value = "Delete customer request comment by ID", response = String.class)
     public ResponseEntity<?> deleteComment(@PathVariable Long id) {
         try {
+            if (customerRequestCommentService.getCommentById(id) == null) {
+                return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                        .body("Customer req comment with ID " + id + " not found");
+            }
             customerRequestCommentService.deleteComment(id);
             return ResponseEntity.ok(CustomerConstants.DELETED);
         } catch (Exception e) {
@@ -611,6 +662,10 @@ public class CustomerController {
             @ApiParam(value = "ID of the KYC to update", required = true) @PathVariable Long id,
             @ApiParam(value = "Updated KYC data", required = true) @RequestBody KYCDTO kycDTO) {
         try {
+            if (kycService.getKYCById(id) == null) {
+                return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                        .body("KYC with ID " + id + " not found");
+            }
             kycDTO.setKyc_id(id);
             String result = kycService.updateKYC(kycDTO);
             return ResponseEntity.ok(result);
@@ -678,6 +733,10 @@ public class CustomerController {
     @ApiOperation(value = "Update a KYC comment by ID", response = String.class)
     public ResponseEntity<?> updateKycComment(@PathVariable Long id, @RequestBody KYCCommentsDTO commentDTO) {
         try {
+            if (kycCommentsService.getKycCommentById(id) == null) {
+                return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                        .body("KYC comment with ID " + id + " not found");
+            }
             String response = kycCommentsService.updateKycComment(id, commentDTO);
             return ResponseEntity.ok(response);
         } catch (Exception e) {
@@ -691,6 +750,10 @@ public class CustomerController {
     @ApiOperation(value = "Delete a KYC comment by ID", response = String.class)
     public ResponseEntity<?> deleteKycComment(@PathVariable Long id) {
         try {
+            if (kycCommentsService.getKycCommentById(id) == null) {
+                return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                        .body("KYC comment with ID " + id + " not found");
+            }
             kycCommentsService.deleteKycComment(id);
             return ResponseEntity.ok(CustomerConstants.DELETED);
         } catch (Exception e) {
@@ -760,6 +823,10 @@ public class CustomerController {
     public ResponseEntity<?> modifyHoliday(@PathVariable Long id,
             @RequestBody CustomerHolidaysDTO customerHolidaysDTO) {
         try {
+            if (customerHolidaysService.getHolidayById(id) == null) {
+                return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                        .body("Holiday with ID " + id + " not found");
+            }
             customerHolidaysDTO.setId(id);
             customerHolidaysService.modifyHoliday(customerHolidaysDTO);
             return ResponseEntity.ok(CustomerConstants.UPDATED);
@@ -774,6 +841,10 @@ public class CustomerController {
     @ApiOperation(value = "Deactivate a customer holiday by ID", response = String.class)
     public ResponseEntity<?> deactivateHoliday(@PathVariable Long id) {
         try {
+            if (customerHolidaysService.getHolidayById(id) == null) {
+                return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                        .body("Holiday with ID " + id + " not found");
+            }
             String response = customerHolidaysService.deactivateHoliday(id);
             return ResponseEntity.ok(response);
         } catch (Exception e) {
