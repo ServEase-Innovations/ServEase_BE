@@ -20,7 +20,7 @@ public class WebMvcConfiguration
             public void addCorsMappings(CorsRegistry registry) {
                 // allow all origins to access our service
                 registry.addMapping("/**")
-                        .allowedOrigins("http://localhost:3000", "https://abcdefg.ngrok.io", ""https://servease-innovation.netlify.app")
+                        .allowedOrigins("http://localhost:3000", "https://abcdefg.ngrok.io", "https://servease-innovation.netlify.app")
                         .allowedOrigins("http://localhost:3000", "https://abcdefg.ngrok.io", )
                         .allowedMethods("GET", "POST", "PUT", "DELETE", "OPTIONS", "HEAD", "PATCH")
                         .allowedHeaders("*");
