@@ -15,16 +15,17 @@ public class CustomerConstants {
     public static final String DELETE_DESC = "Delete a customer by ID";
 
     // Query Contants
-    public static final String GET_ALL_CUSTOMER = "FROM Customer";
-    public static final String GET_ALL_CUSTOMER_CONCERNS = "FROM CustomerConcern";
-    public static final String GET_ALL_CUSTOMER_FEEDBACK = "FROM CustomerFeedback";
-    public static final String GET_ALL_CUSTOMER_REQUESTS = "FROM CustomerRequest";
-    public static final String GET_OPEN_CUSTOMER_REQUESTS = "FROM CustomerRequest WHERE isResolved = 'NO'";
-    public static final String GET_POTENTIAL_CUSTOMERS = "FROM CustomerRequest WHERE isPotential = 'YES'";
+    //public static final String GET_ALL_CUSTOMER = "FROM Customer";
+    //public static final String GET_ALL_CUSTOMER_CONCERNS = "FROM CustomerConcern";
+    //public static final String GET_ALL_CUSTOMER_FEEDBACK = "FROM CustomerFeedback";
+    //public static final String GET_ALL_CUSTOMER_REQUESTS = "FROM CustomerRequest";
+    //public static final String GET_OPEN_CUSTOMER_REQUESTS = "FROM CustomerRequest WHERE isResolved = 'NO'";
+    //public static final String GET_POTENTIAL_CUSTOMERS = "FROM CustomerRequest WHERE isPotential = 'YES'";
 
     // Response Messages
     public static final String ADDED = "ADDED SUCCESSFULLY !";
     public static final String UPDATED = "UPDATED SUCCESSFULLY !";
     public static final String DELETED = "DELETED SUCCESSFULLY !";
     public static final String NOT_FOUND = "NOT FOUND";
+    public static final String FAILED = "FAILED";
 }

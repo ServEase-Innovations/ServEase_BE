@@ -70,13 +70,6 @@ public class ServiceProviderPaymentServiceImpl implements ServiceProviderPayment
         ServiceProviderPayment payment = serviceProviderPaymentMapper
                 .dtoToServiceProviderPayment(serviceProviderPaymentDTO);
 
-        Date paymentOn = payment.getPaymentOn();
-        int month = paymentOn.toLocalDate().getMonthValue();
-        int year = paymentOn.toLocalDate().getYear();
-
-        payment.setMonth(month);
-        payment.setYear(year);
-
         serviceProviderPaymentRepository.save(payment);
         logger.debug("Persisted new service provider payment with ID: {}", payment.getId());
         return "Service Provider Payment added successfully.";
