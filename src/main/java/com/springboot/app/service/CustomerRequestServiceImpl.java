@@ -12,6 +12,8 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
+import com.springboot.app.constant.CustomerConstants;
 import com.springboot.app.dto.CustomerRequestDTO;
 import com.springboot.app.entity.CustomerRequest;
 import com.springboot.app.enums.Gender;
@@ -29,6 +31,7 @@ public class CustomerRequestServiceImpl implements CustomerRequestService {
     private final CustomerRequestRepository customerRequestRepository;
     private final CustomerRequestMapper customerRequestMapper;
 
+
     @Autowired
     public CustomerRequestServiceImpl(CustomerRequestRepository customerRequestRepository,
             CustomerRequestMapper customerRequestMapper) {
@@ -36,12 +39,16 @@ public class CustomerRequestServiceImpl implements CustomerRequestService {
         this.customerRequestMapper = customerRequestMapper;
     }
 
+    @Autowired
+    private CustomerConstants customerconstants;
+
     // To get all customer requests
     @Override
     @Transactional(readOnly = true)
     public List<CustomerRequestDTO> getAll(int page, int size) {
-        logger.info("Fetching all customer requests with pagination - page: {}, size: {}", page, size);
-
+        if (logger.isInfoEnabled()) {
+            logger.info("Fetching all customer requests with pagination - page: {}, size: {}", page, size);
+        }
         Pageable pageable = PageRequest.of(page, size);
         List<CustomerRequest> requests = customerRequestRepository.findAll(pageable).getContent();
 
@@ -54,6 +61,9 @@ public class CustomerRequestServiceImpl implements CustomerRequestService {
     @Override
     @Transactional(readOnly = true)
     public CustomerRequestDTO getByRequestId(Long requestId) {
+        if (logger.isInfoEnabled()) {
+            logger.info("Fetching customer request by ID: {}", requestId);
+        }
         return customerRequestRepository.findById(requestId)
                 .map(customerRequestMapper::customerRequestToDTO)
                 .orElse(null);
@@ -63,6 +73,9 @@ public class CustomerRequestServiceImpl implements CustomerRequestService {
     @Override
     @Transactional(readOnly = true)
     public List<CustomerRequestDTO> getAllOpenRequests(int page, int size) {
+        if (logger.isInfoEnabled()) {
+            logger.info("Fetching all open customer requests with pagination - page: {}, size: {}", page, size);
+        }
         // Example of custom query to filter open requests
         List<CustomerRequest> openRequests = customerRequestRepository.findAll()
                 .stream()
@@ -70,6 +83,12 @@ public class CustomerRequestServiceImpl implements CustomerRequestService {
                 .skip((long) page * size)
                 .limit(size)
                 .toList();
+        if (openRequests.isEmpty()) {
+            if (logger.isWarnEnabled()) {
+                logger.warn("No open customer requests found for the given criteria.");
+            }
+            return Collections.emptyList();
+        }
         return openRequests.stream()
                 .map(customerRequestMapper::customerRequestToDTO)
                 .toList();
@@ -78,6 +97,9 @@ public class CustomerRequestServiceImpl implements CustomerRequestService {
     @Override
     @Transactional(readOnly = true)
     public List<CustomerRequestDTO> findAllPotentialCustomers(int page, int size) {
+        if (logger.isInfoEnabled()) {
+            logger.info("Fetching all potential customers with pagination - page: {}, size: {}", page, size);
+        }
         // Example of custom query to filter potential customers
         List<CustomerRequest> potentialCustomers = customerRequestRepository.findAll()
                 .stream()
@@ -85,6 +107,12 @@ public class CustomerRequestServiceImpl implements CustomerRequestService {
                 .skip((long) page * size)
                 .limit(size)
                 .toList();
+        if (potentialCustomers.isEmpty()) {
+            if (logger.isWarnEnabled()) {
+                logger.warn("No potential customers found for the given criteria.");
+            }
+            return Collections.emptyList();
+        }
         return potentialCustomers.stream()
                 .map(customerRequestMapper::customerRequestToDTO)
                 .toList();
@@ -94,21 +122,33 @@ public class CustomerRequestServiceImpl implements CustomerRequestService {
     @Override
     @Transactional
     public String insert(CustomerRequestDTO customerRequestDTO) {
+        if (logger.isInfoEnabled()) {
+            logger.info("Adding new customer request for customer ID: {}", customerRequestDTO.getCustomerId());
+        }
         CustomerRequest request = customerRequestMapper.dtoToCustomerRequest(customerRequestDTO);
         customerRequestRepository.save(request);
-        return "ADDED";
+        if (logger.isDebugEnabled()) {
+            logger.debug("Persisted new customer request with ID: {}", request.getRequestId());
+        }
+        return CustomerConstants.ADDED;
     }
 
     // To update a customer request
     @Override
     @Transactional
     public String update(CustomerRequestDTO customerRequestDTO) {
+        if (logger.isInfoEnabled()) {
+            logger.info("Updating customer request with ID: {}", customerRequestDTO.getRequestId());
+        }
         if (customerRequestRepository.existsById(customerRequestDTO.getRequestId())) {
             CustomerRequest updatedRequest = customerRequestMapper.dtoToCustomerRequest(customerRequestDTO);
             customerRequestRepository.save(updatedRequest);
-            return "UPDATED";
+            if (logger.isDebugEnabled()) {
+                logger.debug("Updated customer request with ID: {}", updatedRequest.getRequestId());
+            }
+            return CustomerConstants.UPDATED;
         } else {
-            return "NOT_FOUND";
+            return CustomerConstants.NOT_FOUND;
         }
     }
 
@@ -118,6 +158,11 @@ public class CustomerRequestServiceImpl implements CustomerRequestService {
             HousekeepingRole housekeepingRole, Gender gender,
             String area, Integer pincode, String locality,
             String apartment_name, int page, int size) {
+        if (logger.isInfoEnabled()) {
+            logger.info("Fetching customer requests with filters");
+        }
+              
+                
         // You can add custom queries here based on filters.
         List<CustomerRequest> filteredRequests = customerRequestRepository.findAll()
                 .stream()
@@ -130,7 +175,12 @@ public class CustomerRequestServiceImpl implements CustomerRequestService {
                 .skip((long) page * size)
                 .limit(size)
                 .toList();
-
+        if (filteredRequests.isEmpty()) {
+            if (logger.isWarnEnabled()) {
+                logger.warn("No customer requests found for the given filters.");
+            }
+            return Collections.emptyList();
+        }
         return filteredRequests.stream()
                 .map(customerRequestMapper::customerRequestToDTO)
                 .toList();
@@ -139,21 +189,29 @@ public class CustomerRequestServiceImpl implements CustomerRequestService {
     @Override
     @Transactional
     public void updateStatus(Long requestId, Status status) {
-        logger.info("Updating status of customer request with id: {}", requestId);
-
+        if (logger.isInfoEnabled()) {
+            logger.info("Updating status of customer request with id: {}", requestId);
+        }
         CustomerRequest customerRequest = customerRequestRepository.findById(requestId)
                 .orElseThrow(() -> new IllegalArgumentException("CustomerRequest not found with id: " + requestId));
         customerRequest.setStatus(status);
+        if (logger.isDebugEnabled()) {
+            logger.debug("Setting status to: {}", status);
+        }
         customerRequest.setModifiedDate(java.sql.Timestamp.valueOf(java.time.LocalDateTime.now()));
         customerRequestRepository.save(customerRequest);
+        if (logger.isDebugEnabled()) {
+            logger.debug("Updated customer request with ID: {}", requestId);
+        }
     }
 
     // To get and categorize all customer requests
     @Override
     @Transactional(readOnly = true)
     public Map<String, List<CustomerRequestDTO>> getBookingHistory(int page, int size) {
-        logger.info("Fetching and categorizing customer requests with pagination - page: {}, size: {}", page, size);
-
+        if (logger.isInfoEnabled()) {
+            logger.info("Fetching and categorizing customer requests with pagination - page: {}, size: {}", page, size);
+        }
         Pageable pageable = PageRequest.of(page, size);
         List<CustomerRequest> requests = customerRequestRepository.findAll(pageable).getContent();
 
@@ -163,7 +221,9 @@ public class CustomerRequestServiceImpl implements CustomerRequestService {
 
         // Get current date
         LocalDate currentDate = LocalDate.now();
-
+        if (logger.isDebugEnabled()) {
+            logger.debug("Current date for categorization: {}", currentDate);
+        }
         return requests.stream()
                 .map(customerRequestMapper::customerRequestToDTO)
                 .collect(Collectors.groupingBy(request -> {

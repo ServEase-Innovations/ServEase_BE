@@ -39,10 +39,14 @@ public class CustomerServiceImpl implements CustomerService {
     @Override
     @Transactional(readOnly = true)
     public List<CustomerDTO> getAllCustomers(int page, int size) {
-        logger.info("Fetching all customers with page: {} and size: {}", page, size);
+        if (logger.isInfoEnabled()) {
+            logger.info("Fetching all customers with page: {} and size: {}", page, size);
+        }
         Pageable pageable = PageRequest.of(page, size);
         List<Customer> customers = customerRepository.findAll(pageable).getContent();
-        logger.debug("Number of customers fetched: {}", customers.size());
+        if (logger.isDebugEnabled()) {
+            logger.debug("Number of customers fetched: {}", customers.size());
+        }
 
         return customers.stream()
                 .map(customerMapper::customerToDTO)
@@ -53,11 +57,15 @@ public class CustomerServiceImpl implements CustomerService {
     @Override
     @Transactional(readOnly = true)
     public CustomerDTO getCustomerById(Long id) {
-        logger.info("Fetching customer by id: {}", id);
+        if (logger.isInfoEnabled()) {
+            logger.info("Fetching customer by id: {}", id);
+        }
         return customerRepository.findById(id)
                 .map(customerMapper::customerToDTO)
                 .orElseGet(() -> {
-                    logger.error("Customer not found with id: {}", id);
+                    if (logger.isErrorEnabled()) {
+                        logger.error("Customer not found with id: {}", id);
+                    }
                     return null;
                 });
     }
@@ -66,11 +74,38 @@ public class CustomerServiceImpl implements CustomerService {
     @Override
     @Transactional
     public String saveCustomer(CustomerDTO customerDTO) {
-        logger.info("Saving a new customer: {}", customerDTO);
+        if (logger.isInfoEnabled()) {
+            logger.info("Saving a new customer: {}", customerDTO);
+        }
+
         String email = customerDTO.getEmailId();
+        String mobile = customerDTO.getMobileNo() != null ? customerDTO.getMobileNo().toString() : null;
+
         if (email == null || email.isEmpty()) {
             throw new IllegalArgumentException("EmailId is required to save a customer.");
         }
+
+
+        boolean emailExists = customerRepository.existsByEmailId(email);
+        if (emailExists) {
+            if (logger.isInfoEnabled()) {
+                logger.info("User already exists with this email: {}", email);
+            }
+            return "User already exists with this email";
+        }
+
+        // Mobile check
+        if (mobile != null && !mobile.isEmpty()) {
+            boolean mobileExists = customerRepository.existsByMobileNo(mobile);
+            if (mobileExists) {
+                if (logger.isInfoEnabled()) {
+                    logger.info("User already exists with this mobile number: {}", mobile);
+                }
+                return "User already exists with this mobile";
+            }
+        }
+
+
         customerDTO.setUsername(email);
         // Step 1: Register the user credentials using the injected service
         UserCredentialsDTO userDTO = new UserCredentialsDTO(
@@ -87,14 +122,17 @@ public class CustomerServiceImpl implements CustomerService {
         );
         // Call the registerUser method to add the user
         String registrationResponse = userCredentialsService.saveUserCredentials(userDTO);
-        logger.info("User registration response: {}", registrationResponse);
+        if (logger.isInfoEnabled()) {
+            logger.info("User registration response: {}", registrationResponse);
+        }
 
         // Map CustomerDTO to Customer entity
         Customer customer = customerMapper.dtoToCustomer(customerDTO);
         customer.setActive(true); // Set customer as active
         customerRepository.save(customer);
-
-        logger.info("Customer saved with id: {}", customer.getCustomerId());
+        if (logger.isInfoEnabled()) {
+            logger.info("Customer saved with id: {}", customer.getCustomerId());
+        }
         return registrationResponse;
     }
 
@@ -102,17 +140,23 @@ public class CustomerServiceImpl implements CustomerService {
     @Override
     @Transactional
     public String updateCustomer(CustomerDTO customerDTO) {
-        logger.info("Updating customer with id: {}", customerDTO.getCustomerId());
+        if (logger.isInfoEnabled()) {
+            logger.info("Updating customer with id: {}", customerDTO.getCustomerId());
+        }
 
         // Map DTO to entity
         Customer customer = customerMapper.dtoToCustomer(customerDTO);
 
         if (customerRepository.existsById(customer.getCustomerId())) {
             customerRepository.save(customer);
-            logger.info("Customer updated with id: {}", customer.getCustomerId());
+            if (logger.isInfoEnabled()) {
+                logger.info("Customer updated with id: {}", customer.getCustomerId());
+            }
             return CustomerConstants.UPDATED;
         } else {
-            logger.error("Customer not found for update with id: {}", customer.getCustomerId());
+            if (logger.isErrorEnabled()) {
+                logger.error("Customer not found for update with id: {}", customer.getCustomerId());
+            }
             return CustomerConstants.NOT_FOUND;
         }
     }
@@ -121,17 +165,23 @@ public class CustomerServiceImpl implements CustomerService {
     @Override
     @Transactional
     public String deleteCustomer(Long id) {
-        logger.info("Deleting customer with id: {}", id);
+        if (logger.isInfoEnabled()) {
+            logger.info("Deleting customer with id: {}", id);
+        }
 
         return customerRepository.findById(id)
                 .map(customer -> {
                     customer.setActive(false);
                     customerRepository.save(customer);
-                    logger.info("Customer deactivated successfully with id: {}", id);
+                    if (logger.isInfoEnabled()) {
+                        logger.info("Customer deactivated successfully with id: {}", id);
+                    }
                     return CustomerConstants.DELETED;
                 })
                 .orElseGet(() -> {
-                    logger.error("Customer not found for deletion with id: {}", id);
+                    if (logger.isErrorEnabled()) {
+                        logger.error("Customer not found for deletion with id: {}", id);
+                    }
                     return CustomerConstants.NOT_FOUND;
                 });
     }

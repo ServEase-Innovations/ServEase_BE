@@ -11,7 +11,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-
+import java.util.Calendar;
+import java.sql.Date;
+import java.util.Collections;
 import java.util.List;
 
 @Service
@@ -107,4 +109,63 @@ public class ServiceProviderPaymentServiceImpl implements ServiceProviderPayment
             return "Service Provider Payment not found.";
         }
     }
+
+    @Override
+    @Transactional(readOnly = true)
+    public List<ServiceProviderPaymentDTO> getPaymentsByDateRange(Date startDate, Date endDate) {
+        logger.info("Fetching payments between {} and {}", startDate, endDate);
+        List<ServiceProviderPayment> payments = serviceProviderPaymentRepository
+                .findByPaymentOnBetween(startDate, endDate);
+
+        if (payments.isEmpty()) {
+            logger.info("No payments found between {} and {}", startDate, endDate);
+            return Collections.emptyList();
+        }
+
+        logger.debug("Found {} payments between {} and {}", payments.size(), startDate, endDate);
+        return payments.stream()
+                .map(serviceProviderPaymentMapper::serviceProviderPaymentToDTO)
+                .toList();
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public List<ServiceProviderPaymentDTO> getPaymentsByMonthAndYear(int month, int year) {
+        logger.info("Fetching payments for month: {} and year: {}", month, year);
+
+        List<ServiceProviderPayment> payments = serviceProviderPaymentRepository
+                .findByMonthAndYear(month, year);
+
+        if (payments.isEmpty()) {
+            logger.info("No payments found for month: {} and year: {}", month, year);
+            return Collections.emptyList();
+        }
+
+        logger.debug("Found {} payments for month: {} and year: {}", payments.size(), month, year);
+        return payments.stream()
+                .map(serviceProviderPaymentMapper::serviceProviderPaymentToDTO)
+                .toList();
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public List<ServiceProviderPaymentDTO> getPaymentsByFinancialYear(int year) {
+        logger.info("Fetching payments for financial year: {}", year);
+
+        Date fromDate = Date.valueOf((year - 1) + "-04-01");
+        Date toDate = Date.valueOf(year + "-03-31");
+
+        List<ServiceProviderPayment> payments = serviceProviderPaymentRepository
+                .findByPaymentOnBetween(fromDate, toDate);
+
+        if (payments.isEmpty()) {
+            logger.info("No payments found for financial year: {}", year);
+            return Collections.emptyList();
+        }
+        logger.debug("Found {} payments for financial year: {}", payments.size(), year);
+        return payments.stream()
+                .map(serviceProviderPaymentMapper::serviceProviderPaymentToDTO)
+                .toList();
+    }
+
 }

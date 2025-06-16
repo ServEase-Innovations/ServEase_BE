@@ -7,7 +7,6 @@ import com.springboot.app.mapper.CustomerConcernMapper;
 import com.springboot.app.repository.CustomerConcernRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
@@ -33,13 +32,15 @@ public class CustomerConcernServiceImpl implements CustomerConcernService {
     @Override
     @Transactional(readOnly = true)
     public List<CustomerConcernDTO> getAllConcerns(int page, int size) {
-        logger.info("Fetching all concerns with pagination - page: {}, size: {}", page, size);
-
+        if (logger.isInfoEnabled()) {
+            logger.info("Fetching all concerns with pagination - page: {}, size: {}", page, size);
+        }
         Pageable pageable = PageRequest.of(page, size);
         List<CustomerConcern> concerns = customerConcernRepository.findAll(pageable).getContent();
 
-        logger.debug("Fetched {} concerns from the database.", concerns.size());
-
+        if (logger.isDebugEnabled()) {
+            logger.debug("Fetched {} concerns from the database.", concerns.size());
+        }
         return concerns.stream()
                 .map(customerConcernMapper::customerConcernToDTO)
                 .toList();
@@ -48,36 +49,45 @@ public class CustomerConcernServiceImpl implements CustomerConcernService {
     @Override
     @Transactional(readOnly = true)
     public CustomerConcernDTO getConcernById(Long id) {
-        logger.info("Fetching concern by ID: {}", id);
-
+        if (logger.isInfoEnabled()) {
+            logger.info("Fetching concern by ID: {}", id);
+        }
         // Use the repository to fetch the concern by ID
         Optional<CustomerConcern> concernOptional = customerConcernRepository.findById(id);
         if (concernOptional.isPresent()) {
-            logger.debug("Found concern with ID: {}", id);
+            if (logger.isDebugEnabled()) {
+                logger.debug("Found concern with ID: {}", id);
+            }
             return customerConcernMapper.customerConcernToDTO(concernOptional.get());
         } else {
-            logger.error("No concern found with ID: {}", id);
-            return null; // Return null or throw an exception based on your preference
+            if (logger.isErrorEnabled()) {
+                logger.error("No concern found with ID: {}", id);
+            }
+            return null; 
         }
     }
 
     @Override
     @Transactional
     public String addNewConcern(CustomerConcernDTO customerConcernDTO) {
-        logger.info("Adding new customer concern");
-
+        if (logger.isInfoEnabled()) {
+            logger.info("Adding new customer concern");
+        }
         CustomerConcern concern = customerConcernMapper.dtoToCustomerConcern(customerConcernDTO);
-        customerConcernRepository.save(concern); // Use repository to save the entity
+        customerConcernRepository.save(concern); 
 
-        logger.debug("Persisted new concern with ID: {}", concern.getId());
+        if (logger.isDebugEnabled()) {
+            logger.debug("Persisted new concern with ID: {}", concern.getId());
+        }
         return CustomerConstants.ADDED;
     }
 
     @Override
     @Transactional
     public String modifyConcern(CustomerConcernDTO customerConcernDTO) {
-        logger.info("Modifying concern with ID: {}", customerConcernDTO.getId());
-
+        if (logger.isInfoEnabled()) {
+            logger.info("Modifying concern with ID: {}", customerConcernDTO.getId());
+        }
         // Fetch the existing concern using the repository
         Optional<CustomerConcern> existingConcernOptional = customerConcernRepository
                 .findById(customerConcernDTO.getId());
@@ -87,10 +97,14 @@ public class CustomerConcernServiceImpl implements CustomerConcernService {
             updatedConcern.setId(existingConcern.getId());
             customerConcernRepository.save(updatedConcern); // Use repository to save the updated entity
 
-            logger.debug("Modified concern with ID: {}", customerConcernDTO.getId());
+            if (logger.isDebugEnabled()) {
+                logger.debug("Modified concern with ID: {}", customerConcernDTO.getId());
+            }
             return CustomerConstants.UPDATED;
         } else {
-            logger.warn("Concern not found with ID: {}", customerConcernDTO.getId());
+            if (logger.isWarnEnabled()) {
+                logger.warn("Concern not found with ID: {}", customerConcernDTO.getId());
+            }
             return CustomerConstants.NOT_FOUND;
         }
     }
@@ -98,18 +112,23 @@ public class CustomerConcernServiceImpl implements CustomerConcernService {
     @Override
     @Transactional
     public String deleteConcern(Long id) {
-        logger.info("Deleting concern with ID: {}", id);
-
+        if (logger.isInfoEnabled()) {
+            logger.info("Deleting concern with ID: {}", id);
+        }
         // Use the repository to check if the concern exists
         Optional<CustomerConcern> existingConcernOptional = customerConcernRepository.findById(id);
         if (existingConcernOptional.isPresent()) {
             CustomerConcern existingConcern = existingConcernOptional.get();
             customerConcernRepository.delete(existingConcern); // Use repository to delete the entity
 
-            logger.debug("Deleted concern with ID: {}", id);
+            if (logger.isDebugEnabled()) {
+                logger.debug("Deleted concern with ID: {}", id);
+            }
             return CustomerConstants.DELETED;
         } else {
-            logger.error("Concern not found with ID: {}", id);
+            if (logger.isErrorEnabled()) {
+                logger.error("Concern not found with ID: {}", id);
+            }
             return CustomerConstants.NOT_FOUND;
         }
     }

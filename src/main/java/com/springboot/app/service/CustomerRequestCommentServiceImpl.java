@@ -39,13 +39,15 @@ public class CustomerRequestCommentServiceImpl implements CustomerRequestComment
     @Override
     @Transactional(readOnly = true)
     public List<CustomerRequestCommentDTO> getAllComments(int page, int size) {
-        logger.info("Fetching all customer request comments with pagination - page: {}, size: {}", page, size);
-
+        if (logger.isInfoEnabled()) {
+            logger.info("Fetching all customer request comments with pagination - page: {}, size: {}", page, size);
+        }
         Pageable pageable = PageRequest.of(page, size);
         List<CustomerRequestComment> commentsList = customerRequestCommentRepository.findAll(pageable).getContent();
 
-        logger.debug("Fetched {} customer request comments from the database.", commentsList.size());
-
+        if (logger.isDebugEnabled()) {
+            logger.debug("Fetched {} customer request comments from the database.", commentsList.size());
+        }
         return commentsList.stream()
                 .map(customerRequestCommentMapper::customerRequestCommentToDTO)
                 .toList();
@@ -55,12 +57,18 @@ public class CustomerRequestCommentServiceImpl implements CustomerRequestComment
     @Override
     @Transactional(readOnly = true)
     public CustomerRequestCommentDTO getCommentById(Long id) {
-        logger.info("Fetching customer request comment by ID: {}", id);
+        if (logger.isInfoEnabled()) {
+            logger.info("Fetching customer request comment by ID: {}", id);
+        }
         CustomerRequestComment comment = customerRequestCommentRepository.findById(id).orElse(null);
         if (comment != null) {
-            logger.debug("Comment found with ID: {}", id);
+            if (logger.isDebugEnabled()) {
+                logger.debug("Comment found with ID: {}", id);
+            }
         } else {
-            logger.error("Comment not found with ID: {}", id);
+            if (logger.isErrorEnabled()) {
+                logger.error("Comment not found with ID: {}", id);
+            }
         }
         return customerRequestCommentMapper.customerRequestCommentToDTO(comment);
     }
@@ -69,10 +77,13 @@ public class CustomerRequestCommentServiceImpl implements CustomerRequestComment
     @Override
     @Transactional
     public String addComment(CustomerRequestCommentDTO commentDTO) {
-        logger.info("Adding new comment for customer request ID: {}", commentDTO.getRequestId());
-
+        if (logger.isInfoEnabled()) {
+            logger.info("Adding new comment for customer request ID: {}", commentDTO.getRequestId());
+        }
         if (commentDTO.getRequestId() == null) {
-            logger.warn("CustomerRequestId is required to add a comment.");
+            if (logger.isWarnEnabled()) {
+                logger.warn("CustomerRequestId is required to add a comment.");
+            }
             throw new IllegalArgumentException("CustomerRequestId is required.");
         }
 
@@ -85,7 +96,9 @@ public class CustomerRequestCommentServiceImpl implements CustomerRequestComment
         comment.setCustomerRequest(customerRequest);
         customerRequestCommentRepository.save(comment);
 
-        logger.info("Comment added with ID: {}", comment.getId());
+        if (logger.isInfoEnabled()) {
+            logger.info("Comment added with ID: {}", comment.getId());
+        }
         return CustomerConstants.ADDED;
     }
 
@@ -93,7 +106,9 @@ public class CustomerRequestCommentServiceImpl implements CustomerRequestComment
     @Override
     @Transactional
     public String updateComment(Long id, CustomerRequestCommentDTO commentDTO) {
-        logger.info("Updating comment with ID: {}", id);
+        if (logger.isInfoEnabled()) {
+            logger.info("Updating comment with ID: {}", id);
+        }
 
         CustomerRequestComment existingComment = customerRequestCommentRepository.findById(id).orElse(null);
         if (existingComment != null) {
@@ -102,10 +117,14 @@ public class CustomerRequestCommentServiceImpl implements CustomerRequestComment
             updatedComment.setId(existingComment.getId());
             customerRequestCommentRepository.save(updatedComment);
 
-            logger.info("Comment updated successfully with ID: {}", id);
+            if (logger.isInfoEnabled()) {
+                logger.info("Comment updated successfully with ID: {}", id);
+            }
             return CustomerConstants.UPDATED;
         } else {
-            logger.error("Comment not found for update with ID: {}", id);
+            if (logger.isErrorEnabled()) {
+                logger.error("Comment not found for update with ID: {}", id);
+            }
             return CustomerConstants.NOT_FOUND;
         }
     }
@@ -114,15 +133,20 @@ public class CustomerRequestCommentServiceImpl implements CustomerRequestComment
     @Override
     @Transactional
     public String deleteComment(Long id) {
-        logger.info("Deleting comment with ID: {}", id);
-
+        if (logger.isInfoEnabled()) {
+            logger.info("Deleting comment with ID: {}", id);
+        }
         CustomerRequestComment existingComment = customerRequestCommentRepository.findById(id).orElse(null);
         if (existingComment != null) {
             customerRequestCommentRepository.delete(existingComment);
-            logger.info("Comment deleted with ID: {}", id);
+            if (logger.isInfoEnabled()) {
+                logger.info("Comment deleted with ID: {}", id);
+            }
             return CustomerConstants.DELETED;
         } else {
-            logger.error("Comment not found for deletion with ID: {}", id);
+            if (logger.isErrorEnabled()) {
+                logger.error("Comment not found for deletion with ID: {}", id);
+            }
             return CustomerConstants.NOT_FOUND;
         }
     }

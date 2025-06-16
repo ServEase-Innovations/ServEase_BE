@@ -38,13 +38,15 @@ public class CustomerFeedbackServiceImpl implements CustomerFeedbackService {
     @Override
     @Transactional(readOnly = true)
     public List<CustomerFeedbackDTO> getAllFeedback(int page, int size) {
-        logger.info("Fetching all feedback with pagination - page: {}, size: {}", page, size);
-
+        if (logger.isInfoEnabled()) {
+            logger.info("Fetching all feedback with pagination - page: {}, size: {}", page, size);
+        }
         Pageable pageable = PageRequest.of(page, size);
         List<CustomerFeedback> feedbackList = customerFeedbackRepository.findAll(pageable).getContent();
 
-        logger.debug("Fetched {} feedback entries from the database.", feedbackList.size());
-
+        if (logger.isDebugEnabled()) {
+            logger.debug("Fetched {} feedback entries from the database.", feedbackList.size());
+        }
         return feedbackList.stream()
                 .map(customerFeedbackMapper::customerFeedbackToDTO)
                 .toList();
@@ -53,12 +55,18 @@ public class CustomerFeedbackServiceImpl implements CustomerFeedbackService {
     @Override
     @Transactional(readOnly = true)
     public CustomerFeedbackDTO getFeedbackById(Long id) {
-        logger.info("Fetching feedback by ID: {}", id);
+        if (logger.isInfoEnabled()) {
+            logger.info("Fetching feedback by ID: {}", id);
+        }
         CustomerFeedback feedback = customerFeedbackRepository.findById(id).orElse(null);
         if (feedback != null) {
-            logger.debug("Found feedback entry with ID: {}", id);
+            if (logger.isDebugEnabled()) {
+                logger.debug("Found feedback entry with ID: {}", id);
+            }
         } else {
-            logger.error("No feedback found with ID: {}", id);
+            if (logger.isErrorEnabled()) {
+                logger.error("No feedback found with ID: {}", id);
+            }
         }
         return customerFeedbackMapper.customerFeedbackToDTO(feedback);
     }
@@ -66,12 +74,16 @@ public class CustomerFeedbackServiceImpl implements CustomerFeedbackService {
     @Override
     @Transactional
     public String addFeedback(CustomerFeedbackDTO customerFeedbackDTO) {
-        logger.info("Adding new feedback for ServiceProvider ID: {}", customerFeedbackDTO.getServiceProviderId());
-
+        if (logger.isInfoEnabled()) {
+            logger.info("Adding new feedback for ServiceProvider ID: {}", customerFeedbackDTO.getServiceProviderId());
+        }
         // Fetch ServiceProvider using the repository
         ServiceProvider serviceProvider = serviceProviderRepository.findById(customerFeedbackDTO.getServiceProviderId())
                 .orElseThrow(() -> {
-                    logger.error("Service Provider not found with ID: {}", customerFeedbackDTO.getServiceProviderId());
+                    if (logger.isErrorEnabled()) {
+                        logger.error("Service Provider not found with ID: {}",
+                                customerFeedbackDTO.getServiceProviderId());
+                    }
                     return new IllegalArgumentException(
                             "Service Provider not found with ID: " + customerFeedbackDTO.getServiceProviderId());
                 });
@@ -82,7 +94,10 @@ public class CustomerFeedbackServiceImpl implements CustomerFeedbackService {
 
         // Save the feedback
         customerFeedbackRepository.save(feedback);
-        logger.debug("Persisted new feedback for ServiceProvider ID: {}", customerFeedbackDTO.getServiceProviderId());
+        if (logger.isDebugEnabled()) {
+            logger.debug("Persisted new feedback for ServiceProvider ID: {}",
+                    customerFeedbackDTO.getServiceProviderId());
+        }
         // Fetch all feedbacks for the ServiceProvider
         List<CustomerFeedback> providerFeedbacks = customerFeedbackRepository
                 .findByServiceProviderServiceproviderId(customerFeedbackDTO.getServiceProviderId());
@@ -100,7 +115,9 @@ public class CustomerFeedbackServiceImpl implements CustomerFeedbackService {
 
         // Save updated ServiceProvider
         serviceProviderRepository.save(serviceProvider);
-        logger.info("Updated ServiceProvider rating to: {}", averageRating);
+        if (logger.isInfoEnabled()) {
+            logger.info("Updated ServiceProvider rating to: {}", averageRating);
+        }
 
         return CustomerConstants.ADDED;
     }
@@ -108,13 +125,19 @@ public class CustomerFeedbackServiceImpl implements CustomerFeedbackService {
     @Override
     @Transactional
     public String deleteFeedback(Long feedbackId) {
-        logger.info("Deleting feedback with ID: {}", feedbackId);
+        if (logger.isInfoEnabled()) {
+            logger.info("Deleting feedback with ID: {}", feedbackId);
+        }
         if (customerFeedbackRepository.existsById(feedbackId)) {
             customerFeedbackRepository.deleteById(feedbackId);
-            logger.debug("Deleted feedback with ID: {}", feedbackId);
+            if (logger.isDebugEnabled()) {
+                logger.debug("Deleted feedback with ID: {}", feedbackId);
+            }
             return CustomerConstants.DELETED;
         } else {
-            logger.error("Feedback not found with ID: {}", feedbackId);
+            if (logger.isErrorEnabled()) {
+                logger.error("Feedback not found with ID: {}", feedbackId);
+            }
             return CustomerConstants.NOT_FOUND;
         }
     }

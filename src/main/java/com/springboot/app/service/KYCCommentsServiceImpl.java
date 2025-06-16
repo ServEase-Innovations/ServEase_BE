@@ -38,12 +38,14 @@ public class KYCCommentsServiceImpl implements KYCCommentsService {
     @Override
     @Transactional(readOnly = true)
     public List<KYCCommentsDTO> getAllKycComments(int page, int size) {
-        logger.info("Fetching all KYC comments with pagination - page: {}, size: {}", page, size);
-
+        if (logger.isInfoEnabled()) {
+            logger.info("Fetching all KYC comments with pagination - page: {}, size: {}", page, size);
+        }
         Pageable pageable = PageRequest.of(page, size);
         List<KYCComments> comments = kycCommentsRepository.findAll(pageable).getContent();
-        logger.debug("Fetched {} KYC comments from the database.", comments.size());
-
+        if (logger.isDebugEnabled()) {
+            logger.debug("Fetched {} KYC comments from the database.", comments.size());
+        }
         return comments.stream()
                 .map(kycCommentsMapper::kycCommentsToDTO)
                 .toList();
@@ -53,14 +55,20 @@ public class KYCCommentsServiceImpl implements KYCCommentsService {
     @Override
     @Transactional(readOnly = true)
     public KYCCommentsDTO getKycCommentById(Long id) {
-        logger.info("Fetching KYC comment by ID: {}", id);
+        if (logger.isInfoEnabled()) {
+            logger.info("Fetching KYC comment by ID: {}", id);
+        }
 
         KYCComments comment = kycCommentsRepository.findById(id).orElse(null);
 
         if (comment != null) {
-            logger.debug("Found KYC comment with ID: {}", id);
+            if (logger.isDebugEnabled()) {
+                logger.debug("Found KYC comment with ID: {}", id);
+            }
         } else {
-            logger.error("No KYC comment found with ID: {}", id);
+            if (logger.isErrorEnabled()) {
+                logger.error("No KYC comment found with ID: {}", id);
+            }
         }
 
         return kycCommentsMapper.kycCommentsToDTO(comment);
@@ -70,11 +78,14 @@ public class KYCCommentsServiceImpl implements KYCCommentsService {
     @Override
     @Transactional
     public String addKycComment(KYCCommentsDTO commentDTO) {
-        logger.info("Adding new KYC comment for KYC ID: {}", commentDTO.getKyc_id());
-
+        if (logger.isInfoEnabled()) {
+            logger.info("Adding new KYC comment for KYC ID: {}", commentDTO.getKyc_id());
+        }
         KYC kyc = kycRepository.findById(commentDTO.getKyc_id()).orElse(null);
         if (kyc == null) {
-            logger.error("KYC with ID {} does not exist.", commentDTO.getKyc_id());
+            if (logger.isErrorEnabled()) {
+                logger.error("KYC with ID {} does not exist.", commentDTO.getKyc_id());
+            }
             throw new IllegalArgumentException("KYC with ID " + commentDTO.getKyc_id() + " does not exist.");
         }
 
@@ -85,7 +96,9 @@ public class KYCCommentsServiceImpl implements KYCCommentsService {
         comment.setCommentedBy(commentDTO.getCommentedBy());
         kycCommentsRepository.save(comment);
 
-        logger.debug("Persisted new KYC comment with ID: {}", comment.getId());
+        if (logger.isDebugEnabled()) {
+            logger.debug("Persisted new KYC comment with ID: {}", comment.getId());
+        }
         return CustomerConstants.ADDED;
     }
 
@@ -93,21 +106,26 @@ public class KYCCommentsServiceImpl implements KYCCommentsService {
     @Override
     @Transactional
     public String updateKycComment(Long id, KYCCommentsDTO commentDTO) {
-        logger.info("Updating KYC comment with ID: {}", id);
+        if (logger.isInfoEnabled()) {
+            logger.info("Updating KYC comment with ID: {}", id);
+        }
 
         KYCComments existingComment = kycCommentsRepository.findById(id).orElse(null);
 
         if (existingComment == null) {
-            logger.error("Comment not found with ID: {}", id);
-            return "Comment not found";
+            if (logger.isErrorEnabled()) {
+                logger.error("Comment not found with ID: {}", id);
+            }
+            return CustomerConstants.NOT_FOUND;
         }
 
         KYCComments updatedComment = kycCommentsMapper.dtoToKYCComments(commentDTO);
         updatedComment.setId(existingComment.getId());
         kycCommentsRepository.save(updatedComment);
 
-        logger.debug("Updated KYC comment with ID: {}", id);
-
+        if (logger.isDebugEnabled()) {
+            logger.debug("Updated KYC comment with ID: {}", id);
+        }
         return CustomerConstants.UPDATED;
     }
 
@@ -115,17 +133,23 @@ public class KYCCommentsServiceImpl implements KYCCommentsService {
     @Override
     @Transactional
     public String deleteKycComment(Long id) {
-        logger.info("Deleting KYC comment with ID: {}", id);
+        if (logger.isInfoEnabled()) {
+            logger.info("Deleting KYC comment with ID: {}", id);
+        }
 
         KYCComments existingComment = kycCommentsRepository.findById(id).orElse(null);
 
         if (existingComment != null) {
             kycCommentsRepository.delete(existingComment);
-            logger.debug("Deleted KYC comment with ID: {}", id);
+            if (logger.isDebugEnabled()) {
+                logger.debug("Deleted KYC comment with ID: {}", id);
+            }
             return CustomerConstants.DELETED;
         } else {
-            logger.error("Comment not found with ID: {}", id);
-            return "Comment not found";
+            if (logger.isErrorEnabled()) {
+                logger.error("Comment not found with ID: {}", id);
+            }
+            return CustomerConstants.NOT_FOUND;
         }
     }
 }
