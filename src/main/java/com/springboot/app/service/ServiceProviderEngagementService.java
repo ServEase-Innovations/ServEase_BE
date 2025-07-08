@@ -4,7 +4,9 @@ import java.time.LocalDate;
 import java.util.List;
 import java.util.Map;
 
+import com.springboot.app.dto.ServiceProviderDTO;
 import com.springboot.app.dto.ServiceProviderEngagementDTO;
+import com.springboot.app.entity.ServiceProvider;
 import com.springboot.app.enums.HousekeepingRole;
 import com.springboot.app.enums.UserRole;
 
@@ -36,5 +38,16 @@ public interface ServiceProviderEngagementService {
     List<Object> getEngagementsByExactDateTimeslotAndHousekeepingRole(
             LocalDate startDate, LocalDate endDate, String timeslot, HousekeepingRole housekeepingRole, double latitude,
             double longitude, int precision);
+
+    public List<Object> getProgressiveSearch(
+        double latitude,
+        double longitude,
+        HousekeepingRole housekeepingRole,
+            int precision);
+
+    public List<ServiceProvider> getPriorityBasedSearch(
+        double latitude,
+        double longitude,
+            HousekeepingRole housekeepingRole);
 
 }

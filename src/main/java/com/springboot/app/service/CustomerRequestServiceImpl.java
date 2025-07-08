@@ -39,9 +39,6 @@ public class CustomerRequestServiceImpl implements CustomerRequestService {
         this.customerRequestMapper = customerRequestMapper;
     }
 
-    @Autowired
-    private CustomerConstants customerconstants;
-
     // To get all customer requests
     @Override
     @Transactional(readOnly = true)
