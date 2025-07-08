@@ -34,7 +34,7 @@ public interface ServiceProviderRepository
         List<ServiceProvider> findByGeoHash7In(List<String> geoHashes);
 
         @Query("SELECT sp FROM ServiceProvider sp WHERE sp.housekeepingRole = :housekeepingRole AND " +
-                        "(sp.geoHash5 IN :geoHashes OR sp.geoHash6 IN :geoHashes OR sp.geoHash7 IN :geoHashes)")
+                        "(sp.geoHash4 IN :geoHashes OR sp.geoHash5 IN :geoHashes OR sp.geoHash6 IN :geoHashes OR sp.geoHash7 IN :geoHashes)")
         List<ServiceProvider> findByHousekeepingRoleAndGeoHash(
                         @Param("housekeepingRole") HousekeepingRole housekeepingRole,
                         @Param("geoHashes") List<String> geoHashes);
