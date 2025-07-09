@@ -36,7 +36,9 @@ public class ServiceProviderLeaveServiceImpl implements
     @Override
     @Transactional(readOnly = true)
     public List<ServiceProviderLeaveDTO> getAllLeaves() {
-        logger.info("Fetching all service provider leave records.");
+        if (logger.isInfoEnabled()) {
+            logger.info("Fetching all service provider leave records.");
+        }
         List<ServiceProviderLeave> leaves = leaveRepository.findAll();
         if (leaves.isEmpty()) {
             return Collections.emptyList();
@@ -49,7 +51,9 @@ public class ServiceProviderLeaveServiceImpl implements
     @Override
     @Transactional(readOnly = true)
     public ServiceProviderLeaveDTO getLeaveById(Long id) {
-        logger.info("Fetching service provider leave record by ID: {}", id);
+        if (logger.isInfoEnabled()) {
+            logger.info("Fetching service provider leave record by ID: {}", id);
+        }
         return leaveRepository.findById(id)
                 .map(leaveMapper::serviceProviderLeaveToDTO)
                 .orElse(null);
@@ -58,7 +62,10 @@ public class ServiceProviderLeaveServiceImpl implements
     @Override
     @Transactional(readOnly = true)
     public List<ServiceProviderLeaveDTO> getLeaveByServiceProviderId(Long serviceProviderId) {
-        logger.info("Fetching leave records for service provider ID: {}", serviceProviderId);
+        if (logger.isInfoEnabled()) {
+            logger.info("Fetching leave records for service provider ID: {}", serviceProviderId);
+        }
+
         List<ServiceProviderLeave> leaves = leaveRepository.findAll().stream()
                 .filter(leave -> leave.getServiceProvider().getServiceproviderId().equals(serviceProviderId))
                 .toList();
@@ -72,7 +79,9 @@ public class ServiceProviderLeaveServiceImpl implements
     @Override
     @Transactional
     public String updateLeave(Long id, ServiceProviderLeaveDTO leaveDTO) {
-        logger.info("Updating service provider leave record with ID: {}", id);
+        if (logger.isInfoEnabled()) {
+            logger.info("Updating service provider leave record with ID: {}", id);
+        }
         Optional<ServiceProviderLeave> existingLeave = leaveRepository.findById(id);
 
         if (existingLeave.isPresent()) {
@@ -84,10 +93,15 @@ public class ServiceProviderLeaveServiceImpl implements
             leave.setServiceProvider(leaveMapper.dtoToServiceProviderLeave(leaveDTO).getServiceProvider());
 
             leaveRepository.save(leave);
-            logger.debug("Leave record updated with ID: {}", leave.getId());
+            if (logger.isDebugEnabled()) {
+
+                logger.debug("Leave record updated with ID: {}", leave.getId());
+            }
             return CustomerConstants.UPDATED;
         } else {
-            logger.error("No leave found with ID: {}", id);
+            if (logger.isErrorEnabled()) {
+                logger.error("No leave found with ID: {}", id);
+            }
             return "Data not found with this ID";
         }
     }
@@ -95,15 +109,21 @@ public class ServiceProviderLeaveServiceImpl implements
     @Override
     @Transactional
     public String deleteLeave(Long id) {
-        logger.info("Deleting service provider leave record with ID: {}", id);
+        if (logger.isInfoEnabled()) {
+            logger.info("Deleting service provider leave record with ID: {}", id);
+        }
         Optional<ServiceProviderLeave> leaveOptional = leaveRepository.findById(id);
 
         if (leaveOptional.isPresent()) {
             leaveRepository.deleteById(id);
-            logger.debug("Leave record deleted with ID: {}", id);
+            if (logger.isDebugEnabled()) {
+                logger.debug("Leave record deleted with ID: {}", id);
+            }
             return CustomerConstants.DELETED;
         } else {
-            logger.error("No leave found with ID: {}", id);
+            if (logger.isErrorEnabled()) {
+                logger.error("No leave found with ID: {}", id);
+            }
             return "Data not found with this ID";
         }
     }
@@ -111,7 +131,9 @@ public class ServiceProviderLeaveServiceImpl implements
     @Override
     @Transactional(readOnly = true)
     public List<ServiceProviderLeaveDTO> getServiceProvidersOnLeaveToday() {
-        logger.info("Fetching service providers on leave today.");
+        if (logger.isInfoEnabled()) {
+            logger.info("Fetching service providers on leave today.");
+        }
         LocalDate today = LocalDate.now();
         List<ServiceProviderLeave> leaves = leaveRepository.findAll().stream()
                 .filter(leave -> !leave.getFromDate().isAfter(today) &&
@@ -127,7 +149,9 @@ public class ServiceProviderLeaveServiceImpl implements
     @Override
     @Transactional(readOnly = true)
     public List<ServiceProviderLeaveDTO> getServiceProvidersOnLeaveNextWeek() {
-        logger.info("Fetching service providers on leave next week.");
+        if (logger.isInfoEnabled()) {
+            logger.info("Fetching service providers on leave next week.");
+        }
         LocalDate today = LocalDate.now();
         LocalDate startOfNextWeek = today.plusDays(7L - today.getDayOfWeek().getValue());
         LocalDate endOfNextWeek = startOfNextWeek.plusDays(6);
@@ -162,7 +186,9 @@ public class ServiceProviderLeaveServiceImpl implements
     @Override
     @Transactional(readOnly = true)
     public List<ServiceProviderLeaveDTO> getApprovedLeaves() {
-        logger.info("Fetching approved service provider leave records.");
+        if (logger.isInfoEnabled()) {
+            logger.info("Fetching approved service provider leave records.");
+        }
         List<ServiceProviderLeave> leaves = leaveRepository.findAll().stream()
                 .filter(ServiceProviderLeave::isApproved)
                 .toList();
@@ -175,7 +201,9 @@ public class ServiceProviderLeaveServiceImpl implements
     @Override
     @Transactional(readOnly = true)
     public List<ServiceProviderLeaveDTO> getUnapprovedLeaves() {
-        logger.info("Fetching unapproved service provider leave records.");
+        if (logger.isInfoEnabled()) {
+            logger.info("Fetching unapproved service provider leave records.");
+        }
         List<ServiceProviderLeave> leaves = leaveRepository.findAll().stream()
                 .filter(leave -> !leave.isApproved())
                 .toList();

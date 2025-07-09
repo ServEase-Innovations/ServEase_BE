@@ -97,7 +97,17 @@ public class ServiceProviderController {
     private int defaultPageSize;
 
     // --------API's FOR SERVICE PROVIDER ENTITY--------------------
-    // // API to get all service providers
+
+    // get nearby service providers
+    @GetMapping("/nearby")
+    public ResponseEntity<List<ServiceProviderDTO>> getNearbyProviders(
+            @RequestParam double latitude,
+            @RequestParam double longitude,
+            @RequestParam(required = false, defaultValue = "5") int precision) {
+
+        List<ServiceProviderDTO> providers = serviceProviderService.findNearbyProviders(latitude, longitude, precision);
+        return ResponseEntity.ok(providers);
+    }
 
     @GetMapping("/serviceproviders/all")
     @ApiOperation(value = ServiceProviderConstants.RETRIEVE_ALL_DESC, response = List.class)
@@ -705,25 +715,22 @@ public class ServiceProviderController {
     }
 
     @GetMapping("/search")
-    public ResponseEntity<List<ServiceProviderEngagementDTO>> searchEngagements(
+    public ResponseEntity<List<Object>> searchEngagements(
             @RequestParam LocalDate startDate,
             @RequestParam LocalDate endDate,
             @RequestParam String timeslot,
-            @RequestParam HousekeepingRole housekeepingRole) {
+            @RequestParam HousekeepingRole housekeepingRole,
+            @RequestParam double latitude,
+            @RequestParam double longitude,
+            @RequestParam(required = false, defaultValue = "5") int precision) {
 
-        List<ServiceProviderEngagementDTO> engagements = serviceProviderEngagementService
-                .getEngagementsByExactDateTimeslotAndHousekeepingRole(startDate, endDate, timeslot, housekeepingRole);
+        List<Object> engagements = serviceProviderEngagementService
+                .getEngagementsByExactDateTimeslotAndHousekeepingRole(startDate, endDate, timeslot, housekeepingRole,
+                        latitude, longitude, precision);
 
         if (engagements.isEmpty()) {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(engagements);
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(Collections.emptyList());
         }
-
-        // Calculate available times for each engagement
-        for (ServiceProviderEngagementDTO engagement : engagements) {
-            List<String> availableTimes = calculateAvailableTimes(engagement.getTimeslot());
-            engagement.setAvailableTimeSlots(availableTimes);
-        }
-
         return ResponseEntity.ok(engagements);
     }
 

@@ -7,6 +7,7 @@ import com.springboot.app.enums.Gender;
 import com.springboot.app.enums.LanguageKnown;
 import com.springboot.app.enums.Speciality;
 
+import jakarta.persistence.Column;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -37,9 +38,7 @@ public class CustomerDTO {
     private boolean isActive;
     private Timestamp enrolledDate;
     private Speciality speciality;
-
     private double rating;
-
     private String username;
     private String password;
 }

@@ -6,6 +6,11 @@ import java.time.LocalDate;
 
 import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -50,6 +55,9 @@ public class ServiceProviderServiceImpl implements ServiceProviderService {
         private final ExcelSheetHandler excelSheetHandler;
 
         @Autowired
+        private GeoHashService geoHashService;
+
+        @Autowired
         public ServiceProviderServiceImpl(ServiceProviderRepository serviceProviderRepository,
                         ServiceProviderMapper serviceProviderMapper,
                         UserCredentialsService userCredentialsService,
@@ -75,18 +83,28 @@ public class ServiceProviderServiceImpl implements ServiceProviderService {
 
                 if (location != null && !location.trim().isEmpty()) {
                         // Fetch service providers by location if location is provided
-                        logger.debug("Filtering service providers by location: {}", location);
+                        if (logger.isDebugEnabled()) {
+
+                                logger.debug("Filtering service providers by location: {}", location);
+                        }
                         serviceProviders = serviceProviderRepository.findByLocation(location, pageable).getContent();
                 } else {
                         // Fetch all service providers if no location filter is provided
-                        logger.debug("Fetching all service providers without location filter.");
+                        if (logger.isDebugEnabled()) {
+                                logger.debug("Fetching all service providers without location filter.");
+                        }
                         serviceProviders = serviceProviderRepository.findAll(pageable).getContent();
                 }
+                if (logger.isDebugEnabled()) {
 
-                logger.debug("Number of service providers fetched: {}", serviceProviders.size());
+                        logger.debug("Number of service providers fetched: {}", serviceProviders.size());
+                }
 
                 if (serviceProviders.isEmpty()) {
-                        logger.warn("No service providers found for the given criteria.");
+                        if (logger.isWarnEnabled()) {
+
+                                logger.warn("No service providers found for the given criteria.");
+                        }
                         return new ArrayList<>(); // Return empty list if no results found
                 }
 
@@ -99,7 +117,9 @@ public class ServiceProviderServiceImpl implements ServiceProviderService {
         @Override
         @Transactional
         public ServiceProviderDTO getServiceProviderDTOById(Long id) {
-                logger.info("Fetching service provider with ID: {}", id);
+                if (logger.isInfoEnabled()) {
+                        logger.info("Fetching service provider with ID: {}", id);
+                }
 
                 ServiceProvider serviceProvider = serviceProviderRepository.findById(id)
                                 .orElseThrow(() -> {
@@ -114,12 +134,16 @@ public class ServiceProviderServiceImpl implements ServiceProviderService {
         @Override
         @Transactional
         public List<ServiceProviderDTO> getServiceProvidersByVendorId(Long vendorId) {
-                logger.info("Fetching service providers for vendor ID: {}", vendorId);
+                if (logger.isInfoEnabled()) {
+                        logger.info("Fetching service providers for vendor ID: {}", vendorId);
+                }
 
                 List<ServiceProvider> serviceProviders = serviceProviderRepository.findByVendorId(vendorId);
 
                 if (serviceProviders.isEmpty()) {
-                        logger.warn("No service providers found for vendor ID {}", vendorId);
+                        if (logger.isWarnEnabled()) {
+                                logger.warn("No service providers found for vendor ID {}", vendorId);
+                        }
                         throw new ServiceProviderNotFoundException(
                                         ServiceProviderConstants.NO_SERVICE_PROVIDERS_FOUND_FOR_VENDOR + vendorId);
                 }
@@ -130,7 +154,9 @@ public class ServiceProviderServiceImpl implements ServiceProviderService {
         @Override
         @Transactional
         public void saveServiceProviderDTO(ServiceProviderDTO serviceProviderDTO) {
-                logger.info("Saving a new service provider: {}", serviceProviderDTO);
+                if (logger.isInfoEnabled()) {
+                        logger.info("Saving a new service provider: {}", serviceProviderDTO);
+                }
 
                 String email = serviceProviderDTO.getEmailId();
                 if (email == null || email.isEmpty()) {
@@ -188,8 +214,9 @@ public class ServiceProviderServiceImpl implements ServiceProviderService {
         @Override
         @Transactional
         public String updateServiceProviderDTO(ServiceProviderDTO serviceProviderDTO) {
-                logger.info("Updating service provider with ID: {}", serviceProviderDTO.getServiceproviderId());
-
+                if (logger.isInfoEnabled()) {
+                        logger.info("Updating service provider with ID: {}", serviceProviderDTO.getServiceproviderId());
+                }
                 // Check if the service provider exists
                 if (serviceProviderRepository.existsById(serviceProviderDTO.getServiceproviderId())) {
 
@@ -199,12 +226,16 @@ public class ServiceProviderServiceImpl implements ServiceProviderService {
 
                         // Save the updated service provider
                         serviceProviderRepository.save(existingServiceProvider);
-
-                        logger.info("Service provider updated with ID: {}", serviceProviderDTO.getServiceproviderId());
+                        if (logger.isInfoEnabled()) {
+                                logger.info("Service provider updated with ID: {}",
+                                                serviceProviderDTO.getServiceproviderId());
+                        }
                         return ServiceProviderConstants.UPDATE_DESC;
                 } else {
-                        logger.error("Service provider not found for update with ID: {}",
-                                        serviceProviderDTO.getServiceproviderId());
+                        if (logger.isErrorEnabled()) {
+                                logger.error("Service provider not found for update with ID: {}",
+                                                serviceProviderDTO.getServiceproviderId());
+                        }
                         return ServiceProviderConstants.SERVICE_PROVIDER_NOT_FOUND;
                 }
         }
@@ -212,7 +243,9 @@ public class ServiceProviderServiceImpl implements ServiceProviderService {
         @Override
         @Transactional
         public String deleteServiceProviderDTO(Long id) {
-                logger.info("Deactivating service provider with ID: {}", id);
+                if (logger.isInfoEnabled()) {
+                        logger.info("Deactivating service provider with ID: {}", id);
+                }
 
                 return serviceProviderRepository.findById(id)
                                 .map(serviceProvider -> {
@@ -223,7 +256,9 @@ public class ServiceProviderServiceImpl implements ServiceProviderService {
                                         return ServiceProviderConstants.DELETE_DESC;
                                 })
                                 .orElseGet(() -> {
-                                        logger.error("Service provider not found for deletion with ID: {}", id);
+                                        if (logger.isErrorEnabled()) {
+                                                logger.error("Service provider not found for deletion with ID: {}", id);
+                                        }
                                         return ServiceProviderConstants.SERVICE_PROVIDER_NOT_FOUND;
                                 });
         }
@@ -233,8 +268,9 @@ public class ServiceProviderServiceImpl implements ServiceProviderService {
         public List<ServiceProviderDTO> getfilters(LanguageKnown language, Double rating, Gender gender,
                         Speciality speciality, HousekeepingRole housekeepingRole, Integer minAge, Integer maxAge,
                         String timeslot, Habit diet) {
-
-                logger.info("Filtering service providers with specified criteria");
+                if (logger.isInfoEnabled()) {
+                        logger.info("Filtering service providers with specified criteria");
+                }
 
                 // Build the Specification dynamically based on non-null parameters
                 Specification<ServiceProvider> spec = Specification.where(null);
@@ -242,53 +278,73 @@ public class ServiceProviderServiceImpl implements ServiceProviderService {
                 if (language != null) {
                         spec = spec.and((root, query, criteriaBuilder) -> criteriaBuilder
                                         .equal(root.get("languageKnown"), language));
-                        logger.debug("Filtering by language: {}", language);
+                        if (logger.isDebugEnabled()) {
+                                logger.debug("Filtering by language: {}", language);
+                        }
                 }
                 if (rating != null) {
                         spec = spec.and((root, query, criteriaBuilder) -> criteriaBuilder.equal(root.get("rating"),
                                         rating));
-                        logger.debug("Filtering by rating: {}", rating);
+                        if (logger.isDebugEnabled()) {
+                                logger.debug("Filtering by rating: {}", rating);
+                        }
                 }
                 if (gender != null) {
                         spec = spec.and((root, query, criteriaBuilder) -> criteriaBuilder.equal(root.get("gender"),
                                         gender));
-                        logger.debug("Filtering by gender: {}", gender);
+                        if (logger.isDebugEnabled()) {
+                                logger.debug("Filtering by gender: {}", gender);
+                        }
                 }
                 if (speciality != null) {
                         spec = spec.and((root, query, criteriaBuilder) -> criteriaBuilder.equal(root.get("speciality"),
                                         speciality));
-                        logger.debug("Filtering by speciality: {}", speciality);
+                        if (logger.isDebugEnabled()) {
+                                logger.debug("Filtering by speciality: {}", speciality);
+                        }
                 }
                 if (housekeepingRole != null) {
                         spec = spec.and((root, query, criteriaBuilder) -> criteriaBuilder
                                         .equal(root.get("housekeepingRole"), housekeepingRole));
-                        logger.debug("Filtering by housekeeping role: {}", housekeepingRole);
+                        if (logger.isDebugEnabled()) {
+                                logger.debug("Filtering by housekeeping role: {}", housekeepingRole);
+                        }
                 }
                 if (minAge != null) {
                         spec = spec.and((root, query, criteriaBuilder) -> criteriaBuilder
                                         .greaterThanOrEqualTo(root.get("age"), minAge));
-                        logger.debug("Filtering by minimum age: {}", minAge);
+                        if (logger.isDebugEnabled()) {
+                                logger.debug("Filtering by minimum age: {}", minAge);
+                        }
                 }
                 if (maxAge != null) {
                         spec = spec.and((root, query, criteriaBuilder) -> criteriaBuilder
                                         .lessThanOrEqualTo(root.get("age"), maxAge));
-                        logger.debug("Filtering by maximum age: {}", maxAge);
+                        if (logger.isDebugEnabled()) {
+                                logger.debug("Filtering by maximum age: {}", maxAge);
+                        }
                 }
                 if (timeslot != null && !timeslot.isEmpty()) {
                         spec = spec.and((root, query, criteriaBuilder) -> criteriaBuilder.like(
                                         criteriaBuilder.lower(root.get("timeslot")),
                                         "%" + timeslot.toLowerCase() + "%"));
-                        logger.debug("Filtering by timeslot: {}", timeslot);
+                        if (logger.isDebugEnabled()) {
+                                logger.debug("Filtering by timeslot: {}", timeslot);
+                        }
                 }
                 if (diet != null) {
                         spec = spec.and((root, query, criteriaBuilder) -> criteriaBuilder.equal(root.get("diet"),
                                         diet));
-                        logger.debug("Filtering by diet: {}", diet);
+                        if (logger.isDebugEnabled()) {
+                                logger.debug("Filtering by diet: {}", diet);
+                        }
                 }
 
                 // Execute the query using the Specification
                 List<ServiceProvider> serviceProviders = serviceProviderRepository.findAll(spec);
-                logger.debug("Found {} service providers matching the criteria", serviceProviders.size());
+                if (logger.isDebugEnabled()) {
+                        logger.debug("Found {} service providers matching the criteria", serviceProviders.size());
+                }
 
                 // Convert the list of ServiceProvider entities to a list of ServiceProviderDTOs
                 return serviceProviders.stream()
@@ -299,8 +355,10 @@ public class ServiceProviderServiceImpl implements ServiceProviderService {
         @Override
         @Transactional
         public List<ServiceProviderDTO> getServiceProvidersByFilter(Integer pincode, String street, String locality) {
-                logger.info("Fetching service providers with the given filter parameters - Pincode: {}, Street: {}, Locality: {}",
-                                pincode, street, locality);
+                if (logger.isInfoEnabled()) {
+                        logger.info("Fetching service providers with the given filter parameters - Pincode: {}, Street: {}, Locality: {}",
+                                        pincode, street, locality);
+                }
 
                 // Start building the specification for dynamic filtering
                 Specification<ServiceProvider> spec = Specification.where(null);
@@ -308,22 +366,30 @@ public class ServiceProviderServiceImpl implements ServiceProviderService {
                 if (pincode != null) {
                         spec = spec.and((root, query, criteriaBuilder) -> criteriaBuilder.equal(root.get("pincode"),
                                         pincode));
-                        logger.debug("Filtering by pincode: {}", pincode);
+                        if (logger.isDebugEnabled()) {
+                                logger.debug("Filtering by pincode: {}", pincode);
+                        }
                 }
                 if (street != null) {
                         spec = spec.and((root, query, criteriaBuilder) -> criteriaBuilder.equal(root.get("street"),
                                         street));
-                        logger.debug("Filtering by street: {}", street);
+                        if (logger.isDebugEnabled()) {
+                                logger.debug("Filtering by street: {}", street);
+                        }
                 }
                 if (locality != null) {
                         spec = spec.and((root, query, criteriaBuilder) -> criteriaBuilder.equal(root.get("locality"),
                                         locality));
-                        logger.debug("Filtering by locality: {}", locality);
+                        if (logger.isDebugEnabled()) {
+                                logger.debug("Filtering by locality: {}", locality);
+                        }
                 }
 
                 // Execute the query using the Specification
                 List<ServiceProvider> serviceProviders = serviceProviderRepository.findAll(spec);
-                logger.debug("Number of service providers found: {}", serviceProviders.size());
+                if (logger.isDebugEnabled()) {
+                        logger.debug("Number of service providers found: {}", serviceProviders.size());
+                }
 
                 // Convert the list of ServiceProvider entities to a list of ServiceProviderDTOs
                 return serviceProviders.stream()
@@ -334,8 +400,10 @@ public class ServiceProviderServiceImpl implements ServiceProviderService {
         @Override
         @Transactional
         public List<ServiceProviderDTO> getServiceProvidersByOrFilter(Integer pincode, String street, String locality) {
-                logger.info("Fetching service providers with OR filter - Pincode: {}, Street: {}, Locality: {}",
-                                pincode, street, locality);
+                if (logger.isInfoEnabled()) {
+                        logger.info("Fetching service providers with OR filter - Pincode: {}, Street: {}, Locality: {}",
+                                        pincode, street, locality);
+                }
 
                 // Initialize specification for OR conditions
                 Specification<ServiceProvider> spec = Specification.where(null);
@@ -343,22 +411,30 @@ public class ServiceProviderServiceImpl implements ServiceProviderService {
                 if (pincode != null) {
                         spec = spec.or((root, query, criteriaBuilder) -> criteriaBuilder.equal(root.get("pincode"),
                                         pincode));
-                        logger.debug("Adding OR condition for pincode: {}", pincode);
+                        if (logger.isDebugEnabled()) {
+                                logger.debug("Adding OR condition for pincode: {}", pincode);
+                        }
                 }
                 if (street != null) {
                         spec = spec.or((root, query, criteriaBuilder) -> criteriaBuilder.equal(root.get("street"),
                                         street));
-                        logger.debug("Adding OR condition for street: {}", street);
+                        if (logger.isDebugEnabled()) {
+                                logger.debug("Adding OR condition for street: {}", street);
+                        }
                 }
                 if (locality != null) {
                         spec = spec.or((root, query, criteriaBuilder) -> criteriaBuilder.equal(root.get("locality"),
                                         locality));
-                        logger.debug("Adding OR condition for locality: {}", locality);
+                        if (logger.isDebugEnabled()) {
+                                logger.debug("Adding OR condition for locality: {}", locality);
+                        }
                 }
 
                 // Fetch results using the built specification
                 List<ServiceProvider> serviceProviders = serviceProviderRepository.findAll(spec);
-                logger.debug("Number of service providers found: {}", serviceProviders.size());
+                if (logger.isDebugEnabled()) {
+                        logger.debug("Number of service providers found: {}", serviceProviders.size());
+                }
 
                 // Map entities to DTOs
                 return serviceProviders.stream()
@@ -368,7 +444,9 @@ public class ServiceProviderServiceImpl implements ServiceProviderService {
 
         @Override
         public Map<String, Object> calculateExpectedSalary(Long serviceProviderId) {
-                logger.info("Calculating expected salary for service provider ID: {}", serviceProviderId);
+                if (logger.isInfoEnabled()) {
+                        logger.info("Calculating expected salary for service provider ID: {}", serviceProviderId);
+                }
 
                 Map<String, Object> response = new HashMap<>();
                 try {
@@ -383,7 +461,10 @@ public class ServiceProviderServiceImpl implements ServiceProviderService {
                         }
 
                         if (filteredEngagements.isEmpty()) {
-                                logger.warn("No engagements found for service provider ID: {}", serviceProviderId);
+                                if (logger.isWarnEnabled()) {
+                                        logger.warn("No engagements found for service provider ID: {}",
+                                                        serviceProviderId);
+                                }
                                 response.put("error", "No engagements found");
                                 return response;
                         }
@@ -411,15 +492,21 @@ public class ServiceProviderServiceImpl implements ServiceProviderService {
                         // Add service provider ID and expected salary to the response
                         response.put("serviceProviderId", serviceProviderId);
                         response.put("expectedSalary", totalSalary);
+                        if (logger.isDebugEnabled()) {
 
-                        logger.info("Calculated expected salary for service provider ID: {} is {}", serviceProviderId,
-                                        totalSalary);
+                                logger.info("Calculated expected salary for service provider ID: {} is {}",
+                                                serviceProviderId,
+                                                totalSalary);
+                        }
 
                         return response;
 
                 } catch (Exception e) {
-                        logger.error("Error calculating expected salary for service provider ID: {}", serviceProviderId,
-                                        e);
+                        if (logger.isErrorEnabled()) {
+                                logger.error("Error calculating expected salary for service provider ID: {}",
+                                                serviceProviderId,
+                                                e);
+                        }
                         response.put("error", "Error calculating salary");
                         return response;
                 }
@@ -429,11 +516,15 @@ public class ServiceProviderServiceImpl implements ServiceProviderService {
         @Override
         @Transactional
         public List<ServiceProviderDTO> getServiceProvidersByRole(HousekeepingRole role) {
-                logger.info("Fetching service providers with role: {}", role);
+                if (logger.isInfoEnabled()) {
+                        logger.info("Fetching service providers with role: {}", role);
+                }
 
                 // Check if the role is provided
                 if (role == null) {
-                        logger.warn("Role cannot be null");
+                        if (logger.isWarnEnabled()) {
+                                logger.warn("Role cannot be null");
+                        }
                         throw new IllegalArgumentException("Role must be provided to fetch service providers.");
                 }
 
@@ -442,7 +533,10 @@ public class ServiceProviderServiceImpl implements ServiceProviderService {
                                 .equal(root.get("housekeepingRole"), role);
 
                 List<ServiceProvider> serviceProviders = serviceProviderRepository.findAll(spec);
-                logger.debug("Number of service providers found for role {}: {}", role, serviceProviders.size());
+                if (logger.isDebugEnabled()) {
+                        logger.debug("Number of service providers found for role {}: {}", role,
+                                        serviceProviders.size());
+                }
 
                 // Map entities to DTOs
                 return serviceProviders.stream()
@@ -461,6 +555,23 @@ public class ServiceProviderServiceImpl implements ServiceProviderService {
                         serviceProviderRepository.saveAll(serviceProviders);
                 }
                 return "successfull";
+        }
+
+        @Transactional
+        public List<ServiceProviderDTO> findNearbyProviders(double latitude, double longitude, int precision) {
+                List<String> nearbyGeoHashes = geoHashService.getNearbyGeoHashes(latitude, longitude, precision);
+
+                List<ServiceProvider> providers;
+                if (precision == 5) {
+                        providers = serviceProviderRepository.findByGeoHash5In(nearbyGeoHashes);
+                } else if (precision == 6) {
+                        providers = serviceProviderRepository.findByGeoHash6In(nearbyGeoHashes);
+                } else {
+                        providers = serviceProviderRepository.findByGeoHash7In(nearbyGeoHashes);
+                }
+
+                return providers.stream().map(serviceProviderMapper::serviceProviderToDTO).collect(Collectors.toList());
+
         }
 
 }

@@ -98,6 +98,44 @@ public class CustomerServiceImpl implements CustomerService {
         return registrationResponse;
     }
 
+    @Override
+    @Transactional
+    public String saveCustomerRequird(CustomerDTO customerDTO) {
+        logger.info("Saving a new customer: {}", customerDTO);
+
+        String email = customerDTO.getEmailId();
+        if (email == null || email.isEmpty()) {
+            throw new IllegalArgumentException("EmailId is required to save a customer.");
+        }
+
+        customerDTO.setUsername(email); // optional if username == email
+
+        // Step 1: Register the user credentials (if required)
+        UserCredentialsDTO userDTO = new UserCredentialsDTO(
+                customerDTO.getUsername(),
+                customerDTO.getPassword(),
+                true, // isActive
+                0, // tries
+                null, // lockTime
+                false, // isTempLocked
+                null, // mobileNo not provided
+                null, // lastLogin
+                UserRole.CUSTOMER.getValue());
+        String registrationResponse = userCredentialsService.saveUserCredentials(userDTO);
+        logger.info("User registration response: {}", registrationResponse);
+
+        // Step 2: Create and save Customer with only required fields
+        Customer customer = new Customer();
+        customer.setFirstName(customerDTO.getFirstName());
+        customer.setLastName(customerDTO.getLastName());
+        customer.setEmailId(customerDTO.getEmailId());
+        customer.setActive(true); // default active
+        customerRepository.save(customer);
+
+        logger.info("Customer saved with ID: {}", customer.getCustomerId());
+        return registrationResponse;
+    }
+
     // Update an existing customer
     @Override
     @Transactional

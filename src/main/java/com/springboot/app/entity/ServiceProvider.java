@@ -11,13 +11,17 @@ import com.springboot.app.enums.HousekeepingRole;
 import com.springboot.app.enums.LanguageKnown;
 import com.springboot.app.enums.Speciality;
 
+import ch.hsr.geohash.GeoHash;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
+import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.ManyToOne;
 //import jakarta.persistence.Lob;
 import jakarta.persistence.PrePersist;
 import jakarta.persistence.Table;
@@ -130,6 +134,21 @@ public class ServiceProvider {
 	@Column
 	private Long vendorId;
 
+	@Column
+	private double latitude;
+
+	@Column
+	private double longitude;
+
+	@Column
+	private String geoHash5;
+
+	@Column
+	private String geoHash6;
+
+	@Column
+	private String geoHash7;
+
 	@PrePersist
 	public void prePersist() {
 		// Setting the current timestamp formatted as "yyyy-MM-dd HH:mm:ss.SSS"
@@ -137,6 +156,9 @@ public class ServiceProvider {
 		String formattedDate = sdf.format(System.currentTimeMillis());
 		this.enrolledDate = Timestamp.valueOf(formattedDate);
 		this.isActive = true;
+		this.geoHash5 = GeoHash.withCharacterPrecision(this.latitude, this.longitude, 5).toBase32();
+		this.geoHash6 = GeoHash.withCharacterPrecision(this.latitude, this.longitude, 6).toBase32();
+		this.geoHash7 = GeoHash.withCharacterPrecision(this.latitude, this.longitude, 7).toBase32();
 
 		if (this.street != null) {
 			this.street = this.street.toLowerCase();

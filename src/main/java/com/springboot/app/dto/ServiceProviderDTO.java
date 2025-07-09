@@ -44,6 +44,12 @@ public class ServiceProviderDTO {
     private String buildingName;
 
     private String locality;
+    private double latitude;
+    private double longitude;
+    
+    private String geoHash5;
+    private String geoHash6;
+    private String geoHash7;
 
     private String street;
 

@@ -1,5 +1,6 @@
 package com.springboot.app.controller;
 
+import com.springboot.app.dto.CustomerPaymentDTO;
 import com.springboot.app.dto.ServiceProviderPaymentDTO;
 import com.springboot.app.service.ServiceProviderPaymentService;
 import io.swagger.annotations.Api;
@@ -80,4 +81,5 @@ public class ServiceProviderPaymentController {
         String result = serviceProviderPaymentService.deleteServiceProviderPayment(id);
         return ResponseEntity.ok(result);
     }
+
 }

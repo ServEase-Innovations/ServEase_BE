@@ -76,12 +76,35 @@ public class CustomerHolidaysServiceImpl implements CustomerHolidaysService {
                     "Customer with ID " + customerHolidaysDTO.getCustomerId() + " not found.");
         }
 
+        if (customerHolidaysDTO.getEndDate().isBefore(customerHolidaysDTO.getStartDate())) {
+            throw new IllegalArgumentException("End date must be after or equal to start date.");
+        }
+
         CustomerHolidays holiday = customerHolidaysMapper.dtoToCustomerHolidays(customerHolidaysDTO);
-        holiday.setCustomer(customerOptional.get()); // Set the customer entity
+        holiday.setCustomer(customerOptional.get());
+        holiday.setActive(true); // Ensure the holiday is marked active
         customerHolidaysRepository.save(holiday);
 
         return CustomerConstants.ADDED;
     }
+
+    // @Override
+    // @Transactional
+    // public String addNewHoliday(CustomerHolidaysDTO customerHolidaysDTO) {
+    // Optional<Customer> customerOptional =
+    // customerRepository.findById(customerHolidaysDTO.getCustomerId());
+    // if (customerOptional.isEmpty()) {
+    // throw new EntityNotFoundException(
+    // "Customer with ID " + customerHolidaysDTO.getCustomerId() + " not found.");
+    // }
+
+    // CustomerHolidays holiday =
+    // customerHolidaysMapper.dtoToCustomerHolidays(customerHolidaysDTO);
+    // holiday.setCustomer(customerOptional.get()); // Set the customer entity
+    // customerHolidaysRepository.save(holiday);
+
+    // return CustomerConstants.ADDED;
+    // }
 
     @Override
     @Transactional

@@ -27,4 +27,16 @@ public class CustomerConstants {
     public static final String UPDATED = "UPDATED SUCCESSFULLY !";
     public static final String DELETED = "DELETED SUCCESSFULLY !";
     public static final String NOT_FOUND = "NOT FOUND";
+
+    // Customer Payment
+    public static final String FETCHING_PAYMENTS_FOR_CUSTOMER = "Fetching payments for customer ID: {}";
+    public static final String NO_PAYMENTS_FOUND_FOR_CUSTOMER = "No payments found for customer ID: {}";
+    public static final String FETCHING_PAYMENT_FOR_CUSTOMER_AND_MONTH = "Fetching payment for customer ID: {} and month: {}";
+    public static final String NO_PAYMENT_FOUND_FOR_CUSTOMER_AND_MONTH = "No payment found for customer ID: {} and month: {}";
+    public static final String FETCHING_PAYMENTS_BETWEEN_DATES = "Fetching payments between {} and {}";
+    public static final String NO_PAYMENTS_FOUND_BETWEEN_DATES = "No payments found between {} and {}";
+    public static final String NO_ENGAGEMENTS_FOUND = "No engagements found for the given criteria.";
+    public static final String CALCULATING_PAYMENT = "Calculating payment for customerId: {}, baseAmount: {}, startDate: {}, endDate: {}, paymentMode: {}";
+    public static final String PAYMENT_CALCULATED_SUCCESSFULLY = "Payment calculated successfully for customerId: {}. Final amount: {}";
+
 }
