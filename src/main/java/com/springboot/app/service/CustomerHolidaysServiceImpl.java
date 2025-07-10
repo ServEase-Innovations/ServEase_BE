@@ -40,13 +40,15 @@ public class CustomerHolidaysServiceImpl implements CustomerHolidaysService {
     @Override
     @Transactional(readOnly = true)
     public List<CustomerHolidaysDTO> getAllHolidays(int page, int size) {
-        logger.info("Fetching all holidays with pagination - page: {}, size: {}", page, size);
-
+        if (logger.isInfoEnabled()) {
+            logger.info("Fetching all holidays with pagination - page: {}, size: {}", page, size);
+        }
         Pageable pageable = PageRequest.of(page, size);
         List<CustomerHolidays> holidays = customerHolidaysRepository.findAll(pageable).getContent();
 
-        logger.debug("Fetched {} holidays from the database.", holidays.size());
-
+        if (logger.isDebugEnabled()) {
+            logger.debug("Fetched {} holidays from the database.", holidays.size());
+        }
         return holidays.stream()
                 .map(customerHolidaysMapper::customerHolidaysToDTO)
                 .toList();
@@ -55,14 +57,19 @@ public class CustomerHolidaysServiceImpl implements CustomerHolidaysService {
     @Override
     @Transactional(readOnly = true)
     public CustomerHolidaysDTO getHolidayById(Long id) {
-        logger.info("Fetching holiday by ID: {}", id);
-
+        if (logger.isInfoEnabled()) {
+            logger.info("Fetching holiday by ID: {}", id);
+        }
         Optional<CustomerHolidays> holidayOptional = customerHolidaysRepository.findById(id);
         if (holidayOptional.isPresent()) {
-            logger.debug("Found holiday with ID: {}", id);
+            if (logger.isDebugEnabled()) {
+                logger.debug("Found holiday with ID: {}", id);
+            }
             return customerHolidaysMapper.customerHolidaysToDTO(holidayOptional.get());
         } else {
-            logger.error("No holiday found with ID: {}", id);
+            if (logger.isErrorEnabled()) {
+                logger.error("No holiday found with ID: {}", id);
+            }
             return null;
         }
     }
@@ -70,6 +77,9 @@ public class CustomerHolidaysServiceImpl implements CustomerHolidaysService {
     @Override
     @Transactional
     public String addNewHoliday(CustomerHolidaysDTO customerHolidaysDTO) {
+        if (logger.isInfoEnabled()) {
+            logger.info("Adding new holiday for customer ID: {}", customerHolidaysDTO.getCustomerId());
+        }
         Optional<Customer> customerOptional = customerRepository.findById(customerHolidaysDTO.getCustomerId());
         if (customerOptional.isEmpty()) {
             throw new EntityNotFoundException(
@@ -109,7 +119,9 @@ public class CustomerHolidaysServiceImpl implements CustomerHolidaysService {
     @Override
     @Transactional
     public String modifyHoliday(CustomerHolidaysDTO customerHolidaysDTO) {
-        logger.info("Modifying holiday with ID: {}", customerHolidaysDTO.getId());
+        if (logger.isInfoEnabled()) {
+            logger.info("Modifying holiday with ID: {}", customerHolidaysDTO.getId());
+        }
 
         Optional<CustomerHolidays> existingHolidayOptional = customerHolidaysRepository
                 .findById(customerHolidaysDTO.getId());
@@ -119,10 +131,14 @@ public class CustomerHolidaysServiceImpl implements CustomerHolidaysService {
             updatedHoliday.setId(existingHoliday.getId());
             customerHolidaysRepository.save(updatedHoliday);
 
-            logger.debug("Modified holiday with ID: {}", customerHolidaysDTO.getId());
+            if (logger.isDebugEnabled()) {
+                logger.debug("Modified holiday with ID: {}", customerHolidaysDTO.getId());
+            }
             return CustomerConstants.UPDATED;
         } else {
-            logger.warn("Holiday not found with ID: {}", customerHolidaysDTO.getId());
+            if (logger.isWarnEnabled()) {
+                logger.warn("Holiday not found with ID: {}", customerHolidaysDTO.getId());
+            }
             return CustomerConstants.NOT_FOUND;
         }
     }
@@ -130,6 +146,9 @@ public class CustomerHolidaysServiceImpl implements CustomerHolidaysService {
     @Override
     @Transactional
     public String deactivateHoliday(Long id) {
+        if (logger.isInfoEnabled()) {
+            logger.info("Deactivating holiday with ID: {}", id);
+        }
         Optional<CustomerHolidays> existingHolidayOptional = customerHolidaysRepository.findById(id);
         if (existingHolidayOptional.isPresent()) {
             CustomerHolidays holiday = existingHolidayOptional.get();

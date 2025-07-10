@@ -39,5 +39,8 @@ public interface ServiceProviderRepository
                         @Param("housekeepingRole") HousekeepingRole housekeepingRole,
                         @Param("geoHashes") List<String> geoHashes);
 
+        @Query("SELECT sp FROM ServiceProvider sp WHERE sp.serviceproviderId IN :ids")
+        List<ServiceProvider> findByIds(@Param("ids") List<Long> ids);
+
 
 }

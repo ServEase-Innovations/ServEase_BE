@@ -17,7 +17,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
@@ -64,10 +63,14 @@ public class CustomerPaymentServiceImpl implements CustomerPaymentService {
     @Override
     @Transactional(readOnly = true)
     public List<CustomerPaymentDTO> getPaymentsByCustomerId(Long customerId) {
-        logger.info("Fetching payments for customer ID: {}", customerId);
+        if (logger.isInfoEnabled()) {
+            logger.info("Fetching payments for customer ID: {}", customerId);
+        }
         List<CustomerPayment> payments = customerPaymentRepository.findByCustomer_CustomerId(customerId);
 
-        logger.debug("Fetched {} payments for customer ID: {}", payments.size(), customerId);
+        if (logger.isDebugEnabled()) {
+            logger.debug("Fetched {} payments for customer ID: {}", payments.size(), customerId);
+        }
         return payments.stream()
                 .map(customerPaymentMapper::customerPaymentToDTO)
                 .toList();
@@ -76,7 +79,9 @@ public class CustomerPaymentServiceImpl implements CustomerPaymentService {
     @Override
     @Transactional(readOnly = true)
     public Optional<CustomerPaymentDTO> getPaymentByCustomerIdAndMonth(Long customerId, LocalDate paymentMonth) {
-        logger.info("Fetching payment for customer ID: {} and month: {}", customerId, paymentMonth);
+        if (logger.isInfoEnabled()) {
+            logger.info("Fetching payment for customer ID: {} and month: {}", customerId, paymentMonth);
+        }
         return customerPaymentRepository.findByCustomer_CustomerIdAndPaymentMonth(customerId, paymentMonth)
                 .map(customerPaymentMapper::customerPaymentToDTO);
     }
@@ -146,6 +151,7 @@ public class CustomerPaymentServiceImpl implements CustomerPaymentService {
     }
 
     @Transactional
+<<<<<<< HEAD
     public CustomerPaymentDTO calculateAndSavePayment(Long customerId, double baseAmount,
             LocalDate startDate_P, LocalDate endDate_P,
             PaymentMode paymentMode) {
@@ -153,6 +159,15 @@ public class CustomerPaymentServiceImpl implements CustomerPaymentService {
         // validations...
         Customer customer = customerRepository.findById(customerId)
                 .orElseThrow(() -> new EntityNotFoundException("Customer not found"));
+=======
+    public CustomerPaymentDTO calculateAndSavePayment(Long customerId, double baseAmount) {
+        if (logger.isInfoEnabled()) {
+            logger.info("Calculating payment for customer ID: {}, Base Amount: {}", customerId, baseAmount);
+        }
+        if (baseAmount <= 0) {
+            throw new IllegalArgumentException("Base amount must be greater than zero.");
+        }
+>>>>>>> main
 
         double dailyRate = baseAmount / 30;
 
@@ -190,6 +205,7 @@ public class CustomerPaymentServiceImpl implements CustomerPaymentService {
 
         customerPaymentRepository.save(payment);
 
+<<<<<<< HEAD
         return CustomerPaymentDTO.builder()
                 .id(payment.getId())
                 .customerId(customerId)
@@ -204,6 +220,13 @@ public class CustomerPaymentServiceImpl implements CustomerPaymentService {
                 .transactionId(transactionId)
                 .paymentMode(paymentMode)
                 .build();
+=======
+        if (logger.isInfoEnabled()) {
+            logger.info("Saved payment for customer ID: {}, Final Amount: {}", customerId, finalAmount);
+        }
+        return new CustomerPaymentDTO(payment.getId(), customerId, baseAmount, discountAmount, finalAmount,
+                paymentMonth);
+>>>>>>> main
     }
 
     private double getDiscountPercentage(int days) {

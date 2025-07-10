@@ -34,13 +34,15 @@ public class KYCServiceImpl implements KYCService {
     @Override
     @Transactional(readOnly = true)
     public List<KYCDTO> getAllKYC(int page, int size) {
-        logger.info("Fetching all KYC records with pagination - page: {}, size: {}", page, size);
-
+        if (logger.isInfoEnabled()) {
+            logger.info("Fetching all KYC records with pagination - page: {}, size: {}", page, size);
+        }
         Pageable pageable = PageRequest.of(page, size);
         List<KYC> kycList = kycRepository.findAll(pageable).getContent();
 
-        logger.debug("Fetched {} KYC records from the database.", kycList.size());
-
+        if (logger.isDebugEnabled()) {
+            logger.debug("Fetched {} KYC records from the database.", kycList.size());
+        }
         return kycList.stream()
                 .map(kycMapper::kycToDTO)
                 .toList();
@@ -50,13 +52,19 @@ public class KYCServiceImpl implements KYCService {
     @Override
     @Transactional
     public KYCDTO getKYCById(Long id) {
-        logger.info("Fetching KYC record by ID: {}", id);
+        if (logger.isInfoEnabled()) {
+            logger.info("Fetching KYC record by ID: {}", id);
+        }
         KYC kyc = kycRepository.findById(id).orElse(null);
 
         if (kyc != null) {
-            logger.debug("Found KYC record with ID: {}", id);
+            if (logger.isDebugEnabled()) {
+                logger.debug("Found KYC record with ID: {}", id);
+            }
         } else {
-            logger.error("No KYC record found with ID: {}", id);
+            if (logger.isErrorEnabled()) {
+                logger.error("No KYC record found with ID: {}", id);
+            }
         }
 
         return kycMapper.kycToDTO(kyc);
@@ -66,10 +74,14 @@ public class KYCServiceImpl implements KYCService {
     @Override
     @Transactional
     public String addKYC(KYCDTO kycDTO) {
-        logger.info("Adding a new KYC record");
+        if (logger.isInfoEnabled()) {
+            logger.info("Adding a new KYC record");
+        }
         KYC kyc = kycMapper.dtoToKYC(kycDTO);
         kycRepository.save(kyc); // Use JPA to persist the entity
-        logger.debug("Persisted new KYC record with ID: {}", kyc.getKyc_id());
+        if (logger.isDebugEnabled()) {
+            logger.debug("Persisted new KYC record with ID: {}", kyc.getKyc_id());
+        }
         return CustomerConstants.ADDED;
     }
 
@@ -77,10 +89,14 @@ public class KYCServiceImpl implements KYCService {
     @Override
     @Transactional
     public String updateKYC(KYCDTO kycDTO) {
-        logger.info("Updating KYC record with ID: {}", kycDTO.getKyc_id());
+        if (logger.isInfoEnabled()) {
+            logger.info("Updating KYC record with ID: {}", kycDTO.getKyc_id());
+        }
         KYC kyc = kycMapper.dtoToKYC(kycDTO);
-        kycRepository.save(kyc); // Use JPA to merge the entity (save handles both insert and update)
-        logger.debug("Updated KYC record with ID: {}", kyc.getKyc_id());
+        kycRepository.save(kyc); 
+        if (logger.isDebugEnabled()) {
+            logger.debug("Updated KYC record with ID: {}", kyc.getKyc_id());
+        }
 
         return CustomerConstants.UPDATED;
     }

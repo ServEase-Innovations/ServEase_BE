@@ -140,9 +140,7 @@ public class ServiceProviderController {
         });
 
         // Return response with service providers (empty list if no results found)
-        return serviceProviders.isEmpty()
-                ? ResponseEntity.status(HttpStatus.NOT_FOUND).body(Collections.emptyList())
-                : ResponseEntity.ok(serviceProviders);
+        return ResponseEntity.ok(serviceProviders);
     }
 
     /**
@@ -251,7 +249,7 @@ public class ServiceProviderController {
         ServiceProviderDTO serviceProviderDTO = serviceProviderService.getServiceProviderDTOById(id);
 
         if (serviceProviderDTO == null) {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(null); // Service provider not found
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(null);
         }
 
         // Calculate occupied times before returning response
@@ -267,10 +265,6 @@ public class ServiceProviderController {
     public ResponseEntity<List<ServiceProviderDTO>> getServiceProvidersByVendorId(
             @ApiParam(value = "Vendor ID to retrieve service providers for", required = true) @PathVariable Long vendorId) {
         List<ServiceProviderDTO> serviceProviderDTOs = serviceProviderService.getServiceProvidersByVendorId(vendorId);
-
-        if (serviceProviderDTOs.isEmpty()) {
-            return ResponseEntity.status(HttpStatus.NO_CONTENT).body(null); // No service providers found
-        }
 
         return ResponseEntity.ok(serviceProviderDTOs);
     }
@@ -386,10 +380,6 @@ public class ServiceProviderController {
     @GetMapping("/role")
     public ResponseEntity<List<ServiceProviderDTO>> getServiceProvidersByRole(
             @RequestParam("role") HousekeepingRole role) {
-        // Validate the input role
-        if (role == null) {
-            return ResponseEntity.badRequest().body(null);
-        }
 
         List<ServiceProviderDTO> serviceProviders = serviceProviderService.getServiceProvidersByRole(role);
         return ResponseEntity.ok(serviceProviders);
@@ -578,11 +568,6 @@ public class ServiceProviderController {
         List<ServiceProviderEngagementDTO> engagements = serviceProviderEngagementService
                 .getAllServiceProviderEngagements(page, size);
 
-        if (engagements.isEmpty()) {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND)
-                    .body(Collections.singletonList(new ServiceProviderEngagementDTO()));
-        }
-
         // Process each engagement to calculate available times
         engagements.forEach(engagement -> {
             List<String> availableTimes = calculateAvailableTimes(engagement.getTimeslot());
@@ -728,9 +713,6 @@ public class ServiceProviderController {
                 .getEngagementsByExactDateTimeslotAndHousekeepingRole(startDate, endDate, timeslot, housekeepingRole,
                         latitude, longitude, precision);
 
-        if (engagements.isEmpty()) {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(Collections.emptyList());
-        }
         return ResponseEntity.ok(engagements);
     }
 
@@ -987,10 +969,6 @@ public class ServiceProviderController {
     public ResponseEntity<List<ServiceProviderLeaveDTO>> getAllServiceProviderLeaves() {
         List<ServiceProviderLeaveDTO> leaves = serviceProviderLeaveService.getAllLeaves();
 
-        if (leaves == null || leaves.isEmpty()) {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(Collections.emptyList());
-        }
-
         return ResponseEntity.ok(leaves);
     }
 
@@ -1064,10 +1042,10 @@ public class ServiceProviderController {
     public ResponseEntity<Object> getServiceProvidersOnLeaveToday() {
         List<ServiceProviderLeaveDTO> leaves = serviceProviderLeaveService.getServiceProvidersOnLeaveToday();
 
-        if (leaves == null || leaves.isEmpty()) {
-            // Returning a String when no data is found
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(ServiceProviderConstants.NO_DATA_FOUND);
-        }
+        // if (leaves == null || leaves.isEmpty()) {
+        //     // Returning a String when no data is found
+        //     return ResponseEntity.status(HttpStatus.NOT_FOUND).body(ServiceProviderConstants.NO_DATA_FOUND);
+        // }
 
         // Returning a List of ServiceProviderLeaveDTO when data is found
         return ResponseEntity.ok(leaves);
@@ -1078,10 +1056,10 @@ public class ServiceProviderController {
     @ApiOperation(value = "Retrieve service provider leaves next week", response = List.class)
     public ResponseEntity<Object> getServiceProvidersOnLeaveNextWeek() {
         List<ServiceProviderLeaveDTO> leaves = serviceProviderLeaveService.getServiceProvidersOnLeaveNextWeek();
-        if (leaves == null || leaves.isEmpty()) {
-            // Using constant instead of the literal string
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(ServiceProviderConstants.NO_DATA_FOUND);
-        }
+        // if (leaves == null || leaves.isEmpty()) {
+        //     // Using constant instead of the literal string
+        //     return ResponseEntity.status(HttpStatus.NOT_FOUND).body(ServiceProviderConstants.NO_DATA_FOUND);
+        // }
         return ResponseEntity.ok(leaves);
     }
 
@@ -1090,10 +1068,10 @@ public class ServiceProviderController {
     @ApiOperation(value = "Retrieve approved service provider leaves", response = List.class)
     public ResponseEntity<Object> getApprovedServiceProviderLeaves() {
         List<ServiceProviderLeaveDTO> leaves = serviceProviderLeaveService.getApprovedLeaves();
-        if (leaves == null || leaves.isEmpty()) {
-            // Using constant instead of the literal string
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(ServiceProviderConstants.NO_DATA_FOUND);
-        }
+        // if (leaves == null || leaves.isEmpty()) {
+        //     // Using constant instead of the literal string
+        //     return ResponseEntity.status(HttpStatus.NOT_FOUND).body(ServiceProviderConstants.NO_DATA_FOUND);
+        // }
         return ResponseEntity.ok(leaves);
     }
 
@@ -1102,10 +1080,10 @@ public class ServiceProviderController {
     @ApiOperation(value = "Retrieve unapproved service provider leaves", response = List.class)
     public ResponseEntity<Object> getUnapprovedServiceProviderLeaves() {
         List<ServiceProviderLeaveDTO> leaves = serviceProviderLeaveService.getUnapprovedLeaves();
-        if (leaves == null || leaves.isEmpty()) {
-            // Using constant instead of the literal string
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(ServiceProviderConstants.NO_DATA_FOUND);
-        }
+        // if (leaves == null || leaves.isEmpty()) {
+        //     // Using constant instead of the literal string
+        //     return ResponseEntity.status(HttpStatus.NOT_FOUND).body(ServiceProviderConstants.NO_DATA_FOUND);
+        // }
         return ResponseEntity.ok(leaves);
     }
 
@@ -1117,9 +1095,9 @@ public class ServiceProviderController {
     @ApiOperation(value = "Retrieve all leave balance records", response = List.class)
     public ResponseEntity<Object> getAllLeaveBalances() {
         List<LeaveBalanceDTO> leaveBalances = leaveBalanceService.getAllLeaveBalances();
-        if (leaveBalances == null || leaveBalances.isEmpty()) {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(ServiceProviderConstants.NO_DATA_FOUND);
-        }
+        // if (leaveBalances == null || leaveBalances.isEmpty()) {
+        //     return ResponseEntity.status(HttpStatus.NOT_FOUND).body(ServiceProviderConstants.NO_DATA_FOUND);
+        // }
         return ResponseEntity.ok(leaveBalances);
     }
 

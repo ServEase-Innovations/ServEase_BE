@@ -2,6 +2,9 @@ package com.springboot.app.dto;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+
+import com.springboot.app.entity.ServiceProvider;
+
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;

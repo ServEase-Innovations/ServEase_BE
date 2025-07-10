@@ -1,6 +1,7 @@
 package com.springboot.app.service;
 
 import com.springboot.app.constant.CustomerConstants;
+import com.springboot.app.constant.ServiceProviderConstants;
 import com.springboot.app.dto.LeaveBalanceDTO;
 import com.springboot.app.entity.LeaveBalance;
 import com.springboot.app.mapper.LeaveBalanceMapper;
@@ -34,26 +35,37 @@ public class LeaveBalanceServiceImpl implements LeaveBalanceService {
     @Override
     @Transactional(readOnly = true)
     public List<LeaveBalanceDTO> getAllLeaveBalances() {
-        logger.info("Fetching all leave balance records.");
+        if (logger.isInfoEnabled()) {
+            logger.info("Fetching all leave balance records.");
+        }
         List<LeaveBalance> leaveBalances = leaveBalanceRepository.findAll();
         if (leaveBalances.isEmpty()) {
-            logger.error("No data found.");
-            return Collections.emptyList(); // Return an empty list instead of null
+            if (logger.isErrorEnabled()) {
+                logger.error("No data found.");
+            }
+            return Collections.emptyList(); 
+        }
+        if (logger.isDebugEnabled()) {
+            logger.debug("Fetched {} leave balance records from the database.", leaveBalances.size());
         }
         return leaveBalances.stream()
                 .map(leaveBalanceMapper::leaveBalanceToDTO)
-                .toList(); // Returns an unmodifiable list
+                .toList(); 
     }
 
     // Get LeaveBalance by ID
     @Override
     @Transactional(readOnly = true)
     public LeaveBalanceDTO getLeaveBalanceById(Long id) {
-        logger.info("Fetching leave balance record by ID: {}", id);
+        if (logger.isInfoEnabled()) {
+            logger.info("Fetching leave balance record by ID: {}", id);
+        }
         Optional<LeaveBalance> leaveBalanceOptional = leaveBalanceRepository.findById(id);
         if (!leaveBalanceOptional.isPresent()) {
-            logger.error("Data not found with this ID: {}", id);
-            return null; // Return null for not found record
+            if (logger.isErrorEnabled()) {
+                logger.error("Data not found with this ID: {}", id);
+            }
+            return null; 
         }
         return leaveBalanceMapper.leaveBalanceToDTO(leaveBalanceOptional.get());
     }
@@ -61,15 +73,18 @@ public class LeaveBalanceServiceImpl implements LeaveBalanceService {
     // Get LeaveBalance by Service Provider ID
     @Transactional(readOnly = true)
     public List<LeaveBalanceDTO> getLeaveBalancesByServiceProviderId(Long serviceProviderId) {
-        logger.info("Fetching leave balance records for service provider ID: {}", serviceProviderId);
-
+        if (logger.isInfoEnabled()) {
+            logger.info("Fetching leave balance records for service provider ID: {}", serviceProviderId);
+        }
         List<LeaveBalance> leaveBalances = leaveBalanceRepository.findAll().stream()
                 .filter(lb -> lb.getServiceProvider().getServiceproviderId().equals(serviceProviderId))
                 .toList();
 
         if (leaveBalances.isEmpty()) {
-            logger.error("No data found for service provider ID: {}", serviceProviderId);
-            return Collections.emptyList(); // Return an empty list instead of null
+            if (logger.isErrorEnabled()) {
+                logger.error("No data found for service provider ID: {}", serviceProviderId);
+            }
+            return Collections.emptyList(); 
         }
 
         return leaveBalances.stream()
@@ -81,15 +96,21 @@ public class LeaveBalanceServiceImpl implements LeaveBalanceService {
     @Override
     @Transactional
     public String addLeaveBalance(LeaveBalanceDTO leaveBalanceDTO) {
-        logger.info("Adding a new leave balance record.");
+        if (logger.isInfoEnabled()) {
+            logger.info("Adding a new leave balance record.");
+        }
         try {
             LeaveBalance leaveBalance = leaveBalanceMapper.dtoToLeaveBalance(leaveBalanceDTO);
             leaveBalanceRepository.save(leaveBalance);
-            logger.debug("New leave balance record added with ID: {}", leaveBalance.getBalanceId());
+            if (logger.isDebugEnabled()) {
+                logger.debug("New leave balance record added with ID: {}", leaveBalance.getBalanceId());
+            }
             return CustomerConstants.ADDED;
         } catch (Exception e) {
-            logger.error("Failed to add new leave balance record", e);
-            return "Failed";
+            if (logger.isErrorEnabled()) {
+                logger.error("Failed to add new leave balance record", e);
+            }
+            return CustomerConstants.FAILED;
         }
     }
 
@@ -97,7 +118,9 @@ public class LeaveBalanceServiceImpl implements LeaveBalanceService {
     @Override
     @Transactional
     public String updateLeaveBalance(Long id, LeaveBalanceDTO leaveBalanceDTO) {
-        logger.info("Updating leave balance record with ID: {}", id);
+        if (logger.isInfoEnabled()) {
+            logger.info("Updating leave balance record with ID: {}", id);
+        }
         Optional<LeaveBalance> existingLeaveBalance = leaveBalanceRepository.findById(id);
 
         if (existingLeaveBalance.isPresent()) {
@@ -106,11 +129,15 @@ public class LeaveBalanceServiceImpl implements LeaveBalanceService {
             leaveBalance.setLeaveBalance(leaveBalanceDTO.getLeaveBalance());
             leaveBalance.setServiceProvider(leaveBalanceMapper.dtoToLeaveBalance(leaveBalanceDTO).getServiceProvider());
             leaveBalanceRepository.save(leaveBalance);
-            logger.debug("Leave balance record updated with ID: {}", leaveBalance.getBalanceId());
+            if (logger.isDebugEnabled()) {
+                logger.debug("Leave balance record updated with ID: {}", leaveBalance.getBalanceId());
+            }
             return CustomerConstants.UPDATED;
         } else {
-            logger.error("No leave balance found with ID: {}", id);
-            return "Data not found with this ID";
+            if (logger.isErrorEnabled()) {
+                logger.error("No leave balance found with ID: {}", id);
+            }
+            return CustomerConstants.NOT_FOUND;
         }
     }
 
@@ -118,16 +145,22 @@ public class LeaveBalanceServiceImpl implements LeaveBalanceService {
     @Override
     @Transactional
     public String deleteLeaveBalance(Long id) {
-        logger.info("Deleting leave balance record with ID: {}", id);
+        if (logger.isInfoEnabled()) {
+            logger.info("Deleting leave balance record with ID: {}", id);
+        }
         Optional<LeaveBalance> leaveBalanceOptional = leaveBalanceRepository.findById(id);
 
         if (leaveBalanceOptional.isPresent()) {
             leaveBalanceRepository.deleteById(id);
-            logger.debug("Leave balance record deleted with ID: {}", id);
+            if (logger.isDebugEnabled()) {
+                logger.debug("Leave balance record deleted with ID: {}", id);
+            }
             return CustomerConstants.DELETED;
         } else {
-            logger.error("No leave balance found with ID: {}", id);
-            return "Data not found with this ID";
+            if (logger.isErrorEnabled()) {
+                logger.error("No leave balance found with ID: {}", id);
+            }
+            return CustomerConstants.NOT_FOUND;
         }
     }
 }
