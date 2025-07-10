@@ -21,6 +21,8 @@ public class ServiceProviderPaymentDTO {
     private Date endDate;
     private Timestamp settledOn;
     private PaymentMode paymentMode;
+    private Date paymentOn;
+    private String transactionId;
     private double noOfDays;
     private int amount;
     private Currency currency;

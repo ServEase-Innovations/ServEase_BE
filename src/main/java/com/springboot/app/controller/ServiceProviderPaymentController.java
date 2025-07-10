@@ -1,5 +1,6 @@
 package com.springboot.app.controller;
 
+import com.springboot.app.dto.CustomerPaymentDTO;
 import com.springboot.app.dto.ServiceProviderPaymentDTO;
 import com.springboot.app.service.ServiceProviderPaymentService;
 import io.swagger.annotations.Api;
@@ -7,10 +8,19 @@ import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.core.io.InputStreamResource;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+
+import java.io.InputStream;
+import java.sql.Date;
 import java.util.List;
+import java.util.Map;
+
+import com.springboot.app.Excel.ExcelExportUtil;
 import com.springboot.app.constant.ServiceProviderConstants;
 
 @RestController
@@ -83,6 +93,10 @@ public class ServiceProviderPaymentController {
             @ApiParam(value = "ID of the service provider payment to update", required = true) @PathVariable Long id,
             @ApiParam(value = "Updated service provider payment object", required = true) @RequestBody ServiceProviderPaymentDTO serviceProviderPaymentDTO) {
         try {
+            if (serviceProviderPaymentService.getServiceProviderPaymentById(id) == null) {
+                return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                        .body(" Service provider payment with ID " + id + " not found");
+            }
             serviceProviderPaymentDTO.setId(id);
             String result = serviceProviderPaymentService.updateServiceProviderPayment(serviceProviderPaymentDTO);
             return ResponseEntity.ok(result);
@@ -98,6 +112,10 @@ public class ServiceProviderPaymentController {
     public ResponseEntity<?> deleteServiceProviderPayment(
             @ApiParam(value = "ID of the service provider payment to delete", required = true) @PathVariable Long id) {
         try {
+            if (serviceProviderPaymentService.getServiceProviderPaymentById(id) == null) {
+                return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                        .body(" Service provider payment with ID " + id + " not found");
+            }
             String result = serviceProviderPaymentService.deleteServiceProviderPayment(id);
             return ResponseEntity.ok(result);
         } catch (Exception e) {
@@ -105,5 +123,58 @@ public class ServiceProviderPaymentController {
                     .body("Failed to delete service provider payment: " + e.getMessage());
         }
     }
+
+    @GetMapping("/get/payments/by-date")
+    public ResponseEntity<?> getPaymentsByDateRange(@RequestBody Map<String, String> body) {
+        try {
+            Date startDate = Date.valueOf(body.get("startDate"));
+            Date endDate = Date.valueOf(body.get("endDate"));
+
+            List<ServiceProviderPaymentDTO> payments = serviceProviderPaymentService.getPaymentsByDateRange(startDate,
+                    endDate);
+            if (payments.isEmpty()) {
+                return ResponseEntity.status(HttpStatus.NO_CONTENT)
+                        .body("No payments found between the provided dates.");
+            }
+            return ResponseEntity.ok(payments);
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Invalid request: " + e.getMessage());
+        }
+    }
+
+    @GetMapping("/get/payments/by-month")
+    public ResponseEntity<?> getPaymentsByMonth(@RequestBody Map<String, Integer> body) {
+        try {
+            int month = body.get("month");
+            int year = body.get("year");
+
+            List<ServiceProviderPaymentDTO> payments = serviceProviderPaymentService.getPaymentsByMonthAndYear(month, year);
+            if (payments.isEmpty()) {
+                return ResponseEntity.status(HttpStatus.NO_CONTENT).body("No payments found for the provided month.");
+            }
+            return ResponseEntity.ok(payments);
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Invalid request: " + e.getMessage());
+        }
+    }
+
+    @GetMapping("/get/payments/by-financial-year")
+    public ResponseEntity<?> getPaymentsByFinancialYear(@RequestBody Map<String, Integer> body) {
+        try {
+            int year = body.get("year");
+
+            List<ServiceProviderPaymentDTO> payments = serviceProviderPaymentService.getPaymentsByFinancialYear(year);
+            if (payments.isEmpty()) {
+                return ResponseEntity.status(HttpStatus.NO_CONTENT)
+                        .body("No payments found for the financial year " + year);
+            }
+            return ResponseEntity.ok(payments);
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Invalid request: " + e.getMessage());
+        }
+    }
+
+    
+
 
 }
