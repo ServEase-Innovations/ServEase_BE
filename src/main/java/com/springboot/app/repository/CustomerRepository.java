@@ -11,4 +11,6 @@ public interface CustomerRepository extends JpaRepository<Customer, Long> {
 
     boolean existsByMobileNo(Long mobileNo);
 
+
+
 }
