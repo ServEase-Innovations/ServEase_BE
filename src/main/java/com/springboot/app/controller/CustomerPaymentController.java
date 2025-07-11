@@ -7,10 +7,7 @@ import com.springboot.app.service.CustomerPaymentService;
 import jakarta.persistence.EntityNotFoundException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-<<<<<<< HEAD
 import org.springframework.format.annotation.DateTimeFormat;
-=======
->>>>>>> main
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -33,7 +30,6 @@ public class CustomerPaymentController {
     }
 
     @GetMapping("/{customerId}")
-<<<<<<< HEAD
     public ResponseEntity<List<CustomerPaymentDTO>> getPaymentsByCustomerId(@PathVariable Long customerId) {
         logger.info(CustomerConstants.FETCHING_PAYMENTS_FOR_CUSTOMER, customerId);
         List<CustomerPaymentDTO> payments = customerPaymentService.getPaymentsByCustomerId(customerId);
@@ -41,15 +37,8 @@ public class CustomerPaymentController {
             logger.info(CustomerConstants.NO_PAYMENTS_FOUND_FOR_CUSTOMER, customerId);
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body(Collections.emptyList());
         }
-=======
-    public ResponseEntity<?> getPaymentsByCustomerId(@PathVariable Long customerId) {
-        logger.info("Fetching payments for customer ID: {}", customerId);
-        List<CustomerPaymentDTO> payments = customerPaymentService.getPaymentsByCustomerId(customerId);
-        
->>>>>>> main
         return ResponseEntity.ok(payments);
-}
-
+    }
 
     @GetMapping("/{customerId}/month")
     public ResponseEntity<CustomerPaymentDTO> getPaymentByCustomerIdAndMonth(
@@ -60,17 +49,12 @@ public class CustomerPaymentController {
 
         Optional<CustomerPaymentDTO> payment = customerPaymentService.getPaymentByCustomerIdAndMonth(customerId,
                 paymentMonth);
-<<<<<<< HEAD
         return payment.map(ResponseEntity::ok).orElseGet(() -> {
             logger.info(CustomerConstants.NO_PAYMENT_FOUND_FOR_CUSTOMER_AND_MONTH, customerId, paymentMonth);
             return ResponseEntity.notFound().build();
         });
-=======
-        return ResponseEntity.ok(payment.orElse(null));
->>>>>>> main
     }
 
-  
     @GetMapping("/by-date")
     public ResponseEntity<List<CustomerPaymentDTO>> getPaymentsByDateRange(
             @RequestParam @DateTimeFormat(pattern = "yyyy-MM-dd") LocalDate startDate,
@@ -86,9 +70,7 @@ public class CustomerPaymentController {
         return ResponseEntity.ok(payments);
     }
 
-   
     @PostMapping("/calculate-payment")
-<<<<<<< HEAD
     public ResponseEntity<CustomerPaymentDTO> calculatePayment(
             @RequestParam Long customerId,
             @RequestParam double baseAmount,
@@ -122,23 +104,4 @@ public class CustomerPaymentController {
         return ResponseEntity.ok(payments);
     }
 
-=======
-    public ResponseEntity<?> calculatePayment(@RequestParam Long customerId, @RequestParam double baseAmount) {
-        try {
-            CustomerPaymentDTO paymentDTO = customerPaymentService.calculateAndSavePayment(customerId, baseAmount);
-            if (paymentDTO == null) {
-                return ResponseEntity.status(HttpStatus.BAD_REQUEST)
-                        .body("Failed to calculate payment for customer with ID: " + customerId);
-            }
-            return ResponseEntity.status(HttpStatus.CREATED).body(paymentDTO);
-        } catch (EntityNotFoundException ex) {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND)
-                    .body("Customer with ID " + customerId + " not found.");
-        } catch (Exception ex) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                    .body("An error occurred while calculating the payment: " + ex.getMessage());
-        }
-    }
-
->>>>>>> main
 }

@@ -4,9 +4,11 @@ import com.springboot.app.constant.CustomerConstants;
 import com.springboot.app.dto.CustomerHolidaysDTO;
 import com.springboot.app.entity.Customer;
 import com.springboot.app.entity.CustomerHolidays;
+import com.springboot.app.entity.ServiceProviderEngagement;
 import com.springboot.app.mapper.CustomerHolidaysMapper;
 import com.springboot.app.repository.CustomerHolidaysRepository;
 import com.springboot.app.repository.CustomerRepository;
+import com.springboot.app.repository.ServiceProviderEngagementRepository;
 
 import jakarta.persistence.EntityNotFoundException;
 
@@ -17,6 +19,8 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 
@@ -24,17 +28,19 @@ import java.util.Optional;
 public class CustomerHolidaysServiceImpl implements CustomerHolidaysService {
 
     private static final Logger logger = LoggerFactory.getLogger(CustomerHolidaysServiceImpl.class);
-
     private final CustomerHolidaysMapper customerHolidaysMapper;
     private final CustomerHolidaysRepository customerHolidaysRepository;
     private final CustomerRepository customerRepository;
+    private final ServiceProviderEngagementRepository engagementRepository;
 
     public CustomerHolidaysServiceImpl(CustomerHolidaysMapper customerHolidaysMapper,
             CustomerHolidaysRepository customerHolidaysRepository,
-            CustomerRepository customerRepository) {
+            CustomerRepository customerRepository,
+            ServiceProviderEngagementRepository engagementRepository) {
         this.customerHolidaysMapper = customerHolidaysMapper;
         this.customerHolidaysRepository = customerHolidaysRepository;
         this.customerRepository = customerRepository;
+        this.engagementRepository = engagementRepository;
     }
 
     @Override
@@ -80,23 +86,127 @@ public class CustomerHolidaysServiceImpl implements CustomerHolidaysService {
         if (logger.isInfoEnabled()) {
             logger.info("Adding new holiday for customer ID: {}", customerHolidaysDTO.getCustomerId());
         }
+
         Optional<Customer> customerOptional = customerRepository.findById(customerHolidaysDTO.getCustomerId());
         if (customerOptional.isEmpty()) {
             throw new EntityNotFoundException(
                     "Customer with ID " + customerHolidaysDTO.getCustomerId() + " not found.");
         }
 
-        if (customerHolidaysDTO.getEndDate().isBefore(customerHolidaysDTO.getStartDate())) {
-            throw new IllegalArgumentException("End date must be after or equal to start date.");
+        // ✅ Fetch active engagement for the customer
+        Optional<ServiceProviderEngagement> engagementOptional = engagementRepository
+                .findFirstByCustomer_CustomerIdAndIsActiveTrue(customerHolidaysDTO.getCustomerId());
+
+        if (engagementOptional.isEmpty()) {
+            throw new EntityNotFoundException("No active engagement found for customer.");
         }
 
-        CustomerHolidays holiday = customerHolidaysMapper.dtoToCustomerHolidays(customerHolidaysDTO);
+        ServiceProviderEngagement engagement = engagementOptional.get();
+        LocalDate engagementStart = engagement.getStartDate();
+        LocalDate engagementEnd = engagement.getEndDate();
+
+        // ✅ Use dates from DTO
+        LocalDate holidayStart = customerHolidaysDTO.getStartDate();
+        LocalDate holidayEnd = customerHolidaysDTO.getEndDate();
+
+        if (holidayStart == null || holidayEnd == null) {
+            throw new IllegalArgumentException("Holiday start and end dates must not be null.");
+        }
+
+        if (holidayEnd.isBefore(holidayStart)) {
+            throw new IllegalArgumentException("Holiday end date must be after or equal to start date.");
+        }
+
+        // ✅ Validate that holiday is within engagement period
+        if (holidayStart.isBefore(engagementStart) || holidayEnd.isAfter(engagementEnd)) {
+            throw new IllegalArgumentException(
+                    String.format("Holiday must fall within engagement period: %s to %s", engagementStart,
+                            engagementEnd));
+        }
+
+        // ✅ Map and save holiday
+        CustomerHolidays holiday = new CustomerHolidays();
         holiday.setCustomer(customerOptional.get());
-        holiday.setActive(true); // Ensure the holiday is marked active
+        holiday.setStartDate(holidayStart);
+        holiday.setEndDate(holidayEnd);
+        holiday.setBookingDate(LocalDateTime.now());
+        holiday.setActive(true);
+
         customerHolidaysRepository.save(holiday);
 
         return CustomerConstants.ADDED;
     }
+
+    // @Override
+    // @Transactional
+    // public String addNewHoliday(CustomerHolidaysDTO customerHolidaysDTO) {
+    // if (logger.isInfoEnabled()) {
+    // logger.info("Adding new holiday for customer ID: {}",
+    // customerHolidaysDTO.getCustomerId());
+    // }
+
+    // Optional<Customer> customerOptional =
+    // customerRepository.findById(customerHolidaysDTO.getCustomerId());
+    // if (customerOptional.isEmpty()) {
+    // throw new EntityNotFoundException(
+    // "Customer with ID " + customerHolidaysDTO.getCustomerId() + " not found.");
+    // }
+
+    // // ✅ Fetch active engagement for the customer
+    // Optional<ServiceProviderEngagement> engagementOptional = engagementRepository
+    // .findFirstByCustomer_CustomerIdAndIsActiveTrue(customerHolidaysDTO.getCustomerId());
+
+    // if (engagementOptional.isEmpty()) {
+    // throw new EntityNotFoundException("No active engagement found for
+    // customer.");
+    // }
+
+    // ServiceProviderEngagement engagement = engagementOptional.get();
+    // LocalDate engagementStart = engagement.getStartDate();
+    // LocalDate engagementEnd = engagement.getEndDate();
+
+    // // ✅ Create a holiday entity using engagement dates instead of DTO input
+    // CustomerHolidays holiday = new CustomerHolidays();
+    // holiday.setCustomer(customerOptional.get());
+    // holiday.setStartDate(engagementStart); // From engagement
+    // holiday.setEndDate(engagementEnd); // From engagement
+    // holiday.setBookingDate(LocalDateTime.now());
+    // holiday.setActive(true); // Ensure the holiday is marked active
+
+    // customerHolidaysRepository.save(holiday);
+
+    // return CustomerConstants.ADDED;
+    // }
+
+    // @Override
+    // @Transactional
+    // public String addNewHoliday(CustomerHolidaysDTO customerHolidaysDTO) {
+    // if (logger.isInfoEnabled()) {
+    // logger.info("Adding new holiday for customer ID: {}",
+    // customerHolidaysDTO.getCustomerId());
+    // }
+    // Optional<Customer> customerOptional =
+    // customerRepository.findById(customerHolidaysDTO.getCustomerId());
+    // if (customerOptional.isEmpty()) {
+    // throw new EntityNotFoundException(
+    // "Customer with ID " + customerHolidaysDTO.getCustomerId() + " not found.");
+    // }
+
+    // if
+    // (customerHolidaysDTO.getEndDate().isBefore(customerHolidaysDTO.getStartDate()))
+    // {
+    // throw new IllegalArgumentException("End date must be after or equal to start
+    // date.");
+    // }
+
+    // CustomerHolidays holiday =
+    // customerHolidaysMapper.dtoToCustomerHolidays(customerHolidaysDTO);
+    // holiday.setCustomer(customerOptional.get());
+    // holiday.setActive(true); // Ensure the holiday is marked active
+    // customerHolidaysRepository.save(holiday);
+
+    // return CustomerConstants.ADDED;
+    // }
 
     // @Override
     // @Transactional
