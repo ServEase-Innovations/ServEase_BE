@@ -60,6 +60,7 @@ public class ServiceProviderEngagementServiceImpl implements ServiceProviderEnga
     @Autowired
     private CustomerHolidaysRepository customerHolidayRepository;
 
+
     @Autowired
     public ServiceProviderEngagementServiceImpl(ServiceProviderEngagementRepository engagementRepository,
             ServiceProviderRepository serviceProviderRepository,
@@ -393,6 +394,86 @@ public class ServiceProviderEngagementServiceImpl implements ServiceProviderEnga
 
     @Override
     @Transactional(readOnly = true)
+    public List<Object> getProgressiveSearch(
+            double latitude,
+            double longitude,
+            HousekeepingRole housekeepingRole,
+            int precision) {
+        logger.info(
+                "Performing progressive search for housekeeping role: {}, latitude: {}, longitude: {}, precision: {}",
+                housekeepingRole, latitude, longitude, precision);
+
+        List<String> geoHashes = geoHashService.getNearbyGeoHashes(latitude, longitude, precision);
+        List<ServiceProvider> providers = serviceProviderRepository
+                .findByHousekeepingRoleAndGeoHash(housekeepingRole, geoHashes);
+        if (providers.isEmpty()) {
+            logger.warn("No service providers found for the given parameters.");
+            return Collections.emptyList();
+        }
+        return new ArrayList<>(providers);
+    }
+    
+    @Override
+    @Transactional(readOnly = true)
+    public List<ServiceProvider> getPriorityBasedSearch(
+            double latitude,
+            double longitude,
+            HousekeepingRole housekeepingRole) {
+
+        logger.info("Starting priority-based geo search for role: {}, lat: {}, long: {}",
+                housekeepingRole, latitude, longitude);
+
+        // Generate geohashes by precision
+        List<String> geoHashes7 = geoHashService.getNearbyGeoHashes(latitude, longitude, 7);
+        List<String> geoHashes6 = geoHashService.getNearbyGeoHashes(latitude, longitude, 6);
+        List<String> geoHashes5 = geoHashService.getNearbyGeoHashes(latitude, longitude, 5);
+        List<String> geoHashes4 = geoHashService.getNearbyGeoHashes(latitude, longitude, 4);
+
+        List<ServiceProvider> result = new ArrayList<>();
+        Set<Long> seenIds = new HashSet<>();
+
+        // Precision 7
+        List<ServiceProvider> from7 = serviceProviderRepository
+                .findByHousekeepingRoleAndGeoHash(housekeepingRole, geoHashes7);
+        for (ServiceProvider sp : from7) {
+            if (seenIds.add(sp.getServiceproviderId())) {
+                result.add(sp);
+            }
+        }
+
+        // Precision 6
+        List<ServiceProvider> from6 = serviceProviderRepository
+                .findByHousekeepingRoleAndGeoHash(housekeepingRole, geoHashes6);
+        for (ServiceProvider sp : from6) {
+            if (seenIds.add(sp.getServiceproviderId())) {
+                result.add(sp);
+            }
+        }
+
+        // Precision 5
+        List<ServiceProvider> from5 = serviceProviderRepository
+                .findByHousekeepingRoleAndGeoHash(housekeepingRole, geoHashes5);
+        for (ServiceProvider sp : from5) {
+            if (seenIds.add(sp.getServiceproviderId())) {
+                result.add(sp);
+            }
+        }
+
+        // Precision 4
+        List<ServiceProvider> from4 = serviceProviderRepository
+                .findByHousekeepingRoleAndGeoHash(housekeepingRole, geoHashes4);
+        for (ServiceProvider sp : from4) {
+            if (seenIds.add(sp.getServiceproviderId())) {
+                result.add(sp);
+            }
+        }
+
+        logger.info("Priority-based search found total {} unique providers", result.size());
+        return result;
+    }
+    
+    @Override
+    @Transactional(readOnly = true)
     public List<Object> getEngagementsByExactDateTimeslotAndHousekeepingRole(
             LocalDate startDate, LocalDate endDate, String timeslot, HousekeepingRole housekeepingRole,
             double latitude, double longitude, int precision) {
@@ -474,9 +555,7 @@ public class ServiceProviderEngagementServiceImpl implements ServiceProviderEnga
 
         return result;
     }
-    
-    
-    
+
     private boolean isProviderFreeInTimeslot(ServiceProvider provider, LocalDate startDate,
             LocalDate endDate, String requestedTimeslot) {
         List<ServiceProviderEngagement> providerEngagements = engagementRepository

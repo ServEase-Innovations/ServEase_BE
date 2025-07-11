@@ -138,6 +138,9 @@ public class ServiceProvider {
 	private double longitude;
 
 	@Column
+	private String geoHash4;
+
+	@Column
 	private String geoHash5;
 
 	@Column
@@ -153,6 +156,7 @@ public class ServiceProvider {
 		String formattedDate = sdf.format(System.currentTimeMillis());
 		this.enrolledDate = Timestamp.valueOf(formattedDate);
 		this.isActive = true;
+		this.geoHash4 = GeoHash.withCharacterPrecision(this.latitude, this.longitude, 4).toBase32();
 		this.geoHash5 = GeoHash.withCharacterPrecision(this.latitude, this.longitude, 5).toBase32();
 		this.geoHash6 = GeoHash.withCharacterPrecision(this.latitude, this.longitude, 6).toBase32();
 		this.geoHash7 = GeoHash.withCharacterPrecision(this.latitude, this.longitude, 7).toBase32();

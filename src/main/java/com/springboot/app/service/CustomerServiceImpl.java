@@ -95,15 +95,18 @@ public class CustomerServiceImpl implements CustomerService {
         }
 
         // Mobile check
-        Long mobile = customerDTO.getMobileNo();
-
-        if (mobile != null) {
-            boolean mobileExists = customerRepository.existsByMobileNo(mobile);
-            if (mobileExists) {
-                if (logger.isInfoEnabled()) {
-                    logger.info("User already exists with this mobile number: {}", mobile);
+        if (mobile != null && !mobile.isEmpty()) {
+            try {
+                Long mobileLong = Long.parseLong(mobile);
+                boolean mobileExists = customerRepository.existsByMobileNo(mobileLong);
+                if (mobileExists) {
+                    if (logger.isInfoEnabled()) {
+                        logger.info("User already exists with this mobile number: {}", mobile);
+                    }
+                    return "User already exists with this mobile";
                 }
-                return "User already exists with this mobile";
+            } catch (NumberFormatException e) {
+                throw new IllegalArgumentException("Invalid mobile number format. Must be digits only.");
             }
         }
 
