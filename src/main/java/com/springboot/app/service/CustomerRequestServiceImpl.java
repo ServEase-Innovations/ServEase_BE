@@ -28,18 +28,11 @@ public class CustomerRequestServiceImpl implements CustomerRequestService {
 
     private static final Logger logger = LoggerFactory.getLogger(CustomerRequestServiceImpl.class);
 
-    private final CustomerRequestRepository customerRequestRepository;
-    private final CustomerRequestMapper customerRequestMapper;
-
+    @Autowired
+    private CustomerRequestRepository customerRequestRepository;
 
     @Autowired
-    public CustomerRequestServiceImpl(CustomerRequestRepository customerRequestRepository,
-            CustomerRequestMapper customerRequestMapper) {
-        this.customerRequestRepository = customerRequestRepository;
-        this.customerRequestMapper = customerRequestMapper;
-    }
-
-    private CustomerConstants customerconstants;
+    private CustomerRequestMapper customerRequestMapper;
 
     // To get all customer requests
     @Override

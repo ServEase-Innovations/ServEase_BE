@@ -31,6 +31,7 @@ import com.springboot.app.dto.ServiceProviderLeaveDTO;
 import com.springboot.app.dto.ServiceProviderRequestCommentDTO;
 import com.springboot.app.dto.ServiceProviderRequestDTO;
 import com.springboot.app.dto.ShortListedServiceProviderDTO;
+import com.springboot.app.entity.ServiceProvider;
 import com.springboot.app.enums.Gender;
 import com.springboot.app.enums.Habit;
 import com.springboot.app.enums.HousekeepingRole;
@@ -55,6 +56,7 @@ import io.swagger.annotations.ApiParam;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashMap;
 
 @RestController
 @RequestMapping(ServiceProviderConstants.BASE_API_PATH)
@@ -715,6 +717,63 @@ public class ServiceProviderController {
 
         return ResponseEntity.ok(engagements);
     }
+    
+    @GetMapping("/search-progressive")
+    public ResponseEntity<?> searchProgressive(
+            @RequestParam double latitude,
+            @RequestParam double longitude,
+            @RequestParam HousekeepingRole housekeepingRole,
+            @RequestParam(defaultValue = "5") int precision,
+            @RequestParam(defaultValue = "false") boolean flag) {
+
+        List<Object> results = serviceProviderEngagementService
+                .getProgressiveSearch(latitude, longitude, housekeepingRole, precision);
+
+        if (results.isEmpty()) {
+            return ResponseEntity.ok("no more data");
+        }
+
+        Map<String, Object> response = new HashMap<>();
+        response.put("data", results);
+        response.put("nextPrecision", flag ? precision - 1 : precision);
+        return ResponseEntity.ok(response);
+    }
+
+    @GetMapping("/priority-search")
+    public ResponseEntity<?> priorityGeoSearch(
+            @RequestParam double latitude,
+            @RequestParam double longitude,
+            @RequestParam HousekeepingRole housekeepingRole,
+            @RequestParam(defaultValue = "0") int start,
+            @RequestParam(defaultValue = "10") int limit) {
+
+        List<ServiceProvider> allResults = serviceProviderEngagementService
+                .getPriorityBasedSearch(latitude, longitude, housekeepingRole);
+
+        int total = allResults.size();
+        int end = Math.min(start + limit, total);
+
+        if (start >= total) {
+            return ResponseEntity.ok(Map.of(
+                    "totalCount", total,
+                    "start", start,
+                    "limit", limit,
+                    "data", List.of()
+            ));
+        }
+
+        List<ServiceProvider> paginated = allResults.subList(start, end);
+
+        Map<String, Object> response = new HashMap<>();
+        response.put("totalCount", total);
+        response.put("start", start);
+        response.put("limit", limit);
+        response.put("data", paginated);
+
+        return ResponseEntity.ok(response);
+    }
+
+
 
     // ------API's FOR SHORTLISTED SERVICEPROVIDER------------------
     // API to get all shortlisted service providers with pagination
