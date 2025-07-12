@@ -100,7 +100,7 @@ public class ServiceProviderController {
 
     // --------API's FOR SERVICE PROVIDER ENTITY--------------------
 
-    //get nearby service providers
+    // get nearby service providers
     @GetMapping("/nearby")
     public ResponseEntity<List<ServiceProviderDTO>> getNearbyProviders(
             @RequestParam double latitude,

@@ -47,11 +47,15 @@ public class AttendanceServiceImpl implements AttendanceService {
         @Override
         @Transactional(readOnly = true)
         public List<AttendanceDTO> getAllAttendance(int page, int size) {
-                logger.info("Fetching attendance records with pagination - page: {}, size: {}", page, size);
+                if (logger.isInfoEnabled()) {
 
+                        logger.info("Fetching attendance records with pagination - page: {}, size: {}", page, size);
+                }
                 Page<Attendance> attendancePage = attendanceRepository.findAll(PageRequest.of(page, size));
-                logger.debug("Fetched {} attendance record(s) from the database.", attendancePage.getSize());
+                if (logger.isDebugEnabled()) {
 
+                        logger.debug("Fetched {} attendance record(s) from the database.", attendancePage.getSize());
+                }
                 return attendancePage.stream()
                                 .map(attendanceMapper::attendanceToDTO)
                                 .toList();
@@ -61,21 +65,27 @@ public class AttendanceServiceImpl implements AttendanceService {
         @Override
         @Transactional(readOnly = true)
         public AttendanceDTO getAttendanceByAttendenceId(Long id) {
-                logger.info("Fetching attendance record with ID: {}", id);
+                if (logger.isInfoEnabled()) {
 
+                        logger.info("Fetching attendance record with ID: {}", id);
+                }
                 Attendance attendance = attendanceRepository.findById(id)
                                 .orElseThrow(() -> new RuntimeException(
                                                 ServiceProviderConstants.ATTENDANCE_NOT_FOUND_MSG + id));
+                if (logger.isDebugEnabled()) {
 
-                logger.debug("Found attendance record: {}", attendance);
+                        logger.debug("Found attendance record: {}", attendance);
+                }
                 return attendanceMapper.attendanceToDTO(attendance);
         }
 
         @Override
         @Transactional(readOnly = true)
         public List<AttendanceDTO> getAttendanceByCustomerId(Long customerId) {
-                logger.info("Fetching attendance records for customer ID: {}", customerId);
+                if (logger.isInfoEnabled()) {
 
+                        logger.info("Fetching attendance records for customer ID: {}", customerId);
+                }
                 Specification<Attendance> spec = (root, query, criteriaBuilder) -> criteriaBuilder
                                 .equal(root.get("customer").get("id"), customerId);
 
@@ -94,8 +104,10 @@ public class AttendanceServiceImpl implements AttendanceService {
         @Override
         @Transactional(readOnly = true)
         public List<AttendanceDTO> getAttendanceByServiceProviderId(Long serviceProviderId) {
-                logger.info("Fetching attendance records for service provider ID: {}", serviceProviderId);
+                if (logger.isInfoEnabled()) {
 
+                        logger.info("Fetching attendance records for service provider ID: {}", serviceProviderId);
+                }
                 Specification<Attendance> spec = (root, query, criteriaBuilder) -> criteriaBuilder
                                 .equal(root.get("serviceProvider").get("id"), serviceProviderId);
 
@@ -150,8 +162,10 @@ public class AttendanceServiceImpl implements AttendanceService {
         @Override
         @Transactional
         public void updateAttendance(AttendanceDTO attendanceDTO) {
-                logger.info("Updating attendance record with ID: {}", attendanceDTO.getId());
+                if (logger.isInfoEnabled()) {
 
+                        logger.info("Updating attendance record with ID: {}", attendanceDTO.getId());
+                }
                 Attendance existingAttendance = attendanceRepository.findById(attendanceDTO.getId())
                                 .orElseThrow(
                                                 () -> new RuntimeException("Attendance record not found with ID: "
@@ -162,19 +176,27 @@ public class AttendanceServiceImpl implements AttendanceService {
                 updatedAttendance.setId(existingAttendance.getId()); // Preserve the original ID
 
                 attendanceRepository.save(updatedAttendance);
-                logger.debug("Attendance record updated: {}", updatedAttendance);
+                if (logger.isDebugEnabled()) {
+
+                        logger.debug("Attendance record updated: {}", updatedAttendance);
+                }
         }
 
         @Override
         @Transactional
         public void deleteAttendance(Long id) {
-                logger.info("Deleting attendance record with ID: {}", id);
+                if (logger.isInfoEnabled()) {
 
+                        logger.info("Deleting attendance record with ID: {}", id);
+                }
                 Attendance attendance = attendanceRepository.findById(id)
                                 .orElseThrow(() -> new RuntimeException("Attendance record not found with ID: " + id));
 
                 attendanceRepository.delete(attendance);
-                logger.debug("Attendance record with ID {} deleted", id);
+                if (logger.isDebugEnabled()) {
+
+                        logger.debug("Attendance record with ID {} deleted", id);
+                }
         }
 
         @Override
@@ -219,8 +241,10 @@ public class AttendanceServiceImpl implements AttendanceService {
         @Override
         @Transactional(readOnly = true)
         public List<AttendanceDTO> getTodayConflicts() {
-                logger.info("Fetching attendance records with conflicts for today");
+                if (logger.isInfoEnabled()) {
 
+                        logger.info("Fetching attendance records with conflicts for today");
+                }
                 LocalDate today = LocalDate.now();
                 // Define start and end of day boundaries as needed
                 LocalDate startOfDay = today.atStartOfDay().toLocalDate();
@@ -258,7 +282,10 @@ public class AttendanceServiceImpl implements AttendanceService {
 
         @Transactional(readOnly = true)
         public List<AttendanceDTO> getOneWeekConflicts() {
-                logger.info("Fetching attendance records with conflicts for the past one week");
+                if (logger.isInfoEnabled()) {
+
+                        logger.info("Fetching attendance records with conflicts for the past one week");
+                }
 
                 LocalDate oneWeekAgo = LocalDate.now().minusWeeks(1);
                 LocalDate today = LocalDate.now();
@@ -296,7 +323,10 @@ public class AttendanceServiceImpl implements AttendanceService {
 
         @Transactional(readOnly = true)
         public List<AttendanceDTO> getTwoWeeksConflicts() {
-                logger.info("Fetching attendance records with conflicts for the past two weeks");
+                if (logger.isInfoEnabled()) {
+
+                        logger.info("Fetching attendance records with conflicts for the past two weeks");
+                }
 
                 LocalDate twoWeeksAgo = LocalDate.now().minusWeeks(2);
                 LocalDate today = LocalDate.now();
@@ -335,7 +365,10 @@ public class AttendanceServiceImpl implements AttendanceService {
         // Conflict for one month
         @Transactional(readOnly = true)
         public List<AttendanceDTO> getOneMonthConflicts() {
-                logger.info("Fetching attendance records with conflicts for the past one month");
+                if (logger.isInfoEnabled()) {
+
+                        logger.info("Fetching attendance records with conflicts for the past one month");
+                }
 
                 LocalDate oneMonthAgo = LocalDate.now().minusMonths(1);
                 LocalDate today = LocalDate.now();
@@ -374,8 +407,11 @@ public class AttendanceServiceImpl implements AttendanceService {
         @Override
         @Transactional(readOnly = true)
         public List<AttendanceDTO> getAllCustomerNotAgreedAttendance() {
-                logger.info("Fetching attendance records where {} is false",
-                                ServiceProviderConstants.ATTENDANCE_FIELD_IS_CUSTOMER_AGREED);
+                if (logger.isInfoEnabled()) {
+
+                        logger.info("Fetching attendance records where {} is false",
+                                        ServiceProviderConstants.ATTENDANCE_FIELD_IS_CUSTOMER_AGREED);
+                }
 
                 Specification<Attendance> spec = (root, query, criteriaBuilder) -> criteriaBuilder
                                 .equal(root.get(ServiceProviderConstants.ATTENDANCE_FIELD_IS_CUSTOMER_AGREED), false);
@@ -397,8 +433,11 @@ public class AttendanceServiceImpl implements AttendanceService {
         // Customer not agreed for today
         @Transactional(readOnly = true)
         public List<AttendanceDTO> getTodayCustomerNotAgreed() {
-                logger.info("Fetching attendance records where {} is false for today",
-                                ServiceProviderConstants.ATTENDANCE_FIELD_IS_CUSTOMER_AGREED);
+                if (logger.isInfoEnabled()) {
+
+                        logger.info("Fetching attendance records where {} is false for today",
+                                        ServiceProviderConstants.ATTENDANCE_FIELD_IS_CUSTOMER_AGREED);
+                }
 
                 LocalDate today = LocalDate.now();
                 LocalDate startOfDay = today.atStartOfDay().toLocalDate();
@@ -427,8 +466,11 @@ public class AttendanceServiceImpl implements AttendanceService {
         // Customer not agreed for one week
         @Transactional(readOnly = true)
         public List<AttendanceDTO> getLastWeekCustomerNotAgreed() {
-                logger.info("Fetching attendance records where {} is false for the past week",
-                                ServiceProviderConstants.ATTENDANCE_FIELD_IS_CUSTOMER_AGREED);
+                if (logger.isInfoEnabled()) {
+
+                        logger.info("Fetching attendance records where {} is false for the past week",
+                                        ServiceProviderConstants.ATTENDANCE_FIELD_IS_CUSTOMER_AGREED);
+                }
 
                 LocalDate today = LocalDate.now();
                 LocalDate startOfWeek = today.minusWeeks(1);
@@ -457,9 +499,11 @@ public class AttendanceServiceImpl implements AttendanceService {
         // For two weeks customer not agreed
         @Transactional(readOnly = true)
         public List<AttendanceDTO> getLastTwoWeeksCustomerNotAgreed() {
-                logger.info("Fetching attendance records where {} is false for the past two weeks",
-                                ServiceProviderConstants.ATTENDANCE_FIELD_IS_CUSTOMER_AGREED);
+                if (logger.isInfoEnabled()) {
 
+                        logger.info("Fetching attendance records where {} is false for the past two weeks",
+                                        ServiceProviderConstants.ATTENDANCE_FIELD_IS_CUSTOMER_AGREED);
+                }
                 LocalDate today = LocalDate.now();
                 LocalDate startOfTwoWeeks = today.minusWeeks(2); // Two weeks ago
                 LocalDate endOfDay = today.atStartOfDay().toLocalDate(); // Today (end of the range)
@@ -488,9 +532,11 @@ public class AttendanceServiceImpl implements AttendanceService {
         // For one month customer not agreed
         @Transactional(readOnly = true)
         public List<AttendanceDTO> getLastMonthCustomerNotAgreed() {
-                logger.info("Fetching attendance records where {} is false for the past month",
-                                ServiceProviderConstants.ATTENDANCE_FIELD_IS_CUSTOMER_AGREED);
+                if (logger.isInfoEnabled()) {
 
+                        logger.info("Fetching attendance records where {} is false for the past month",
+                                        ServiceProviderConstants.ATTENDANCE_FIELD_IS_CUSTOMER_AGREED);
+                }
                 LocalDate today = LocalDate.now();
                 // Here, using one month ago as the start date.
                 LocalDate startOfMonth = today.minusMonths(1);
@@ -521,9 +567,11 @@ public class AttendanceServiceImpl implements AttendanceService {
         @Override
         @Transactional(readOnly = true)
         public List<AttendanceDTO> getAllNotAttendedRecords() {
-                logger.info("Fetching attendance records where {} is false",
-                                ServiceProviderConstants.ATTENDANCE_FIELD_IS_ATTENDED);
+                if (logger.isInfoEnabled()) {
 
+                        logger.info("Fetching attendance records where {} is false",
+                                        ServiceProviderConstants.ATTENDANCE_FIELD_IS_ATTENDED);
+                }
                 Specification<Attendance> spec = (root, query, criteriaBuilder) -> criteriaBuilder
                                 .equal(root.get(ServiceProviderConstants.ATTENDANCE_FIELD_IS_ATTENDED), false);
 
@@ -545,9 +593,11 @@ public class AttendanceServiceImpl implements AttendanceService {
         @Override
         @Transactional(readOnly = true)
         public List<AttendanceDTO> getTodayNotAttendedRecords() {
-                logger.info("Fetching attendance records where {} is false for today",
-                                ServiceProviderConstants.ATTENDANCE_FIELD_IS_ATTENDED);
+                if (logger.isInfoEnabled()) {
 
+                        logger.info("Fetching attendance records where {} is false for today",
+                                        ServiceProviderConstants.ATTENDANCE_FIELD_IS_ATTENDED);
+                }
                 LocalDate today = LocalDate.now();
                 LocalDate startOfDay = today.atStartOfDay().toLocalDate();
                 LocalDate endOfDay = today.plusDays(1).atStartOfDay().toLocalDate();
@@ -576,9 +626,11 @@ public class AttendanceServiceImpl implements AttendanceService {
         @Override
         @Transactional(readOnly = true)
         public List<AttendanceDTO> getOneWeekNotAttendedRecords() {
-                logger.info("Fetching attendance records where {} is false for the past week",
-                                ServiceProviderConstants.ATTENDANCE_FIELD_IS_ATTENDED);
+                if (logger.isInfoEnabled()) {
 
+                        logger.info("Fetching attendance records where {} is false for the past week",
+                                        ServiceProviderConstants.ATTENDANCE_FIELD_IS_ATTENDED);
+                }
                 LocalDate today = LocalDate.now();
                 LocalDate startOfWeek = today.minusWeeks(1).atStartOfDay().toLocalDate();
                 LocalDate endOfWeek = today.plusDays(1).atStartOfDay().toLocalDate();
@@ -607,9 +659,11 @@ public class AttendanceServiceImpl implements AttendanceService {
         @Override
         @Transactional(readOnly = true)
         public List<AttendanceDTO> getTwoWeeksNotAttendedRecords() {
-                logger.info("Fetching attendance records where {} is false for the past two weeks",
-                                ServiceProviderConstants.ATTENDANCE_FIELD_IS_ATTENDED);
+                if (logger.isInfoEnabled()) {
 
+                        logger.info("Fetching attendance records where {} is false for the past two weeks",
+                                        ServiceProviderConstants.ATTENDANCE_FIELD_IS_ATTENDED);
+                }
                 LocalDate today = LocalDate.now();
                 LocalDate startOfTwoWeeks = today.minusWeeks(2).atStartOfDay().toLocalDate();
                 LocalDate endOfTwoWeeks = today.plusDays(1).atStartOfDay().toLocalDate();
@@ -638,9 +692,11 @@ public class AttendanceServiceImpl implements AttendanceService {
         @Override
         @Transactional(readOnly = true)
         public List<AttendanceDTO> getOneMonthNotAttendedRecords() {
-                logger.info("Fetching attendance records where {} is false for the past month",
-                                ServiceProviderConstants.ATTENDANCE_FIELD_IS_ATTENDED);
+                if (logger.isInfoEnabled()) {
 
+                        logger.info("Fetching attendance records where {} is false for the past month",
+                                        ServiceProviderConstants.ATTENDANCE_FIELD_IS_ATTENDED);
+                }
                 LocalDate today = LocalDate.now();
                 LocalDate startOfMonth = today.minusMonths(1).atStartOfDay().toLocalDate();
                 LocalDate endOfMonth = today.plusDays(1).atStartOfDay().toLocalDate();

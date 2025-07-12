@@ -94,6 +94,8 @@ public class ServiceProviderConstants {
     public static final String ENGAGEMENT_UPDATED = "Service Provider Engagement updated successfully.";
     public static final String ENGAGEMENT_DELETED = "Service Provider Engagement deactivated successfully.";
     public static final String INACTIVE_TIMESLOT = "00:00-00:00";
+    public static final String MATCHING_TIMESLOT_FOUND = "Matching timeslot found in the database. Returning empty list.";
+    public static final String OVERLAPPING_TIMESLOT_FOUND = "Overlapping timeslot found, returning empty list.";
 
     public static final String PASSWORD_UPDATED = "Password updated successfully.";
     public static final String ACCOUNT_DEACTIVATED = "Account deactivated successfully.";

@@ -40,7 +40,7 @@ public class Customer {
     @Column(nullable = false)
     private String lastName;
 
-    @Column(nullable = false, length = 10, unique = true)
+    @Column(length = 10, unique = true)
     private Long mobileNo;
 
     @Column(length = 10)
@@ -52,19 +52,19 @@ public class Customer {
     @Enumerated(EnumType.STRING)
     private Gender gender;
 
-    @Column(nullable = false)
+    @Column
     private String buildingName;
 
-    @Column(nullable = false)
+    @Column
     private String locality;
 
-    @Column(nullable = false)
+    @Column
     private String street;
 
-    @Column(nullable = false, length = 6)
+    @Column(length = 6)
     private Integer pincode;
 
-    @Column(nullable = false)
+    @Column
     private String currentLocation;
 
     private Timestamp enrolledDate;

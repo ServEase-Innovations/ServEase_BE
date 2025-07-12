@@ -16,9 +16,12 @@ import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
+import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.ManyToOne;
 //import jakarta.persistence.Lob;
 import jakarta.persistence.PrePersist;
 import jakarta.persistence.Table;
@@ -132,10 +135,10 @@ public class ServiceProvider {
 	private Long vendorId;
 
 	@Column
-	private double latitude;
+	private Double latitude;
 
 	@Column
-	private double longitude;
+	private Double longitude;
 
 	@Column
 	private String geoHash4;
@@ -145,7 +148,7 @@ public class ServiceProvider {
 
 	@Column
 	private String geoHash6;
-	
+
 	@Column
 	private String geoHash7;
 

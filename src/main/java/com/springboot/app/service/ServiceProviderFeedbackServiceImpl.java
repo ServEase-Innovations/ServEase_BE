@@ -41,7 +41,9 @@ public class ServiceProviderFeedbackServiceImpl implements ServiceProviderFeedba
     @Override
     @Transactional(readOnly = true)
     public List<ServiceProviderFeedbackDTO> getAllServiceProviderFeedbackDTOs(int page, int size) {
-        logger.info("Fetching all service provider feedback with pagination - page: {}, size: {}", page, size);
+        if (logger.isInfoEnabled()) {
+            logger.info("Fetching all service provider feedback with pagination - page: {}, size: {}", page, size);
+        }
         // Implement pagination logic if needed using Pageable
         List<ServiceProviderFeedback> feedbackList = serviceProviderFeedbackRepository.findAll(); // Adjust as needed
         return feedbackList.stream()
@@ -52,12 +54,18 @@ public class ServiceProviderFeedbackServiceImpl implements ServiceProviderFeedba
     @Override
     @Transactional(readOnly = true)
     public ServiceProviderFeedbackDTO getServiceProviderFeedbackDTOById(Long id) {
-        logger.info("Fetching service provider feedback by ID: {}", id);
+        if (logger.isInfoEnabled()) {
+            logger.info("Fetching service provider feedback by ID: {}", id);
+        }
         ServiceProviderFeedback feedback = serviceProviderFeedbackRepository.findById(id).orElse(null);
         if (feedback != null) {
-            logger.debug("Found service provider feedback with ID: {}", id);
+            if (logger.isDebugEnabled()) {
+                logger.debug("Found service provider feedback with ID: {}", id);
+            }
         } else {
-            logger.error("No service provider feedback found with ID: {}", id);
+            if (logger.isErrorEnabled()) {
+                logger.error("No service provider feedback found with ID: {}", id);
+            }
         }
         return serviceProviderFeedbackMapper.serviceProviderFeedbackToDTO(feedback);
     }
@@ -65,13 +73,18 @@ public class ServiceProviderFeedbackServiceImpl implements ServiceProviderFeedba
     @Override
     @Transactional
     public void saveServiceProviderFeedbackDTO(ServiceProviderFeedbackDTO serviceProviderFeedbackDTO) {
-        logger.info("Saving new service provider feedback for ServiceProvider ID: {}",
-                serviceProviderFeedbackDTO.getServiceproviderId());
+        if (logger.isInfoEnabled()) {
+
+            logger.info("Saving new service provider feedback for ServiceProvider ID: {}",
+                    serviceProviderFeedbackDTO.getServiceproviderId());
+        }
 
         // Fetch Customer and ServiceProvider entities
         Customer customer = customerRepository.findById(serviceProviderFeedbackDTO.getCustomerId())
                 .orElseThrow(() -> {
-                    logger.error("Customer not found with ID: {}", serviceProviderFeedbackDTO.getCustomerId());
+                    if (logger.isErrorEnabled()) {
+                        logger.error("Customer not found with ID: {}", serviceProviderFeedbackDTO.getCustomerId());
+                    }
                     return new IllegalArgumentException(
                             "Customer not found with ID: " + serviceProviderFeedbackDTO.getCustomerId());
                 });
@@ -79,8 +92,11 @@ public class ServiceProviderFeedbackServiceImpl implements ServiceProviderFeedba
         ServiceProvider serviceProvider = serviceProviderRepository
                 .findById(serviceProviderFeedbackDTO.getServiceproviderId())
                 .orElseThrow(() -> {
-                    logger.error("Service Provider not found with ID: {}",
-                            serviceProviderFeedbackDTO.getServiceproviderId());
+                    if (logger.isErrorEnabled()) {
+                        logger.error("Service Provider not found with ID: {}",
+
+                                serviceProviderFeedbackDTO.getServiceproviderId());
+                    }
                     return new IllegalArgumentException(
                             "Service Provider not found with ID: " + serviceProviderFeedbackDTO.getServiceproviderId());
                 });
@@ -93,8 +109,10 @@ public class ServiceProviderFeedbackServiceImpl implements ServiceProviderFeedba
 
         // Save the feedback entity
         serviceProviderFeedbackRepository.save(feedback);
-        logger.info("Persisted new service provider feedback for ServiceProvider ID: {}",
-                serviceProviderFeedbackDTO.getServiceproviderId());
+        if (logger.isInfoEnabled()) {
+            logger.info("Persisted new service provider feedback for ServiceProvider ID: {}",
+                    serviceProviderFeedbackDTO.getServiceproviderId());
+        }
 
         // Update the average rating for the Customer
         updateCustomerAverageRating(customer.getCustomerId());
@@ -103,13 +121,18 @@ public class ServiceProviderFeedbackServiceImpl implements ServiceProviderFeedba
     @Override
     @Transactional
     public void updateServiceProviderFeedbackDTO(ServiceProviderFeedbackDTO serviceProviderFeedbackDTO) {
-        logger.info("Updating service provider feedback with ID: {}", serviceProviderFeedbackDTO.getId());
+        if (logger.isInfoEnabled()) {
+            logger.info("Updating service provider feedback with ID: {}", serviceProviderFeedbackDTO.getId());
+        }
 
         // Find the existing feedback entry
         ServiceProviderFeedback existingFeedback = serviceProviderFeedbackRepository
                 .findById(serviceProviderFeedbackDTO.getId())
                 .orElseThrow(() -> {
-                    logger.error("Service provider feedback not found with ID: {}", serviceProviderFeedbackDTO.getId());
+                    if (logger.isErrorEnabled()) {
+                        logger.error("Service provider feedback not found with ID: {}",
+                                serviceProviderFeedbackDTO.getId());
+                    }
                     return new IllegalArgumentException(
                             "Service provider feedback not found with ID: " + serviceProviderFeedbackDTO.getId());
                 });
@@ -123,7 +146,9 @@ public class ServiceProviderFeedbackServiceImpl implements ServiceProviderFeedba
 
         // Save the updated feedback
         serviceProviderFeedbackRepository.save(updatedFeedback);
-        logger.info("Updated service provider feedback with ID: {}", serviceProviderFeedbackDTO.getId());
+        if (logger.isInfoEnabled()) {
+            logger.info("Updated service provider feedback with ID: {}", serviceProviderFeedbackDTO.getId());
+        }
 
         // Update the average rating for the Customer
         updateCustomerAverageRating(updatedFeedback.getCustomer().getCustomerId());
@@ -132,18 +157,26 @@ public class ServiceProviderFeedbackServiceImpl implements ServiceProviderFeedba
     @Override
     @Transactional
     public void deleteServiceProviderFeedbackDTO(Long id) {
-        logger.info("Deleting service provider feedback with ID: {}", id);
+        if (logger.isInfoEnabled()) {
+            logger.info("Deleting service provider feedback with ID: {}", id);
+        }
         if (serviceProviderFeedbackRepository.existsById(id)) {
             serviceProviderFeedbackRepository.deleteById(id);
-            logger.info("Deleted service provider feedback with ID: {}", id);
+            if (logger.isInfoEnabled()) {
+                logger.info("Deleted service provider feedback with ID: {}", id);
+            }
         } else {
-            logger.error("Service provider feedback not found with ID: {}", id);
+            if (logger.isErrorEnabled()) {
+                logger.error("Service provider feedback not found with ID: {}", id);
+            }
             throw new IllegalArgumentException("Service provider feedback not found with ID: " + id);
         }
     }
 
     private void updateCustomerAverageRating(Long customerId) {
-        logger.info("Updating average rating for Customer ID: {}", customerId);
+        if (logger.isInfoEnabled()) {
+            logger.info("Updating average rating for Customer ID: {}", customerId);
+        }
         List<ServiceProviderFeedback> customerFeedbacks = serviceProviderFeedbackRepository
                 .findByCustomer_CustomerId(customerId);
 
