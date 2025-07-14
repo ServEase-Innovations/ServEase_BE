@@ -52,7 +52,7 @@ public class Customer {
     @Enumerated(EnumType.STRING)
     private Gender gender;
 
-    @Column
+    @Column(nullable = true)
     private String buildingName;
 
     @Column
