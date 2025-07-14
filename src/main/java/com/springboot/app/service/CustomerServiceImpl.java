@@ -79,7 +79,7 @@ public class CustomerServiceImpl implements CustomerService {
         }
 
         String email = customerDTO.getEmailId();
-        // String mobile = customerDTO.getMobileNo() != null ? customerDTO.getMobileNo().toString() : null;
+        String mobile = customerDTO.getMobileNo() != null ? customerDTO.getMobileNo().toString() : null;
 
         if (email == null || email.isEmpty()) {
             throw new IllegalArgumentException("EmailId is required to save a customer.");
