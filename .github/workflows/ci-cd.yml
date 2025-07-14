@@ -27,3 +27,8 @@ jobs:
       with:
         name: packaged-application
         path: target/*.jar
+
+    - name: Deploy to Render
+      if: success()
+      run: |
+        curl -X POST https://api.render.com/deploy/srv-d0s7h1idbo4c73be89a0?key=Nue1G3W7lUE
