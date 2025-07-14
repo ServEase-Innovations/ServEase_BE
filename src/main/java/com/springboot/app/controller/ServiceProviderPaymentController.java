@@ -148,7 +148,8 @@ public class ServiceProviderPaymentController {
             int month = body.get("month");
             int year = body.get("year");
 
-            List<ServiceProviderPaymentDTO> payments = serviceProviderPaymentService.getPaymentsByMonthAndYear(month, year);
+            List<ServiceProviderPaymentDTO> payments = serviceProviderPaymentService.getPaymentsByMonthAndYear(month,
+                    year);
             if (payments.isEmpty()) {
                 return ResponseEntity.status(HttpStatus.NO_CONTENT).body("No payments found for the provided month.");
             }
@@ -173,8 +174,5 @@ public class ServiceProviderPaymentController {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Invalid request: " + e.getMessage());
         }
     }
-
-    
-
 
 }

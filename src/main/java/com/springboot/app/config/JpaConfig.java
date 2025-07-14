@@ -1,10 +1,5 @@
 package com.springboot.app.config;
 
-import java.util.Properties;
-
-import javax.sql.DataSource;
-
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.domain.EntityScan;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -14,10 +9,10 @@ import org.springframework.orm.jpa.LocalContainerEntityManagerFactoryBean;
 import org.springframework.orm.jpa.vendor.HibernateJpaVendorAdapter;
 import org.springframework.transaction.PlatformTransactionManager;
 import org.springframework.transaction.annotation.EnableTransactionManagement;
-
 import com.zaxxer.hikari.HikariDataSource;
-
 import jakarta.persistence.EntityManagerFactory;
+import javax.sql.DataSource;
+import java.util.Properties;
 
 @Configuration
 @EnableTransactionManagement
@@ -25,33 +20,15 @@ import jakarta.persistence.EntityManagerFactory;
 @EnableJpaRepositories(basePackages = "com.springboot.app.repository")
 public class JpaConfig {
 
-    public class DataSourceConfig {
-
-        @Value("${spring.datasource.url}")
-        private String jdbcUrl;
-    
-        @Value("${spring.datasource.username}")
-        private String username;
-    
-        @Value("${spring.datasource.password}")
-        private String password;
-    
-        @Value("${spring.datasource.driver-class-name}")
-        private String driverClassName;
-    
-        @Value("${spring.datasource.hikari.maximum-pool-size}")
-        private int maximumPoolSize;
-    
-        @Bean
-        public DataSource dataSource() {
-            HikariDataSource dataSource = new HikariDataSource();
-            dataSource.setDriverClassName(driverClassName);
-            dataSource.setJdbcUrl(jdbcUrl);
-            dataSource.setUsername(username);
-            dataSource.setPassword(password);
-            dataSource.setMaximumPoolSize(maximumPoolSize);
-            return dataSource;
-        }
+    @Bean
+    public DataSource dataSource() {
+        HikariDataSource dataSource = new HikariDataSource();
+        dataSource.setDriverClassName("org.postgresql.Driver");
+        dataSource.setJdbcUrl("jdbc:postgresql://localhost:5432/SERVEASE");
+        dataSource.setUsername("postgres");
+        dataSource.setPassword("0786");
+        dataSource.setMaximumPoolSize(15);
+        return dataSource;
     }
 
     @Bean

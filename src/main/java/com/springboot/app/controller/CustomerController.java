@@ -15,6 +15,7 @@ import com.springboot.app.dto.CustomerDTO;
 import com.springboot.app.dto.CustomerRequestDTO;
 import com.springboot.app.dto.KYCCommentsDTO;
 import com.springboot.app.dto.KYCDTO;
+import com.springboot.app.entity.Customer;
 import com.springboot.app.enums.Gender;
 import com.springboot.app.enums.HousekeepingRole;
 import com.springboot.app.enums.Status;
@@ -33,6 +34,7 @@ import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
 import jakarta.persistence.EntityNotFoundException;
+import jakarta.validation.Valid;
 
 @RestController
 @RequestMapping("/api/customer")
@@ -124,6 +126,14 @@ public class CustomerController {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
                     .body("Failed to add customer: " + e.getMessage());
         }
+    }
+
+    // API to add a customer using saveCustomers()
+    @PostMapping("/add-customer-new")
+    @ApiOperation(value = CustomerConstants.ADD_NEW_DESC)
+    public ResponseEntity<String> addCustomerNew(@RequestBody CustomerDTO customerDTO) {
+        String response = customerService.saveCustomerRequird(customerDTO);
+        return ResponseEntity.status(HttpStatus.CREATED).body(response);
     }
 
     // API to update a customer

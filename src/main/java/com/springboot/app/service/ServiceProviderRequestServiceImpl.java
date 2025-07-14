@@ -36,12 +36,16 @@ public class ServiceProviderRequestServiceImpl implements ServiceProviderRequest
         @Override
         @Transactional
         public List<ServiceProviderRequestDTO> getAllServiceProviderRequestDTOs(int page, int size) {
-                logger.info("Fetching service provider requests with pagination - page: {}, size: {}", page, size);
-
+                if (logger.isInfoEnabled()) {
+                        logger.info("Fetching service provider requests with pagination - page: {}, size: {}", page,
+                                        size);
+                }
                 // Using pagination directly with Spring Data JPA
                 Page<ServiceProviderRequest> requestsPage = serviceProviderRequestRepository
                                 .findAll(PageRequest.of(page, size));
-                logger.debug("Fetched {} request(s) from the database.", requestsPage.getSize());
+                if (logger.isDebugEnabled()) {
+                        logger.debug("Fetched {} request(s) from the database.", requestsPage.getSize());
+                }
 
                 return requestsPage.stream()
                                 .map(serviceProviderRequestMapper::serviceProviderRequestToDTO)
@@ -51,22 +55,28 @@ public class ServiceProviderRequestServiceImpl implements ServiceProviderRequest
         @Override
         @Transactional
         public ServiceProviderRequestDTO getServiceProviderRequestDTOById(Long id) {
-                logger.info("Fetching service provider request with ID: {}", id);
+                if (logger.isInfoEnabled()) {
+                        logger.info("Fetching service provider request with ID: {}", id);
+                }
 
                 ServiceProviderRequest request = serviceProviderRequestRepository.findById(id)
                                 .orElseThrow(
                                                 () -> new RuntimeException(
                                                                 ServiceProviderConstants.SERVICE_PROVIDER_REQUEST_NOT_FOUND
                                                                                 + id));
-
-                logger.debug("Found service provider request: {}", request);
+                if (logger.isDebugEnabled()) {
+                        logger.debug("Found service provider request: {}", request);
+                }
                 return serviceProviderRequestMapper.serviceProviderRequestToDTO(request);
         }
 
         @Override
         @Transactional
         public void saveServiceProviderRequestDTO(ServiceProviderRequestDTO serviceProviderRequestDTO) {
-                logger.info("Saving a new service provider request");
+                if (logger.isInfoEnabled()) {
+
+                        logger.info("Saving a new service provider request");
+                }
 
                 // Map the DTO to Entity and save it using JPA
                 ServiceProviderRequest request = serviceProviderRequestMapper
@@ -78,8 +88,10 @@ public class ServiceProviderRequestServiceImpl implements ServiceProviderRequest
         @Override
         @Transactional
         public void updateServiceProviderRequestDTO(ServiceProviderRequestDTO serviceProviderRequestDTO) {
-                logger.info("Updating service provider request with ID: {}", serviceProviderRequestDTO.getRequestId());
-
+                if (logger.isInfoEnabled()) {
+                        logger.info("Updating service provider request with ID: {}",
+                                        serviceProviderRequestDTO.getRequestId());
+                }
                 // Fetch the existing request from JPA
                 ServiceProviderRequest existingRequest = serviceProviderRequestRepository
                                 .findById(serviceProviderRequestDTO.getRequestId())
@@ -98,8 +110,9 @@ public class ServiceProviderRequestServiceImpl implements ServiceProviderRequest
         @Override
         @Transactional
         public void deleteServiceProviderRequestDTO(Long id) {
-                logger.info("Deleting (resolving) service provider request with ID: {}", id);
-
+                if (logger.isInfoEnabled()) {
+                        logger.info("Deleting (resolving) service provider request with ID: {}", id);
+                }
                 ServiceProviderRequest request = serviceProviderRequestRepository.findById(id)
                                 .orElseThrow(
                                                 () -> new RuntimeException(

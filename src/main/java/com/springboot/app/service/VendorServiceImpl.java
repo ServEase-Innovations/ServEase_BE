@@ -42,17 +42,22 @@ public class VendorServiceImpl implements VendorService {
     @Override
     @Transactional(readOnly = true)
     public List<VendorDTO> getAllVendorDTOs(int page, int size) {
-        logger.info("Fetching vendors with page: {} and size: {}", page, size);
+        if (logger.isInfoEnabled()) {
+            logger.info("Fetching vendors with page: {} and size: {}", page, size);
+        }
 
         // Fetch paginated results using Spring Data JPA
         Pageable pageable = PageRequest.of(page, size);
         List<Vendor> vendors = vendorRepository.findAll(pageable).getContent();
-
-        logger.debug("Number of vendors fetched: {}", vendors.size());
+        if (logger.isDebugEnabled()) {
+            logger.debug("Number of vendors fetched: {}", vendors.size());
+        }
 
         // Check if no vendors are found and log a warning
         if (vendors.isEmpty()) {
-            logger.warn("No vendors found on the requested page.");
+            if (logger.isWarnEnabled()) {
+                logger.warn("No vendors found on the requested page.");
+            }
             return new ArrayList<>(); // Return empty list if no vendors found
         }
 
@@ -65,12 +70,18 @@ public class VendorServiceImpl implements VendorService {
     @Override
     @Transactional(readOnly = true)
     public VendorDTO getVendorDTOById(Long id) {
-        logger.info("Fetching vendor by ID: {}", id);
+        if (logger.isInfoEnabled()) {
+
+            logger.info("Fetching vendor by ID: {}", id);
+        }
 
         return vendorRepository.findById(id)
                 .map(vendorMapper::vendorToDTO)
                 .orElseThrow(() -> {
-                    logger.error("No vendor found with ID: {}", id);
+                    if (logger.isErrorEnabled()) {
+
+                        logger.error("No vendor found with ID: {}", id);
+                    }
                     return new RuntimeException("Vendor not found.");
                 });
     }
@@ -78,7 +89,9 @@ public class VendorServiceImpl implements VendorService {
     @Override
     @Transactional(readOnly = true)
     public Optional<VendorDTO> getVendorDTOByCompanyName(String companyName) {
-        logger.info("Fetching vendor by company name: {}", companyName);
+        if (logger.isInfoEnabled()) {
+            logger.info("Fetching vendor by company name: {}", companyName);
+        }
 
         Optional<Vendor> vendorOptional = vendorRepository.findByCompanyNameIgnoreCase(companyName);
 
@@ -92,7 +105,9 @@ public class VendorServiceImpl implements VendorService {
     @Override
     @Transactional
     public Long saveVendorDTO(VendorDTO vendorDTO) {
-        logger.info("Saving new vendor");
+        if (logger.isInfoEnabled()) {
+            logger.info("Saving new vendor");
+        }
         // Step 1: Validate and check if the vendor's email or phone number already
         // exists
         String email = vendorDTO.getEmailId();
@@ -152,16 +167,22 @@ public class VendorServiceImpl implements VendorService {
     @Override
     @Transactional
     public String updateVendorDTO(VendorDTO vendorDTO) {
-        logger.info("Updating vendor with ID: {}", vendorDTO.getVendorId());
+        if (logger.isInfoEnabled()) {
+
+            logger.info("Updating vendor with ID: {}", vendorDTO.getVendorId());
+        }
 
         if (vendorRepository.existsById(vendorDTO.getVendorId())) {
             Vendor existingVendor = vendorMapper.dtoToVendor(vendorDTO);
             vendorRepository.save(existingVendor);
-
-            logger.info("Vendor updated with ID: {}", vendorDTO.getVendorId());
+            if (logger.isInfoEnabled()) {
+                logger.info("Vendor updated with ID: {}", vendorDTO.getVendorId());
+            }
             return ServiceProviderConstants.VENDOR_UPDATED;
         } else {
-            logger.error("Vendor not found for update with ID: {}", vendorDTO.getVendorId());
+            if (logger.isErrorEnabled()) {
+                logger.error("Vendor not found for update with ID: {}", vendorDTO.getVendorId());
+            }
             return ServiceProviderConstants.VENDOR_NOT_FOUND;
         }
     }
@@ -169,22 +190,29 @@ public class VendorServiceImpl implements VendorService {
     @Override
     @Transactional
     public String deleteVendorDTO(Long id) {
-        logger.info("Deactivating vendor with ID: {}", id);
+        if (logger.isInfoEnabled()) {
+            logger.info("Deactivating vendor with ID: {}", id);
+        }
 
         if (vendorRepository.existsById(id)) {
             Vendor vendor = vendorRepository.findById(id)
                     .orElseThrow(() -> {
-                        logger.error("Vendor not found with ID: {}", id);
+                        if (logger.isErrorEnabled()) {
+                            logger.error("Vendor not found with ID: {}", id);
+                        }
                         return new RuntimeException("Vendor not found.");
                     });
 
             vendor.deactivate(); // Deactivate vendor
             vendorRepository.save(vendor);
-
-            logger.info("Vendor with ID {} deactivated", id);
+            if (logger.isInfoEnabled()) {
+                logger.info("Vendor with ID {} deactivated", id);
+            }
             return ServiceProviderConstants.VENDOR_DELETED;
         } else {
-            logger.error("Vendor not found for deactivation with ID: {}", id);
+            if (logger.isErrorEnabled()) {
+                logger.error("Vendor not found for deactivation with ID: {}", id);
+            }
             return ServiceProviderConstants.VENDOR_NOT_FOUND;
         }
     }
