@@ -3,6 +3,7 @@ package com.springboot.app.entity;
 import java.time.LocalDate;
 import java.time.LocalDateTime; // Import LocalDateTime
 
+import com.springboot.app.enums.BookingType;
 import com.springboot.app.enums.HousekeepingRole;
 import com.springboot.app.enums.PaymentMode;
 import com.springboot.app.enums.TaskStatus;
@@ -68,8 +69,13 @@ public class ServiceProviderEngagement {
     @Enumerated(EnumType.STRING)
     private PaymentMode paymentMode;
 
+    @Enumerated(EnumType.STRING)
     @Column(length = 255)
-    private String bookingType;
+    private BookingType bookingType;
+
+    @Enumerated(EnumType.STRING)
+    @Column(length = 255)
+    private HousekeepingRole serviceType;
 
     @Column(columnDefinition = "TEXT") // Store as a JSON string
     private String responsibilities;

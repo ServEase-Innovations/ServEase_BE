@@ -5,6 +5,7 @@ import com.springboot.app.dto.ServiceProviderEngagementDTO;
 import com.springboot.app.entity.Customer;
 import com.springboot.app.entity.ServiceProvider;
 import com.springboot.app.entity.ServiceProviderEngagement;
+import com.springboot.app.enums.BookingType;
 import com.springboot.app.enums.HousekeepingRole;
 
 import com.springboot.app.exception.ServiceProviderEngagementNotFoundException;
@@ -117,18 +118,25 @@ public class ServiceProviderEngagementServiceImpl implements ServiceProviderEnga
         }
         ServiceProvider serviceProvider = null;
 
-        // Check if ServiceProviderId is provided
-        if (dto.getServiceProviderId() != null) {
-            serviceProvider = serviceProviderRepository.findById(dto.getServiceProviderId())
-                    .orElseThrow(() -> {
-                        if (logger.isErrorEnabled()) {
-                            logger.error("ServiceProvider with ID {} not found.", dto.getServiceProviderId());
-                        }
-                        return new RuntimeException("Service Provider not found.");
-                    });
+        if (dto.getBookingType() != BookingType.ON_DEMAND) {
+            // For NON-ON_DEMAND bookings, serviceProviderId is required
+            if (dto.getServiceProviderId() != null) {
+                serviceProvider = serviceProviderRepository.findById(dto.getServiceProviderId())
+                        .orElseThrow(() -> {
+                            if (logger.isErrorEnabled()) {
+                                logger.error("ServiceProvider with ID {} not found.", dto.getServiceProviderId());
+                            }
+                            return new RuntimeException("Service Provider not found.");
+                        });
+            } else {
+                if (logger.isErrorEnabled()) {
+                    logger.error("Booking type is {} but ServiceProvider ID is missing.", dto.getBookingType());
+                }
+                throw new RuntimeException("Service Provider ID is required for booking type: " + dto.getBookingType());
+            }
         } else {
-            if (logger.isWarnEnabled()) {
-                logger.warn("No ServiceProvider ID provided. Skipping ServiceProvider association.");
+            if (logger.isInfoEnabled()) {
+                logger.info("ON_DEMAND booking: Skipping ServiceProvider lookup.");
             }
         }
 
@@ -339,7 +347,7 @@ public class ServiceProviderEngagementServiceImpl implements ServiceProviderEnga
         }
         return new ArrayList<>(providers);
     }
-    
+
     @Override
     @Transactional(readOnly = true)
     public List<ServiceProvider> getPriorityBasedSearch(
@@ -398,7 +406,7 @@ public class ServiceProviderEngagementServiceImpl implements ServiceProviderEnga
         logger.info("Priority-based search found total {} unique providers", result.size());
         return result;
     }
-    
+
     @Override
     @Transactional(readOnly = true)
     public List<Object> getEngagementsByExactDateTimeslotAndHousekeepingRole(
