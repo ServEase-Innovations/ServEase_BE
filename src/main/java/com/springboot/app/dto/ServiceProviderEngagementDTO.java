@@ -6,6 +6,7 @@ import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Map;
 
+import com.springboot.app.enums.BookingType;
 import com.springboot.app.enums.HousekeepingRole;
 import com.springboot.app.enums.PaymentMode;
 import com.springboot.app.enums.TaskStatus;
@@ -32,7 +33,8 @@ public class ServiceProviderEngagementDTO {
     private boolean isActive = true;
     private double monthlyAmount;
     private PaymentMode paymentMode;
-    private String bookingType;
+    private BookingType bookingType;
+    private HousekeepingRole serviceType;
     private LocalDateTime bookingDate;
     private List<Map<String, Object>> responsibilities;
     private HousekeepingRole housekeepingRole;

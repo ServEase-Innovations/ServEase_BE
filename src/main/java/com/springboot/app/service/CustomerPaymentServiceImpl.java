@@ -46,11 +46,14 @@ public class CustomerPaymentServiceImpl implements CustomerPaymentService {
     // @Value("${discount.range1}")
     // private double discount1to7;
 
-    @Value("${discount.range2}")
-    private double discount10to15;
+    // @Value("${discount.range2}")
+    // private double discount10to15;
 
-    @Value("${discount.range3}")
-    private double discountAbove15;
+    // @Value("${discount.range3}")
+    // private double discountAbove15;
+
+    @Value("${discount.rules}")
+    private String discountRulesConfig;
 
     public CustomerPaymentServiceImpl(CustomerRepository customerRepository,
             CustomerHolidaysRepository customerHolidaysRepository,
@@ -288,13 +291,18 @@ public class CustomerPaymentServiceImpl implements CustomerPaymentService {
     }
 
     private double getDiscountPercentage(int days) {
-        if (days >= 10 && days <= 15) {
-            return discount10to15; // discount.range2
+        String[] rules = discountRulesConfig.split(";");
+        for (String rule : rules) {
+            String[] parts = rule.split(",");
+            int minDays = Integer.parseInt(parts[0]);
+            int maxDays = Integer.parseInt(parts[1]);
+            double percentage = Double.parseDouble(parts[2]);
+
+            if (days >= minDays && days <= maxDays) {
+                return percentage;
+            }
         }
-        if (days > 15) {
-            return discountAbove15; // discount.range3
-        }
-        return 0; // No discount for days < 10
+        return 0;
     }
 
     // private double getDiscountPercentage(int days) {

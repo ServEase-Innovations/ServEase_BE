@@ -85,7 +85,6 @@ public class CustomerServiceImpl implements CustomerService {
             throw new IllegalArgumentException("EmailId is required to save a customer.");
         }
 
-
         boolean emailExists = customerRepository.existsByEmailId(email);
         if (emailExists) {
             if (logger.isInfoEnabled()) {
@@ -109,7 +108,6 @@ public class CustomerServiceImpl implements CustomerService {
                 throw new IllegalArgumentException("Invalid mobile number format. Must be digits only.");
             }
         }
-
 
         customerDTO.setUsername(email);
         // Step 1: Register the user credentials using the injected service
