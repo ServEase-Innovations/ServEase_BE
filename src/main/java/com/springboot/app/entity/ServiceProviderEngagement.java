@@ -77,12 +77,12 @@ public class ServiceProviderEngagement {
     @Column(length = 255)
     private HousekeepingRole serviceType;
 
+    @Enumerated(EnumType.STRING)
+    @Column(name = "housekeeping_role")
+    private HousekeepingRole housekeepingRole;
+
     @Column(columnDefinition = "TEXT") // Store as a JSON string
     private String responsibilities;
-
-    @Enumerated(EnumType.STRING)
-    @Column(length = 255)
-    private HousekeepingRole housekeepingRole; // The type of service provided
 
     @Column(length = 255)
     private String mealType; // The meal type (e.g., vegetarian, non-vegetarian, etc.)

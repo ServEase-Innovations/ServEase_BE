@@ -182,9 +182,18 @@ public class ServiceProviderEngagementServiceImpl implements ServiceProviderEnga
                             .orElseThrow(
                                     () -> new RuntimeException("Customer not found with ID: " + dto.getCustomerId()));
 
-                    ServiceProvider serviceProvider = serviceProviderRepository.findById(dto.getServiceProviderId())
-                            .orElseThrow(() -> new RuntimeException(
-                                    "Service Provider not found with ID: " + dto.getServiceProviderId()));
+                    // ✅ Conditionally fetch ServiceProvider
+                    ServiceProvider serviceProvider = null;
+                    if (dto.getBookingType() != null && dto.getBookingType() != BookingType.ON_DEMAND) {
+                        if (dto.getServiceProviderId() == null) {
+                            throw new RuntimeException(
+                                    "Service Provider ID is required for booking type: " + dto.getBookingType());
+                        }
+
+                        serviceProvider = serviceProviderRepository.findById(dto.getServiceProviderId())
+                                .orElseThrow(() -> new RuntimeException(
+                                        "Service Provider not found with ID: " + dto.getServiceProviderId()));
+                    }
 
                     // Update fields from DTO
                     engagementMapper.updateEntityFromDTO(dto, existingEngagement);
