@@ -81,14 +81,14 @@
             <groupId>io.swagger</groupId> 
             <artifactId>swagger-annotations</artifactId> 
             <version>1.6.11</version> 
-        </dependency> 
-        
-        <!-- Spring Test -->
-        <dependency> 
-            <groupId>org.springframework</groupId> 
-            <artifactId>spring-test</artifactId> 
-            <version>5.3.25</version> 
-        </dependency> 
+        </dependency>
+
+        <dependency>
+    <groupId>com.h2database</groupId>
+    <artifactId>h2</artifactId>
+    <scope>test</scope>
+</dependency>
+ 
         
         <!-- PostgreSQL Database -->
         <dependency> 

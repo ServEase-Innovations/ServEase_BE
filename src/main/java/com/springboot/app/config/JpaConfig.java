@@ -1,18 +1,24 @@
 package com.springboot.app.config;
 
+import java.util.Properties;
+
+import javax.sql.DataSource;
+import com.zaxxer.hikari.HikariDataSource;
+
+
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.domain.EntityScan;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.core.env.Environment;
 import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
 import org.springframework.orm.jpa.JpaTransactionManager;
 import org.springframework.orm.jpa.LocalContainerEntityManagerFactoryBean;
 import org.springframework.orm.jpa.vendor.HibernateJpaVendorAdapter;
 import org.springframework.transaction.PlatformTransactionManager;
 import org.springframework.transaction.annotation.EnableTransactionManagement;
-import com.zaxxer.hikari.HikariDataSource;
+
 import jakarta.persistence.EntityManagerFactory;
-import javax.sql.DataSource;
-import java.util.Properties;
 
 @Configuration
 @EnableTransactionManagement
@@ -20,14 +26,18 @@ import java.util.Properties;
 @EnableJpaRepositories(basePackages = "com.springboot.app.repository")
 public class JpaConfig {
 
+    @Autowired
+    private Environment env;  // 🔑 Load properties dynamically
+
     @Bean
     public DataSource dataSource() {
+        // Automatically picks correct DataSource depending on the active profile
         HikariDataSource dataSource = new HikariDataSource();
-        dataSource.setDriverClassName("org.postgresql.Driver");
-        dataSource.setJdbcUrl("jdbc:postgresql://localhost:5432/FINAL");
-        dataSource.setUsername("postgres");
-        dataSource.setPassword("0786");
-        dataSource.setMaximumPoolSize(15);
+        dataSource.setDriverClassName(env.getProperty("spring.datasource.driver-class-name"));
+        dataSource.setJdbcUrl(env.getProperty("spring.datasource.url"));
+        dataSource.setUsername(env.getProperty("spring.datasource.username"));
+        dataSource.setPassword(env.getProperty("spring.datasource.password"));
+        dataSource.setMaximumPoolSize(Integer.parseInt(env.getProperty("spring.datasource.hikari.maximum-pool-size", "10")));
         return dataSource;
     }
 
@@ -36,7 +46,7 @@ public class JpaConfig {
         LocalContainerEntityManagerFactoryBean factoryBean = new LocalContainerEntityManagerFactoryBean();
         factoryBean.setDataSource(dataSource);
         factoryBean.setPackagesToScan("com.springboot.app.entity");
-        // Set the JPA Vendor Adapter (Hibernate)
+
         HibernateJpaVendorAdapter vendorAdapter = new HibernateJpaVendorAdapter();
         factoryBean.setJpaVendorAdapter(vendorAdapter);
 
@@ -44,16 +54,16 @@ public class JpaConfig {
         return factoryBean;
     }
 
-    @Bean
-    public PlatformTransactionManager transactionManager(EntityManagerFactory entityManagerFactory) {
-        return new JpaTransactionManager(entityManagerFactory);
+    private Properties jpaProperties() {
+        Properties props = new Properties();
+        props.put("hibernate.dialect", env.getProperty("spring.jpa.properties.hibernate.dialect"));
+        props.put("hibernate.show_sql", env.getProperty("spring.jpa.show-sql", "false"));
+        props.put("hibernate.hbm2ddl.auto", env.getProperty("spring.jpa.hibernate.ddl-auto", "update"));
+        return props;
     }
 
-    private Properties jpaProperties() {
-        Properties properties = new Properties();
-        properties.put("hibernate.dialect", "org.hibernate.dialect.PostgreSQLDialect");
-        properties.put("hibernate.show_sql", "true");
-        properties.put("hibernate.hbm2ddl.auto", "update");
-        return properties;
+    @Bean
+    public PlatformTransactionManager transactionManager(EntityManagerFactory emf) {
+        return new JpaTransactionManager(emf);
     }
 }
