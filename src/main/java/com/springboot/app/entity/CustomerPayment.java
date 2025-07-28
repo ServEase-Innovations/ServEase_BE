@@ -58,4 +58,11 @@ public class CustomerPayment {
     @Column(nullable = false)
     private PaymentMode paymentMode; // Mode of payment
 
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "coupon_id", referencedColumnName = "id")
+    private Coupon coupon; // Nullable
+
+    @Column(name = "coupon_discount_amount")
+    private Double couponDiscountAmount; // Nullable
+
 }

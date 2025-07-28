@@ -30,5 +30,6 @@ public class ServiceProviderPaymentDTO {
     private int month;
     private int year;
     private int monthlyAmount;
+    private Long couponId;
 
 }

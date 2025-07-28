@@ -2,6 +2,7 @@ package com.springboot.app.controller;
 
 import com.springboot.app.constant.CustomerConstants;
 import com.springboot.app.dto.CustomerPaymentDTO;
+import com.springboot.app.enums.HousekeepingRole;
 import com.springboot.app.enums.PaymentMode;
 import com.springboot.app.service.CustomerPaymentService;
 import jakarta.persistence.EntityNotFoundException;
@@ -76,10 +77,12 @@ public class CustomerPaymentController {
             @RequestParam double baseAmount,
             @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate startDate_P,
             @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate endDate_P,
-            @RequestParam PaymentMode paymentMode) {
+            @RequestParam PaymentMode paymentMode,
+            @RequestParam(required = false) Long couponId,
+            @RequestParam HousekeepingRole serviceType) {
 
         CustomerPaymentDTO paymentDTO = customerPaymentService.calculateAndSavePayment(
-                customerId, baseAmount, startDate_P, endDate_P, paymentMode);
+                customerId, baseAmount, startDate_P, endDate_P, paymentMode, couponId, serviceType);
         return ResponseEntity.ok(paymentDTO);
     }
 

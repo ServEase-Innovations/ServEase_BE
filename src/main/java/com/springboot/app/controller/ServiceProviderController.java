@@ -30,6 +30,7 @@ import com.springboot.app.dto.ServiceProviderLeaveDTO;
 
 import com.springboot.app.dto.ServiceProviderRequestCommentDTO;
 import com.springboot.app.dto.ServiceProviderRequestDTO;
+import com.springboot.app.dto.ServiceProviderUsedCouponDTO;
 import com.springboot.app.dto.ShortListedServiceProviderDTO;
 import com.springboot.app.entity.ServiceProvider;
 import com.springboot.app.enums.Gender;
@@ -47,6 +48,7 @@ import com.springboot.app.service.ServiceProviderLeaveService;
 
 import com.springboot.app.service.ServiceProviderRequestCommentService;
 import com.springboot.app.service.ServiceProviderService;
+import com.springboot.app.service.ServiceProviderUsedCouponService;
 import com.springboot.app.service.ShortListedServiceProviderService;
 
 import io.swagger.annotations.Api;
@@ -72,6 +74,7 @@ public class ServiceProviderController {
     private final AttendanceService attendanceService;
     private final ServiceProviderLeaveService serviceProviderLeaveService;
     private final LeaveBalanceService leaveBalanceService;
+    private final ServiceProviderUsedCouponService serviceProviderUsedCouponService;
 
     @Autowired
     public ServiceProviderController(
@@ -83,7 +86,8 @@ public class ServiceProviderController {
             ShortListedServiceProviderService shortListedServiceProviderService,
             AttendanceService attendanceService,
             ServiceProviderLeaveService serviceProviderLeaveService,
-            LeaveBalanceService leaveBalanceService) {
+            LeaveBalanceService leaveBalanceService,
+            ServiceProviderUsedCouponService serviceProviderUsedCouponService) {
         this.serviceProviderService = serviceProviderService;
         this.serviceProviderRequestService = serviceProviderRequestService;
         this.serviceProviderFeedbackService = serviceProviderFeedbackService;
@@ -93,6 +97,8 @@ public class ServiceProviderController {
         this.attendanceService = attendanceService;
         this.serviceProviderLeaveService = serviceProviderLeaveService;
         this.leaveBalanceService = leaveBalanceService;
+        this.serviceProviderUsedCouponService = serviceProviderUsedCouponService;
+
     }
 
     @Value("${app.pagination.default-page-size:10}")
@@ -717,7 +723,7 @@ public class ServiceProviderController {
 
         return ResponseEntity.ok(engagements);
     }
-    
+
     @GetMapping("/search-progressive")
     public ResponseEntity<?> searchProgressive(
             @RequestParam double latitude,
@@ -758,8 +764,7 @@ public class ServiceProviderController {
                     "totalCount", total,
                     "start", start,
                     "limit", limit,
-                    "data", List.of()
-            ));
+                    "data", List.of()));
         }
 
         List<ServiceProvider> paginated = allResults.subList(start, end);
@@ -772,8 +777,6 @@ public class ServiceProviderController {
 
         return ResponseEntity.ok(response);
     }
-
-
 
     // ------API's FOR SHORTLISTED SERVICEPROVIDER------------------
     // API to get all shortlisted service providers with pagination
@@ -1102,8 +1105,9 @@ public class ServiceProviderController {
         List<ServiceProviderLeaveDTO> leaves = serviceProviderLeaveService.getServiceProvidersOnLeaveToday();
 
         // if (leaves == null || leaves.isEmpty()) {
-        //     // Returning a String when no data is found
-        //     return ResponseEntity.status(HttpStatus.NOT_FOUND).body(ServiceProviderConstants.NO_DATA_FOUND);
+        // // Returning a String when no data is found
+        // return
+        // ResponseEntity.status(HttpStatus.NOT_FOUND).body(ServiceProviderConstants.NO_DATA_FOUND);
         // }
 
         // Returning a List of ServiceProviderLeaveDTO when data is found
@@ -1116,8 +1120,9 @@ public class ServiceProviderController {
     public ResponseEntity<Object> getServiceProvidersOnLeaveNextWeek() {
         List<ServiceProviderLeaveDTO> leaves = serviceProviderLeaveService.getServiceProvidersOnLeaveNextWeek();
         // if (leaves == null || leaves.isEmpty()) {
-        //     // Using constant instead of the literal string
-        //     return ResponseEntity.status(HttpStatus.NOT_FOUND).body(ServiceProviderConstants.NO_DATA_FOUND);
+        // // Using constant instead of the literal string
+        // return
+        // ResponseEntity.status(HttpStatus.NOT_FOUND).body(ServiceProviderConstants.NO_DATA_FOUND);
         // }
         return ResponseEntity.ok(leaves);
     }
@@ -1128,8 +1133,9 @@ public class ServiceProviderController {
     public ResponseEntity<Object> getApprovedServiceProviderLeaves() {
         List<ServiceProviderLeaveDTO> leaves = serviceProviderLeaveService.getApprovedLeaves();
         // if (leaves == null || leaves.isEmpty()) {
-        //     // Using constant instead of the literal string
-        //     return ResponseEntity.status(HttpStatus.NOT_FOUND).body(ServiceProviderConstants.NO_DATA_FOUND);
+        // // Using constant instead of the literal string
+        // return
+        // ResponseEntity.status(HttpStatus.NOT_FOUND).body(ServiceProviderConstants.NO_DATA_FOUND);
         // }
         return ResponseEntity.ok(leaves);
     }
@@ -1140,8 +1146,9 @@ public class ServiceProviderController {
     public ResponseEntity<Object> getUnapprovedServiceProviderLeaves() {
         List<ServiceProviderLeaveDTO> leaves = serviceProviderLeaveService.getUnapprovedLeaves();
         // if (leaves == null || leaves.isEmpty()) {
-        //     // Using constant instead of the literal string
-        //     return ResponseEntity.status(HttpStatus.NOT_FOUND).body(ServiceProviderConstants.NO_DATA_FOUND);
+        // // Using constant instead of the literal string
+        // return
+        // ResponseEntity.status(HttpStatus.NOT_FOUND).body(ServiceProviderConstants.NO_DATA_FOUND);
         // }
         return ResponseEntity.ok(leaves);
     }
@@ -1155,7 +1162,8 @@ public class ServiceProviderController {
     public ResponseEntity<Object> getAllLeaveBalances() {
         List<LeaveBalanceDTO> leaveBalances = leaveBalanceService.getAllLeaveBalances();
         // if (leaveBalances == null || leaveBalances.isEmpty()) {
-        //     return ResponseEntity.status(HttpStatus.NOT_FOUND).body(ServiceProviderConstants.NO_DATA_FOUND);
+        // return
+        // ResponseEntity.status(HttpStatus.NOT_FOUND).body(ServiceProviderConstants.NO_DATA_FOUND);
         // }
         return ResponseEntity.ok(leaveBalances);
     }
@@ -1207,6 +1215,45 @@ public class ServiceProviderController {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body(response);
         }
         return ResponseEntity.ok(response);
+    }
+
+    // ✅ Get all used coupons with pagination
+    @GetMapping("/get-all/coupons")
+    @ApiOperation(value = "Retrieve all used coupons for service providers", response = List.class)
+    public ResponseEntity<?> getAllUsedCoupons(
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(required = false) Integer size) {
+        try {
+            if (size == null)
+                size = defaultPageSize;
+
+            List<ServiceProviderUsedCouponDTO> usedCoupons = serviceProviderUsedCouponService.findAll(page, size);
+            if (usedCoupons.isEmpty() && page > 0) {
+                return getAllUsedCoupons(0, size);
+            }
+            return ResponseEntity.ok(usedCoupons);
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body("Failed to retrieve used coupons: " + e.getMessage());
+        }
+    }
+
+    // ✅ Save coupon usage
+    @PostMapping("/add/coupon")
+    public ResponseEntity<?> addUsedCoupon(@RequestBody ServiceProviderUsedCouponDTO dto) {
+        try {
+            String result = serviceProviderUsedCouponService.saveServiceProviderUsedCoupon(dto);
+
+            if (ServiceProviderConstants.ADDED.equals(result)) {
+                return ResponseEntity.status(HttpStatus.CREATED).body(result);
+            } else {
+                return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(result);
+            }
+
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body("Failed to add used coupon: " + e.getMessage());
+        }
     }
 
 }

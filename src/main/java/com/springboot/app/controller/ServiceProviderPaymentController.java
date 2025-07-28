@@ -72,6 +72,36 @@ public class ServiceProviderPaymentController {
         }
     }
 
+    // API to get service provider payments by Service Provider ID
+    @GetMapping("/get/payments/service-provider/{serviceProviderId}")
+    @ApiOperation(value = "Retrieve payments by Service Provider ID", response = ServiceProviderPaymentDTO.class, responseContainer = "List")
+    public ResponseEntity<?> getPaymentsByServiceProviderId(
+            @ApiParam(value = "ID of the service provider", required = true) @PathVariable Long serviceProviderId) {
+        try {
+            List<ServiceProviderPaymentDTO> payments = serviceProviderPaymentService
+                    .getPaymentsByServiceProviderId(serviceProviderId);
+            return ResponseEntity.ok(payments);
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body("Failed to retrieve payments: " + e.getMessage());
+        }
+    }
+
+    // API to get service provider payments by Customer ID
+    @GetMapping("/get/payments/customer/{customerId}")
+    @ApiOperation(value = "Retrieve payments by Customer ID", response = ServiceProviderPaymentDTO.class, responseContainer = "List")
+    public ResponseEntity<?> getPaymentsByCustomerId(
+            @ApiParam(value = "ID of the customer", required = true) @PathVariable Long customerId) {
+        try {
+            List<ServiceProviderPaymentDTO> payments = serviceProviderPaymentService
+                    .getPaymentsByCustomerId(customerId);
+            return ResponseEntity.ok(payments);
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body("Failed to retrieve payments: " + e.getMessage());
+        }
+    }
+
     // API to add a service provider payment
     @PostMapping("/payment/add")
     @ApiOperation(value = "Add a new service provider payment")

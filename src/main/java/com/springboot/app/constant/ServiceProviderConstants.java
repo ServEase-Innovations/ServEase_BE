@@ -136,6 +136,14 @@ public class ServiceProviderConstants {
     public static final String COMMENT_NOT_FOUND_MSG = "Request comment not found with ID: ";
 
     public static final String RESPONSE_MESSAGE_KEY = "message";
+    // Coupon related constants
+    public static final String COUPON_API_PATH = "/api/v1/coupons";
+
+    public static final String ADDED = "Coupon added successfully.";
+    public static final String UPDATED = "Coupon updated successfully.";
+    public static final String DELETED = "Coupon deleted successfully.";
+    public static final String NOT_FOUND = "Coupon not found.";
+    public static final String FAILED = "Operation failed";
 
     // Prevent instantiation
     private ServiceProviderConstants() {

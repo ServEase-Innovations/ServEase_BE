@@ -3,8 +3,12 @@ package com.springboot.app.entity;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 
+import com.springboot.app.enums.HousekeepingRole;
+
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
@@ -42,6 +46,10 @@ public class CustomerHolidays {
 
     @Column(nullable = false)
     private boolean isActive;
+
+    @Enumerated(EnumType.STRING)
+    @Column(length = 100)
+    private HousekeepingRole serviceType;
 
     // Automatically set isActive field on creation
     @PrePersist

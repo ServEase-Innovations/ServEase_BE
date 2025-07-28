@@ -22,4 +22,8 @@ public interface ServiceProviderPaymentService {
 
     List<ServiceProviderPaymentDTO> getPaymentsByFinancialYear(int year);
 
+    List<ServiceProviderPaymentDTO> getPaymentsByCustomerId(Long customerId);
+
+    List<ServiceProviderPaymentDTO> getPaymentsByServiceProviderId(Long serviceProviderId);
+
 }

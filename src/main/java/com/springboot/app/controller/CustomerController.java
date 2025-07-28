@@ -10,9 +10,11 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 import com.springboot.app.constant.CustomerConstants;
+import com.springboot.app.constant.ServiceProviderConstants;
 import com.springboot.app.dto.CustomerConcernDTO;
 import com.springboot.app.dto.CustomerDTO;
 import com.springboot.app.dto.CustomerRequestDTO;
+import com.springboot.app.dto.CustomerUsedCouponDTO;
 import com.springboot.app.dto.KYCCommentsDTO;
 import com.springboot.app.dto.KYCDTO;
 import com.springboot.app.entity.Customer;
@@ -27,7 +29,10 @@ import com.springboot.app.service.CustomerFeedbackService;
 import com.springboot.app.service.CustomerHolidaysService;
 import com.springboot.app.service.CustomerRequestCommentService;
 import com.springboot.app.service.CustomerRequestService;
+import com.springboot.app.service.CouponService;
+
 import com.springboot.app.service.CustomerService;
+import com.springboot.app.service.CustomerUsedCouponService;
 import com.springboot.app.service.KYCCommentsService;
 import com.springboot.app.service.KYCService;
 import io.swagger.annotations.Api;
@@ -49,6 +54,8 @@ public class CustomerController {
     private final KYCService kycService;
     private final KYCCommentsService kycCommentsService;
     private final CustomerHolidaysService customerHolidaysService;
+    private final CouponService couponService;
+    private final CustomerUsedCouponService customerUsedCouponService;
 
     // Constructor-based injection
     @Autowired
@@ -59,7 +66,9 @@ public class CustomerController {
             CustomerRequestCommentService customerRequestCommentService,
             KYCService kycService,
             KYCCommentsService kycCommentsService,
-            CustomerHolidaysService customerHolidaysService) {
+            CustomerHolidaysService customerHolidaysService,
+            CouponService couponService,
+            CustomerUsedCouponService customerUsedCouponService) {
         this.customerService = customerService;
         this.customerRequestService = customerRequestService;
         this.customerConcernService = customerConcernService;
@@ -68,6 +77,8 @@ public class CustomerController {
         this.kycService = kycService;
         this.kycCommentsService = kycCommentsService;
         this.customerHolidaysService = customerHolidaysService;
+        this.couponService = couponService;
+        this.customerUsedCouponService = customerUsedCouponService;
     }
 
     @Value("${app.pagination.default-page-size:10}")
@@ -87,7 +98,7 @@ public class CustomerController {
                 size = defaultPageSize;
             List<CustomerDTO> customers = customerService.getAllCustomers(page, size);
             if (customers.isEmpty() && page > 0) {
-                return getAllCustomers(0, size); 
+                return getAllCustomers(0, size);
             }
             return ResponseEntity.ok(customers);
         } catch (Exception e) {
@@ -207,7 +218,7 @@ public class CustomerController {
             Map<String, List<CustomerRequestDTO>> categorizedRequests = customerRequestService.getBookingHistory(page,
                     size);
             // if (categorizedRequests == null || categorizedRequests.isEmpty()) {
-            //     return ResponseEntity.status(HttpStatus.NO_CONTENT).body("No Data Found");
+            // return ResponseEntity.status(HttpStatus.NO_CONTENT).body("No Data Found");
             // }
             return ResponseEntity.ok(categorizedRequests);
         } catch (Exception e) {
@@ -225,7 +236,8 @@ public class CustomerController {
             if (requestDTO != null) {
                 return ResponseEntity.ok(requestDTO);
             } else {
-                return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Customer Request not found with ID: " + requestId);
+                return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                        .body("Customer Request not found with ID: " + requestId);
             }
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
@@ -366,7 +378,8 @@ public class CustomerController {
      * 
      */
 
-    // --------------------------API's FOR CUSTOMER CONCERN ENTITY-------------------------------
+    // --------------------------API's FOR CUSTOMER CONCERN
+    // ENTITY-------------------------------
     // API to get all customer concerns with pagination
     @GetMapping("/get-all-customer-concerns")
     @ApiOperation(value = "Retrieve all customer concerns", response = List.class)
@@ -454,7 +467,8 @@ public class CustomerController {
         }
     }
 
-    // --------------------------API's FOR CUSTOMER FEEDBACK ENTITY--------------------------------
+    // --------------------------API's FOR CUSTOMER FEEDBACK
+    // ENTITY--------------------------------
     // API to get all customer feedback with pagination
     @GetMapping("/get-all-feedback")
     @ApiOperation(value = "Retrieve all customer feedback", response = List.class)
@@ -523,7 +537,8 @@ public class CustomerController {
         }
     }
 
-    // -----------------API's FOR CUSTOMER REQUEST COMMENT ENTITY---------------------------------
+    // -----------------API's FOR CUSTOMER REQUEST COMMENT
+    // ENTITY---------------------------------
     // API to get all customer request comments
     @GetMapping("/get-all-cr-comments")
     @ApiOperation(value = "Retrieve all customer request comments", response = List.class)
@@ -610,7 +625,8 @@ public class CustomerController {
         }
     }
 
-    // --------------------------------API's FOR KYC ENTITY-----------------------------------------
+    // --------------------------------API's FOR KYC
+    // ENTITY-----------------------------------------
 
     // API to get all KYC records with pagination
     @GetMapping("/get-all-kyc")
@@ -685,7 +701,8 @@ public class CustomerController {
         }
     }
 
-    // ----------------------------API's FOR KYC COMMENTS ENTITY--------------------------------------
+    // ----------------------------API's FOR KYC COMMENTS
+    // ENTITY--------------------------------------
 
     // API to get all KYC comments with pagination
     @GetMapping("/get-all-kyc-comments")
@@ -860,6 +877,44 @@ public class CustomerController {
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
                     .body("Failed to deactivate holiday: " + e.getMessage());
+        }
+    }
+
+    // API to retrieve all customer used coupons with pagination
+    @GetMapping("/get-all/coupons")
+    @ApiOperation(value = "Retrieve all used coupons", response = List.class)
+    public ResponseEntity<?> getAllUsedCoupons(
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(required = false) Integer size) {
+        try {
+            if (size == null)
+                size = defaultPageSize;
+
+            List<CustomerUsedCouponDTO> usedCoupons = customerUsedCouponService.findAll(page, size);
+            if (usedCoupons.isEmpty() && page > 0) {
+                return getAllUsedCoupons(0, size);
+            }
+            return ResponseEntity.ok(usedCoupons);
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body("Failed to retrieve used coupons: " + e.getMessage());
+        }
+    }
+
+    @PostMapping("/add/coupon")
+    public ResponseEntity<?> addUsedCoupon(@RequestBody CustomerUsedCouponDTO dto) {
+        try {
+            String result = customerUsedCouponService.saveCustomerUsedCoupon(dto);
+
+            if (ServiceProviderConstants.ADDED.equals(result)) {
+                return ResponseEntity.status(HttpStatus.CREATED).body(result);
+            } else {
+                return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(result);
+            }
+
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body("Failed to add used coupon: " + e.getMessage());
         }
     }
 
