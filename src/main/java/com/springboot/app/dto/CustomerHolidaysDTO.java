@@ -4,6 +4,7 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 
 import com.springboot.app.entity.ServiceProvider;
+import com.springboot.app.enums.HousekeepingRole;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -24,5 +25,6 @@ public class CustomerHolidaysDTO {
     private LocalDate startDate;
     private LocalDate endDate;
     private boolean isActive;
+    private HousekeepingRole serviceType;
 
 }

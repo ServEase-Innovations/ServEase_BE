@@ -1,6 +1,7 @@
 package com.springboot.app.service;
 
 import com.springboot.app.dto.CustomerPaymentDTO;
+import com.springboot.app.enums.HousekeepingRole;
 import com.springboot.app.enums.PaymentMode;
 
 import java.time.LocalDate;
@@ -26,7 +27,7 @@ public interface CustomerPaymentService {
         // baseAmount);
         CustomerPaymentDTO calculateAndSavePayment(Long customerId, double baseAmount,
                         LocalDate startDate_P, LocalDate endDate_P,
-                        PaymentMode paymentMode);
+                        PaymentMode paymentMode, Long couponId, HousekeepingRole serviceType);
 
         // List<CustomerPaymentDTO> getPaymentsByDateRange(Date startDate, Date
         // endDate);

@@ -3,15 +3,22 @@ package com.springboot.app.service;
 
 import com.springboot.app.constant.CustomerConstants;
 import com.springboot.app.dto.CustomerPaymentDTO;
+import com.springboot.app.entity.Coupon;
 import com.springboot.app.entity.Customer;
+import com.springboot.app.entity.CustomerCouponId;
 import com.springboot.app.entity.CustomerHolidays;
 import com.springboot.app.entity.CustomerPayment;
+import com.springboot.app.entity.CustomerUsedCoupon;
 import com.springboot.app.entity.ServiceProviderPayment;
+import com.springboot.app.enums.HousekeepingRole;
 import com.springboot.app.enums.PaymentMode;
 import com.springboot.app.mapper.CustomerPaymentMapper;
+import com.springboot.app.repository.CouponRepository;
 import com.springboot.app.repository.CustomerHolidaysRepository;
 import com.springboot.app.repository.CustomerPaymentRepository;
 import com.springboot.app.repository.CustomerRepository;
+import com.springboot.app.repository.CustomerUsedCouponRepository;
+
 import jakarta.persistence.EntityNotFoundException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -20,10 +27,12 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.ZoneId;
 import java.time.temporal.ChronoUnit;
 import java.util.Collections;
-
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
 import java.util.stream.Collectors;
@@ -39,6 +48,7 @@ public class CustomerPaymentServiceImpl implements CustomerPaymentService {
     private final CustomerHolidaysRepository customerHolidaysRepository;
     private final CustomerPaymentRepository customerPaymentRepository;
     private final CustomerPaymentMapper customerPaymentMapper;
+    private final CustomerUsedCouponRepository customerUsedCouponRepository;
 
     @Value("${discount.enabled}")
     private boolean isDiscountEnabled;
@@ -58,11 +68,16 @@ public class CustomerPaymentServiceImpl implements CustomerPaymentService {
     public CustomerPaymentServiceImpl(CustomerRepository customerRepository,
             CustomerHolidaysRepository customerHolidaysRepository,
             CustomerPaymentRepository customerPaymentRepository,
-            CustomerPaymentMapper customerPaymentMapper) {
+            CustomerPaymentMapper customerPaymentMapper,
+            CustomerUsedCouponRepository customerUsedCouponRepository
+
+    ) {
         this.customerRepository = customerRepository;
         this.customerHolidaysRepository = customerHolidaysRepository;
         this.customerPaymentRepository = customerPaymentRepository;
         this.customerPaymentMapper = customerPaymentMapper;
+        this.customerUsedCouponRepository = customerUsedCouponRepository;
+
     }
 
     @Override
@@ -224,7 +239,7 @@ public class CustomerPaymentServiceImpl implements CustomerPaymentService {
     @Transactional
     public CustomerPaymentDTO calculateAndSavePayment(Long customerId, double baseAmount,
             LocalDate startDate_P, LocalDate endDate_P,
-            PaymentMode paymentMode) {
+            PaymentMode paymentMode, Long couponId, HousekeepingRole serviceType) {
 
         Customer customer = customerRepository.findById(customerId)
                 .orElseThrow(() -> new EntityNotFoundException("Customer not found"));
@@ -234,6 +249,7 @@ public class CustomerPaymentServiceImpl implements CustomerPaymentService {
         // ✅ Only consider holidays that fall within the payment period
         List<CustomerHolidays> holidays = customerHolidaysRepository
                 .findByCustomer_CustomerIdAndIsActive(customerId, true).stream()
+                .filter(h -> h.getServiceType() == serviceType)
                 .filter(h -> !(h.getEndDate().isBefore(startDate_P) || h.getStartDate().isAfter(endDate_P)))
                 .collect(Collectors.toList());
 
@@ -246,13 +262,46 @@ public class CustomerPaymentServiceImpl implements CustomerPaymentService {
                 .sum();
 
         // ✅ Calculate discount only if applicable
+
         double discountPercentage = getDiscountPercentage(totalVacationDays);
         double discountAmount = 0;
         if (discountPercentage > 0) {
             discountAmount = (dailyRate * totalVacationDays) * (discountPercentage / 100);
         }
+        // ✅ Coupon logic
+        double couponDiscount = 0;
+        Coupon appliedCoupon = null;
 
-        double finalAmount = baseAmount - discountAmount;
+        if (couponId != null) {
+            CustomerCouponId couponKey = new CustomerCouponId(customerId, couponId);
+            CustomerUsedCoupon usedCoupon = customerUsedCouponRepository.findById(couponKey).orElse(null);
+            if (usedCoupon != null) {
+                couponDiscount = usedCoupon.getAvailedAmount();
+                appliedCoupon = usedCoupon.getCoupon();
+                logger.info("Valid coupon applied. Coupon ID: {}, Discount: {}", couponId, couponDiscount);
+            } else {
+                logger.warn("Invalid coupon: No usage found for customerId={} and couponId={}", customerId, couponId);
+            }
+        }
+
+        // ✅ Combine discounts based on valid conditions
+        double totalDiscountAmount = 0;
+        if (discountAmount > 0 && couponDiscount > 0) {
+            logger.info("Both holiday and coupon discounts applied.");
+            totalDiscountAmount = discountAmount + couponDiscount;
+        } else if (discountAmount > 0) {
+            logger.info("Only holiday discount applied.");
+            totalDiscountAmount = discountAmount;
+        } else if (couponDiscount > 0) {
+            logger.info("Only coupon discount applied.");
+            totalDiscountAmount = couponDiscount;
+        } else {
+            logger.info("No discount applied.");
+        }
+
+        double finalAmount = baseAmount - totalDiscountAmount;
+
+        // double finalAmount = baseAmount - discountAmount;
 
         LocalDate paymentMonth = LocalDate.now().withDayOfMonth(1);
         LocalDateTime generatedOn = LocalDateTime.now();
@@ -262,7 +311,7 @@ public class CustomerPaymentServiceImpl implements CustomerPaymentService {
         CustomerPayment payment = new CustomerPayment();
         payment.setCustomer(customer);
         payment.setBaseAmount(baseAmount);
-        payment.setDiscountAmount(discountAmount);
+        payment.setDiscountAmount(totalDiscountAmount);
         payment.setFinalAmount(finalAmount);
         payment.setPaymentMonth(paymentMonth);
         payment.setStartDate_P(startDate_P);
@@ -278,7 +327,10 @@ public class CustomerPaymentServiceImpl implements CustomerPaymentService {
                 .id(payment.getId())
                 .customerId(customerId)
                 .baseAmount(baseAmount)
-                .discountAmount(discountAmount)
+                .discountAmount(totalDiscountAmount)
+
+                .couponId(appliedCoupon != null ? appliedCoupon.getId() : null)
+                .couponDiscount(couponDiscount)
                 .finalAmount(finalAmount)
                 .paymentMonth(paymentMonth)
                 .startDate_P(startDate_P)
@@ -287,6 +339,9 @@ public class CustomerPaymentServiceImpl implements CustomerPaymentService {
                 .paymentOn(paymentOn)
                 .transactionId(transactionId)
                 .paymentMode(paymentMode)
+                .discountAmount(totalDiscountAmount)
+                .finalAmount(finalAmount)
+
                 .build();
     }
 
@@ -303,6 +358,7 @@ public class CustomerPaymentServiceImpl implements CustomerPaymentService {
             }
         }
         return 0;
+
     }
 
     // private double getDiscountPercentage(int days) {

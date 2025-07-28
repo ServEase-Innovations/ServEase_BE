@@ -2,9 +2,18 @@ package com.springboot.app.service;
 
 import com.springboot.app.constant.ServiceProviderConstants;
 import com.springboot.app.dto.ServiceProviderPaymentDTO;
+import com.springboot.app.dto.ServiceProviderUsedCouponDTO;
+import com.springboot.app.entity.Coupon;
+import com.springboot.app.entity.ServiceProvider;
+import com.springboot.app.entity.ServiceProviderCouponId;
 import com.springboot.app.entity.ServiceProviderPayment;
+import com.springboot.app.entity.ServiceProviderUsedCoupon;
 import com.springboot.app.mapper.ServiceProviderPaymentMapper;
 import com.springboot.app.repository.ServiceProviderPaymentRepository;
+import com.springboot.app.repository.ServiceProviderUsedCouponRepository;
+
+import jakarta.persistence.EntityNotFoundException;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -13,6 +22,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import java.util.Calendar;
 import java.sql.Date;
+import java.time.LocalDateTime;
 import java.util.Collections;
 import java.util.List;
 
@@ -23,12 +33,16 @@ public class ServiceProviderPaymentServiceImpl implements ServiceProviderPayment
 
     private final ServiceProviderPaymentRepository serviceProviderPaymentRepository;
     private final ServiceProviderPaymentMapper serviceProviderPaymentMapper;
+    private final ServiceProviderUsedCouponRepository serviceProviderUsedCouponRepository;
 
     @Autowired
     public ServiceProviderPaymentServiceImpl(ServiceProviderPaymentRepository serviceProviderPaymentRepository,
-            ServiceProviderPaymentMapper serviceProviderPaymentMapper) {
+            ServiceProviderPaymentMapper serviceProviderPaymentMapper,
+            ServiceProviderUsedCouponRepository serviceProviderUsedCouponRepository) {
         this.serviceProviderPaymentRepository = serviceProviderPaymentRepository;
         this.serviceProviderPaymentMapper = serviceProviderPaymentMapper;
+        this.serviceProviderUsedCouponRepository = serviceProviderUsedCouponRepository;
+
     }
 
     @Override
@@ -68,23 +82,86 @@ public class ServiceProviderPaymentServiceImpl implements ServiceProviderPayment
     }
 
     @Override
+    @Transactional(readOnly = true)
+    public List<ServiceProviderPaymentDTO> getPaymentsByCustomerId(Long customerId) {
+        logger.info("Fetching payments by customer ID: {}", customerId);
+        return serviceProviderPaymentRepository.findAll().stream()
+                .filter(p -> p.getCustomer().getCustomerId().equals(customerId))
+                .map(serviceProviderPaymentMapper::serviceProviderPaymentToDTO)
+                .toList();
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public List<ServiceProviderPaymentDTO> getPaymentsByServiceProviderId(Long serviceProviderId) {
+        logger.info("Fetching payments by service provider ID: {}", serviceProviderId);
+        return serviceProviderPaymentRepository.findAll().stream()
+                .filter(p -> p.getServiceProvider().getServiceproviderId().equals(serviceProviderId))
+                .map(serviceProviderPaymentMapper::serviceProviderPaymentToDTO)
+                .toList();
+    }
+
+    @Override
     @Transactional
     public String addServiceProviderPayment(ServiceProviderPaymentDTO serviceProviderPaymentDTO) {
         if (logger.isInfoEnabled()) {
-
             logger.info("Adding new service provider payment");
+        }
+
+        // Apply coupon logic
+        double couponDiscount = 0;
+        Long serviceProviderId = serviceProviderPaymentDTO.getServiceProviderId();
+        Long couponId = serviceProviderPaymentDTO.getCouponId(); // ✅ You need to add this field in DTO
+
+        if (couponId != null) {
+            ServiceProviderCouponId couponKey = new ServiceProviderCouponId(serviceProviderId, couponId);
+            ServiceProviderUsedCoupon usedCoupon = serviceProviderUsedCouponRepository.findById(couponKey).orElse(null);
+
+            if (usedCoupon != null) {
+                couponDiscount = usedCoupon.getAvailedAmount();
+                logger.info("Valid coupon applied. Coupon ID: {}, Discount: {}", couponId, couponDiscount);
+            } else {
+                logger.warn("No used coupon found for serviceProviderId={} and couponId={}", serviceProviderId,
+                        couponId);
+            }
         }
 
         ServiceProviderPayment payment = serviceProviderPaymentMapper
                 .dtoToServiceProviderPayment(serviceProviderPaymentDTO);
 
-        serviceProviderPaymentRepository.save(payment);
-        if (logger.isDebugEnabled()) {
+        // Apply discount to amount
+        double finalAmount = serviceProviderPaymentDTO.getMonthlyAmount() - couponDiscount;
+        payment.setAmount((int) finalAmount);
 
+        serviceProviderPaymentRepository.save(payment);
+
+        if (logger.isDebugEnabled()) {
             logger.debug("Persisted new service provider payment with ID: {}", payment.getId());
         }
+
         return "Service Provider Payment added successfully.";
     }
+
+    // @Override
+    // @Transactional
+    // public String addServiceProviderPayment(ServiceProviderPaymentDTO
+    // serviceProviderPaymentDTO) {
+    // if (logger.isInfoEnabled()) {
+
+    // logger.info("Adding new service provider payment");
+    // }
+
+    // ServiceProviderPayment payment = serviceProviderPaymentMapper
+    // .dtoToServiceProviderPayment(serviceProviderPaymentDTO);
+
+    // serviceProviderPaymentRepository.save(payment);
+    // if (logger.isDebugEnabled()) {
+
+    // logger.debug("Persisted new service provider payment with ID: {}",
+    // payment.getId());
+    // }
+    // return "Service Provider Payment added successfully.";
+    // }
 
     @Override
     @Transactional

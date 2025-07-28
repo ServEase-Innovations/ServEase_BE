@@ -30,5 +30,7 @@ public class CustomerPaymentDTO {
     private LocalDateTime generatedOn;
     private String transactionId;
     private PaymentMode paymentMode;
+    private Long couponId; // ✅ add this
+    private Double couponDiscount;
 
 }
