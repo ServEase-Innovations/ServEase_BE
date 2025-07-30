@@ -99,7 +99,8 @@ public interface ServiceProviderEngagementRepository extends JpaRepository<Servi
                      @Param("startDate") LocalDate startDate,
                      @Param("endDate") LocalDate endDate);
 
-       Optional<ServiceProviderEngagement> findFirstByCustomer_CustomerIdAndServiceTypeAndIsActiveTrue(
-                     Long customerId, HousekeepingRole serviceType);
+       List<ServiceProviderEngagement> findAllByCustomer_CustomerIdAndServiceTypeAndIsActiveTrue(
+                     Long customerId,
+                     HousekeepingRole serviceType);
 
 }
