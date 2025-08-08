@@ -320,6 +320,8 @@ public class CustomerPaymentServiceImpl implements CustomerPaymentService {
         payment.setPaymentOn(paymentOn);
         payment.setTransactionId(transactionId);
         payment.setPaymentMode(paymentMode);
+        payment.setCoupon(appliedCoupon); // sets the @ManyToOne relation
+        payment.setCouponDiscountAmount(couponDiscount); // sets the amount (Double)
 
         customerPaymentRepository.save(payment);
 

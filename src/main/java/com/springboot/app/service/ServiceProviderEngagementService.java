@@ -12,42 +12,46 @@ import com.springboot.app.enums.UserRole;
 
 public interface ServiceProviderEngagementService {
 
-    // Get a list of all ServiceProviderEngagements
-    List<ServiceProviderEngagementDTO> getAllServiceProviderEngagements(int page, int size);
+        // Get a list of all ServiceProviderEngagements
+        List<ServiceProviderEngagementDTO> getAllServiceProviderEngagements(int page, int size);
 
-    // Get a specific ServiceProviderEngagement by ID
-    ServiceProviderEngagementDTO getServiceProviderEngagementById(Long id);
+        // Get a specific ServiceProviderEngagement by ID
+        ServiceProviderEngagementDTO getServiceProviderEngagementById(Long id);
 
-    // Add a new ServiceProviderEngagement
-    String addServiceProviderEngagement(ServiceProviderEngagementDTO serviceProviderEngagementDTO);
+        // Add a new ServiceProviderEngagement
+        String addServiceProviderEngagement(ServiceProviderEngagementDTO serviceProviderEngagementDTO);
 
-    // Update an existing ServiceProviderEngagement
-    String updateServiceProviderEngagement(ServiceProviderEngagementDTO serviceProviderEngagementDTO);
+        // Update an existing ServiceProviderEngagement
+        String updateServiceProviderEngagement(ServiceProviderEngagementDTO serviceProviderEngagementDTO);
 
-    // Delete a ServiceProviderEngagement by ID
-    String deleteServiceProviderEngagement(Long id);
+        // Delete a ServiceProviderEngagement by ID
+        String deleteServiceProviderEngagement(Long id);
 
-    // Get a specific ServiceProvider by ID
-    List<ServiceProviderEngagementDTO> getServiceProviderEngagementsByServiceProviderId(Long serviceProviderId);
+        // Get a specific ServiceProvider by ID
+        List<ServiceProviderEngagementDTO> getServiceProviderEngagementsByServiceProviderId(Long serviceProviderId);
 
-    // Get a specific Customer by ID
-    List<ServiceProviderEngagementDTO> getServiceProviderEngagementsByCustomerId(Long customerId);
+        // Get a specific Customer by ID
+        List<ServiceProviderEngagementDTO> getServiceProviderEngagementsByCustomerId(Long customerId);
 
-    public Map<String, List<ServiceProviderEngagementDTO>> getServiceProviderBookingHistory(int page, int size);
+        public Map<String, List<ServiceProviderEngagementDTO>> getServiceProviderBookingHistory(int page, int size);
 
-    List<Object> getEngagementsByExactDateTimeslotAndHousekeepingRole(
-            LocalDate startDate, LocalDate endDate, String timeslot, HousekeepingRole housekeepingRole, double latitude,
-            double longitude, int precision);
+        public Map<String, List<ServiceProviderEngagementDTO>> getServiceProviderBookingHistoryByCustomerId(
+                        Long customerId);
 
-    public List<Object> getProgressiveSearch(
-        double latitude,
-        double longitude,
-        HousekeepingRole housekeepingRole,
-            int precision);
+        List<Object> getEngagementsByExactDateTimeslotAndHousekeepingRole(
+                        LocalDate startDate, LocalDate endDate, String timeslot, HousekeepingRole housekeepingRole,
+                        double latitude,
+                        double longitude, int precision);
 
-    public List<ServiceProvider> getPriorityBasedSearch(
-        double latitude,
-        double longitude,
-            HousekeepingRole housekeepingRole);
+        public List<Object> getProgressiveSearch(
+                        double latitude,
+                        double longitude,
+                        HousekeepingRole housekeepingRole,
+                        int precision);
+
+        public List<ServiceProvider> getPriorityBasedSearch(
+                        double latitude,
+                        double longitude,
+                        HousekeepingRole housekeepingRole);
 
 }

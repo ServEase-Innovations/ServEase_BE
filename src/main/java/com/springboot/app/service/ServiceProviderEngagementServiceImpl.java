@@ -293,6 +293,38 @@ public class ServiceProviderEngagementServiceImpl implements ServiceProviderEnga
 
     @Override
     @Transactional(readOnly = true)
+    public Map<String, List<ServiceProviderEngagementDTO>> getServiceProviderBookingHistoryByCustomerId(
+            Long customerId) {
+        logger.info("Fetching booking history for customerId: {}", customerId);
+
+        List<ServiceProviderEngagement> engagements = engagementRepository.findByCustomer_CustomerId(customerId);
+
+        if (engagements.isEmpty()) {
+            return Collections.emptyMap();
+        }
+
+        LocalDate currentDate = LocalDate.now();
+
+        return engagements.stream()
+                .map(engagementMapper::serviceProviderEngagementToDTO)
+                .collect(Collectors.groupingBy(engagement -> {
+                    LocalDate startDate = engagement.getStartDate();
+                    LocalDate endDate = engagement.getEndDate();
+
+                    if (endDate == null) {
+                        return (startDate != null && !startDate.isAfter(currentDate)) ? "current" : "future";
+                    } else {
+                        if (endDate.isBefore(currentDate))
+                            return "past";
+                        if (startDate != null && startDate.isAfter(currentDate))
+                            return "future";
+                        return "current";
+                    }
+                }));
+    }
+
+    @Override
+    @Transactional(readOnly = true)
     public Map<String, List<ServiceProviderEngagementDTO>> getServiceProviderBookingHistory(int page, int size) {
         if (logger.isInfoEnabled()) {
 
@@ -318,7 +350,8 @@ public class ServiceProviderEngagementServiceImpl implements ServiceProviderEnga
                     LocalDate endDate = engagement.getEndDate();
 
                     if (endDate == null) {
-                        if (startDate != null && (startDate.isBefore(currentDate) || startDate.isEqual(currentDate))) {
+                        if (startDate != null && (startDate.isBefore(currentDate) ||
+                                startDate.isEqual(currentDate))) {
                             return "current";
                         } else {
                             return "future";
