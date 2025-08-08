@@ -6,11 +6,12 @@ import java.util.Map;
 import com.fasterxml.jackson.core.type.TypeReference;
 import java.io.IOException;
 
+import org.mapstruct.BeanMapping;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import org.mapstruct.MappingTarget;
 import org.mapstruct.Named;
-
+import org.mapstruct.NullValuePropertyMappingStrategy;
 import org.mapstruct.factory.Mappers;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -36,6 +37,7 @@ public interface ServiceProviderEngagementMapper {
     ServiceProviderEngagement dtoToServiceProviderEngagement(ServiceProviderEngagementDTO dto);
 
     // Update an existing entity from DTO
+    @BeanMapping(nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE)
     @Mapping(target = "serviceProvider", ignore = true) // Relationship handled manually
     @Mapping(target = "customer", ignore = true) // Relationship handled manually
     @Mapping(target = "responsibilities", ignore = true)
