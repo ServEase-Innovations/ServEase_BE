@@ -707,6 +707,21 @@ public class ServiceProviderController {
         return ResponseEntity.ok(categorizedEngagements);
     }
 
+    @GetMapping("/get-sp-booking-history-by-customer")
+    @ApiOperation(value = "Retrieve categorized service provider engagements for a specific customer", response = Map.class)
+    public ResponseEntity<Map<String, List<ServiceProviderEngagementDTO>>> getBookingHistoryByCustomerId(
+            @RequestParam Long customerId) {
+
+        Map<String, List<ServiceProviderEngagementDTO>> categorizedEngagements = serviceProviderEngagementService
+                .getServiceProviderBookingHistoryByCustomerId(customerId);
+
+        if (categorizedEngagements.isEmpty()) {
+            return ResponseEntity.status(HttpStatus.NO_CONTENT).body(Collections.emptyMap());
+        }
+
+        return ResponseEntity.ok(categorizedEngagements);
+    }
+
     @GetMapping("/search")
     public ResponseEntity<List<Object>> searchEngagements(
             @RequestParam LocalDate startDate,

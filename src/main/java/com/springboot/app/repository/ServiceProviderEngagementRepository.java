@@ -103,4 +103,6 @@ public interface ServiceProviderEngagementRepository extends JpaRepository<Servi
                      Long customerId,
                      HousekeepingRole serviceType);
 
+       List<ServiceProviderEngagement> findByCustomer_CustomerId(Long customerId);
+
 }
