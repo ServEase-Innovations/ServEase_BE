@@ -41,6 +41,7 @@ public interface ServiceProviderEngagementMapper {
     @Mapping(target = "serviceProvider", ignore = true) // Relationship handled manually
     @Mapping(target = "customer", ignore = true) // Relationship handled manually
     @Mapping(target = "responsibilities", ignore = true)
+    @Mapping(target = "monthlyAmount", ignore = true)
     void updateEntityFromDTO(ServiceProviderEngagementDTO dto, @MappingTarget ServiceProviderEngagement entity);
 
     // Create custom exception

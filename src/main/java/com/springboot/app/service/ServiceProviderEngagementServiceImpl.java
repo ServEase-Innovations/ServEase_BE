@@ -197,6 +197,9 @@ public class ServiceProviderEngagementServiceImpl implements ServiceProviderEnga
 
                     // Update fields from DTO
                     engagementMapper.updateEntityFromDTO(dto, existingEngagement);
+                    if (dto.getMonthlyAmount() != null) {
+                        existingEngagement.setMonthlyAmount(dto.getMonthlyAmount());
+                    }
                     existingEngagement.setCustomer(customer);
                     existingEngagement.setServiceProvider(serviceProvider);
 
