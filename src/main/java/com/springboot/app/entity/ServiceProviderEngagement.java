@@ -64,7 +64,7 @@ public class ServiceProviderEngagement {
     private boolean isActive = true;
 
     @Column
-    private double monthlyAmount;
+    private Double monthlyAmount; // Wrapper instead of primitive
 
     @Enumerated(EnumType.STRING)
     private PaymentMode paymentMode;
@@ -113,11 +113,20 @@ public class ServiceProviderEngagement {
     @Enumerated(EnumType.STRING)
     private UserRole role;
 
+    @Column(name = "modified_date")
+    private LocalDateTime modifiedDate;
+
     // Automatically set isActive field on creation
     @PrePersist
     public void prePersist() {
         this.isActive = true; // Set to true by default when the record is created
-        this.bookingDate = LocalDateTime.now(); // Set current date-time
+        this.bookingDate = LocalDateTime.now();
+        this.modifiedDate = LocalDateTime.now();
+    }
+
+    @jakarta.persistence.PreUpdate
+    public void preUpdate() {
+        this.modifiedDate = LocalDateTime.now(); // set at update
     }
 
     // Mark engagement as completed

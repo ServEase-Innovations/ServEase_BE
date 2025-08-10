@@ -31,7 +31,7 @@ public class ServiceProviderEngagementDTO {
     private String engagements;
     private String timeslot;
     private boolean isActive = true;
-    private double monthlyAmount;
+    private Double monthlyAmount;
     private PaymentMode paymentMode;
     private BookingType bookingType;
     private HousekeepingRole serviceType;

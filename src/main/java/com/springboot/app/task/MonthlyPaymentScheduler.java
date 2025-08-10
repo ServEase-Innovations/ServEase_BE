@@ -76,7 +76,8 @@ public class MonthlyPaymentScheduler {
     private ServiceProviderPayment calculatePayment(ServiceProviderEngagement engagement, LocalDate startDate,
             LocalDate endDate) {
         long noOfDays = (ChronoUnit.DAYS.between(startDate, endDate)) + 1;
-        int monthlyAmount = (int) engagement.getMonthlyAmount();
+        int monthlyAmount = engagement.getMonthlyAmount().intValue();
+
         int daysInMonth = endDate.lengthOfMonth();
         int calculatedAmount = (int) ((double) monthlyAmount / daysInMonth * noOfDays);
 

@@ -478,7 +478,8 @@ public class ServiceProviderServiceImpl implements ServiceProviderService {
                                                 : LocalDate.now().withDayOfMonth(LocalDate.now().lengthOfMonth());
 
                                 long noOfDays = (ChronoUnit.DAYS.between(startDate, endDate)) + 1;
-                                int monthlyAmount = (int) engagement.getMonthlyAmount();
+                                int monthlyAmount = engagement.getMonthlyAmount().intValue();
+
                                 int daysInMonth = endDate.lengthOfMonth();
                                 double calculatedAmount = (double) monthlyAmount / daysInMonth * noOfDays;
 
