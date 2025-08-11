@@ -109,9 +109,9 @@ public class ServiceProviderEngagement {
     @Column(nullable = false)
     private TaskStatus taskStatus = TaskStatus.NOT_STARTED;
 
-    @Column(name = "user_role")
+    @Column(name = "modified_by")
     @Enumerated(EnumType.STRING)
-    private UserRole role;
+    private UserRole modifiedBy;
 
     @Column(name = "modified_date")
     private LocalDateTime modifiedDate;
