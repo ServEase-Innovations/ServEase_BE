@@ -21,7 +21,7 @@ public class CustomerHolidaysDTO {
 
     private Long id;
     private Long customerId;
-    private LocalDateTime bookingDate;
+    private LocalDateTime applyHolidayDate;
     private LocalDate startDate;
     private LocalDate endDate;
     private boolean isActive;

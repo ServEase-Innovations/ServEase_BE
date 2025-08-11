@@ -36,7 +36,7 @@ public class CustomerHolidays {
     private Customer customer;
 
     @Column(nullable = false)
-    private LocalDateTime bookingDate;
+    private LocalDateTime applyHolidayDate;
 
     @Column(nullable = false)
     private LocalDate startDate;
@@ -55,7 +55,7 @@ public class CustomerHolidays {
     @PrePersist
     public void prePersist() {
         this.isActive = true; // Set to true by default when the record is created
-        this.bookingDate = LocalDateTime.now(); // Set current date-time
+        this.applyHolidayDate = LocalDateTime.now(); // Set current date-time
     }
 
     // Mark engagement as completed

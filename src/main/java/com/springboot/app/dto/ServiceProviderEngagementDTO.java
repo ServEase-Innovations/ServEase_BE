@@ -47,7 +47,7 @@ public class ServiceProviderEngagementDTO {
     private String serviceProviderName;
     private String address;
     private TaskStatus taskStatus = TaskStatus.NOT_STARTED;
-    private UserRole role;
+    private UserRole modifiedBy;
     private LocalDateTime modifiedDate;
     private List<String> availableTimeSlots;
 }

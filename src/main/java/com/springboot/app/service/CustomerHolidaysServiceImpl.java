@@ -216,7 +216,7 @@ public class CustomerHolidaysServiceImpl implements CustomerHolidaysService {
         holiday.setCustomer(engagement.getCustomer());
         holiday.setStartDate(holidayStart);
         holiday.setEndDate(holidayEnd);
-        holiday.setBookingDate(LocalDateTime.now());
+        holiday.setApplyHolidayDate(LocalDateTime.now());
         holiday.setActive(true);
         holiday.setServiceType(serviceType); // ✅ Store service type if your table supports it
 
