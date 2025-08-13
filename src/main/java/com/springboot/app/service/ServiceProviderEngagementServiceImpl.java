@@ -172,43 +172,50 @@ public class ServiceProviderEngagementServiceImpl implements ServiceProviderEnga
     @Transactional
     public String updateServiceProviderEngagement(ServiceProviderEngagementDTO dto) {
         if (logger.isInfoEnabled()) {
-
             logger.info("Updating service provider engagement with ID: {}", dto.getId());
         }
+
         return engagementRepository.findById(dto.getId())
                 .map(existingEngagement -> {
-                    // Fetch related entities from DB
+                    // Fetch related customer
                     Customer customer = customerRepository.findById(dto.getCustomerId())
-                            .orElseThrow(
-                                    () -> new RuntimeException("Customer not found with ID: " + dto.getCustomerId()));
+                            .orElseThrow(() -> new RuntimeException(
+                                    "Customer not found with ID: " + dto.getCustomerId()));
 
-                    // ✅ Conditionally fetch ServiceProvider
-                    ServiceProvider serviceProvider = null;
+                    // ✅ Start with current service provider from DB
+                    ServiceProvider serviceProvider = existingEngagement.getServiceProvider();
+
+                    // Booking type validation
                     if (dto.getBookingType() != null && dto.getBookingType() != BookingType.ON_DEMAND) {
                         if (dto.getServiceProviderId() == null) {
                             throw new RuntimeException(
                                     "Service Provider ID is required for booking type: " + dto.getBookingType());
                         }
+                    }
 
+                    // ✅ Update only if a new ID is provided
+                    if (dto.getServiceProviderId() != null) {
                         serviceProvider = serviceProviderRepository.findById(dto.getServiceProviderId())
                                 .orElseThrow(() -> new RuntimeException(
                                         "Service Provider not found with ID: " + dto.getServiceProviderId()));
                     }
 
-                    // Update fields from DTO
+                    // Update other fields from DTO
                     engagementMapper.updateEntityFromDTO(dto, existingEngagement);
+
                     if (dto.getMonthlyAmount() != null) {
                         existingEngagement.setMonthlyAmount(dto.getMonthlyAmount());
                     }
+
                     existingEngagement.setCustomer(customer);
-                    existingEngagement.setServiceProvider(serviceProvider);
+                    existingEngagement.setServiceProvider(serviceProvider); // ✅ preserves old value if no new ID
 
-                    // Save updated entity
                     engagementRepository.save(existingEngagement);
-                    if (logger.isDebugEnabled()) {
 
+                    if (logger.isDebugEnabled()) {
                         logger.info("Service provider engagement updated successfully with ID: {}", dto.getId());
                     }
+
                     return ServiceProviderConstants.ENGAGEMENT_UPDATED;
                 })
                 .orElse(ServiceProviderConstants.ENGAGEMENT_NOT_FOUND);
