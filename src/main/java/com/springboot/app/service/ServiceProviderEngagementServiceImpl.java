@@ -1,6 +1,7 @@
 package com.springboot.app.service;
 
 import com.springboot.app.constant.ServiceProviderConstants;
+import com.springboot.app.dto.CustomerHolidaysDTO;
 import com.springboot.app.dto.ServiceProviderEngagementDTO;
 import com.springboot.app.entity.Customer;
 import com.springboot.app.entity.ServiceProvider;
@@ -9,8 +10,10 @@ import com.springboot.app.enums.BookingType;
 import com.springboot.app.enums.HousekeepingRole;
 
 import com.springboot.app.exception.ServiceProviderEngagementNotFoundException;
+import com.springboot.app.mapper.CustomerHolidaysMapper;
 import com.springboot.app.mapper.ServiceProviderEngagementMapper;
 import com.springboot.app.mapper.ServiceProviderMapper;
+import com.springboot.app.repository.CustomerHolidaysRepository;
 import com.springboot.app.repository.CustomerRepository;
 import com.springboot.app.repository.ServiceProviderEngagementRepository;
 import com.springboot.app.repository.ServiceProviderRepository;
@@ -51,6 +54,12 @@ public class ServiceProviderEngagementServiceImpl implements ServiceProviderEnga
 
     @Autowired
     private GeoHashService geoHashService;
+
+    @Autowired
+    private CustomerHolidaysRepository customerHolidaysRepository;
+
+    @Autowired
+    private CustomerHolidaysMapper customerHolidaysMapper;
 
     @Autowired
     public ServiceProviderEngagementServiceImpl(ServiceProviderEngagementRepository engagementRepository,
@@ -301,22 +310,84 @@ public class ServiceProviderEngagementServiceImpl implements ServiceProviderEnga
                 .toList();
     }
 
+    // @Override
+    // @Transactional(readOnly = true)
+    // public Map<String, List<ServiceProviderEngagementDTO>>
+    // getServiceProviderBookingHistoryByCustomerId(
+    // Long customerId) {
+    // logger.info("Fetching booking history for customerId: {}", customerId);
+
+    // List<ServiceProviderEngagement> engagements =
+    // engagementRepository.findByCustomer_CustomerId(customerId);
+
+    // if (engagements.isEmpty()) {
+    // return Collections.emptyMap();
+    // }
+
+    // LocalDate currentDate = LocalDate.now();
+
+    // return engagements.stream()
+    // .map(engagementMapper::serviceProviderEngagementToDTO)
+    // .collect(Collectors.groupingBy(engagement -> {
+    // LocalDate startDate = engagement.getStartDate();
+    // LocalDate endDate = engagement.getEndDate();
+
+    // if (endDate == null) {
+    // return (startDate != null && !startDate.isAfter(currentDate)) ? "current" :
+    // "future";
+    // } else {
+    // if (endDate.isBefore(currentDate))
+    // return "past";
+    // if (startDate != null && startDate.isAfter(currentDate))
+    // return "future";
+    // return "current";
+    // }
+    // }));
+    // }
+
     @Override
     @Transactional(readOnly = true)
     public Map<String, List<ServiceProviderEngagementDTO>> getServiceProviderBookingHistoryByCustomerId(
             Long customerId) {
         logger.info("Fetching booking history for customerId: {}", customerId);
 
+        // Fetch engagements
         List<ServiceProviderEngagement> engagements = engagementRepository.findByCustomer_CustomerId(customerId);
 
         if (engagements.isEmpty()) {
             return Collections.emptyMap();
         }
 
+        // Fetch holidays for the same customer
+        List<CustomerHolidaysDTO> holidays = customerHolidaysRepository
+                .findByCustomer_CustomerId(customerId)
+                .stream()
+                .map(customerHolidaysMapper::customerHolidaysToDTO)
+                .toList();
+
         LocalDate currentDate = LocalDate.now();
 
-        return engagements.stream()
-                .map(engagementMapper::serviceProviderEngagementToDTO)
+        // Convert engagements to DTO and attach holiday info
+        List<ServiceProviderEngagementDTO> engagementDTOs = engagements.stream()
+                .map(engagement -> {
+                    ServiceProviderEngagementDTO dto = engagementMapper.serviceProviderEngagementToDTO(engagement);
+
+                    // Attach holidays that overlap with this engagement period
+                    List<CustomerHolidaysDTO> matchingHolidays = holidays.stream()
+                            .filter(h -> {
+                                LocalDate start = h.getStartDate();
+                                LocalDate end = h.getEndDate() != null ? h.getEndDate() : start;
+                                return (dto.getStartDate() != null && !start.isAfter(dto.getEndDate())) &&
+                                        (dto.getEndDate() == null || !end.isBefore(dto.getStartDate()));
+                            })
+                            .toList();
+                    dto.setCustomerHolidays(matchingHolidays); // Assuming you add this field to DTO
+                    return dto;
+                })
+                .toList();
+
+        // Group by past/current/future
+        return engagementDTOs.stream()
                 .collect(Collectors.groupingBy(engagement -> {
                     LocalDate startDate = engagement.getStartDate();
                     LocalDate endDate = engagement.getEndDate();
