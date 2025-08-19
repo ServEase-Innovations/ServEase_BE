@@ -2,9 +2,11 @@ package com.springboot.app.service;
 
 import com.springboot.app.constant.CustomerConstants;
 import com.springboot.app.dto.ServiceProviderLeaveDTO;
+import com.springboot.app.entity.ServiceProviderEngagement;
 import com.springboot.app.entity.ServiceProviderLeave;
 import com.springboot.app.exception.ServiceProviderLeaveException;
 import com.springboot.app.mapper.ServiceProviderLeaveMapper;
+import com.springboot.app.repository.ServiceProviderEngagementRepository;
 import com.springboot.app.repository.ServiceProviderLeaveRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -13,8 +15,9 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import java.time.LocalDate;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
-
+import java.util.stream.Collectors;
 import java.util.Collections;
 
 @Service
@@ -25,12 +28,16 @@ public class ServiceProviderLeaveServiceImpl implements
 
     private final ServiceProviderLeaveRepository leaveRepository;
     private final ServiceProviderLeaveMapper leaveMapper;
+    private final ServiceProviderEngagementRepository engagementRepository;
 
     @Autowired
     public ServiceProviderLeaveServiceImpl(ServiceProviderLeaveRepository leaveRepository,
-            ServiceProviderLeaveMapper leaveMapper) {
+            ServiceProviderLeaveMapper leaveMapper,
+            ServiceProviderEngagementRepository engagementRepository) {
         this.leaveRepository = leaveRepository;
         this.leaveMapper = leaveMapper;
+        this.engagementRepository = engagementRepository;
+
     }
 
     @Override
@@ -173,15 +180,69 @@ public class ServiceProviderLeaveServiceImpl implements
     @Override
     @Transactional
     public String addLeave(ServiceProviderLeaveDTO leaveDTO) {
+        if (leaveDTO.getServiceproviderId() == null) {
+            throw new IllegalArgumentException("Service provider ID is mandatory.");
+        }
+        if (leaveDTO.getFromDate() == null || leaveDTO.getToDate() == null) {
+            throw new IllegalArgumentException("Leave start date and end date must not be null.");
+        }
+        if (leaveDTO.getToDate().isBefore(leaveDTO.getFromDate())) {
+            throw new IllegalArgumentException("Leave end date must be after or equal to start date.");
+        }
+
+        // ✅ Fetch active engagements for this service provider
+        List<ServiceProviderEngagement> engagements = engagementRepository
+                .findAllByServiceProvider_ServiceproviderIdAndIsActiveTrue(
+                        leaveDTO.getServiceproviderId());
+
+        if (engagements.isEmpty()) {
+            throw new IllegalArgumentException("No active engagement found for service provider ID: "
+                    + leaveDTO.getServiceproviderId());
+        }
+
+        // ✅ Check if leave falls within at least one engagement period
+        ServiceProviderEngagement matchingEngagement = engagements.stream()
+                .filter(e -> {
+                    LocalDate engagementStart = e.getStartDate();
+                    LocalDate engagementEnd = e.getEndDate(); // may be null for ongoing
+
+                    return !leaveDTO.getFromDate().isBefore(engagementStart) &&
+                            (engagementEnd == null || !leaveDTO.getToDate().isAfter(engagementEnd));
+                })
+                .findFirst()
+                .orElseThrow(() -> new IllegalArgumentException(String.format(
+                        "Leave must fall within engagement period(s). None found matching leave range: %s to %s",
+                        leaveDTO.getFromDate(), leaveDTO.getToDate())));
+
+        // ✅ Map DTO to entity
         ServiceProviderLeave leave = leaveMapper.dtoToServiceProviderLeave(leaveDTO);
+
+        // Set metadata if needed
+        leave.setAppliedOn(LocalDate.now());
+
         try {
             leaveRepository.save(leave);
             return CustomerConstants.ADDED;
         } catch (Exception e) {
-            logger.error("Error while adding leave record for leave: {}", leave, e);
-            throw new ServiceProviderLeaveException("Error while adding leave record for leave: " + leave, e);
+            logger.error("Error while adding leave record for serviceProviderId: {}", leaveDTO.getServiceproviderId(),
+                    e);
+            throw new ServiceProviderLeaveException("Error while adding leave record", e);
         }
     }
+
+    // @Override
+    // @Transactional
+    // public String addLeave(ServiceProviderLeaveDTO leaveDTO) {
+    // ServiceProviderLeave leave = leaveMapper.dtoToServiceProviderLeave(leaveDTO);
+    // try {
+    // leaveRepository.save(leave);
+    // return CustomerConstants.ADDED;
+    // } catch (Exception e) {
+    // logger.error("Error while adding leave record for leave: {}", leave, e);
+    // throw new ServiceProviderLeaveException("Error while adding leave record for
+    // leave: " + leave, e);
+    // }
+    // }
 
     @Override
     @Transactional(readOnly = true)
@@ -211,6 +272,53 @@ public class ServiceProviderLeaveServiceImpl implements
                 : leaves.stream()
                         .map(leaveMapper::serviceProviderLeaveToDTO)
                         .toList();
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public Map<String, List<ServiceProviderLeaveDTO>> getServiceProviderLeaveHistoryByServiceProviderId(
+            Long serviceproviderId) {
+
+        logger.info("Fetching leave history for serviceProviderId: {}", serviceproviderId);
+
+        // ✅ Fetch leaves directly by serviceproviderId
+        List<ServiceProviderLeave> leaves = leaveRepository.findByServiceProvider_ServiceproviderId(serviceproviderId);
+
+        if (leaves.isEmpty()) {
+            return Collections.emptyMap();
+        }
+
+        LocalDate currentDate = LocalDate.now();
+
+        // Convert to DTOs
+        List<ServiceProviderLeaveDTO> leaveDTOs = leaves.stream()
+                .map(leaveMapper::serviceProviderLeaveToDTO)
+                .toList();
+
+        // Group into past / current / future
+        return leaveDTOs.stream()
+                .collect(Collectors.groupingBy(leave -> {
+                    LocalDate startDate = leave.getFromDate();
+                    LocalDate endDate = leave.getToDate();
+
+                    if (endDate == null) {
+                        // No end date → current if already started, else future
+                        if (startDate != null && !startDate.isAfter(currentDate)) {
+                            return "current";
+                        }
+                        return "future";
+                    }
+
+                    if (endDate.isBefore(currentDate)) {
+                        return "past";
+                    }
+
+                    if (startDate != null && startDate.isAfter(currentDate)) {
+                        return "future";
+                    }
+
+                    return "current";
+                }));
     }
 
 }

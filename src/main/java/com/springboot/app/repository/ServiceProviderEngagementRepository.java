@@ -105,4 +105,7 @@ public interface ServiceProviderEngagementRepository extends JpaRepository<Servi
 
        List<ServiceProviderEngagement> findByCustomer_CustomerId(Long customerId);
 
+       List<ServiceProviderEngagement> findAllByServiceProvider_ServiceproviderIdAndIsActiveTrue(
+                     Long serviceproviderId);
+
 }
