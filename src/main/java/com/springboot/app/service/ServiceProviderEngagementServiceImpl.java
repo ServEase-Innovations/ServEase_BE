@@ -413,13 +413,80 @@ public class ServiceProviderEngagementServiceImpl implements ServiceProviderEnga
         }));
     }
 
+    // @Override
+    // @Transactional(readOnly = true)
+    // public Map<String, List<ServiceProviderEngagementDTO>>
+    // getServiceProviderBookingHistoryByServiceProviderId(
+    // Long serviceProviderId) {
+    // logger.info("Fetching booking history for serviceProviderId: {}",
+    // serviceProviderId);
+
+    // // ✅ Fetch engagements by service provider
+    // List<ServiceProviderEngagement> engagements = engagementRepository
+    // .findByServiceProvider_ServiceproviderId(serviceProviderId);
+
+    // if (engagements.isEmpty()) {
+    // return Collections.emptyMap();
+    // }
+
+    // // ✅ Fetch all leaves of this service provider
+    // List<ServiceProviderLeaveDTO> leaves = leaveRepository
+    // .findByServiceProvider_ServiceproviderId(serviceProviderId)
+    // .stream()
+    // .map(leaveMapper::serviceProviderLeaveToDTO)
+    // .toList();
+
+    // LocalDate currentDate = LocalDate.now();
+
+    // // ✅ Convert engagements to DTO and attach overlapping leaves
+    // List<ServiceProviderEngagementDTO> engagementDTOs = engagements.stream()
+    // .map(engagement -> {
+    // ServiceProviderEngagementDTO dto =
+    // engagementMapper.serviceProviderEngagementToDTO(engagement);
+
+    // // Find leaves that overlap with engagement period
+    // List<ServiceProviderLeaveDTO> matchingLeaves = leaves.stream()
+    // .filter(l -> {
+    // LocalDate leaveStart = l.getFromDate();
+    // LocalDate leaveEnd = l.getToDate() != null ? l.getToDate() : leaveStart;
+    // return (dto.getStartDate() != null && !leaveStart.isAfter(dto.getEndDate()))
+    // &&
+    // (dto.getEndDate() == null || !leaveEnd.isBefore(dto.getStartDate()));
+    // })
+    // .toList();
+
+    // // Attach leaves (make sure your DTO has this field)
+    // dto.setServiceProviderLeaves(matchingLeaves);
+
+    // return dto;
+    // }).toList();
+
+    // // ✅ Group by past/current/future
+    // return engagementDTOs.stream().collect(Collectors.groupingBy(engagement ->
+
+    // {
+    // LocalDate startDate = engagement.getStartDate();
+    // LocalDate endDate = engagement.getEndDate();
+
+    // if (endDate == null) {
+    // return (startDate != null && !startDate.isAfter(currentDate)) ? "current" :
+    // "future";
+    // } else {
+    // if (endDate.isBefore(currentDate))
+    // return "past";
+    // if (startDate != null && startDate.isAfter(currentDate))
+    // return "future";
+    // return "current";
+    // }
+    // }));
+    // }
+
     @Override
     @Transactional(readOnly = true)
     public Map<String, List<ServiceProviderEngagementDTO>> getServiceProviderBookingHistoryByServiceProviderId(
             Long serviceProviderId) {
         logger.info("Fetching booking history for serviceProviderId: {}", serviceProviderId);
 
-        // ✅ Fetch engagements by service provider
         List<ServiceProviderEngagement> engagements = engagementRepository
                 .findByServiceProvider_ServiceproviderId(serviceProviderId);
 
@@ -427,7 +494,7 @@ public class ServiceProviderEngagementServiceImpl implements ServiceProviderEnga
             return Collections.emptyMap();
         }
 
-        // ✅ Fetch all leaves of this service provider
+        // ✅ Fetch all service provider leaves
         List<ServiceProviderLeaveDTO> leaves = leaveRepository
                 .findByServiceProvider_ServiceproviderId(serviceProviderId)
                 .stream()
@@ -436,12 +503,12 @@ public class ServiceProviderEngagementServiceImpl implements ServiceProviderEnga
 
         LocalDate currentDate = LocalDate.now();
 
-        // ✅ Convert engagements to DTO and attach overlapping leaves
+        // ✅ Convert engagements to DTOs and attach BOTH leaves + customer holidays
         List<ServiceProviderEngagementDTO> engagementDTOs = engagements.stream()
                 .map(engagement -> {
                     ServiceProviderEngagementDTO dto = engagementMapper.serviceProviderEngagementToDTO(engagement);
 
-                    // Find leaves that overlap with engagement period
+                    // ---- Attach service provider leaves ----
                     List<ServiceProviderLeaveDTO> matchingLeaves = leaves.stream()
                             .filter(l -> {
                                 LocalDate leaveStart = l.getFromDate();
@@ -450,30 +517,42 @@ public class ServiceProviderEngagementServiceImpl implements ServiceProviderEnga
                                         (dto.getEndDate() == null || !leaveEnd.isBefore(dto.getStartDate()));
                             })
                             .toList();
-
-                    // Attach leaves (make sure your DTO has this field)
                     dto.setServiceProviderLeaves(matchingLeaves);
 
+                    // ---- Attach customer holidays ----
+                    List<CustomerHolidaysDTO> customerHolidays = customerHolidaysRepository
+                            .findByCustomer_CustomerId(dto.getCustomerId())
+                            .stream()
+                            .map(customerHolidaysMapper::customerHolidaysToDTO)
+                            .filter(h -> {
+                                LocalDate start = h.getStartDate();
+                                LocalDate end = h.getEndDate() != null ? h.getEndDate() : start;
+                                return (dto.getStartDate() != null && !start.isAfter(dto.getEndDate())) &&
+                                        (dto.getEndDate() == null || !end.isBefore(dto.getStartDate()));
+                            })
+                            .toList();
+                    dto.setCustomerHolidays(customerHolidays);
+
                     return dto;
-                }).toList();
+                })
+                .toList();
 
         // ✅ Group by past/current/future
-        return engagementDTOs.stream().collect(Collectors.groupingBy(engagement ->
+        return engagementDTOs.stream()
+                .collect(Collectors.groupingBy(engagement -> {
+                    LocalDate startDate = engagement.getStartDate();
+                    LocalDate endDate = engagement.getEndDate();
 
-        {
-            LocalDate startDate = engagement.getStartDate();
-            LocalDate endDate = engagement.getEndDate();
-
-            if (endDate == null) {
-                return (startDate != null && !startDate.isAfter(currentDate)) ? "current" : "future";
-            } else {
-                if (endDate.isBefore(currentDate))
-                    return "past";
-                if (startDate != null && startDate.isAfter(currentDate))
-                    return "future";
-                return "current";
-            }
-        }));
+                    if (endDate == null) {
+                        return (startDate != null && !startDate.isAfter(currentDate)) ? "current" : "future";
+                    } else {
+                        if (endDate.isBefore(currentDate))
+                            return "past";
+                        if (startDate != null && startDate.isAfter(currentDate))
+                            return "future";
+                        return "current";
+                    }
+                }));
     }
 
     @Override
