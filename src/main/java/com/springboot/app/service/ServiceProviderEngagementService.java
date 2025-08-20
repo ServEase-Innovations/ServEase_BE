@@ -38,6 +38,9 @@ public interface ServiceProviderEngagementService {
         public Map<String, List<ServiceProviderEngagementDTO>> getServiceProviderBookingHistoryByCustomerId(
                         Long customerId);
 
+        public Map<String, List<ServiceProviderEngagementDTO>> getServiceProviderBookingHistoryByServiceProviderId(
+                        Long serviceProviderId);
+
         List<Object> getEngagementsByExactDateTimeslotAndHousekeepingRole(
                         LocalDate startDate, LocalDate endDate, String timeslot, HousekeepingRole housekeepingRole,
                         double latitude,
