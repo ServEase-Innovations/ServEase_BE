@@ -3,6 +3,7 @@ package com.springboot.app.service;
 import com.springboot.app.constant.ServiceProviderConstants;
 import com.springboot.app.dto.CustomerHolidaysDTO;
 import com.springboot.app.dto.ServiceProviderEngagementDTO;
+import com.springboot.app.dto.ServiceProviderLeaveDTO;
 import com.springboot.app.entity.Customer;
 import com.springboot.app.entity.ServiceProvider;
 import com.springboot.app.entity.ServiceProviderEngagement;
@@ -12,10 +13,12 @@ import com.springboot.app.enums.HousekeepingRole;
 import com.springboot.app.exception.ServiceProviderEngagementNotFoundException;
 import com.springboot.app.mapper.CustomerHolidaysMapper;
 import com.springboot.app.mapper.ServiceProviderEngagementMapper;
+import com.springboot.app.mapper.ServiceProviderLeaveMapper;
 import com.springboot.app.mapper.ServiceProviderMapper;
 import com.springboot.app.repository.CustomerHolidaysRepository;
 import com.springboot.app.repository.CustomerRepository;
 import com.springboot.app.repository.ServiceProviderEngagementRepository;
+import com.springboot.app.repository.ServiceProviderLeaveRepository;
 import com.springboot.app.repository.ServiceProviderRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -48,6 +51,8 @@ public class ServiceProviderEngagementServiceImpl implements ServiceProviderEnga
     private final ServiceProviderRepository serviceProviderRepository;
     private final CustomerRepository customerRepository;
     private final ServiceProviderEngagementMapper engagementMapper;
+    private final ServiceProviderLeaveRepository leaveRepository;
+    private final ServiceProviderLeaveMapper leaveMapper;
 
     @Autowired
     private ServiceProviderMapper serviceProviderMapper;
@@ -65,11 +70,15 @@ public class ServiceProviderEngagementServiceImpl implements ServiceProviderEnga
     public ServiceProviderEngagementServiceImpl(ServiceProviderEngagementRepository engagementRepository,
             ServiceProviderRepository serviceProviderRepository,
             CustomerRepository customerRepository,
-            ServiceProviderEngagementMapper engagementMapper) {
+            ServiceProviderEngagementMapper engagementMapper,
+            ServiceProviderLeaveRepository leaveRepository,
+            ServiceProviderLeaveMapper leaveMapper) {
         this.engagementRepository = engagementRepository;
         this.serviceProviderRepository = serviceProviderRepository;
         this.customerRepository = customerRepository;
         this.engagementMapper = engagementMapper;
+        this.leaveRepository = leaveRepository;
+        this.leaveMapper = leaveMapper;
     }
 
     @Override
@@ -383,25 +392,88 @@ public class ServiceProviderEngagementServiceImpl implements ServiceProviderEnga
                             .toList();
                     dto.setCustomerHolidays(matchingHolidays); // Assuming you add this field to DTO
                     return dto;
-                })
-                .toList();
+                }).toList();
 
         // Group by past/current/future
-        return engagementDTOs.stream()
-                .collect(Collectors.groupingBy(engagement -> {
-                    LocalDate startDate = engagement.getStartDate();
-                    LocalDate endDate = engagement.getEndDate();
+        return engagementDTOs.stream().collect(Collectors.groupingBy(engagement ->
 
-                    if (endDate == null) {
-                        return (startDate != null && !startDate.isAfter(currentDate)) ? "current" : "future";
-                    } else {
-                        if (endDate.isBefore(currentDate))
-                            return "past";
-                        if (startDate != null && startDate.isAfter(currentDate))
-                            return "future";
-                        return "current";
-                    }
-                }));
+        {
+            LocalDate startDate = engagement.getStartDate();
+            LocalDate endDate = engagement.getEndDate();
+
+            if (endDate == null) {
+                return (startDate != null && !startDate.isAfter(currentDate)) ? "current" : "future";
+            } else {
+                if (endDate.isBefore(currentDate))
+                    return "past";
+                if (startDate != null && startDate.isAfter(currentDate))
+                    return "future";
+                return "current";
+            }
+        }));
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public Map<String, List<ServiceProviderEngagementDTO>> getServiceProviderBookingHistoryByServiceProviderId(
+            Long serviceProviderId) {
+        logger.info("Fetching booking history for serviceProviderId: {}", serviceProviderId);
+
+        // ✅ Fetch engagements by service provider
+        List<ServiceProviderEngagement> engagements = engagementRepository
+                .findByServiceProvider_ServiceproviderId(serviceProviderId);
+
+        if (engagements.isEmpty()) {
+            return Collections.emptyMap();
+        }
+
+        // ✅ Fetch all leaves of this service provider
+        List<ServiceProviderLeaveDTO> leaves = leaveRepository
+                .findByServiceProvider_ServiceproviderId(serviceProviderId)
+                .stream()
+                .map(leaveMapper::serviceProviderLeaveToDTO)
+                .toList();
+
+        LocalDate currentDate = LocalDate.now();
+
+        // ✅ Convert engagements to DTO and attach overlapping leaves
+        List<ServiceProviderEngagementDTO> engagementDTOs = engagements.stream()
+                .map(engagement -> {
+                    ServiceProviderEngagementDTO dto = engagementMapper.serviceProviderEngagementToDTO(engagement);
+
+                    // Find leaves that overlap with engagement period
+                    List<ServiceProviderLeaveDTO> matchingLeaves = leaves.stream()
+                            .filter(l -> {
+                                LocalDate leaveStart = l.getFromDate();
+                                LocalDate leaveEnd = l.getToDate() != null ? l.getToDate() : leaveStart;
+                                return (dto.getStartDate() != null && !leaveStart.isAfter(dto.getEndDate())) &&
+                                        (dto.getEndDate() == null || !leaveEnd.isBefore(dto.getStartDate()));
+                            })
+                            .toList();
+
+                    // Attach leaves (make sure your DTO has this field)
+                    dto.setServiceProviderLeaves(matchingLeaves);
+
+                    return dto;
+                }).toList();
+
+        // ✅ Group by past/current/future
+        return engagementDTOs.stream().collect(Collectors.groupingBy(engagement ->
+
+        {
+            LocalDate startDate = engagement.getStartDate();
+            LocalDate endDate = engagement.getEndDate();
+
+            if (endDate == null) {
+                return (startDate != null && !startDate.isAfter(currentDate)) ? "current" : "future";
+            } else {
+                if (endDate.isBefore(currentDate))
+                    return "past";
+                if (startDate != null && startDate.isAfter(currentDate))
+                    return "future";
+                return "current";
+            }
+        }));
     }
 
     @Override

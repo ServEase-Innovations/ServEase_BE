@@ -51,5 +51,6 @@ public class ServiceProviderEngagementDTO {
     private LocalDateTime modifiedDate;
     private List<String> availableTimeSlots;
     private List<CustomerHolidaysDTO> customerHolidays;
+    private List<ServiceProviderLeaveDTO> serviceProviderLeaves;
 
 }
