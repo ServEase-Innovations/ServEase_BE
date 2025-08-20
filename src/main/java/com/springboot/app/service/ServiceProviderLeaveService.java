@@ -1,6 +1,8 @@
 package com.springboot.app.service;
 
 import java.util.List;
+import java.util.Map;
+
 import com.springboot.app.dto.ServiceProviderLeaveDTO;
 
 public interface ServiceProviderLeaveService {
@@ -24,5 +26,8 @@ public interface ServiceProviderLeaveService {
     List<ServiceProviderLeaveDTO> getApprovedLeaves();
 
     List<ServiceProviderLeaveDTO> getUnapprovedLeaves();
+
+    Map<String, List<ServiceProviderLeaveDTO>> getServiceProviderLeaveHistoryByServiceProviderId(
+            Long serviceproviderId);
 
 }

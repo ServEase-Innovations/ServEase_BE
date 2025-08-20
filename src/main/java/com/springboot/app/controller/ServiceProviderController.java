@@ -1168,6 +1168,21 @@ public class ServiceProviderController {
         return ResponseEntity.ok(leaves);
     }
 
+    @GetMapping("/get-sp-leave-history-by-serviceprovider")
+    @ApiOperation(value = "Retrieve categorized leave history for a specific service provider", response = Map.class)
+    public ResponseEntity<Map<String, List<ServiceProviderLeaveDTO>>> getLeaveHistoryByServiceProviderId(
+            @RequestParam Long serviceproviderId) {
+
+        Map<String, List<ServiceProviderLeaveDTO>> categorizedLeaves = serviceProviderLeaveService
+                .getServiceProviderLeaveHistoryByServiceProviderId(serviceproviderId);
+
+        if (categorizedLeaves.isEmpty()) {
+            return ResponseEntity.status(HttpStatus.NO_CONTENT).body(Collections.emptyMap());
+        }
+
+        return ResponseEntity.ok(categorizedLeaves);
+    }
+
     // ----------------API's FOR LEAVE
     // BALANCE------------------------------------------------------
     // API to get all leave balance records
