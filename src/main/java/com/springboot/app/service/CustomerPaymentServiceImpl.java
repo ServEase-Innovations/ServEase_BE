@@ -236,8 +236,143 @@ public class CustomerPaymentServiceImpl implements CustomerPaymentService {
     // .paymentMode(paymentMode)
     // .build();
     // }
-    @Transactional
-    public CustomerPaymentDTO calculateAndSavePayment(Long customerId, double baseAmount,
+    // @Transactional
+    // public CustomerPaymentDTO calculateAndSavePayment(Long customerId, double
+    // baseAmount,
+    // LocalDate startDate_P, LocalDate endDate_P,
+    // PaymentMode paymentMode, Long couponId, HousekeepingRole serviceType) {
+
+    // Customer customer = customerRepository.findById(customerId)
+    // .orElseThrow(() -> new EntityNotFoundException("Customer not found"));
+
+    // double dailyRate = baseAmount / 30;
+
+    // // ✅ Only consider holidays that fall within the payment period
+    // List<CustomerHolidays> holidays = customerHolidaysRepository
+    // .findByCustomer_CustomerIdAndIsActive(customerId, true).stream()
+    // .filter(h -> h.getServiceType() == serviceType)
+    // .filter(h -> !(h.getEndDate().isBefore(startDate_P) ||
+    // h.getStartDate().isAfter(endDate_P)))
+    // .collect(Collectors.toList());
+
+    // int totalVacationDays = holidays.stream()
+    // .mapToInt(h -> {
+    // LocalDate start = h.getStartDate().isBefore(startDate_P) ? startDate_P :
+    // h.getStartDate();
+    // LocalDate end = h.getEndDate().isAfter(endDate_P) ? endDate_P :
+    // h.getEndDate();
+    // return (int) ChronoUnit.DAYS.between(start, end) + 1;
+    // })
+    // .sum();
+
+    // // ✅ Calculate discount only if applicable
+
+    // double discountPercentage = getDiscountPercentage(totalVacationDays);
+    // double discountAmount = 0;
+    // if (discountPercentage > 0) {
+    // discountAmount = (dailyRate * totalVacationDays) * (discountPercentage /
+    // 100);
+    // }
+    // // ✅ Coupon logic
+    // double couponDiscount = 0;
+    // Coupon appliedCoupon = null;
+
+    // if (couponId != null) {
+    // CustomerCouponId couponKey = new CustomerCouponId(customerId, couponId);
+    // CustomerUsedCoupon usedCoupon =
+    // customerUsedCouponRepository.findById(couponKey).orElse(null);
+    // if (usedCoupon != null) {
+    // couponDiscount = usedCoupon.getAvailedAmount();
+    // appliedCoupon = usedCoupon.getCoupon();
+    // logger.info("Valid coupon applied. Coupon ID: {}, Discount: {}", couponId,
+    // couponDiscount);
+    // } else {
+    // logger.warn("Invalid coupon: No usage found for customerId={} and
+    // couponId={}", customerId, couponId);
+    // }
+    // }
+
+    // // ✅ Combine discounts based on valid conditions
+    // double totalDiscountAmount = 0;
+    // if (discountAmount > 0 && couponDiscount > 0) {
+    // logger.info("Both holiday and coupon discounts applied.");
+    // totalDiscountAmount = discountAmount + couponDiscount;
+    // } else if (discountAmount > 0) {
+    // logger.info("Only holiday discount applied.");
+    // totalDiscountAmount = discountAmount;
+    // } else if (couponDiscount > 0) {
+    // logger.info("Only coupon discount applied.");
+    // totalDiscountAmount = couponDiscount;
+    // } else {
+    // logger.info("No discount applied.");
+    // }
+
+    // double finalAmount = baseAmount - totalDiscountAmount;
+
+    // // double finalAmount = baseAmount - discountAmount;
+
+    // LocalDate paymentMonth = LocalDate.now().withDayOfMonth(1);
+    // LocalDateTime generatedOn = LocalDateTime.now();
+    // LocalDate paymentOn = LocalDate.now();
+    // String transactionId = UUID.randomUUID().toString();
+
+    // CustomerPayment payment = new CustomerPayment();
+    // payment.setCustomer(customer);
+    // payment.setBaseAmount(baseAmount);
+    // payment.setDiscountAmount(totalDiscountAmount);
+    // payment.setFinalAmount(finalAmount);
+    // payment.setPaymentMonth(paymentMonth);
+    // payment.setStartDate_P(startDate_P);
+    // payment.setEndDate_P(endDate_P);
+    // payment.setGeneratedOn(generatedOn);
+    // payment.setPaymentOn(paymentOn);
+    // payment.setTransactionId(transactionId);
+    // payment.setPaymentMode(paymentMode);
+    // payment.setCoupon(appliedCoupon); // sets the @ManyToOne relation
+    // payment.setCouponDiscountAmount(couponDiscount); // sets the amount (Double)
+
+    // customerPaymentRepository.save(payment);
+
+    // return CustomerPaymentDTO.builder()
+    // .id(payment.getId())
+    // .customerId(customerId)
+    // .baseAmount(baseAmount)
+    // .discountAmount(totalDiscountAmount)
+
+    // .couponId(appliedCoupon != null ? appliedCoupon.getId() : null)
+    // .couponDiscount(couponDiscount)
+    // .finalAmount(finalAmount)
+    // .paymentMonth(paymentMonth)
+    // .startDate_P(startDate_P)
+    // .endDate_P(endDate_P)
+    // .generatedOn(generatedOn)
+    // .paymentOn(paymentOn)
+    // .transactionId(transactionId)
+    // .paymentMode(paymentMode)
+    // .discountAmount(totalDiscountAmount)
+    // .finalAmount(finalAmount)
+
+    // .build();
+    // }
+
+    // private double getDiscountPercentage(int days) {
+    // String[] rules = discountRulesConfig.split(";");
+    // for (String rule : rules) {
+    // String[] parts = rule.split(",");
+    // int minDays = Integer.parseInt(parts[0]);
+    // int maxDays = Integer.parseInt(parts[1]);
+    // double percentage = Double.parseDouble(parts[2]);
+
+    // if (days >= minDays && days <= maxDays) {
+    // return percentage;
+    // }
+    // }
+    // return 0;
+
+    // }
+
+    @Transactional(readOnly = true)
+    public CustomerPaymentDTO calculatePayment(Long customerId, double baseAmount,
             LocalDate startDate_P, LocalDate endDate_P,
             PaymentMode paymentMode, Long couponId, HousekeepingRole serviceType) {
 
@@ -262,16 +397,14 @@ public class CustomerPaymentServiceImpl implements CustomerPaymentService {
                 .sum();
 
         // ✅ Calculate discount only if applicable
-
         double discountPercentage = getDiscountPercentage(totalVacationDays);
-        double discountAmount = 0;
-        if (discountPercentage > 0) {
-            discountAmount = (dailyRate * totalVacationDays) * (discountPercentage / 100);
-        }
+        double discountAmount = discountPercentage > 0
+                ? (dailyRate * totalVacationDays) * (discountPercentage / 100)
+                : 0;
+
         // ✅ Coupon logic
         double couponDiscount = 0;
         Coupon appliedCoupon = null;
-
         if (couponId != null) {
             CustomerCouponId couponKey = new CustomerCouponId(customerId, couponId);
             CustomerUsedCoupon usedCoupon = customerUsedCouponRepository.findById(couponKey).orElse(null);
@@ -284,53 +417,22 @@ public class CustomerPaymentServiceImpl implements CustomerPaymentService {
             }
         }
 
-        // ✅ Combine discounts based on valid conditions
-        double totalDiscountAmount = 0;
-        if (discountAmount > 0 && couponDiscount > 0) {
-            logger.info("Both holiday and coupon discounts applied.");
-            totalDiscountAmount = discountAmount + couponDiscount;
-        } else if (discountAmount > 0) {
-            logger.info("Only holiday discount applied.");
-            totalDiscountAmount = discountAmount;
-        } else if (couponDiscount > 0) {
-            logger.info("Only coupon discount applied.");
-            totalDiscountAmount = couponDiscount;
-        } else {
-            logger.info("No discount applied.");
-        }
-
+        // ✅ Combine discounts
+        double totalDiscountAmount = discountAmount + couponDiscount;
         double finalAmount = baseAmount - totalDiscountAmount;
-
-        // double finalAmount = baseAmount - discountAmount;
 
         LocalDate paymentMonth = LocalDate.now().withDayOfMonth(1);
         LocalDateTime generatedOn = LocalDateTime.now();
         LocalDate paymentOn = LocalDate.now();
         String transactionId = UUID.randomUUID().toString();
 
-        CustomerPayment payment = new CustomerPayment();
-        payment.setCustomer(customer);
-        payment.setBaseAmount(baseAmount);
-        payment.setDiscountAmount(totalDiscountAmount);
-        payment.setFinalAmount(finalAmount);
-        payment.setPaymentMonth(paymentMonth);
-        payment.setStartDate_P(startDate_P);
-        payment.setEndDate_P(endDate_P);
-        payment.setGeneratedOn(generatedOn);
-        payment.setPaymentOn(paymentOn);
-        payment.setTransactionId(transactionId);
-        payment.setPaymentMode(paymentMode);
-        payment.setCoupon(appliedCoupon); // sets the @ManyToOne relation
-        payment.setCouponDiscountAmount(couponDiscount); // sets the amount (Double)
-
-        customerPaymentRepository.save(payment);
+        // ⚠️ Removed persistence (no save to DB)
 
         return CustomerPaymentDTO.builder()
-                .id(payment.getId())
+                .id(null) // since it's not saved, no DB id
                 .customerId(customerId)
                 .baseAmount(baseAmount)
                 .discountAmount(totalDiscountAmount)
-
                 .couponId(appliedCoupon != null ? appliedCoupon.getId() : null)
                 .couponDiscount(couponDiscount)
                 .finalAmount(finalAmount)
@@ -341,9 +443,6 @@ public class CustomerPaymentServiceImpl implements CustomerPaymentService {
                 .paymentOn(paymentOn)
                 .transactionId(transactionId)
                 .paymentMode(paymentMode)
-                .discountAmount(totalDiscountAmount)
-                .finalAmount(finalAmount)
-
                 .build();
     }
 
@@ -360,7 +459,6 @@ public class CustomerPaymentServiceImpl implements CustomerPaymentService {
             }
         }
         return 0;
-
     }
 
     // private double getDiscountPercentage(int days) {

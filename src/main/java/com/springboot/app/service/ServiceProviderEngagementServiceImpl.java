@@ -4,6 +4,7 @@ import com.springboot.app.constant.ServiceProviderConstants;
 import com.springboot.app.dto.CustomerHolidaysDTO;
 import com.springboot.app.dto.ServiceProviderEngagementDTO;
 import com.springboot.app.dto.ServiceProviderLeaveDTO;
+import com.springboot.app.entity.BookingTransaction;
 import com.springboot.app.entity.Customer;
 import com.springboot.app.entity.ServiceProvider;
 import com.springboot.app.entity.ServiceProviderEngagement;
@@ -35,6 +36,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.UUID;
 import java.util.stream.Collectors;
 
 import org.springframework.data.domain.Pageable;
@@ -127,13 +129,78 @@ public class ServiceProviderEngagementServiceImpl implements ServiceProviderEnga
                 });
     }
 
+    // @Override
+    // @Transactional
+    // public String addServiceProviderEngagement(ServiceProviderEngagementDTO dto)
+    // {
+    // if (logger.isInfoEnabled()) {
+
+    // logger.info("Adding new service provider engagement");
+    // }
+    // ServiceProvider serviceProvider = null;
+
+    // if (dto.getBookingType() != BookingType.ON_DEMAND) {
+    // // For NON-ON_DEMAND bookings, serviceProviderId is required
+    // if (dto.getServiceProviderId() != null) {
+    // serviceProvider =
+    // serviceProviderRepository.findById(dto.getServiceProviderId())
+    // .orElseThrow(() -> {
+    // if (logger.isErrorEnabled()) {
+    // logger.error("ServiceProvider with ID {} not found.",
+    // dto.getServiceProviderId());
+    // }
+    // return new RuntimeException("Service Provider not found.");
+    // });
+    // } else {
+    // if (logger.isErrorEnabled()) {
+    // logger.error("Booking type is {} but ServiceProvider ID is missing.",
+    // dto.getBookingType());
+    // }
+    // throw new RuntimeException("Service Provider ID is required for booking type:
+    // " + dto.getBookingType());
+    // }
+    // } else {
+    // if (logger.isInfoEnabled()) {
+    // logger.info("ON_DEMAND booking: Skipping ServiceProvider lookup.");
+    // }
+    // }
+
+    // // Fetch the Customer
+    // Customer customer = customerRepository.findById(dto.getCustomerId())
+    // .orElseThrow(() -> {
+    // if (logger.isErrorEnabled()) {
+    // logger.error("Customer with ID {} not found.", dto.getCustomerId());
+    // }
+    // return new RuntimeException("Customer not found.");
+    // });
+
+    // // Map DTO to entity and set relationships
+    // ServiceProviderEngagement engagement =
+    // engagementMapper.dtoToServiceProviderEngagement(dto);
+
+    // // Set relationships if ServiceProvider exists
+    // if (serviceProvider != null) {
+    // engagement.setServiceProvider(serviceProvider);
+    // }
+    // engagement.setCustomer(customer);
+    // if (dto.getEndDate() != null && dto.getEndDate().isBefore(LocalDate.now())) {
+    // engagement.setTimeslot("00:00-00:00");
+    // }
+
+    // engagementRepository.save(engagement);
+    // logger.debug("Persisted new service provider engagement with ID: {}",
+    // engagement.getId());
+
+    // return "Service Provider Engagement added successfully with ID: " +
+    // engagement.getId();
+    // }
     @Override
     @Transactional
     public String addServiceProviderEngagement(ServiceProviderEngagementDTO dto) {
         if (logger.isInfoEnabled()) {
-
             logger.info("Adding new service provider engagement");
         }
+
         ServiceProvider serviceProvider = null;
 
         if (dto.getBookingType() != BookingType.ON_DEMAND) {
@@ -141,49 +208,51 @@ public class ServiceProviderEngagementServiceImpl implements ServiceProviderEnga
             if (dto.getServiceProviderId() != null) {
                 serviceProvider = serviceProviderRepository.findById(dto.getServiceProviderId())
                         .orElseThrow(() -> {
-                            if (logger.isErrorEnabled()) {
-                                logger.error("ServiceProvider with ID {} not found.", dto.getServiceProviderId());
-                            }
+                            logger.error("ServiceProvider with ID {} not found.", dto.getServiceProviderId());
                             return new RuntimeException("Service Provider not found.");
                         });
             } else {
-                if (logger.isErrorEnabled()) {
-                    logger.error("Booking type is {} but ServiceProvider ID is missing.", dto.getBookingType());
-                }
+                logger.error("Booking type is {} but ServiceProvider ID is missing.", dto.getBookingType());
                 throw new RuntimeException("Service Provider ID is required for booking type: " + dto.getBookingType());
             }
         } else {
-            if (logger.isInfoEnabled()) {
-                logger.info("ON_DEMAND booking: Skipping ServiceProvider lookup.");
-            }
+            logger.info("ON_DEMAND booking: Skipping ServiceProvider lookup.");
         }
 
         // Fetch the Customer
         Customer customer = customerRepository.findById(dto.getCustomerId())
                 .orElseThrow(() -> {
-                    if (logger.isErrorEnabled()) {
-                        logger.error("Customer with ID {} not found.", dto.getCustomerId());
-                    }
+                    logger.error("Customer with ID {} not found.", dto.getCustomerId());
                     return new RuntimeException("Customer not found.");
                 });
 
         // Map DTO to entity and set relationships
         ServiceProviderEngagement engagement = engagementMapper.dtoToServiceProviderEngagement(dto);
-
-        // Set relationships if ServiceProvider exists
+        engagement.setCustomer(customer);
         if (serviceProvider != null) {
             engagement.setServiceProvider(serviceProvider);
         }
-        engagement.setCustomer(customer);
+
         if (dto.getEndDate() != null && dto.getEndDate().isBefore(LocalDate.now())) {
             engagement.setTimeslot("00:00-00:00");
         }
 
+        // --- Create BookingTransaction and link to engagement ---
+        BookingTransaction transaction = new BookingTransaction();
+        transaction.setEngagement(engagement); // Link transaction to engagement
+        transaction.setAmount(dto.getMonthlyAmount()); // Use amount from DTO
+        transaction.setTransactionId(UUID.randomUUID().toString()); // Auto-generate transaction ID
+        engagement.setTransaction(transaction); // Set transaction in engagement (OneToOne mapping)
+
+        // Save engagement (transaction will be saved automatically due to
+        // CascadeType.PERSIST)
         engagementRepository.save(engagement);
-        if (logger.isDebugEnabled()) {
-            logger.debug("Persisted new service provider engagement with ID: {}", engagement.getId());
-        }
-        return "Service Provider Engagement added successfully.";
+
+        logger.debug("Persisted new service provider engagement with ID: {} and transaction ID: {}",
+                engagement.getId(), transaction.getTransactionId());
+
+        return "Service Provider Engagement added successfully with ID: " + engagement.getId()
+                + " and Transaction ID: " + transaction.getTransactionId();
     }
 
     @Override
