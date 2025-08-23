@@ -25,7 +25,12 @@ public interface CustomerPaymentService {
         // thismethod
         // CustomerPaymentDTO calculateAndSavePayment(Long customerId, double
         // baseAmount);
-        CustomerPaymentDTO calculateAndSavePayment(Long customerId, double baseAmount,
+        // CustomerPaymentDTO calculateAndSavePayment(Long customerId, double
+        // baseAmount,
+        // LocalDate startDate_P, LocalDate endDate_P,
+        // PaymentMode paymentMode, Long couponId, HousekeepingRole serviceType);
+
+        CustomerPaymentDTO calculatePayment(Long customerId, double baseAmount,
                         LocalDate startDate_P, LocalDate endDate_P,
                         PaymentMode paymentMode, Long couponId, HousekeepingRole serviceType);
 

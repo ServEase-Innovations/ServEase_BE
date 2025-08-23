@@ -81,7 +81,7 @@ public class CustomerPaymentController {
             @RequestParam(required = false) Long couponId,
             @RequestParam HousekeepingRole serviceType) {
 
-        CustomerPaymentDTO paymentDTO = customerPaymentService.calculateAndSavePayment(
+        CustomerPaymentDTO paymentDTO = customerPaymentService.calculatePayment(
                 customerId, baseAmount, startDate_P, endDate_P, paymentMode, couponId, serviceType);
         return ResponseEntity.ok(paymentDTO);
     }

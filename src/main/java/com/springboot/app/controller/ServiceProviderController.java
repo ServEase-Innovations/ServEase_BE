@@ -606,14 +606,31 @@ public class ServiceProviderController {
     }
 
     // API to add a service provider engagement
+    // @PostMapping("/engagement/add")
+    // @ApiOperation(value = ServiceProviderConstants.ADD_NEW_ENGAGEMENT_DESC)
+    // public ResponseEntity<String> addServiceProviderEngagement(
+    // @RequestBody ServiceProviderEngagementDTO serviceProviderEngagementDTO) {
+    // try {
+    // serviceProviderEngagementService.addServiceProviderEngagement(serviceProviderEngagementDTO);
+    // return ResponseEntity.status(HttpStatus.CREATED)
+    // .body(ServiceProviderConstants.ENGAGEMENT_ADDED);
+    // } catch (IllegalArgumentException ex) {
+    // return ResponseEntity.status(HttpStatus.CONFLICT)
+    // .body(ServiceProviderConstants.ENGAGEMENT_ALREADY_EXISTS);
+    // } catch (Exception ex) {
+    // return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+    // .body(ServiceProviderConstants.ENGAGEMENT_ERROR);
+    // }
+    // }
+
     @PostMapping("/engagement/add")
     @ApiOperation(value = ServiceProviderConstants.ADD_NEW_ENGAGEMENT_DESC)
     public ResponseEntity<String> addServiceProviderEngagement(
             @RequestBody ServiceProviderEngagementDTO serviceProviderEngagementDTO) {
         try {
-            serviceProviderEngagementService.addServiceProviderEngagement(serviceProviderEngagementDTO);
-            return ResponseEntity.status(HttpStatus.CREATED)
-                    .body(ServiceProviderConstants.ENGAGEMENT_ADDED);
+            String response = serviceProviderEngagementService
+                    .addServiceProviderEngagement(serviceProviderEngagementDTO);
+            return ResponseEntity.status(HttpStatus.CREATED).body(response);
         } catch (IllegalArgumentException ex) {
             return ResponseEntity.status(HttpStatus.CONFLICT)
                     .body(ServiceProviderConstants.ENGAGEMENT_ALREADY_EXISTS);

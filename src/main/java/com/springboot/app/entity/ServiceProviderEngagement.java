@@ -9,6 +9,7 @@ import com.springboot.app.enums.PaymentMode;
 import com.springboot.app.enums.TaskStatus;
 import com.springboot.app.enums.UserRole;
 
+import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
@@ -18,6 +19,7 @@ import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
+import jakarta.persistence.OneToOne;
 import jakarta.persistence.PrePersist;
 import jakarta.persistence.Table;
 import lombok.AllArgsConstructor;
@@ -115,6 +117,9 @@ public class ServiceProviderEngagement {
 
     @Column(name = "modified_date")
     private LocalDateTime modifiedDate;
+
+    @OneToOne(mappedBy = "engagement", cascade = CascadeType.PERSIST, orphanRemoval = true)
+    private BookingTransaction transaction;
 
     // Automatically set isActive field on creation
     @PrePersist
