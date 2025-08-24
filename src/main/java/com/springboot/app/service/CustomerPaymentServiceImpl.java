@@ -9,6 +9,7 @@ import com.springboot.app.entity.CustomerCouponId;
 import com.springboot.app.entity.CustomerHolidays;
 import com.springboot.app.entity.CustomerPayment;
 import com.springboot.app.entity.CustomerUsedCoupon;
+import com.springboot.app.entity.ServiceProviderEngagement;
 import com.springboot.app.entity.ServiceProviderPayment;
 import com.springboot.app.enums.HousekeepingRole;
 import com.springboot.app.enums.PaymentMode;
@@ -18,6 +19,7 @@ import com.springboot.app.repository.CustomerHolidaysRepository;
 import com.springboot.app.repository.CustomerPaymentRepository;
 import com.springboot.app.repository.CustomerRepository;
 import com.springboot.app.repository.CustomerUsedCouponRepository;
+import com.springboot.app.repository.ServiceProviderEngagementRepository;
 
 import jakarta.persistence.EntityNotFoundException;
 import org.slf4j.Logger;
@@ -49,6 +51,8 @@ public class CustomerPaymentServiceImpl implements CustomerPaymentService {
     private final CustomerPaymentRepository customerPaymentRepository;
     private final CustomerPaymentMapper customerPaymentMapper;
     private final CustomerUsedCouponRepository customerUsedCouponRepository;
+    private final ServiceProviderEngagementRepository engagementRepository;
+    private final CouponRepository couponRepository;
 
     @Value("${discount.enabled}")
     private boolean isDiscountEnabled;
@@ -69,7 +73,9 @@ public class CustomerPaymentServiceImpl implements CustomerPaymentService {
             CustomerHolidaysRepository customerHolidaysRepository,
             CustomerPaymentRepository customerPaymentRepository,
             CustomerPaymentMapper customerPaymentMapper,
-            CustomerUsedCouponRepository customerUsedCouponRepository
+            CustomerUsedCouponRepository customerUsedCouponRepository,
+            ServiceProviderEngagementRepository engagementRepository,
+            CouponRepository couponRepository
 
     ) {
         this.customerRepository = customerRepository;
@@ -77,6 +83,8 @@ public class CustomerPaymentServiceImpl implements CustomerPaymentService {
         this.customerPaymentRepository = customerPaymentRepository;
         this.customerPaymentMapper = customerPaymentMapper;
         this.customerUsedCouponRepository = customerUsedCouponRepository;
+        this.engagementRepository = engagementRepository;
+        this.couponRepository = couponRepository;
 
     }
 
@@ -371,22 +379,127 @@ public class CustomerPaymentServiceImpl implements CustomerPaymentService {
 
     // }
 
-    @Transactional(readOnly = true)
-    public CustomerPaymentDTO calculatePayment(Long customerId, double baseAmount,
+    // @Transactional(readOnly = true)
+    // public CustomerPaymentDTO calculatePayment(Long engagementId, Long
+    // customerId, double baseAmount,
+    // LocalDate startDate_P, LocalDate endDate_P,
+    // PaymentMode paymentMode, Long couponId, HousekeepingRole serviceType) {
+
+    // // ✅ Engagement is mandatory
+    // ServiceProviderEngagement engagement =
+    // engagementRepository.findById(engagementId)
+    // .orElseThrow(() -> new EntityNotFoundException("Engagement not found"));
+
+    // // Customer is optional
+    // Customer customer = null;
+    // if (customerId != null) {
+    // customer = customerRepository.findById(customerId)
+    // .orElseThrow(() -> new EntityNotFoundException("Customer not found"));
+    // }
+
+    // double dailyRate = baseAmount / 30;
+
+    // // ✅ Only consider holidays linked to the engagement or customer (if
+    // provided)
+    // List<CustomerHolidays> holidays = (customer != null
+    // ? customerHolidaysRepository.findByCustomer_CustomerIdAndIsActive(customerId,
+    // true)
+    // : customerHolidaysRepository.findByEngagement_IdAndIsActive(engagementId,
+    // true))
+    // .stream()
+    // .filter(h -> h.getServiceType() == serviceType)
+    // .filter(h -> !(h.getEndDate().isBefore(startDate_P) ||
+    // h.getStartDate().isAfter(endDate_P)))
+    // .collect(Collectors.toList());
+
+    // int totalVacationDays = holidays.stream()
+    // .mapToInt(h -> {
+    // LocalDate start = h.getStartDate().isBefore(startDate_P) ? startDate_P :
+    // h.getStartDate();
+    // LocalDate end = h.getEndDate().isAfter(endDate_P) ? endDate_P :
+    // h.getEndDate();
+    // return (int) ChronoUnit.DAYS.between(start, end) + 1;
+    // })
+    // .sum();
+
+    // double discountPercentage = getDiscountPercentage(totalVacationDays);
+    // double discountAmount = discountPercentage > 0
+    // ? (dailyRate * totalVacationDays) * (discountPercentage / 100)
+    // : 0;
+
+    // // ✅ Coupon logic using engagementId instead of customerId
+    // double couponDiscount = 0;
+    // Coupon appliedCoupon = null;
+    // if (couponId != null) {
+    // CustomerCouponId couponKey = new CustomerCouponId(engagementId, couponId);
+    // CustomerUsedCoupon usedCoupon =
+    // customerUsedCouponRepository.findById(couponKey).orElse(null);
+
+    // if (usedCoupon != null) {
+    // couponDiscount = usedCoupon.getAvailedAmount();
+    // appliedCoupon = usedCoupon.getCoupon();
+    // logger.info("✅ Valid coupon applied for engagementId={}, couponId={},
+    // discount={}",
+    // engagementId, couponId, couponDiscount);
+    // } else {
+    // logger.warn("❌ Invalid coupon for engagementId={} and couponId={}",
+    // engagementId, couponId);
+    // }
+    // }
+
+    // double totalDiscountAmount = discountAmount + couponDiscount;
+    // double finalAmount = baseAmount - totalDiscountAmount;
+
+    // LocalDate paymentMonth = LocalDate.now().withDayOfMonth(1);
+    // LocalDateTime generatedOn = LocalDateTime.now();
+    // LocalDate paymentOn = LocalDate.now();
+    // String transactionId = UUID.randomUUID().toString();
+
+    // return CustomerPaymentDTO.builder()
+    // .id(null)
+    // .customerId(customerId) // optional
+    // .engagementId(engagementId) // mandatory
+    // .baseAmount(baseAmount)
+    // .discountAmount(totalDiscountAmount)
+    // .couponId(appliedCoupon != null ? appliedCoupon.getId() : null)
+    // .couponDiscount(couponDiscount)
+    // .finalAmount(finalAmount)
+    // .paymentMonth(paymentMonth)
+    // .startDate_P(startDate_P)
+    // .endDate_P(endDate_P)
+    // .generatedOn(generatedOn)
+    // .paymentOn(paymentOn)
+    // .transactionId(transactionId)
+    // .paymentMode(paymentMode)
+    // .build();
+    // }
+
+    @Transactional
+    public CustomerPaymentDTO calculatePayment(Long engagementId, Long customerId, double baseAmount,
             LocalDate startDate_P, LocalDate endDate_P,
             PaymentMode paymentMode, Long couponId, HousekeepingRole serviceType) {
 
-        Customer customer = customerRepository.findById(customerId)
-                .orElseThrow(() -> new EntityNotFoundException("Customer not found"));
+        // ✅ Engagement is mandatory
+        ServiceProviderEngagement engagement = engagementRepository.findById(engagementId)
+                .orElseThrow(() -> new EntityNotFoundException("Engagement not found"));
+
+        // Customer is optional
+        Customer customer = null;
+        if (customerId != null) {
+            customer = customerRepository.findById(customerId)
+                    .orElseThrow(() -> new EntityNotFoundException("Customer not found"));
+        }
 
         double dailyRate = baseAmount / 30;
 
-        // ✅ Only consider holidays that fall within the payment period
-        List<CustomerHolidays> holidays = customerHolidaysRepository
-                .findByCustomer_CustomerIdAndIsActive(customerId, true).stream()
+        // ✅ Calculate holidays
+        List<CustomerHolidays> holidays = (customer != null
+                ? customerHolidaysRepository.findByCustomer_CustomerIdAndIsActive(customerId, true)
+                : customerHolidaysRepository.findByEngagement_IdAndIsActive(engagementId, true))
+                .stream()
                 .filter(h -> h.getServiceType() == serviceType)
                 .filter(h -> !(h.getEndDate().isBefore(startDate_P) || h.getStartDate().isAfter(endDate_P)))
-                .collect(Collectors.toList());
+                .toList();
 
         int totalVacationDays = holidays.stream()
                 .mapToInt(h -> {
@@ -396,28 +509,41 @@ public class CustomerPaymentServiceImpl implements CustomerPaymentService {
                 })
                 .sum();
 
-        // ✅ Calculate discount only if applicable
         double discountPercentage = getDiscountPercentage(totalVacationDays);
         double discountAmount = discountPercentage > 0
                 ? (dailyRate * totalVacationDays) * (discountPercentage / 100)
                 : 0;
 
-        // ✅ Coupon logic
+        // ✅ Apply coupon
         double couponDiscount = 0;
         Coupon appliedCoupon = null;
         if (couponId != null) {
-            CustomerCouponId couponKey = new CustomerCouponId(customerId, couponId);
-            CustomerUsedCoupon usedCoupon = customerUsedCouponRepository.findById(couponKey).orElse(null);
-            if (usedCoupon != null) {
-                couponDiscount = usedCoupon.getAvailedAmount();
-                appliedCoupon = usedCoupon.getCoupon();
-                logger.info("Valid coupon applied. Coupon ID: {}, Discount: {}", couponId, couponDiscount);
-            } else {
-                logger.warn("Invalid coupon: No usage found for customerId={} and couponId={}", customerId, couponId);
+            var couponOpt = couponRepository.findById(couponId);
+            if (couponOpt.isPresent()) {
+                appliedCoupon = couponOpt.get();
+                // Calculate discount from coupon
+                if (appliedCoupon.getDiscountPercent() != null && appliedCoupon.getDiscountPercent() > 0) {
+                    couponDiscount = Math.min(baseAmount * appliedCoupon.getDiscountPercent() / 100,
+                            appliedCoupon.getMaxDiscountAmount());
+                } else if (appliedCoupon.getFixedDiscountAmount() != null) {
+                    couponDiscount = appliedCoupon.getFixedDiscountAmount();
+                }
+
+                // ✅ Automatically save used coupon
+                CustomerCouponId compoundId = new CustomerCouponId(engagementId, couponId);
+                if (!customerUsedCouponRepository.existsById(compoundId)) {
+                    CustomerUsedCoupon usedCoupon = new CustomerUsedCoupon();
+                    usedCoupon.setId(compoundId);
+                    usedCoupon.setEngagement(engagement);
+                    usedCoupon.setCoupon(appliedCoupon);
+                    usedCoupon.setAvailedAmount((int) couponDiscount);
+                    usedCoupon.setAvailedOn(new java.sql.Timestamp(System.currentTimeMillis()));
+                    // usedCoupon.getAvailedOn(LocalDateTime.now());
+                    customerUsedCouponRepository.save(usedCoupon);
+                }
             }
         }
 
-        // ✅ Combine discounts
         double totalDiscountAmount = discountAmount + couponDiscount;
         double finalAmount = baseAmount - totalDiscountAmount;
 
@@ -426,11 +552,10 @@ public class CustomerPaymentServiceImpl implements CustomerPaymentService {
         LocalDate paymentOn = LocalDate.now();
         String transactionId = UUID.randomUUID().toString();
 
-        // ⚠️ Removed persistence (no save to DB)
-
         return CustomerPaymentDTO.builder()
-                .id(null) // since it's not saved, no DB id
+                .id(null)
                 .customerId(customerId)
+                .engagementId(engagementId)
                 .baseAmount(baseAmount)
                 .discountAmount(totalDiscountAmount)
                 .couponId(appliedCoupon != null ? appliedCoupon.getId() : null)

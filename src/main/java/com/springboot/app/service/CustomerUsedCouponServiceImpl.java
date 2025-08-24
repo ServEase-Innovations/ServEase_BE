@@ -8,6 +8,7 @@ import com.springboot.app.mapper.CustomerUsedCouponMapper;
 import com.springboot.app.repository.CouponRepository;
 import com.springboot.app.repository.CustomerRepository;
 import com.springboot.app.repository.CustomerUsedCouponRepository;
+import com.springboot.app.repository.ServiceProviderEngagementRepository;
 import com.springboot.app.service.CustomerUsedCouponService;
 import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
@@ -29,7 +30,7 @@ public class CustomerUsedCouponServiceImpl implements CustomerUsedCouponService 
     private final CustomerUsedCouponRepository customerUsedCouponRepository;
     private final CouponRepository couponRepository;
     private final CustomerUsedCouponMapper couponMapper;
-    private final CustomerRepository customerRepository;
+    private final ServiceProviderEngagementRepository engagementRepository;
 
     @Override
     @Transactional
@@ -39,38 +40,44 @@ public class CustomerUsedCouponServiceImpl implements CustomerUsedCouponService 
             return "Invalid request data.";
         }
 
-        Long customerId = dto.getId().getCustomerId();
+        Long engagementId = dto.getId().getEngagementId();
         Long couponId = dto.getId().getCouponId();
 
-        if (customerId == null || couponId == null) {
-            logger.warn("Customer ID or Coupon ID in DTO is null.");
-            return "Customer ID and Coupon ID must be provided.";
+        if (engagementId == null || couponId == null) {
+            logger.warn("Engagement ID or Coupon ID in DTO is null.");
+            return "Engagement ID and Coupon ID must be provided.";
         }
 
-        logger.info("Saving coupon use for customerId={}, couponId={}", customerId, couponId);
+        logger.info("Saving coupon use for engagementId={}, couponId={}", engagementId, couponId);
 
         try {
-            var customer = customerRepository.findById(customerId)
-                    .orElseThrow(() -> new IllegalArgumentException("Customer does not exist."));
+            // Fetch engagement
+            var engagement = engagementRepository.findById(engagementId)
+                    .orElseThrow(() -> new IllegalArgumentException("Engagement does not exist."));
 
+            // Fetch coupon
             var coupon = couponRepository.findById(couponId)
                     .orElseThrow(() -> new IllegalArgumentException("Coupon does not exist."));
 
-            CustomerCouponId compoundId = new CustomerCouponId(customerId, couponId);
+            // Create composite key
+            CustomerCouponId compoundId = new CustomerCouponId(engagementId, couponId);
+
             if (customerUsedCouponRepository.existsById(compoundId)) {
-                logger.warn("Customer {} already used coupon {}.", customerId, couponId);
-                return "Coupon already used by this customer.";
+                logger.warn("Engagement {} already used coupon {}.", engagementId, couponId);
+                return "Coupon already used for this engagement.";
             }
 
+            // Map DTO to entity
             CustomerUsedCoupon entity = couponMapper.dtoToEntity(dto);
 
-            // ✅ Set required entities
+            // Set required entities
             entity.setId(compoundId);
-            entity.setCustomer(customer);
+            entity.setEngagement(engagement);
             entity.setCoupon(coupon);
 
+            // Save
             customerUsedCouponRepository.save(entity);
-            logger.info("Coupon use saved successfully for customerId={}, couponId={}", customerId, couponId);
+            logger.info("Coupon use saved successfully for engagementId={}, couponId={}", engagementId, couponId);
             return ServiceProviderConstants.ADDED;
 
         } catch (Exception e) {

@@ -12,6 +12,6 @@ import java.io.Serializable;
 @NoArgsConstructor
 @AllArgsConstructor
 public class CustomerCouponId implements Serializable {
-    private Long customerId;
+    private Long engagementId; // changed from customerId
     private Long couponId;
 }

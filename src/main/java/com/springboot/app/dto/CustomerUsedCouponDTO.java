@@ -13,5 +13,4 @@ public class CustomerUsedCouponDTO {
     private CustomerCouponIdDTO id;
     private Timestamp availedOn;
     private Integer availedAmount;
-
 }

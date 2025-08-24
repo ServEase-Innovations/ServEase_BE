@@ -30,7 +30,7 @@ public interface CustomerPaymentService {
         // LocalDate startDate_P, LocalDate endDate_P,
         // PaymentMode paymentMode, Long couponId, HousekeepingRole serviceType);
 
-        CustomerPaymentDTO calculatePayment(Long customerId, double baseAmount,
+        CustomerPaymentDTO calculatePayment(Long engagementId, Long customerId, double baseAmount,
                         LocalDate startDate_P, LocalDate endDate_P,
                         PaymentMode paymentMode, Long couponId, HousekeepingRole serviceType);
 

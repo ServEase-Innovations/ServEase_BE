@@ -151,11 +151,15 @@ public class CustomerHolidaysServiceImpl implements CustomerHolidaysService {
     @Transactional
     public String addNewHoliday(CustomerHolidaysDTO customerHolidaysDTO) {
         if (logger.isInfoEnabled()) {
-            logger.info("Adding new holiday for customer ID: {}", customerHolidaysDTO.getCustomerId());
+            logger.info("Adding new holiday for engagement ID: {}", customerHolidaysDTO.getEngagementId());
         }
 
-        Long customerId = customerHolidaysDTO.getCustomerId();
-        HousekeepingRole serviceType = customerHolidaysDTO.getServiceType(); // From DTO
+        Long engagementId = customerHolidaysDTO.getEngagementId();
+        HousekeepingRole serviceType = customerHolidaysDTO.getServiceType();
+
+        if (engagementId == null) {
+            throw new IllegalArgumentException("Engagement ID must be provided.");
+        }
 
         if (serviceType == null) {
             throw new IllegalArgumentException("Service type must be provided to apply a holiday.");
@@ -172,53 +176,39 @@ public class CustomerHolidaysServiceImpl implements CustomerHolidaysService {
             throw new IllegalArgumentException("Holiday end date must be after or equal to start date.");
         }
 
-        List<ServiceProviderEngagement> engagements = engagementRepository
-                .findAllByCustomer_CustomerIdAndServiceTypeAndIsActiveTrue(customerId, serviceType);
+        // Fetch engagement (mandatory)
+        ServiceProviderEngagement engagement = engagementRepository.findById(engagementId)
+                .orElseThrow(() -> new IllegalArgumentException("Engagement not found for ID: " + engagementId));
 
-        ServiceProviderEngagement engagement = engagements.stream()
-                .filter(e -> e.getBookingType() == BookingType.MONTHLY)
-                .filter(e -> {
-                    LocalDate engagementStart = e.getStartDate();
-                    LocalDate engagementEnd = e.getEndDate();
-                    return (!holidayStart.isBefore(engagementStart)) &&
-                            (engagementEnd == null || !holidayEnd.isAfter(engagementEnd));
-                })
-                .findFirst()
-                .orElseThrow(() -> new IllegalArgumentException(String.format(
-                        "Holiday must fall within engagement period(s). None found matching holiday range: %s to %s",
-                        holidayStart, holidayEnd)));
-
-        // ✅ Allow only MONTHLY bookings for holidays
-        BookingType bookingType = engagement.getBookingType();
-        if (bookingType != BookingType.MONTHLY) {
+        // Only MONTHLY bookings allowed for holidays
+        if (engagement.getBookingType() != BookingType.MONTHLY) {
             throw new IllegalArgumentException("Holidays can only be applied for MONTHLY bookings.");
         }
 
         LocalDate engagementStart = engagement.getStartDate();
         LocalDate engagementEnd = engagement.getEndDate();
 
-        // ✅ Calculate total holiday duration
-        long holidayDays = ChronoUnit.DAYS.between(holidayStart, holidayEnd) + 1;
-
-        if (holidayDays < 10) {
-            throw new IllegalArgumentException("Holidays less than 10 days are not eligible for discounts.");
-        }
-
-        if (holidayStart.isBefore(engagementStart) ||
-                (engagementEnd != null && holidayEnd.isAfter(engagementEnd))) {
+        // Validate holiday falls within engagement period
+        if (holidayStart.isBefore(engagementStart) || (engagementEnd != null && holidayEnd.isAfter(engagementEnd))) {
             throw new IllegalArgumentException(String.format(
                     "Holiday must fall within engagement period: %s to %s",
                     engagementStart,
                     engagementEnd != null ? engagementEnd : "Ongoing"));
         }
 
+        long holidayDays = ChronoUnit.DAYS.between(holidayStart, holidayEnd) + 1;
+        if (holidayDays < 10) {
+            throw new IllegalArgumentException("Holidays less than 10 days are not eligible for discounts.");
+        }
+
         CustomerHolidays holiday = new CustomerHolidays();
-        holiday.setCustomer(engagement.getCustomer());
+        holiday.setEngagement(engagement); // ✅ Mandatory
+        holiday.setCustomer(engagement.getCustomer()); // optional
         holiday.setStartDate(holidayStart);
         holiday.setEndDate(holidayEnd);
         holiday.setApplyHolidayDate(LocalDateTime.now());
         holiday.setActive(true);
-        holiday.setServiceType(serviceType); // ✅ Store service type if your table supports it
+        holiday.setServiceType(serviceType);
 
         customerHolidaysRepository.save(holiday);
 

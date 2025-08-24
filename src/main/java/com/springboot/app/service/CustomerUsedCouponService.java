@@ -1,6 +1,8 @@
 package com.springboot.app.service;
 
 import com.springboot.app.dto.CustomerUsedCouponDTO;
+import com.springboot.app.entity.CustomerUsedCoupon;
+
 import java.util.List;
 
 public interface CustomerUsedCouponService {

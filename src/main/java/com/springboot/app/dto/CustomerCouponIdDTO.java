@@ -8,6 +8,6 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 public class CustomerCouponIdDTO {
-    private Long customerId;
+    private Long engagementId; // changed from customerId
     private Long couponId;
 }
