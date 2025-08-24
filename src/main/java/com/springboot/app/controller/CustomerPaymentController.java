@@ -73,7 +73,8 @@ public class CustomerPaymentController {
 
     @PostMapping("/calculate-payment")
     public ResponseEntity<CustomerPaymentDTO> calculatePayment(
-            @RequestParam Long customerId,
+            @RequestParam Long engagementId, // ✅ mandatory
+            @RequestParam(required = false) Long customerId, // optional
             @RequestParam double baseAmount,
             @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate startDate_P,
             @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate endDate_P,
@@ -82,7 +83,15 @@ public class CustomerPaymentController {
             @RequestParam HousekeepingRole serviceType) {
 
         CustomerPaymentDTO paymentDTO = customerPaymentService.calculatePayment(
-                customerId, baseAmount, startDate_P, endDate_P, paymentMode, couponId, serviceType);
+                engagementId, // mandatory engagement
+                customerId, // optional
+                baseAmount,
+                startDate_P,
+                endDate_P,
+                paymentMode,
+                couponId,
+                serviceType);
+
         return ResponseEntity.ok(paymentDTO);
     }
 

@@ -10,6 +10,6 @@ import org.springframework.stereotype.Repository;
 
 @Repository
 public interface CustomerUsedCouponRepository extends JpaRepository<CustomerUsedCoupon, CustomerCouponId> {
-    List<CustomerUsedCoupon> findByCustomer_CustomerId(Long customerId);
+    List<CustomerUsedCoupon> findByEngagement_Id(Long engagementId);
 
 }

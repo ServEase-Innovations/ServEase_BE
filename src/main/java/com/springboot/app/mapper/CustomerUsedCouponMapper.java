@@ -16,11 +16,19 @@ public interface CustomerUsedCouponMapper {
     @Mapping(target = "id", source = "id")
     CustomerUsedCouponDTO entityToDto(CustomerUsedCoupon entity);
 
+    // Convert DTO -> Entity (with engagementId instead of customerId)
     default CustomerCouponId map(CustomerCouponIdDTO dto) {
-        return new CustomerCouponId(dto.getCustomerId(), dto.getCouponId());
+        if (dto == null) {
+            return null;
+        }
+        return new CustomerCouponId(dto.getEngagementId(), dto.getCouponId());
     }
 
+    // Convert Entity -> DTO (with engagementId instead of customerId)
     default CustomerCouponIdDTO map(CustomerCouponId entity) {
-        return new CustomerCouponIdDTO(entity.getCustomerId(), entity.getCouponId());
+        if (entity == null) {
+            return null;
+        }
+        return new CustomerCouponIdDTO(entity.getEngagementId(), entity.getCouponId());
     }
 }

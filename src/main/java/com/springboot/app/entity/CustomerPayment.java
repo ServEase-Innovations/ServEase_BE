@@ -2,7 +2,6 @@ package com.springboot.app.entity;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.util.Date;
 
 import com.springboot.app.enums.PaymentMode;
 
@@ -22,12 +21,18 @@ public class CustomerPayment {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    // Engagement is the main reference
     @ManyToOne
-    @JoinColumn(name = "customerId", nullable = false)
+    @JoinColumn(name = "engagement_id", nullable = false)
+    private ServiceProviderEngagement engagement;
+
+    // Customer is optional (nullable)
+    @ManyToOne
+    @JoinColumn(name = "customer_id", nullable = true)
     private Customer customer;
 
     @Column(nullable = false)
-    private double baseAmount; // Fixed monthly amount (30,000)
+    private double baseAmount; // Fixed monthly amount (e.g., 30,000)
 
     @Column(nullable = false)
     private double discountAmount; // Discount applied due to vacation
@@ -46,7 +51,6 @@ public class CustomerPayment {
 
     @Column(nullable = false)
     private LocalDate paymentOn;
-    // private Date paymentOn;
 
     @Column(nullable = false, updatable = false)
     private LocalDateTime generatedOn; // Timestamp of payment generation
@@ -64,5 +68,4 @@ public class CustomerPayment {
 
     @Column(name = "coupon_discount_amount")
     private Double couponDiscountAmount; // Nullable
-
 }

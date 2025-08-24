@@ -5,17 +5,7 @@ import java.time.LocalDateTime;
 
 import com.springboot.app.enums.HousekeepingRole;
 
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.EnumType;
-import jakarta.persistence.Enumerated;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
-import jakarta.persistence.JoinColumn;
-import jakarta.persistence.ManyToOne;
-import jakarta.persistence.PrePersist;
-import jakarta.persistence.Table;
+import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -31,8 +21,14 @@ public class CustomerHolidays {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    // Engagement is the main reference
     @ManyToOne
-    @JoinColumn(name = "customerId", nullable = false)
+    @JoinColumn(name = "engagement_id", nullable = false)
+    private ServiceProviderEngagement engagement;
+
+    // Customer is optional
+    @ManyToOne
+    @JoinColumn(name = "customer_id", nullable = true)
     private Customer customer;
 
     @Column(nullable = false)
@@ -58,9 +54,8 @@ public class CustomerHolidays {
         this.applyHolidayDate = LocalDateTime.now(); // Set current date-time
     }
 
-    // Mark engagement as completed
-    public void completeEngagement() {
+    // Mark holiday as completed
+    public void completeHoliday() {
         this.isActive = false; // Mark as inactive
     }
-
 }
