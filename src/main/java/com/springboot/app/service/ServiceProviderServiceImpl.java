@@ -217,27 +217,30 @@ public class ServiceProviderServiceImpl implements ServiceProviderService {
                 if (logger.isInfoEnabled()) {
                         logger.info("Updating service provider with ID: {}", serviceProviderDTO.getServiceproviderId());
                 }
-                // Check if the service provider exists
-                if (serviceProviderRepository.existsById(serviceProviderDTO.getServiceproviderId())) {
 
-                        // Map DTO to entity and update
-                        ServiceProvider existingServiceProvider = serviceProviderMapper
-                                        .dtoToServiceProvider(serviceProviderDTO);
+                // 1. Fetch existing entity
+                ServiceProvider existingServiceProvider = serviceProviderRepository
+                                .findById(serviceProviderDTO.getServiceproviderId())
+                                .orElse(null);
 
-                        // Save the updated service provider
-                        serviceProviderRepository.save(existingServiceProvider);
-                        if (logger.isInfoEnabled()) {
-                                logger.info("Service provider updated with ID: {}",
-                                                serviceProviderDTO.getServiceproviderId());
-                        }
-                        return ServiceProviderConstants.UPDATE_DESC;
-                } else {
+                if (existingServiceProvider == null) {
                         if (logger.isErrorEnabled()) {
                                 logger.error("Service provider not found for update with ID: {}",
                                                 serviceProviderDTO.getServiceproviderId());
                         }
                         return ServiceProviderConstants.SERVICE_PROVIDER_NOT_FOUND;
                 }
+
+                // 2. Update only non-null fields from DTO
+                serviceProviderMapper.updateServiceProviderFromDTO(serviceProviderDTO, existingServiceProvider);
+
+                // 3. Save updated entity
+                serviceProviderRepository.save(existingServiceProvider);
+
+                if (logger.isInfoEnabled()) {
+                        logger.info("Service provider updated with ID: {}", serviceProviderDTO.getServiceproviderId());
+                }
+                return ServiceProviderConstants.UPDATE_DESC;
         }
 
         @Override
