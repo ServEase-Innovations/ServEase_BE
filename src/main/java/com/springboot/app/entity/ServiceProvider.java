@@ -42,39 +42,39 @@ public class ServiceProvider {
 	@GeneratedValue(strategy = GenerationType.AUTO)
 	private Long serviceproviderId;
 
-	@Column(nullable = false)
+	@Column(nullable = true)
 	private String firstName;
 
 	private String middleName;
 
-	@Column(nullable = false)
+	@Column(nullable = true)
 	private String lastName;
 
-	@Column(nullable = false, length = 10, unique = true)
+	@Column(nullable = true, length = 10, unique = true)
 	private Long mobileNo;
 
 	@Column(length = 10)
 	private Long alternateNo;
 
-	@Column(nullable = false, unique = true)
+	@Column(nullable = true, unique = true)
 	private String emailId;
 
 	@Enumerated(EnumType.STRING)
 	private Gender gender;
 
-	@Column(nullable = false)
+	@Column(nullable = true)
 	private String buildingName;
 
-	@Column(nullable = false)
+	@Column(nullable = true)
 	private String locality;
 
-	@Column(nullable = false)
+	@Column(nullable = true)
 	private String street;
 
-	@Column(nullable = false, length = 6)
+	@Column(nullable = true, length = 6)
 	private Integer pincode;
 
-	@Column(nullable = false)
+	@Column(nullable = true)
 	private String currentLocation;
 
 	@Column
@@ -183,7 +183,7 @@ public class ServiceProvider {
 
 	// to deactivate
 	public void deactivate() {
-		this.isActive = false;
+		this.isActive = true;
 	}
 
 }

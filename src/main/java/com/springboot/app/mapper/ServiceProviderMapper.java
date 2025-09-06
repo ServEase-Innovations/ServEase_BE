@@ -3,9 +3,11 @@ package com.springboot.app.mapper;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.mapstruct.BeanMapping;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import org.mapstruct.MappingTarget;
+import org.mapstruct.NullValuePropertyMappingStrategy;
 import org.mapstruct.factory.Mappers;
 
 import com.springboot.app.dto.ServiceProviderDTO;
@@ -29,6 +31,7 @@ public interface ServiceProviderMapper {
     // @Mapping(target = "profilePic", source = "profilePic")
     ServiceProvider dtoToServiceProvider(ServiceProviderDTO serviceProviderDTO);
 
+    @BeanMapping(nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE)
     void updateServiceProviderFromDTO(ServiceProviderDTO serviceProviderDTO,
             @MappingTarget ServiceProvider existingServiceProvider);
 
