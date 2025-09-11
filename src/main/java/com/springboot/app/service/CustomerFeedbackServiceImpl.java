@@ -72,6 +72,32 @@ public class CustomerFeedbackServiceImpl implements CustomerFeedbackService {
     }
 
     @Override
+    @Transactional(readOnly = true)
+    public List<CustomerFeedbackDTO> getFeedbacksByServiceProviderId(Long serviceproviderId) {
+        if (logger.isInfoEnabled()) {
+            logger.info("Fetching feedback list for ServiceProvider ID: {}", serviceproviderId);
+        }
+
+        List<CustomerFeedback> feedbackList = customerFeedbackRepository
+                .findByServiceProvider_ServiceproviderId(serviceproviderId);
+
+        if (feedbackList.isEmpty()) {
+            if (logger.isWarnEnabled()) {
+                logger.warn("No feedback found for ServiceProvider ID: {}", serviceproviderId);
+            }
+        } else {
+            if (logger.isDebugEnabled()) {
+                logger.debug("Found {} feedback entries for ServiceProvider ID: {}",
+                        feedbackList.size(), serviceproviderId);
+            }
+        }
+
+        return feedbackList.stream()
+                .map(customerFeedbackMapper::customerFeedbackToDTO)
+                .toList();
+    }
+
+    @Override
     @Transactional
     public String addFeedback(CustomerFeedbackDTO customerFeedbackDTO) {
         if (logger.isInfoEnabled()) {

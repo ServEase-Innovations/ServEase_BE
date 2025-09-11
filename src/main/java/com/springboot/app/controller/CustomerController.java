@@ -507,6 +507,26 @@ public class CustomerController {
         }
     }
 
+    // API to get feedback list by Service Provider ID
+    @GetMapping("/get-feedback-by-service-provider/{serviceProviderId}")
+    @ApiOperation(value = "Retrieve customer feedback list by Service Provider ID", response = CustomerFeedbackDTO.class, responseContainer = "List")
+    public ResponseEntity<?> getFeedbacksByServiceProviderId(@PathVariable Long serviceProviderId) {
+        try {
+            List<CustomerFeedbackDTO> feedbackList = customerFeedbackService
+                    .getFeedbacksByServiceProviderId(serviceProviderId);
+
+            if (feedbackList != null && !feedbackList.isEmpty()) {
+                return ResponseEntity.ok(feedbackList);
+            } else {
+                return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                        .body("No feedback found for Service Provider ID: " + serviceProviderId);
+            }
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body("Failed to retrieve feedback list: " + e.getMessage());
+        }
+    }
+
     // API to add new customer feedback
     @PostMapping("/add-feedback")
     @ApiOperation(value = "Add a new customer feedback", response = String.class)

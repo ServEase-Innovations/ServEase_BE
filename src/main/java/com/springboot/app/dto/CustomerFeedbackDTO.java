@@ -15,5 +15,6 @@ public class CustomerFeedbackDTO {
     private Long serviceProviderId;
     private Integer rating;
     private String comment;
+    private String customerName;
     private Timestamp commentedOn;
 }

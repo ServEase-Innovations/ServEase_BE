@@ -9,4 +9,6 @@ import java.util.List;
 public interface CustomerFeedbackRepository extends JpaRepository<CustomerFeedback, Long> {
     List<CustomerFeedback> findByServiceProviderServiceproviderId(Long serviceproviderId);
 
+    List<CustomerFeedback> findByServiceProvider_ServiceproviderId(Long serviceproviderId);
+
 }
