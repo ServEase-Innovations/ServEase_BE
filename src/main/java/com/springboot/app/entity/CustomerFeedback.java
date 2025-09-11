@@ -32,6 +32,9 @@ public class CustomerFeedback {
     @Column(length = 500)
     private String comment;
 
+    @Column(length = 500)
+    private String customerName;
+
     @Column(nullable = false, updatable = false)
     private Timestamp commentedOn;
 

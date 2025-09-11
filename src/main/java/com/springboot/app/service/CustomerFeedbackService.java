@@ -9,6 +9,8 @@ public interface CustomerFeedbackService {
 
     CustomerFeedbackDTO getFeedbackById(Long id);
 
+    List<CustomerFeedbackDTO> getFeedbacksByServiceProviderId(Long serviceproviderId);
+
     String addFeedback(CustomerFeedbackDTO customerFeedbackDTO);
 
     String deleteFeedback(Long id);
