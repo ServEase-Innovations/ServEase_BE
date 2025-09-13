@@ -44,6 +44,11 @@ public interface ServiceProviderService {
   String uploadExcelRecords(String filename);
 
   // List<String> calculateAvailableTimes(String timeslot);
+  String checkMobileNoExists(Long mobileNo);
+
+  String checkEmailExists(String emailId);
+
+  String checkAlternateNoExists(Long alternateNo);
 
   List<ServiceProviderDTO> findNearbyProviders(double latitude, double longitude, int precision);
 

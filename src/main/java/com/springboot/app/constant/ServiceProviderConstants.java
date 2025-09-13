@@ -20,6 +20,18 @@ public class ServiceProviderConstants {
     public static final String SERVICE_PROVIDER_ERROR = "An error occurred while processing the service provider request.";
     public static final String NO_SERVICE_PROVIDERS_FOUND_FOR_VENDOR = "No service providers found for vendor ID: ";
     public static final String GET_BY_VENDOR_ID_DESC = "Retrieve all service providers by Vendor ID";
+    public static final String MOBILE_ALREADY_EXISTS = "Mobile number already exists.";
+    public static final String MOBILE_AVAILABLE = "Mobile number is available.";
+    public static final String CHECK_MOBILE_DESC = "Check if mobile number already exists";
+    // Alternate Number
+    public static final String ALTERNATE_ALREADY_EXISTS = "Alternate number already exists.";
+    public static final String ALTERNATE_AVAILABLE = "Alternate number is available.";
+    public static final String CHECK_ALTERNATE_DESC = "Check if alternate number already exists";
+
+    // Email
+    public static final String EMAIL_ALREADY_EXISTS = "Email ID already exists.";
+    public static final String EMAIL_AVAILABLE = "Email ID is available.";
+    public static final String CHECK_EMAIL_DESC = "Check if email ID already exists";
 
     // Constants for service provider Request
     public static final String DESC_RETRIEVE_ALL_SERVICE_PROVIDER_REQUESTS = "Retrieve all service provider requests";

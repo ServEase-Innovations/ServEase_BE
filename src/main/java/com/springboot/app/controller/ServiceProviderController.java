@@ -301,6 +301,44 @@ public class ServiceProviderController {
         return ResponseEntity.ok(ServiceProviderConstants.SERVICE_PROVIDER_UPDATED);
     }
 
+    // API to check if mobile number exists
+    @GetMapping("/check-mobile/{mobileNo}")
+    @ApiOperation(value = ServiceProviderConstants.CHECK_MOBILE_DESC)
+    public ResponseEntity<String> checkMobileNumber(
+            @ApiParam(value = "Mobile number to check", required = true) @PathVariable Long mobileNo) {
+        String response = serviceProviderService.checkMobileNoExists(mobileNo);
+
+        if (response.equals(ServiceProviderConstants.MOBILE_ALREADY_EXISTS)) {
+            return ResponseEntity.status(HttpStatus.CONFLICT) // 409 Conflict
+                    .body(ServiceProviderConstants.MOBILE_ALREADY_EXISTS);
+        }
+        return ResponseEntity.ok(ServiceProviderConstants.MOBILE_AVAILABLE);
+    }
+
+    // API to check alternate number
+    @GetMapping("/check-alternate/{alternateNo}")
+    @ApiOperation(value = ServiceProviderConstants.CHECK_ALTERNATE_DESC)
+    public ResponseEntity<String> checkAlternateNumber(
+            @ApiParam(value = "Alternate number to check", required = true) @PathVariable Long alternateNo) {
+        String response = serviceProviderService.checkAlternateNoExists(alternateNo);
+        if (response.equals(ServiceProviderConstants.ALTERNATE_ALREADY_EXISTS)) {
+            return ResponseEntity.status(HttpStatus.CONFLICT).body(response);
+        }
+        return ResponseEntity.ok(response);
+    }
+
+    // API to check email
+    @GetMapping("/check-email/{emailId}")
+    @ApiOperation(value = ServiceProviderConstants.CHECK_EMAIL_DESC)
+    public ResponseEntity<String> checkEmail(
+            @ApiParam(value = "Email to check", required = true) @PathVariable String emailId) {
+        String response = serviceProviderService.checkEmailExists(emailId);
+        if (response.equals(ServiceProviderConstants.EMAIL_ALREADY_EXISTS)) {
+            return ResponseEntity.status(HttpStatus.CONFLICT).body(response);
+        }
+        return ResponseEntity.ok(response);
+    }
+
     // API to delete a service provider (soft-delete)
     @PatchMapping("delete/serviceprovider/{id}")
     @ApiOperation(value = ServiceProviderConstants.DELETE_DESC)

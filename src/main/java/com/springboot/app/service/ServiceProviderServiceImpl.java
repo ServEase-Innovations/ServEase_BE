@@ -268,6 +268,63 @@ public class ServiceProviderServiceImpl implements ServiceProviderService {
 
         @Override
         @Transactional
+        public String checkMobileNoExists(Long mobileNo) {
+                if (logger.isInfoEnabled()) {
+                        logger.info("Checking if mobile number exists: {}", mobileNo);
+                }
+
+                boolean exists = serviceProviderRepository.existsByMobileNo(mobileNo);
+
+                if (exists) {
+                        if (logger.isWarnEnabled()) {
+                                logger.warn("Mobile number already exists: {}", mobileNo);
+                        }
+                        return ServiceProviderConstants.MOBILE_ALREADY_EXISTS;
+                }
+
+                return ServiceProviderConstants.MOBILE_AVAILABLE;
+        }
+
+        @Override
+        @Transactional
+        public String checkAlternateNoExists(Long alternateNo) {
+                if (logger.isInfoEnabled()) {
+                        logger.info("Checking if alternate number exists: {}", alternateNo);
+                }
+
+                boolean exists = serviceProviderRepository.existsByAlternateNo(alternateNo);
+
+                if (exists) {
+                        if (logger.isWarnEnabled()) {
+                                logger.warn("Alternate number already exists: {}", alternateNo);
+                        }
+                        return ServiceProviderConstants.ALTERNATE_ALREADY_EXISTS;
+                }
+
+                return ServiceProviderConstants.ALTERNATE_AVAILABLE;
+        }
+
+        @Override
+        @Transactional
+        public String checkEmailExists(String emailId) {
+                if (logger.isInfoEnabled()) {
+                        logger.info("Checking if email exists: {}", emailId);
+                }
+
+                boolean exists = serviceProviderRepository.existsByEmailId(emailId);
+
+                if (exists) {
+                        if (logger.isWarnEnabled()) {
+                                logger.warn("Email already exists: {}", emailId);
+                        }
+                        return ServiceProviderConstants.EMAIL_ALREADY_EXISTS;
+                }
+
+                return ServiceProviderConstants.EMAIL_AVAILABLE;
+        }
+
+        @Override
+        @Transactional
         public List<ServiceProviderDTO> getfilters(LanguageKnown language, Double rating, Gender gender,
                         Speciality speciality, HousekeepingRole housekeepingRole, Integer minAge, Integer maxAge,
                         String timeslot, Habit diet) {
