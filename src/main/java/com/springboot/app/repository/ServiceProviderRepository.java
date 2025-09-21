@@ -26,12 +26,15 @@ public interface ServiceProviderRepository
         Page<ServiceProvider> findByLocation(String location, Pageable pageable);
 
         List<ServiceProvider> findByVendorId(Long vendorId);
-        
+
         List<ServiceProvider> findByGeoHash5In(List<String> geoHashes);
 
         List<ServiceProvider> findByGeoHash6In(List<String> geoHashes);
 
         List<ServiceProvider> findByGeoHash7In(List<String> geoHashes);
+
+        // boolean existsByMobileNo(Long mobileNo);
+        boolean existsByAlternateNo(Long alternateNo);
 
         @Query("SELECT sp FROM ServiceProvider sp WHERE sp.housekeepingRole = :housekeepingRole AND " +
                         "(sp.geoHash4 IN :geoHashes OR sp.geoHash5 IN :geoHashes OR sp.geoHash6 IN :geoHashes OR sp.geoHash7 IN :geoHashes)")
@@ -41,6 +44,5 @@ public interface ServiceProviderRepository
 
         @Query("SELECT sp FROM ServiceProvider sp WHERE sp.serviceproviderId IN :ids")
         List<ServiceProvider> findByIds(@Param("ids") List<Long> ids);
-
 
 }
