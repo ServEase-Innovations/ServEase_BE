@@ -12,7 +12,10 @@ import com.springboot.app.enums.LanguageKnown;
 import com.springboot.app.enums.Speciality;
 
 import ch.hsr.geohash.GeoHash;
+import jakarta.persistence.AttributeOverride;
+import jakarta.persistence.AttributeOverrides;
 import jakarta.persistence.Column;
+import jakarta.persistence.Embedded;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
@@ -151,6 +154,33 @@ public class ServiceProvider {
 
 	@Column
 	private String geoHash7;
+
+	private boolean privacy;
+	private boolean keyFacts;
+
+	// ✅ Permanent Address
+	@Embedded
+	@AttributeOverrides({
+			@AttributeOverride(name = "apartment", column = @Column(name = "permanent_apartment")),
+			@AttributeOverride(name = "street", column = @Column(name = "permanent_street")),
+			@AttributeOverride(name = "city", column = @Column(name = "permanent_city")),
+			@AttributeOverride(name = "state", column = @Column(name = "permanent_state")),
+			@AttributeOverride(name = "country", column = @Column(name = "permanent_country")),
+			@AttributeOverride(name = "pincode", column = @Column(name = "permanent_pincode"))
+	})
+	private Address permanentAddress;
+
+	// ✅ Correspondence Address
+	@Embedded
+	@AttributeOverrides({
+			@AttributeOverride(name = "apartment", column = @Column(name = "correspondence_apartment")),
+			@AttributeOverride(name = "street", column = @Column(name = "correspondence_street")),
+			@AttributeOverride(name = "city", column = @Column(name = "correspondence_city")),
+			@AttributeOverride(name = "state", column = @Column(name = "correspondence_state")),
+			@AttributeOverride(name = "country", column = @Column(name = "correspondence_country")),
+			@AttributeOverride(name = "pincode", column = @Column(name = "correspondence_pincode"))
+	})
+	private Address correspondenceAddress;
 
 	@PrePersist
 	public void prePersist() {
