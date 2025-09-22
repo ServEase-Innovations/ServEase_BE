@@ -46,7 +46,7 @@ public class ServiceProviderDTO {
     private String locality;
     private double latitude;
     private double longitude;
-    
+
     private String geoHash5;
     private String geoHash6;
     private String geoHash7;
@@ -89,6 +89,15 @@ public class ServiceProviderDTO {
     private Long vendorId;
     private String username;
     private String password;
+
+    private boolean privacy;
+    private boolean keyFacts;
+
+    // ✅ Permanent Address
+    private AddressDTO permanentAddress;
+
+    // ✅ Correspondence Address
+    private AddressDTO correspondenceAddress;
     // private List<String> availableTimeSlots;
     private List<String> occupiedTimeSlots;
 

@@ -10,7 +10,9 @@ import org.mapstruct.MappingTarget;
 import org.mapstruct.NullValuePropertyMappingStrategy;
 import org.mapstruct.factory.Mappers;
 
+import com.springboot.app.dto.AddressDTO;
 import com.springboot.app.dto.ServiceProviderDTO;
+import com.springboot.app.entity.Address;
 import com.springboot.app.entity.ServiceProvider;
 
 @Mapper(componentModel = "spring")
@@ -34,6 +36,12 @@ public interface ServiceProviderMapper {
     @BeanMapping(nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE)
     void updateServiceProviderFromDTO(ServiceProviderDTO serviceProviderDTO,
             @MappingTarget ServiceProvider existingServiceProvider);
+
+    // ✅ Map nested Address -> AddressDTO
+    AddressDTO addressToAddressDTO(Address address);
+
+    // ✅ Map nested AddressDTO -> Address
+    Address addressDTOToAddress(AddressDTO addressDTO);
 
     // Maps a list of ServiceProviders to a list of ServiceProviderDTOs
     List<ServiceProviderDTO> serviceProvidersToDTOs(List<ServiceProvider> serviceProviders);
