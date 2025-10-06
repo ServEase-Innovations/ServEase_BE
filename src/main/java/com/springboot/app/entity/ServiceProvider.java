@@ -14,6 +14,7 @@ import com.springboot.app.enums.Speciality;
 import ch.hsr.geohash.GeoHash;
 import jakarta.persistence.AttributeOverride;
 import jakarta.persistence.AttributeOverrides;
+import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Embedded;
 import jakarta.persistence.Entity;
@@ -25,6 +26,7 @@ import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
+import jakarta.persistence.OneToOne;
 //import jakarta.persistence.Lob;
 import jakarta.persistence.PrePersist;
 import jakarta.persistence.Table;
@@ -155,31 +157,18 @@ public class ServiceProvider {
 	@Column
 	private String geoHash7;
 
-	private boolean privacy;
-	private boolean keyFacts;
+	// private boolean privacy;
+	// @Column(name = "key_facts")
+	// private boolean keyFacts;
 
-	// ✅ Permanent Address
-	@Embedded
-	@AttributeOverrides({
-			@AttributeOverride(name = "apartment", column = @Column(name = "permanent_apartment")),
-			@AttributeOverride(name = "street", column = @Column(name = "permanent_street")),
-			@AttributeOverride(name = "city", column = @Column(name = "permanent_city")),
-			@AttributeOverride(name = "state", column = @Column(name = "permanent_state")),
-			@AttributeOverride(name = "country", column = @Column(name = "permanent_country")),
-			@AttributeOverride(name = "pincode", column = @Column(name = "permanent_pincode"))
-	})
+	// Permanent Address
+	@OneToOne(cascade = CascadeType.ALL)
+	@JoinColumn(name = "permanent_address_id", referencedColumnName = "id")
 	private Address permanentAddress;
 
-	// ✅ Correspondence Address
-	@Embedded
-	@AttributeOverrides({
-			@AttributeOverride(name = "apartment", column = @Column(name = "correspondence_apartment")),
-			@AttributeOverride(name = "street", column = @Column(name = "correspondence_street")),
-			@AttributeOverride(name = "city", column = @Column(name = "correspondence_city")),
-			@AttributeOverride(name = "state", column = @Column(name = "correspondence_state")),
-			@AttributeOverride(name = "country", column = @Column(name = "correspondence_country")),
-			@AttributeOverride(name = "pincode", column = @Column(name = "correspondence_pincode"))
-	})
+	// Correspondence Address
+	@OneToOne(cascade = CascadeType.ALL)
+	@JoinColumn(name = "correspondence_address_id", referencedColumnName = "id")
 	private Address correspondenceAddress;
 
 	@PrePersist
