@@ -92,11 +92,7 @@ public class ServiceProviderDTO {
 
     private boolean privacy;
     private boolean keyFacts;
-
-    // ✅ Permanent Address
     private AddressDTO permanentAddress;
-
-    // ✅ Correspondence Address
     private AddressDTO correspondenceAddress;
     // private List<String> availableTimeSlots;
     private List<String> occupiedTimeSlots;
