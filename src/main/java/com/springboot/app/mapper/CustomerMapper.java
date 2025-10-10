@@ -1,7 +1,10 @@
 package com.springboot.app.mapper;
 
+import org.mapstruct.BeanMapping;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
+import org.mapstruct.MappingTarget;
+import org.mapstruct.NullValuePropertyMappingStrategy;
 import org.mapstruct.factory.Mappers;
 
 import com.springboot.app.dto.CustomerDTO;
@@ -22,5 +25,9 @@ public interface CustomerMapper {
     // Method to map CustomerDTO to Customer entity, ignoring username and password
     @Mapping(target = "profilePic", source = "profilePic")
     Customer dtoToCustomer(CustomerDTO customerDTO);
+
+    // ✅ Add this for partial updates
+    @BeanMapping(nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE)
+    void updateCustomerFromDto(CustomerDTO dto, @MappingTarget Customer entity);
 
 }

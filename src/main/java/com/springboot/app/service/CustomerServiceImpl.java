@@ -185,21 +185,21 @@ public class CustomerServiceImpl implements CustomerService {
             logger.info("Updating customer with id: {}", customerDTO.getCustomerId());
         }
 
-        // Map DTO to entity
-        Customer customer = customerMapper.dtoToCustomer(customerDTO);
-
-        if (customerRepository.existsById(customer.getCustomerId())) {
-            customerRepository.save(customer);
-            if (logger.isInfoEnabled()) {
-                logger.info("Customer updated with id: {}", customer.getCustomerId());
-            }
-            return CustomerConstants.UPDATED;
-        } else {
-            if (logger.isErrorEnabled()) {
-                logger.error("Customer not found for update with id: {}", customer.getCustomerId());
-            }
-            return CustomerConstants.NOT_FOUND;
-        }
+        return customerRepository.findById(customerDTO.getCustomerId())
+                .map(existingCustomer -> {
+                    customerMapper.updateCustomerFromDto(customerDTO, existingCustomer);
+                    customerRepository.save(existingCustomer);
+                    if (logger.isInfoEnabled()) {
+                        logger.info("Customer updated successfully with id: {}", customerDTO.getCustomerId());
+                    }
+                    return CustomerConstants.UPDATED;
+                })
+                .orElseGet(() -> {
+                    if (logger.isErrorEnabled()) {
+                        logger.error("Customer not found for update with id: {}", customerDTO.getCustomerId());
+                    }
+                    return CustomerConstants.NOT_FOUND;
+                });
     }
 
     // Soft-delete customer (deactivate)

@@ -147,20 +147,28 @@ public class CustomerController {
         return ResponseEntity.status(HttpStatus.CREATED).body(response);
     }
 
-    // API to update a customer
     @PutMapping("/update-customer/{id}")
     @ApiOperation(value = CustomerConstants.UPDATE_DESC)
     public ResponseEntity<?> updateCustomer(
             @ApiParam(value = "ID of the customer to update", required = true) @PathVariable Long id,
-            @ApiParam(value = "Updated customer object", required = true) @ModelAttribute CustomerDTO customerDTO,
-            @ApiParam(value = "Updated profile picture of the customer") @RequestParam(value = "profilePic", required = false) MultipartFile profilePic) {
+            @ApiParam(value = "Updated customer object", required = true) @RequestBody CustomerDTO customerDTO) {
+
         try {
-            if (customerService.getCustomerById(id) == null) {
-                return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Customer with ID " + id + " not found");
+            CustomerDTO existingCustomer = customerService.getCustomerById(id);
+            if (existingCustomer == null) {
+                return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                        .body("Customer with ID " + id + " not found");
             }
+
             customerDTO.setCustomerId(id);
-            customerService.updateCustomer(customerDTO);
-            return ResponseEntity.ok(CustomerConstants.UPDATED);
+            String response = customerService.updateCustomer(customerDTO);
+
+            if (CustomerConstants.UPDATED.equals(response)) {
+                return ResponseEntity.ok(CustomerConstants.UPDATED);
+            } else {
+                return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                        .body(CustomerConstants.NOT_FOUND);
+            }
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
                     .body("Failed to update customer: " + e.getMessage());
