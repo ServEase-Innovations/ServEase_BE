@@ -38,9 +38,10 @@ jobs:
           source: "app.jar"
           target: "/home/ubuntu/app/app.jar"
           overwrite: true
-          tar_tmp_path: ""
-          tar_exec: ""
           rm: true
+          tar_exec: tar          # required
+          strip_components: 0
+          tar_dereference: false
 
       - name: Restart service
         uses: appleboy/ssh-action@v1.1.0
