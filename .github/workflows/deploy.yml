@@ -19,9 +19,6 @@ jobs:
 
     steps:
 
-      # -----------------------
-      # SELECT BRANCH + PROFILE
-      # -----------------------
       - name: Select Branch & Profile
         id: select
         run: |
@@ -42,41 +39,32 @@ jobs:
             echo "profile=prod" >> $GITHUB_OUTPUT
           fi
 
-      # -----------------------
-      # CHECKOUT THE SELECTED BRANCH
-      # -----------------------
+      - name: Debug Inputs
+        run: |
+          echo "Selected ENV: ${{ github.event.inputs.environment }}"
+          echo "Branch: ${{ steps.select.outputs.branch }}"
+          echo "Profile: ${{ steps.select.outputs.profile }}"
+
       - name: Checkout code
         uses: actions/checkout@v3
         with:
           ref: ${{ steps.select.outputs.branch }}
 
-      # -----------------------
-      # SETUP JAVA
-      # -----------------------
       - name: Set up JDK 17
         uses: actions/setup-java@v3
         with:
-          distribution: "temurin"
-          java-version: "17"
+          distribution: 'temurin'
+          java-version: '17'
 
-      # -----------------------
-      # BUILD JAR WITH PROFILE
-      # -----------------------
       - name: Build JAR
         run: mvn clean package -Dspring.profiles.active=${{ steps.select.outputs.profile }} -DskipTests
 
-      # -----------------------
-      # PREPARE DEPLOY ARTIFACT
-      # -----------------------
       - name: Prepare deploy JAR
         run: |
           mkdir -p deploy
           cp target/*.jar deploy/app.jar
           ls -ltr deploy
 
-      # -----------------------
-      # COPY JAR USING REAL SCP (NO TAR, WORKS 100%)
-      # -----------------------
       - name: Copy JAR to EC2 using manual SCP
         run: |
           echo "${{ secrets.EC2_KEY }}" > key.pem
@@ -87,9 +75,6 @@ jobs:
             deploy/app.jar \
             ${{ secrets.EC2_USER }}@${{ secrets.EC2_HOST }}:/home/ubuntu/app/app.jar
 
-      # -----------------------
-      # RESTART SERVICE
-      # -----------------------
       - name: Restart Service
         uses: appleboy/ssh-action@v1.1.0
         with:
@@ -99,31 +84,23 @@ jobs:
           script: |
             echo "Stopping service..."
             sudo systemctl stop servease || true
-
             echo "Starting service..."
             sudo systemctl start servease
-
-            echo "Service status:"
+            echo "Status:"
             sudo systemctl status servease --no-pager
 
-      # -----------------------
-      # DEBUG: CHECK WHICH PROFILE SPRING IS USING
-      # -----------------------
-      - name: Debug - Print Active Spring Profile
+      - name: Debug Active Spring Profile
         uses: appleboy/ssh-action@v1.1.0
         with:
           host: ${{ secrets.EC2_HOST }}
           username: ${{ secrets.EC2_USER }}
           key: ${{ secrets.EC2_KEY }}
           script: |
-            echo ">>>> Checking systemd profile:"
+            echo ">>> systemd profile:"
             grep SPRING_PROFILES_ACTIVE /etc/systemd/system/servease.service || true
 
-            echo ">>>> Checking /etc/environment:"
+            echo ">>> /etc/environment:"
             grep SPRING_PROFILES_ACTIVE /etc/environment || true
 
-            echo ">>>> Tail logs for profile info:"
-            sudo journalctl -u servease -n 50 | grep "profile" || true
-
-            echo ">>>> Full logs:"
-            sudo journalctl -u servease -n 20 --no-pager
+            echo ">>> Logs showing profile:"
+            sudo journalctl -u servease -n 50 | grep profile || true
