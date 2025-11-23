@@ -50,7 +50,7 @@ jobs:
           java-version: '17'
 
       - name: Build JAR
-        run: mvn clean package -Dspring.profiles.active=${{ steps.select.outputs.profile }} -DskipTests
+        run: mvn clean package -DskipTests
 
       - name: Prepare deploy JAR
         run: |
@@ -71,6 +71,17 @@ jobs:
           rm: false
           debug: true
 
+      - name: Update Systemd Profile on EC2
+        uses: appleboy/ssh-action@v1.1.0
+        with:
+          host: ${{ secrets.EC2_HOST }}
+          username: ${{ secrets.EC2_USER }}
+          key: ${{ secrets.EC2_KEY }}
+          script: |
+            echo "Setting profile to: ${{ steps.select.outputs.profile }}"
+            sudo sed -i 's/^Environment=.*/Environment="SPRING_PROFILES_ACTIVE=${{ steps.select.outputs.profile }}"/' /etc/systemd/system/servease.service
+            sudo systemctl daemon-reload
+
       - name: Restart Service
         uses: appleboy/ssh-action@v1.1.0
         with:
@@ -83,4 +94,4 @@ jobs:
             echo "Starting service..."
             sudo systemctl start servease
             echo "Status:"
-            sudo systemctl status servease --no-pager
+            sudo sys
