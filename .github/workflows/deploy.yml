@@ -18,6 +18,9 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
+      # =============================
+      # 1. SELECT BRANCH + PROFILE
+      # =============================
       - name: Select Branch & Profile
         id: select
         run: |
@@ -38,50 +41,71 @@ jobs:
             echo "profile=prod" >> $GITHUB_OUTPUT
           fi
 
+      # =============================
+      # 2. CHECKOUT CORRECT BRANCH
+      # =============================
       - name: Checkout code
         uses: actions/checkout@v3
         with:
           ref: ${{ steps.select.outputs.branch }}
 
+      # =============================
+      # 3. SETUP JAVA
+      # =============================
       - name: Set up JDK 17
         uses: actions/setup-java@v3
         with:
           distribution: 'temurin'
           java-version: '17'
 
+      # =============================
+      # 4. BUILD JAR WITH PROFILE
+      # =============================
       - name: Build JAR
-        run: mvn clean package -DskipTests
+        run: mvn clean package -Dspring.profiles.active=${{ steps.select.outputs.profile }} -DskipTests
 
+      # =============================
+      # 5. PREPARE DEPLOY FOLDER
+      # =============================
       - name: Prepare deploy JAR
         run: |
           mkdir -p deploy
           cp target/*.jar deploy/app.jar
           ls -ltr deploy
 
-      - name: Copy JAR to EC2 (NO TAR)
+      # =============================
+      # 6. UPLOAD JAR TO EC2
+      # =============================
+      - name: Copy JAR to EC2
         uses: appleboy/scp-action@v0.1.7
         with:
           host: ${{ secrets.EC2_HOST }}
           username: ${{ secrets.EC2_USER }}
           key: ${{ secrets.EC2_KEY }}
-          source: "deploy/*"
-          target: "/home/ubuntu/app/"
+          source: "deploy/app.jar"
+          target: "/home/ubuntu/app/app.jar"
           overwrite: true
-          strip_components: 0
-          rm: false
           debug: true
 
-      - name: Update Systemd Profile on EC2
+      # =============================
+      # 7. UPDATE SYSTEMD PROFILE
+      # =============================
+      - name: Update systemd service with correct profile
         uses: appleboy/ssh-action@v1.1.0
         with:
           host: ${{ secrets.EC2_HOST }}
           username: ${{ secrets.EC2_USER }}
           key: ${{ secrets.EC2_KEY }}
           script: |
-            echo "Setting profile to: ${{ steps.select.outputs.profile }}"
-            sudo sed -i 's/^Environment=.*/Environment="SPRING_PROFILES_ACTIVE=${{ steps.select.outputs.profile }}"/' /etc/systemd/system/servease.service
+            echo "Updating systemd service profile to ${{ steps.select.outputs.profile }}"
+
+            sudo sed -i "s|^Environment=.*|Environment=\"SPRING_PROFILES_ACTIVE=${{ steps.select.outputs.profile }}\"|" /etc/systemd/system/servease.service
+
             sudo systemctl daemon-reload
 
+      # =============================
+      # 8. RESTART SERVICE
+      # =============================
       - name: Restart Service
         uses: appleboy/ssh-action@v1.1.0
         with:
@@ -91,7 +115,12 @@ jobs:
           script: |
             echo "Stopping service..."
             sudo systemctl stop servease || true
-            echo "Starting service..."
+
+            echo "Starting service with active profile..."
             sudo systemctl start servease
+
             echo "Status:"
-            sudo sys
+            sudo systemctl status servease --no-pager
+
+            echo "Recent logs for verification:"
+            sudo journalctl -u servease -n 20 --no-pager
