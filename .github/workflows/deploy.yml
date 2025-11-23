@@ -4,9 +4,8 @@ on:
   workflow_dispatch:
     inputs:
       environment:
-        description: "Select Deployment Environment"
+        description: "Select Environment"
         required: true
-        default: "dev"
         type: choice
         options:
           - dev
@@ -19,8 +18,8 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Determine Branch for Environment
-        id: branch_map
+      - name: Select Branch & Profile
+        id: select
         run: |
           if [ "${{ github.event.inputs.environment }}" = "dev" ]; then
             echo "branch=main" >> $GITHUB_OUTPUT
@@ -36,10 +35,10 @@ jobs:
             echo "profile=prod" >> $GITHUB_OUTPUT
           fi
 
-      - name: Checkout Selected Branch
+      - name: Checkout code
         uses: actions/checkout@v3
         with:
-          ref: ${{ steps.branch_map.outputs.branch }}
+          ref: ${{ steps.select.outputs.branch }}
 
       - name: Set up JDK 17
         uses: actions/setup-java@v3
@@ -47,20 +46,16 @@ jobs:
           distribution: 'temurin'
           java-version: '17'
 
-      - name: Build JAR with Spring Profile
-        run: |
-          echo "Environment: ${{ github.event.inputs.environment }}"
-          echo "Branch: ${{ steps.branch_map.outputs.branch }}"
-          echo "Spring Profile: ${{ steps.branch_map.outputs.profile }}"
-          mvn clean package -DskipTests -Dspring.profiles.active=${{ steps.branch_map.outputs.profile }}
+      - name: Build JAR
+        run: mvn clean package -Dspring.profiles.active=${{ steps.select.outputs.profile }} -DskipTests
 
-      - name: Rename JAR to app.jar
+      - name: Prepare deploy JAR
         run: |
           mkdir -p deploy
           cp target/*.jar deploy/app.jar
           ls -ltr deploy
 
-      - name: Copy JAR to EC2
+      - name: Upload JAR to EC2 (NO TAR)
         uses: appleboy/scp-action@v0.1.7
         with:
           host: ${{ secrets.EC2_HOST }}
@@ -69,6 +64,9 @@ jobs:
           source: "deploy/app.jar"
           target: "/home/ubuntu/app/app.jar"
           overwrite: true
+          strip_components: 0
+          tar: false     # ← THIS FIXES EVERYTHING
+          rm: false
           debug: true
 
       - name: Restart Service
@@ -80,9 +78,7 @@ jobs:
           script: |
             echo "Stopping service..."
             sudo systemctl stop servease || true
-
             echo "Starting service..."
             sudo systemctl start servease
-
-            echo "Checking status..."
+            echo "Status:"
             sudo systemctl status servease --no-pager
