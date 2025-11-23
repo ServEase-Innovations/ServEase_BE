@@ -9,40 +9,45 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - uses: actions/checkout@v3
+      # STEP 1: CHECKOUT CODE
+      - name: Checkout
+        uses: actions/checkout@v3
 
-      - uses: actions/setup-java@v3
+      # STEP 2: SETUP JAVA
+      - name: Set up JDK 17
+        uses: actions/setup-java@v3
         with:
-          distribution: temurin
-          java-version: 17
+          distribution: 'temurin'
+          java-version: '17'
 
+      # STEP 3: BUILD JAR
       - name: Build JAR
-        run: |
-          mvn clean package -DskipTests
-          mv target/*.jar app.jar
+        run: mvn clean package -DskipTests
 
-      - name: Test SSH
+      # Rename the built jar -> app.jar
+      - name: Rename jar
+        run: mv target/*.jar app.jar
+
+      # STEP 4: TEST SSH CONNECTION
+      - name: Test SSH Connection
         uses: appleboy/ssh-action@v1.1.0
         with:
           host: ${{ secrets.EC2_HOST }}
           username: ${{ secrets.EC2_USER }}
           key: ${{ secrets.EC2_KEY }}
-          script: echo "SSH OK"
+          script: echo "SSH connection OK!"
 
-      - name: Upload JAR (no tar)
-        uses: appleboy/scp-action@v0.1.7
+      # STEP 5: UPLOAD JAR USING NATIVE SCP (NO TAR)
+      - name: Upload JAR (raw SCP)
+        uses: appleboy/ssh-action@v1.1.0
         with:
           host: ${{ secrets.EC2_HOST }}
           username: ${{ secrets.EC2_USER }}
           key: ${{ secrets.EC2_KEY }}
-          source: "app.jar"
-          target: "/home/ubuntu/app/app.jar"
-          overwrite: true
-          rm: true
-          tar_exec: tar          # required
-          strip_components: 0
-          tar_dereference: false
+          scp: |
+            app.jar:/home/ubuntu/app/app.jar
 
+      # STEP 6: RESTART SERVICE
       - name: Restart service
         uses: appleboy/ssh-action@v1.1.0
         with:
@@ -50,6 +55,18 @@ jobs:
           username: ${{ secrets.EC2_USER }}
           key: ${{ secrets.EC2_KEY }}
           script: |
+            echo "Restarting service..."
             sudo systemctl stop servease || true
             sudo systemctl start servease
             sudo systemctl status servease --no-pager -l
+
+      # STEP 7: SHOW LATEST LOGS
+      - name: Show logs
+        uses: appleboy/ssh-action@v1.1.0
+        with:
+          host: ${{ secrets.EC2_HOST }}
+          username: ${{ secrets.EC2_USER }}
+          key: ${{ secrets.EC2_KEY }}
+          script: |
+            echo "---- Last 50 logs ----"
+            sudo journalctl -u servease -n 50 --no-pager
