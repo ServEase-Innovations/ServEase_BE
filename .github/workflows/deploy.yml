@@ -24,12 +24,15 @@ jobs:
           if [ "${{ github.event.inputs.environment }}" = "dev" ]; then
             echo "branch=main" >> $GITHUB_OUTPUT
             echo "profile=dev" >> $GITHUB_OUTPUT
+
           elif [ "${{ github.event.inputs.environment }}" = "qa" ]; then
             echo "branch=qa" >> $GITHUB_OUTPUT
             echo "profile=qa" >> $GITHUB_OUTPUT
+
           elif [ "${{ github.event.inputs.environment }}" = "uat" ]; then
             echo "branch=uat" >> $GITHUB_OUTPUT
             echo "profile=uat" >> $GITHUB_OUTPUT
+
           elif [ "${{ github.event.inputs.environment }}" = "prod" ]; then
             echo "branch=master" >> $GITHUB_OUTPUT
             echo "profile=prod" >> $GITHUB_OUTPUT
@@ -55,17 +58,16 @@ jobs:
           cp target/*.jar deploy/app.jar
           ls -ltr deploy
 
-      - name: Upload JAR to EC2 (NO TAR)
+      - name: Copy JAR to EC2 (NO TAR)
         uses: appleboy/scp-action@v0.1.7
         with:
           host: ${{ secrets.EC2_HOST }}
           username: ${{ secrets.EC2_USER }}
           key: ${{ secrets.EC2_KEY }}
-          source: "deploy/app.jar"
-          target: "/home/ubuntu/app/app.jar"
+          source: "deploy/*"
+          target: "/home/ubuntu/app/"
           overwrite: true
           strip_components: 0
-          tar: false     # ← THIS FIXES EVERYTHING
           rm: false
           debug: true
 
