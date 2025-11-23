@@ -23,11 +23,11 @@ jobs:
 
       - name: Rename JAR to app.jar
         run: |
-          mkdir deploy
+          mkdir -p deploy
           cp target/*.jar deploy/app.jar
           ls -ltr deploy
 
-      - name: Copy JAR to EC2
+      - name: Copy JAR to EC2 (NO TAR)
         uses: appleboy/scp-action@v0.1.7
         with:
           host: ${{ secrets.EC2_HOST }}
@@ -36,6 +36,11 @@ jobs:
           source: "deploy/app.jar"
           target: "/home/ubuntu/app/app.jar"
           overwrite: true
+          strip_components: 0
+          rm: false
+          tar_tmp_path: ""
+          tar_exec: ""
+          debug: true
 
       - name: Restart service
         uses: appleboy/ssh-action@v1.1.0
@@ -44,6 +49,11 @@ jobs:
           username: ${{ secrets.EC2_USER }}
           key: ${{ secrets.EC2_KEY }}
           script: |
+            echo "Stopping service..."
             sudo systemctl stop servease || true
+
+            echo "Starting service..."
             sudo systemctl start servease
+
+            echo "Checking status..."
             sudo systemctl status servease --no-pager
