@@ -18,9 +18,10 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      # =============================
-      # 1. SELECT BRANCH + PROFILE
-      # =============================
+
+      # -----------------------
+      # SELECT BRANCH + PROFILE
+      # -----------------------
       - name: Select Branch & Profile
         id: select
         run: |
@@ -41,71 +42,54 @@ jobs:
             echo "profile=prod" >> $GITHUB_OUTPUT
           fi
 
-      # =============================
-      # 2. CHECKOUT CORRECT BRANCH
-      # =============================
+      # -----------------------
+      # CHECKOUT THE SELECTED BRANCH
+      # -----------------------
       - name: Checkout code
         uses: actions/checkout@v3
         with:
           ref: ${{ steps.select.outputs.branch }}
 
-      # =============================
-      # 3. SETUP JAVA
-      # =============================
+      # -----------------------
+      # SETUP JAVA
+      # -----------------------
       - name: Set up JDK 17
         uses: actions/setup-java@v3
         with:
-          distribution: 'temurin'
-          java-version: '17'
+          distribution: "temurin"
+          java-version: "17"
 
-      # =============================
-      # 4. BUILD JAR WITH PROFILE
-      # =============================
+      # -----------------------
+      # BUILD JAR WITH PROFILE
+      # -----------------------
       - name: Build JAR
         run: mvn clean package -Dspring.profiles.active=${{ steps.select.outputs.profile }} -DskipTests
 
-      # =============================
-      # 5. PREPARE DEPLOY FOLDER
-      # =============================
+      # -----------------------
+      # PREPARE DEPLOY ARTIFACT
+      # -----------------------
       - name: Prepare deploy JAR
         run: |
           mkdir -p deploy
           cp target/*.jar deploy/app.jar
           ls -ltr deploy
 
-      # =============================
-      # 6. UPLOAD JAR TO EC2
-      # =============================
-      - name: Copy JAR to EC2
-        uses: appleboy/scp-action@v0.1.7
-        with:
-          host: ${{ secrets.EC2_HOST }}
-          username: ${{ secrets.EC2_USER }}
-          key: ${{ secrets.EC2_KEY }}
-          source: "deploy/app.jar"
-          target: "/home/ubuntu/app/app.jar"
-          overwrite: true
-          debug: true
+      # -----------------------
+      # COPY JAR USING REAL SCP (NO TAR, WORKS 100%)
+      # -----------------------
+      - name: Copy JAR to EC2 using manual SCP
+        run: |
+          echo "${{ secrets.EC2_KEY }}" > key.pem
+          chmod 600 key.pem
 
-      # =============================
-      # 7. UPDATE SYSTEMD PROFILE
-      # =============================
-      - name: Update systemd service with correct profile
-        uses: appleboy/ssh-action@v1.1.0
-        with:
-          host: ${{ secrets.EC2_HOST }}
-          username: ${{ secrets.EC2_USER }}
-          key: ${{ secrets.EC2_KEY }}
-          script: |
-            echo "Updating systemd service profile to ${{ steps.select.outputs.profile }}"
+          scp -o StrictHostKeyChecking=no \
+            -i key.pem \
+            deploy/app.jar \
+            ${{ secrets.EC2_USER }}@${{ secrets.EC2_HOST }}:/home/ubuntu/app/app.jar
 
-            sudo sed -i "s|^Environment=.*|Environment=\"SPRING_PROFILES_ACTIVE=${{ steps.select.outputs.profile }}\"|" /etc/systemd/system/servease.service
-
-            sudo systemctl daemon-reload
-
-      # =============================
-      # 8. RESTART SERVICE
-      # =============================
+      # -----------------------
+      # RESTART SERVICE
+      # -----------------------
       - name: Restart Service
         uses: appleboy/ssh-action@v1.1.0
         with:
@@ -116,11 +100,30 @@ jobs:
             echo "Stopping service..."
             sudo systemctl stop servease || true
 
-            echo "Starting service with active profile..."
+            echo "Starting service..."
             sudo systemctl start servease
 
-            echo "Status:"
+            echo "Service status:"
             sudo systemctl status servease --no-pager
 
-            echo "Recent logs for verification:"
+      # -----------------------
+      # DEBUG: CHECK WHICH PROFILE SPRING IS USING
+      # -----------------------
+      - name: Debug - Print Active Spring Profile
+        uses: appleboy/ssh-action@v1.1.0
+        with:
+          host: ${{ secrets.EC2_HOST }}
+          username: ${{ secrets.EC2_USER }}
+          key: ${{ secrets.EC2_KEY }}
+          script: |
+            echo ">>>> Checking systemd profile:"
+            grep SPRING_PROFILES_ACTIVE /etc/systemd/system/servease.service || true
+
+            echo ">>>> Checking /etc/environment:"
+            grep SPRING_PROFILES_ACTIVE /etc/environment || true
+
+            echo ">>>> Tail logs for profile info:"
+            sudo journalctl -u servease -n 50 | grep "profile" || true
+
+            echo ">>>> Full logs:"
             sudo journalctl -u servease -n 20 --no-pager
