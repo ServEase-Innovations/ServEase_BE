@@ -9,32 +9,32 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
+      # Checkout
       - name: Checkout code
         uses: actions/checkout@v3
 
+      # Java setup
       - name: Set up JDK 17
         uses: actions/setup-java@v3
         with:
           distribution: 'temurin'
           java-version: '17'
 
+      # Build JAR
       - name: Build JAR
         run: mvn clean package -DskipTests
 
-      - name: DEBUG EC2 KEY
-        run: |
-          echo "-----BEGIN-----"
-          echo "${{ secrets.EC2_KEY }}"
-          echo "------END------"
-
+      # Test SSH login first
       - name: Test SSH Connection
         uses: appleboy/ssh-action@v1.1.0
         with:
           host: ${{ secrets.EC2_HOST }}
           username: ${{ secrets.EC2_USER }}
           key: ${{ secrets.EC2_KEY }}
-          script: echo "SSH WORKS"
+          script: |
+            echo "SSH connection successful"
 
+      # Upload JAR and rename to app.jar
       - name: Copy JAR to EC2
         uses: appleboy/scp-action@v0.1.7
         with:
@@ -42,9 +42,10 @@ jobs:
           username: ${{ secrets.EC2_USER }}
           key: ${{ secrets.EC2_KEY }}
           source: "target/*.jar"
-          target: "/home/ubuntu/app/"
+          target: "/home/ubuntu/app/app.jar"
           overwrite: true
 
+      # Restart service and show logs
       - name: Restart service
         uses: appleboy/ssh-action@v1.1.0
         with:
@@ -52,6 +53,10 @@ jobs:
           username: ${{ secrets.EC2_USER }}
           key: ${{ secrets.EC2_KEY }}
           script: |
+            echo "Restarting service..."
+            sudo systemctl daemon-reload
             sudo systemctl stop servease || true
             sudo systemctl start servease
-            sudo systemctl status servease --no-pager
+            sudo systemctl status servease --no-pager -l
+            echo "====== LAST 100 LOGS ======"
+            sudo journalctl -u servease -n 100 --no-pager
